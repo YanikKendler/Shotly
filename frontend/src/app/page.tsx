@@ -85,11 +85,20 @@ export default function Landing() {
                     <div className="center">
                         <Wordmark/>
                         <p className={"tagline"}>Shotlist creation made easy!</p>
-                        <AuthSwitcher
-                            authenticated={<Link href={"/dashboard"}>To your Dashboard</Link>}
-                            unauthenticated={<button onClick={() => Auth.login()}>Get started for free</button>}
-                        />
-
+                        <div className="arrowContainer">
+                            <AuthSwitcher
+                                authenticated={<Link href={"/dashboard"}>To your Dashboard</Link>}
+                                unauthenticated={<button onClick={() => Auth.login()}>Get started for free</button>}
+                            />
+                            <Image
+                                className={"arrow"}
+                                src={"/home-doodles/arrow.svg"}
+                                width={80}
+                                height={97}
+                                alt={"<--"}
+                                fetchPriority={"low"}
+                            />
+                        </div>
                         <div className="beta">Beta</div>
                     </div>
                     <Image className={""} id={"clapboard"} src={"/home-doodles/doodle-0.svg"} alt={"doodle"} width={128} height={118} fetchPriority={"low"}/>
