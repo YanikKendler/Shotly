@@ -84,20 +84,31 @@ export default function Landing() {
                 <div className="content">
                     <div className="center">
                         <Wordmark/>
-                        <p className={"tagline"}>
-                            Easily create shotlists with flexible columns, drag-and-drop shots, an intuitive layout, and a simple sidebar for managing scenes.
-                        </p>
-                        <AuthSwitcher
-                            authenticated={<Link href={"/dashboard"}>To your Dashboard</Link>}
-                            unauthenticated={<button onClick={() => Auth.login()}>Get started for free</button>}
-                        />
-
+                        <p className={"tagline"}>Shotlist creation made easy!</p>
+                        <div className="arrowContainer">
+                            <AuthSwitcher
+                                authenticated={<Link href={"/dashboard"}>To your Dashboard</Link>}
+                                unauthenticated={<button onClick={() => Auth.login()}>Get started for free</button>}
+                            />
+                            <Image
+                                className={"arrow"}
+                                src={"/home-doodles/arrow.svg"}
+                                width={80}
+                                height={97}
+                                alt={"<--"}
+                                fetchPriority={"low"}
+                            />
+                        </div>
                         <div className="beta">Beta</div>
                     </div>
-                    <Image className={""} id={"clapboard"} src={"/home-doodles/doodle-0.svg"} alt={"doodle"} width={128} height={118} fetchPriority={"low"}/>
-                    <Image className={"first"} id={"brush"} src={"/home-doodles/doodle-1.svg"} alt={"doodle"} width={97} height={85} fetchPriority={"low"}/>
-                    <Image className={""} id={"shotlist"} src={"/home-doodles/doodle-2.svg"} alt={"doodle"} width={179} height={111} fetchPriority={"low"}/>
-                    <Image className={"third"} id={"close-up"} src={"/home-doodles/doodle-3.svg"} alt={"doodle"} width={118} height={52} fetchPriority={"low"}/>
+                    <Image className={""} id={"clapboard"} src={"/home-doodles/doodle-0.svg"} alt={"doodle"} width={128}
+                           height={118} fetchPriority={"low"}/>
+                    <Image className={"first"} id={"brush"} src={"/home-doodles/doodle-1.svg"} alt={"doodle"} width={97}
+                           height={85} fetchPriority={"low"}/>
+                    <Image className={""} id={"shotlist"} src={"/home-doodles/doodle-2.svg"} alt={"doodle"} width={179}
+                           height={111} fetchPriority={"low"}/>
+                    <Image className={"third"} id={"close-up"} src={"/home-doodles/doodle-3.svg"} alt={"doodle"}
+                           width={118} height={52} fetchPriority={"low"}/>
                     <Image className={"second"} id={"clipboard"} src={"/home-doodles/doodle-4.svg"} alt={"doodle"} width={85} height={113} fetchPriority={"low"}/>
                     <Image className={"third"} id={"medium-shot"} src={"/home-doodles/doodle-5.svg"} alt={"doodle"} width={126} height={37} fetchPriority={"low"}/>
                     <Image className={"second"} id={"thoughts"} src={"/home-doodles/doodle-6.svg"} alt={"doodle"} width={59} height={52} fetchPriority={"low"}/>
@@ -141,13 +152,6 @@ export default function Landing() {
                         </div>
                         <div className="feature">
                             <div className="icon">
-                                <Download size={40}/>
-                            </div>
-                            <h2>Easy Export</h2>
-                            <p>Export to PDF/CSV for print or distribution. Use filters to get only what you need.</p>
-                        </div>
-                        <div className="feature">
-                            <div className="icon">
                                 <FileCode size={40}/>
                             </div>
                             <h2>Open Source</h2>
@@ -173,6 +177,13 @@ export default function Landing() {
                                 </Popover.Portal>
                             </Popover.Root>
                         </div>
+                        <div className="feature">
+                            <div className="icon">
+                                <Download size={40}/>
+                            </div>
+                            <h2>Easy Export</h2>
+                            <p>Export to PDF/CSV for print or distribution. Use filters to get only what you need.</p>
+                        </div>
                     </div>
                 </section>
                 <section className="pricing" id={"pricing"}>
@@ -181,7 +192,7 @@ export default function Landing() {
                             <div className="top">
                                 <p className="name">Basic</p>
                                 <div className="price">
-                                <p className={"cost"}>Free forever</p>
+                                    <p className={"cost"}>Free forever</p>
                                     <Popover.Root>
                                         <Popover.Trigger className={"noPadding info"}>
                                             <Info size={20}/>

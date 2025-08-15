@@ -182,6 +182,16 @@ main.landing{
         font-weight: 600;
         color: var(--accent);
       }
+
+      .arrowContainer{
+        position: relative;
+
+        .arrow{
+          position: absolute;
+          bottom: 1rem;
+          left: calc(100% + 1rem)
+        }
+      }
     }
 
     img{
