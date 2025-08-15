@@ -35,6 +35,7 @@ const ShotTable = forwardRef((
     const [shots, setShots] = useState<{data: any[], loading: boolean, error: any}>({data: [], loading: true, error: null})
     const [focusAttributeAt, setFocusAttributeAt] = useState<number>(-1)
     const isSyncingScroll = useRef(false);
+    const lastShotRef = useRef<React.ComponentRef<typeof Shot>>(null);
 
     const client = useApolloClient()
 
@@ -61,15 +62,27 @@ const ShotTable = forwardRef((
         })
     )
 
+    //everytime the shots change
     useEffect(() => {
         if(focusAttributeAt < 0) return
 
-        if(shotTableElement.current && shotTableElement.current instanceof HTMLElement) {
+        /**
+         * we need to focus the newly created cell in the same column as the one that was clicked in the "create new" row
+         * because that cell does not exist yet, we set the "focusAttributeAt", then add the shot, causing a re-render
+         * then query the now existing row and then set focus at the focusAttributeAt position
+         */
+        /*if(shotTableElement.current && shotTableElement.current instanceof HTMLElement) {
             let allShots = shotTableElement.current.querySelectorAll(".shot:not(.new)").values().toArray()
             let newShotElement = allShots.at(-1) as HTMLElement
             let attributeElement = newShotElement?.querySelectorAll(".shotAttribute").values().toArray().at(focusAttributeAt) as HTMLElement
-            attributeElement.querySelector("input")?.focus()
-            attributeElement.querySelector("p")?.focus()
+            attributeElement.click()
+ /!*           attributeElement.querySelector("input")?.focus()
+            attributeElement.querySelector("input")?.click()
+            attributeElement.querySelector("p")?.focus() //for text inputs*!/
+        }*/
+
+        if(lastShotRef.current){
+            lastShotRef.current.setFocusToAttributeAt(focusAttributeAt)
         }
 
         setFocusAttributeAt(-1)
@@ -241,7 +254,15 @@ const ShotTable = forwardRef((
                             strategy={verticalListSortingStrategy}
                         >
                             {shots.data.map((shot: any, index) => (
-                                <Shot shot={shot} key={shot.id} position={index} onDelete={removeShot} moveShot={moveShot} readOnly={readOnly}/>
+                                <Shot
+                                    shot={shot}
+                                    key={shot.id}
+                                    position={index}
+                                    onDelete={removeShot}
+                                    moveShot={moveShot}
+                                    readOnly={readOnly}
+                                    ref={shots.data.length -1 == index ? lastShotRef : null}
+                                />
                             ))}
                         </SortableContext>
                     </DndContext>
@@ -257,7 +278,8 @@ const ShotTable = forwardRef((
                                     <div
                                         className={`shotAttribute create ${index == shotAttributeDefinitions.length - 1 ? "last" : ""}`}
                                         key={shotAttributeDefinition.id}
-                                        onClick={() => createShot(index)}>
+                                        onClick={() => createShot(index)}
+                                    >
                                         <p>{shotAttributeDefinition.name || "Unnamed"}</p>
                                         <div className="icon">
                                             <Icon size={18}/>

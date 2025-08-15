@@ -145,9 +145,12 @@ main.landing{
 
       p.tagline{
         font-size: min(4vw, 1.1rem);
-        color: var(--accent-20);
+        color: var(--accent-15);
         font-weight: 500;
-        margin-top: .3rem;
+        margin-top: 1rem;
+        max-width: 40ch;
+        text-align: center;
+        line-height: 135%;
       }
 
       button, a{
@@ -460,10 +463,10 @@ main.landing{
           }
 
           &.gray{
-            color: var(--text-50);
+            color: var(--text-40);
 
             svg{
-              color: var(--text-70);
+              color: var(--text-60);
             }
           }
         }

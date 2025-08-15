@@ -1,5 +1,6 @@
 :root {
   --accent-10: hsl(18, 95%, 10%);
+  --accent-15: hsl(18, 95%, 15%);
   --accent-20: hsl(18, 95%, 20%);
   --accent-30: hsl(18, 95%, 30%);
   --accent-40: hsl(18, 100%, 40%);
@@ -72,6 +73,7 @@
 
 [data-theme="dark"] {
   --accent-10: hsl(18, 85%, 95%);
+  --accent-15: hsl(18, 85%, 90%);
   --accent-20: hsl(18, 85%, 85%);
   --accent-30: hsl(18, 85%, 75%);
   --accent-40: hsl(18, 90%, 65%);

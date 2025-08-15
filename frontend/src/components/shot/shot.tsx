@@ -1,7 +1,7 @@
 'use client'
 
 import {ShotDto} from "../../../lib/graphql/generated"
-import ShotAttribute from "@/components/shotAttribute/shotAttribute"
+import ShotAttribute, {ShotAttributeRef} from "@/components/shotAttribute/shotAttribute"
 import {AnyShotAttribute} from "@/util/Types"
 import {wuText} from "@yanikkendler/web-utils/dist"
 import './shot.scss'
@@ -18,18 +18,49 @@ import {
 import {useSortable} from "@dnd-kit/sortable"
 import {CSS} from '@dnd-kit/utilities';
 import {Popover, Separator, Tooltip} from "radix-ui"
-import React, {useContext, useState} from "react"
+import React, {
+    createRef,
+    forwardRef,
+    RefObject,
+    useContext,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+    useState
+} from "react"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import Utils from "@/util/Utils"
 
-export default function Shot(
-    {shot, position, onDelete, moveShot, readOnly}:
-    {shot: ShotDto, position: number, onDelete: (shotId: string) => void, moveShot: (shotId: string, from: number, to: number) => void, readOnly: boolean}
-) {
+interface ShotProps {
+    shot: ShotDto
+    position: number
+    onDelete: (shotId: string) => void
+    moveShot: (shotId: string, from: number, to: number) => void
+    readOnly: boolean
+}
+
+interface ShotRef {
+    setFocusToAttributeAt: (index: number) => void;
+}
+
+export default forwardRef<ShotRef, ShotProps>(
+    function Shot(
+        {
+            shot,
+            position,
+            onDelete,
+            moveShot,
+            readOnly,
+        },
+        ref
+    )
+{
     const [isBeingEdited, setIsBeingEdited] = useState(false)
     const [tooltipVisible, setTooltipVisible] = useState(false)
+
+    const shotAttributeRefs = useRef(new Map());
 
     // @ts-ignore
     const {attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition} = useSortable({id: shot.id});
@@ -42,6 +73,14 @@ export default function Shot(
     const client = useApolloClient()
 
     const shotlistContext = useContext(ShotlistContext)
+
+    useImperativeHandle(ref, () => ({
+        setFocusToAttributeAt
+    }))
+
+    function setFocusToAttributeAt(index: number){
+        shotAttributeRefs.current.get(index-1)?.setFocus()
+    }
 
     async function deleteShot(){
         const { errors } = await client.mutate({
@@ -120,8 +159,15 @@ export default function Shot(
                     attribute={attr}
                     key={attr.id}
                     readOnly={readOnly}
+                    ref={(node) => {
+                        shotAttributeRefs.current.set(index, node);
+
+                        return () => {
+                            shotAttributeRefs.current.delete(attr);
+                        };
+                    }}
                 ></ShotAttribute>
             ))}
         </div>
     );
-}
+})

@@ -2,8 +2,9 @@
 
 import {AnyShotAttribute, ShotAttributeValueCollection, SelectOption} from "@/util/Types"
 import React, {
+    forwardRef,
     useContext,
-    useEffect,
+    useEffect, useImperativeHandle,
     useMemo,
     useRef,
     useState
@@ -16,15 +17,33 @@ import {wuConstants, wuGeneral, wuText} from "@yanikkendler/web-utils/dist"
 import ShotService from "@/service/ShotService"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import {ChevronDown, List, Type} from "lucide-react"
-import AttributeValueSelect, {selectShotStyles} from "@/components/attributeValueSelect/attributeValueSelect"
+import AttributeValueSelect, {
+    AttributeValueSelectRef,
+    selectShotStyles
+} from "@/components/attributeValueSelect/attributeValueSelect"
 import {SceneAttributeParser, ShotAttributeParser} from "@/util/AttributeParser"
+import {ShotDto} from "../../../lib/graphql/generated"
 
-const ShotAttribute = React.memo(function ShotAttribute({attribute, className, readOnly}: {attribute: AnyShotAttribute, className?: string, readOnly: boolean}) {
+export interface ShotAttributeProps {
+    attribute: AnyShotAttribute;
+    className?: string;
+    readOnly: boolean;
+}
+
+export interface ShotAttributeRef {
+    setFocus: () => void;
+}
+
+// Wrap your component in forwardRef
+const ShotAttribute = forwardRef<ShotAttributeRef, ShotAttributeProps>(
+({ attribute, className, readOnly }, ref) =>
+{
     const [singleSelectValue, setSingleSelectValue] = useState<SelectOption>();
     const [multiSelectValue, setMultiSelectValue] = useState<SelectOption[]>();
     const [textValue, setTextValue] = useState<string>("");
 
     const textInputRef = useRef<HTMLParagraphElement | null>(null);
+    const selectInputRef = useRef<AttributeValueSelectRef>(null)
 
     const { refreshMap, triggerRefresh } = useSelectRefresh();
 
@@ -65,6 +84,20 @@ const ShotAttribute = React.memo(function ShotAttribute({attribute, className, r
             textInputRef.current.textContent = textValue;
         }
     }, [textValue]);
+
+    useImperativeHandle(ref, () => ({
+        setFocus
+    }))
+
+    function setFocus(){
+        if(attribute.__typename == "ShotTextAttributeDTO"){
+            textInputRef.current?.focus()
+        }
+        else{
+            console.log(selectInputRef.current)
+            selectInputRef.current?.setFocus()
+        }
+    }
 
     const loadOptions = async (inputValue: string) => {
         //TODO optimize this, especially when dragging, some sort of cashing is needed
@@ -192,6 +225,7 @@ const ShotAttribute = React.memo(function ShotAttribute({attribute, className, r
                                 sub: "shot"
                             })}
                             styles={selectShotStyles}
+                            ref={selectInputRef}
                         ></AttributeValueSelect>
                         {!singleSelectValue &&
                             <div className="icon">
@@ -218,6 +252,7 @@ const ShotAttribute = React.memo(function ShotAttribute({attribute, className, r
                                 sub: "shot"
                             })}
                             styles={selectShotStyles}
+                            ref={selectInputRef}
                         ></AttributeValueSelect>
                         {(!multiSelectValue || multiSelectValue?.length == 0) &&
                             <div className="icon">
@@ -262,4 +297,4 @@ const ShotAttribute = React.memo(function ShotAttribute({attribute, className, r
     return <div className={`shotAttribute ${className || ""}`}>{content}</div>
 })
 
-export default ShotAttribute;
+export default React.memo(ShotAttribute);

@@ -3,13 +3,13 @@
 import "./attributeValueSelect.scss"
 import {SelectOption} from "@/util/Types"
 import AsyncCreatableSelect from "react-select/async-creatable"
-import React, {useCallback, useEffect} from "react"
+import React, {forwardRef, useCallback, useEffect, useImperativeHandle, useRef} from "react"
 import {useSelectRefresh} from "@/context/SelectRefreshContext"
 import {
     components,
     GroupBase,
     MenuProps,
-    MultiValueProps,
+    MultiValueProps, SelectInstance,
     StylesConfig,
     ValueContainerProps
 } from "react-select"
@@ -116,21 +116,40 @@ export const selectSceneStyles: StylesConfig<SelectOption, boolean, GroupBase<Se
     }),
 }
 
-export default function AttributeValueSelect(
-    {definitionId, value, onChange, onCreate, loadOptions, placeholder, isMulti, shotOrScene, editAction, styles = reactSelectBaseStyles}:
-    {
-        definitionId: number,
-        value: SelectOption | SelectOption[] | undefined,
-        onChange: (newValue: any) => void,
-        onCreate: (newValue: any) => void,
-        loadOptions: (inputValue: string) => Promise<SelectOption[]>,
-        placeholder: string,
-        isMulti: boolean
-        shotOrScene: "shot" | "scene"
-        editAction: () => void
-        styles?: StylesConfig<SelectOption, boolean, GroupBase<SelectOption>>
-}) {
+interface AttributeValueSelectProps {
+    definitionId: number,
+    value: SelectOption | SelectOption[] | undefined,
+    onChange: (newValue: any) => void,
+    onCreate: (newValue: any) => void,
+    loadOptions: (inputValue: string) => Promise<SelectOption[]>,
+    placeholder: string,
+    isMulti: boolean
+    shotOrScene: "shot" | "scene"
+    editAction: () => void
+    styles?: StylesConfig<SelectOption, boolean, GroupBase<SelectOption>>
+}
+
+export interface AttributeValueSelectRef {
+    setFocus: () => void
+}
+
+export default forwardRef<AttributeValueSelectRef, AttributeValueSelectProps>(
+function AttributeValueSelect(
+    {definitionId, value, onChange, onCreate, loadOptions, placeholder, isMulti, shotOrScene, editAction, styles = reactSelectBaseStyles},
+    ref
+) {
     const { refreshMap } = useSelectRefresh();
+
+    const selectRef = useRef<SelectInstance<any, boolean, any> | null>(null);
+
+    useImperativeHandle(ref, () => ({
+        setFocus
+    }))
+
+    const setFocus = () => {
+        selectRef.current?.focus()
+        selectRef.current?.openMenu()
+    }
 
     const CustomSelectMenu = <
         Option,
@@ -221,9 +240,11 @@ export default function AttributeValueSelect(
             theme={reactSelectTheme}
             styles={styles}
             menuPlacement="auto"
+            ref={selectRef}
 /*
             menuIsOpen={true}
 */
         />
     );
 }
+)
