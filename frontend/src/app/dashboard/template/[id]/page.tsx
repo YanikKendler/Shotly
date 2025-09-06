@@ -58,11 +58,27 @@ export default function Template (){
         useSensor(TouchSensor)
     );
 
+    const driverObj = driver({
+        showProgress: true,
+        allowClose: true,
+        steps: [
+            { popover: { title: 'Templates', description: 'Templates store any number of attributes for scenes and shotlists. A template can be selected when creating a new shotlist.' } },
+            { element: '.attributeTemplates', popover: { title: 'Shot Attributes', description: `Every shotlist that is created based on this template will automatically have a "${template.data.shotAttributes?.at(0)?.name}" column.`, side: "left", align: 'center' }},
+            { element: '.infoTrigger', popover: { title: 'More info', description: 'You can always click here to read up on templates.', side: "bottom", align: 'center' }},
+            { element: 'button.add', popover: { description: 'Click here to add a new shot attribute to this template.', side: "bottom", align: 'center' }},
+        ]
+    })
+
     useEffect(() => {
         if(!id || id.length !== 36)
             setTemplate({data: {} as TemplateDto, loading: false, error: new Error("Invalid template ID")})
         else
             loadTemplate()
+
+        if(localStorage["shotly-template-tour-completed"] != "true") {
+            localStorage["shotly-template-tour-completed"] = "true"
+            driverObj.drive()
+        }
     }, []);
 
     const loadTemplate = async (noCache: boolean = false) => {
