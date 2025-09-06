@@ -3,7 +3,7 @@ import React from "react"
 import {ApolloWrapper} from "@/ApolloWrapper"
 import SelectRefreshProvider from "@/context/SelectRefreshContext"
 
-export const metadata = {
+export const metadata: Metadata = {
     title: "Shotly | Shotlist creation made easy",
     description:
         "A freemium, open source, no-AI, clean and simple shotlist creation tool for filmmakers.",
@@ -67,13 +67,16 @@ export const metadata = {
     authors: [{ name: "Yanik Kendler", url: "https://yanik.kendler.me" }],
     creator: "Yanik Kendler",
     publisher: "Shotly",
-    themeColor: "#F04800",
     icons: {
         icon: "/favicon.ico",
         shortcut: "/favicon.ico",
         apple: "/apple-touch-icon.png"
     }
-};
+}
+
+export const viewport: Viewport = {
+    themeColor: "#F04800"
+}
 
 
 import {Inter} from 'next/font/google'
@@ -83,6 +86,7 @@ import {useNotification} from "@/components/notification/notification"
 import NotificationWrapper from "@/NotificationWrapper"
 import {Config} from "@/util/Utils"
 import Head from "next/head"
+import {Metadata, Viewport} from "next"
 
 const inter = Inter({
     subsets: ['latin']
