@@ -42,7 +42,9 @@ export default function Overview() {
         steps: [
             { popover: { title: 'Welcome to Shotly', description: 'You will now get a quick tour of the Dashboard' } },
             { element: '.sidebar', popover: { title: 'The Sidebar', description: 'Here you see all your shotlists and Templates. You currently dont have any shotlists, but a default Template was automatically created!', side: "right", align: 'center' }},
+/*
             { element: '.sidebar .template', popover: { description: 'You can use it when creating your first shotlist to start with a default attribute for shots and scenes.', side: "right", align: 'center' }},
+*/
             { element: '.gridItem.add.shotlist', popover: { description: 'Click here to create a new Shotlist.', side: "bottom", align: 'center' }},
         ]
     })

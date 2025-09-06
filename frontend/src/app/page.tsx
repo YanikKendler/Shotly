@@ -47,11 +47,21 @@ export default function Landing() {
     }
 
     useEffect(() => {
-        if(!pageRef.current) return;
+        const url = new URL(window.location.href)
 
-        pageRef.current.addEventListener('scroll', scaleImageOnScroll);
-        window.addEventListener('resize', scaleImageOnScroll);
-        scaleImageOnScroll(); // Initial call
+        //reset tour local storage on call
+        if(url.searchParams.get("rtl") == "1"){
+            console.log("resetting localstorage")
+            localStorage["shotly-shotlist-tour-completed"] = "false"
+            localStorage["shotly-dashboard-tour-completed"] = "false"
+            localStorage["shotly-template-tour-completed"] = "false"
+        }
+
+        if(pageRef.current) {
+            pageRef.current.addEventListener('scroll', scaleImageOnScroll);
+            window.addEventListener('resize', scaleImageOnScroll);
+            scaleImageOnScroll(); // Initial call
+        }
     }, []);
 
     return (
