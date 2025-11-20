@@ -99,7 +99,8 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" className={inter.className} suppressHydrationWarning>
-        <head>{/*has to be native "head" not nextJS "Head" or the darkmode query won't be run*/}
+        <head>
+            {/*has to be native "head" not nextJS "Head" or the darkmode query won't be run*/}
             {/*set the theme attribute (dark or light) based on the user preference (dark light or system)*/}
             <script dangerouslySetInnerHTML={{__html: `(() => {
                 let userPreference = localStorage.getItem('shotly-theme') || 'system';
@@ -112,23 +113,23 @@ export default function RootLayout({
             })()`}}/>
         </head>
         <body>
-        <Toast.Provider>
-            <div className="root">
-                {Config.mode === "dev-deployment" && <div className="infoBanner">You are currently viewing a dev deployment</div>}
-                <AuthWrapper data-test={"AuthWrapper"}>
-                    <ApolloWrapper data-test={"ApolloWrapper"}>
-                        <NotificationWrapper data-test={"NotificationWrapper"}>
-                            <Tooltip.Provider data-test={"Tooltip.Provider"}>
-                                <SelectRefreshProvider data-test={"SelectRefreshProvider"}>
-                                    {children}
-                                </SelectRefreshProvider>
-                            </Tooltip.Provider>
-                        </NotificationWrapper>
-                    </ApolloWrapper>
-                </AuthWrapper>
-            </div>
-            <Toast.Viewport className="ToastViewport" />
-        </Toast.Provider>
+            <Toast.Provider>
+                <div className="root">
+                    {Config.mode === "dev-deployment" && <div className="infoBanner">You are currently viewing a dev deployment</div>}
+                    <AuthWrapper data-test={"AuthWrapper"}>
+                        <ApolloWrapper data-test={"ApolloWrapper"}>
+                            <NotificationWrapper data-test={"NotificationWrapper"}>
+                                <Tooltip.Provider data-test={"Tooltip.Provider"}>
+                                    <SelectRefreshProvider data-test={"SelectRefreshProvider"}>
+                                        {children}
+                                    </SelectRefreshProvider>
+                                </Tooltip.Provider>
+                            </NotificationWrapper>
+                        </ApolloWrapper>
+                    </AuthWrapper>
+                </div>
+                <Toast.Viewport className="ToastViewport" />
+            </Toast.Provider>
         </body>
         </html>
     )

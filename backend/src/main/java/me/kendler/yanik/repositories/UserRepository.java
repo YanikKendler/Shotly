@@ -6,6 +6,7 @@ import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.UnauthorizedAccessException;
+import me.kendler.yanik.Util;
 import me.kendler.yanik.auth0.Auth0Service;
 import me.kendler.yanik.dto.user.UserDTO;
 import me.kendler.yanik.dto.user.UserEditDTO;
@@ -45,6 +46,8 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     @Transactional
     @ActivateRequestContext // gpt said to do this because of "RequestScoped context was not active" error
     public User findOrCreateByJWT(JsonWebToken jwt) {
+        long start = System.nanoTime();
+
         String auth0Sub = jwt.getClaim("sub");
         if (auth0Sub == null) {
             LOGGER.errorf("Tried to find user by JWT %s, but JWT does not contain 'sub' claim", jwt.toString());
@@ -62,6 +65,8 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
                 .getResultStream()
                 .findFirst()
                 .orElse(null);
+
+        Util.timer(start, "findOrCreateByJWT");
 
         if (user != null) {
             return user;

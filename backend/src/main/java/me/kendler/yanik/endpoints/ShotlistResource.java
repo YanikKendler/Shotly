@@ -1,6 +1,7 @@
 package me.kendler.yanik.endpoints;
 
 import jakarta.inject.Inject;
+import me.kendler.yanik.Util;
 import me.kendler.yanik.dto.shotlist.ShotlistCreateDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistEditDTO;
@@ -11,12 +12,18 @@ import org.eclipse.microprofile.graphql.GraphQLApi;
 import org.eclipse.microprofile.graphql.Mutation;
 import org.eclipse.microprofile.graphql.Query;
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 @GraphQLApi
 public class ShotlistResource {
+    private static final Logger log = LoggerFactory.getLogger(ShotlistResource.class);
     @Inject
     JsonWebToken jwt;
 
@@ -28,7 +35,10 @@ public class ShotlistResource {
 
     @Query
     public List<ShotlistDTO> getShotlists() {
-        return shotlistRepository.findAllForUser(jwt);
+        long start = System.nanoTime();
+        List<ShotlistDTO> result = shotlistRepository.findAllForUser(jwt);
+        Util.timer(start, "getShotlists");
+        return result;
     }
 
     @Query

@@ -98,7 +98,7 @@ export function useCreateShotlistDialog() {
     if(!currentUser)
         content = <>
             <Dialog.Title className={"title center"}>Create Shotlist</Dialog.Title>
-            <Loader/>
+            <Loader scale={0.75}/>
         </>
     else if(currentUser.tier == "BASIC" && currentUser?.shotlistCount != 0)
         content = <>

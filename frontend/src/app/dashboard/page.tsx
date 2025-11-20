@@ -19,6 +19,7 @@ import auth from "@/Auth"
 import * as Dialog from "@radix-ui/react-dialog"
 import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
+import Loader from "@/components/loader/loader"
 
 export default function Overview() {
     const [query, setQuery] = useState<{ error: any, loading: boolean }>({error: null, loading: true})
@@ -51,6 +52,7 @@ export default function Overview() {
 
     useEffect(() => {
         loadData()
+
         if (justBoughtPro) {
             setJustBoughtProDialogOpen(true)
         }
@@ -62,6 +64,7 @@ export default function Overview() {
     }, []);
 
     const loadData = async () => {
+        console.time("loadData")
         const { data, error, loading } = await client.query({query: gql`
                 query dashboard{
                     shotlists{
@@ -94,6 +97,8 @@ export default function Overview() {
 
         setShotlists(data.shotlists)
         setTemplates(data.templates)
+
+        console.timeEnd("loadData")
     }
 
     function handleJustBoughtProDialogOpenChange(newOpen: boolean) {
@@ -109,7 +114,7 @@ export default function Overview() {
             href: '../dashboard'
         }
     }}/>
-    if(query.loading) return <LoadingPage text={"loading your overview"}/>
+    if(query.loading) return <LoadingPage text={"loading shotlists"} className={"dashboardContent"}/>
 
     return (
         <main className="overview dashboardContent">

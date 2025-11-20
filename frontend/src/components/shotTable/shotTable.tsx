@@ -42,6 +42,7 @@ const ShotTable = forwardRef((
     const shotlistContext = useContext(ShotlistContext)
 
     useEffect(() => {
+        console.log(sceneId)
         if(sceneId != "")
             loadShots()
     }, [sceneId]);
@@ -89,6 +90,7 @@ const ShotTable = forwardRef((
     }, [shots])
 
     const loadShots = async () => {
+        console.log("started loading shots")
         console.time("loadShots-"+sceneId)
         const { data, errors, loading } = await client.query({
             query : gql`
@@ -125,6 +127,7 @@ const ShotTable = forwardRef((
     }
 
     const createShot = async (attributePosition: number) => {
+        console.log("started creating")
         console.time("createShot")
         const { data, errors } = await client.mutate({
             mutation: gql`

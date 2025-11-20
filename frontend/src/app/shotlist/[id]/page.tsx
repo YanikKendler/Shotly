@@ -41,6 +41,7 @@ import Iconmark from "@/components/iconmark"
 import {Metadata} from "next"
 import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
+import {Config} from "@/util/Utils"
 
 export default function Shotlist() {
     const params = useParams<{ id: string }>()
@@ -88,7 +89,7 @@ export default function Shotlist() {
         allowClose: true,
         steps: [
             { popover: { title: 'Your first Shotlist', description: 'This is where the fun beginns!' } },
-            { element: '#sceneList', popover: { title: 'Scenes', description: 'Each scene has a number and a displayname, the latter is simply a combination of all its attributes. Every scene has the same attributes which are defined via the shotlist options.', side: "right", align: 'center' }},
+            { element: '#sceneList', popover: { title: 'Scenes', description: 'Every scene has the same attributes(like location, time, actors etc.) which are defined via the shotlist options.', side: "right", align: 'center' }},
             { element: '#shotTable', popover: { title: 'Shots', description: 'Here you see all the shots of the currently selected scene. Each shot has a few attributes which are defined via the shotlist options.', side: "over", align: 'center' }},
             { element: '#shotlistOptions', popover: { title: 'Shotlist Options', description: 'Click here to open the shotlist options menu.', side: "top", align: 'center' }},
         ]

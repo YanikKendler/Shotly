@@ -5,6 +5,7 @@ import io.vertx.ext.auth.impl.jose.JWT;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import me.kendler.yanik.Util;
 import me.kendler.yanik.dto.shotlist.ShotlistCreateDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistEditDTO;
@@ -17,6 +18,7 @@ import me.kendler.yanik.repositories.scene.SceneRepository;
 import me.kendler.yanik.repositories.template.TemplateRepository;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
@@ -26,6 +28,7 @@ import java.util.UUID;
 @ApplicationScoped
 @Transactional
 public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID> {
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(ShotlistRepository.class);
     @Inject
     UserRepository userRepository;
 
@@ -46,12 +49,19 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
     }
 
     public List<ShotlistDTO> findAllForUser(JsonWebToken jwt) {
-        return userRepository
-                .findOrCreateByJWT(jwt)
+        long start = System.nanoTime();
+
+        User user = userRepository.findOrCreateByJWT(jwt);
+
+        List<ShotlistDTO> dtoList = user
                 .shotlists
                 .stream()
                 .map(Shotlist::toDTO)
                 .toList();
+
+        Util.timer(start, "findAllForUser");
+
+        return dtoList;
     }
 
     public ShotlistDTO create(ShotlistCreateDTO createDTO, JsonWebToken jwt){

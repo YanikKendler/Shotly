@@ -5,6 +5,7 @@ import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import me.kendler.yanik.Util;
 import me.kendler.yanik.dto.shot.ShotDTO;
 import me.kendler.yanik.dto.shot.ShotEditDTO;
 import me.kendler.yanik.model.scene.Scene;
@@ -31,12 +32,16 @@ public class ShotRepository implements PanacheRepositoryBase<Shot, UUID> {
     }
 
     public ShotDTO create(UUID sceneId) {
-        LOGGER.infof("started creating shot");
+        //return new ShotDTO(UUID.randomUUID(), null, null, 0, false, null);
+
+        long start = System.nanoTime();
+
         Scene scene = sceneRepository.findById(sceneId);
         Shot shot = new Shot(scene);
         scene.shotlist.registerEdit();
         persist(shot);
-        LOGGER.infof("finished creating new shot: %s", shot.toString());
+
+        Util.timer(start, "create shot");
         return shot.toDTO();
     }
 

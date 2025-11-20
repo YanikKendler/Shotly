@@ -12,23 +12,26 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     const forceUpdate = () => setVersion(v => v + 1);
 
     useEffect(() => {
-        const runAuth = async () => {
-            if (pathname === '/callback') return;
-
-            try {
-                await auth.silentAuth();
-                console.log("silent auth result", auth.isAuthenticated())
-
-                if(pathname !== "/" && pathname !== "")
-                    forceUpdate()
-            } catch (err: any) {
-                if (err.error === 'login_required') return;
-                console.error('Silent auth error:', err.error);
-            }
-        };
-
         runAuth();
     }, [pathname]);
+
+    const runAuth = async () => {
+        console.time("silent-auth")
+        if (pathname === '/callback') return;
+
+        try {
+            await auth.silentAuth();
+            console.log("silent auth result", auth.isAuthenticated())
+            console.timeEnd("silent-auth")
+
+            if(pathname !== "/" && pathname !== "")
+                forceUpdate()
+        } catch (err: any) {
+            if (err.error === 'login_required') return;
+            console.error('Silent auth error:', err.error);
+        }
+
+    }
 
     return <div className={"AuthWrapper"} key={version}>{children}</div>;
 }
