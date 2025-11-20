@@ -33,7 +33,7 @@ import {useApolloClient} from "@apollo/client"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import Utils from "@/util/Utils"
 
-interface ShotProps {
+export interface ShotProps {
     shot: ShotDto
     position: number
     onDelete: (shotId: string) => void
@@ -41,7 +41,7 @@ interface ShotProps {
     readOnly: boolean
 }
 
-interface ShotRef {
+export interface ShotRef {
     setFocusToAttributeAt: (index: number) => void;
 }
 
@@ -163,8 +163,12 @@ export default forwardRef<ShotRef, ShotProps>(
                         shotAttributeRefs.current.set(index, node);
 
                         return () => {
-                            shotAttributeRefs.current.delete(attr);
+                            shotAttributeRefs.current.delete(index);
                         };
+                    }}
+                    getNeighbourAt={(index:number) => shotAttributeRefs.current.get(index)}
+                    onFocus={() => {
+                        shotlistContext.setFocusedShotAttribute(shotAttributeRefs.current.get(index));
                     }}
                 ></ShotAttribute>
             ))}

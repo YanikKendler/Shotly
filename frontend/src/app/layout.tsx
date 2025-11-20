@@ -2,6 +2,12 @@ import "./globals.scss"
 import React from "react"
 import {ApolloWrapper} from "@/ApolloWrapper"
 import SelectRefreshProvider from "@/context/SelectRefreshContext"
+import {Inter} from 'next/font/google'
+import {Toast, Tooltip} from "radix-ui"
+import AuthWrapper from "@/AuthWrapper"
+import NotificationWrapper from "@/NotificationWrapper"
+import {Config} from "@/util/Utils"
+import {Metadata, Viewport} from "next"
 
 export const metadata: Metadata = {
     title: "Shotly | Shotlist creation made easy",
@@ -78,16 +84,6 @@ export const viewport: Viewport = {
     themeColor: "#F04800"
 }
 
-
-import {Inter} from 'next/font/google'
-import {Toast, Tooltip} from "radix-ui"
-import AuthWrapper from "@/AuthWrapper"
-import {useNotification} from "@/components/notification/notification"
-import NotificationWrapper from "@/NotificationWrapper"
-import {Config} from "@/util/Utils"
-import Head from "next/head"
-import {Metadata, Viewport} from "next"
-
 const inter = Inter({
     subsets: ['latin']
 })
@@ -116,11 +112,11 @@ export default function RootLayout({
             <Toast.Provider>
                 <div className="root">
                     {Config.mode === "dev-deployment" && <div className="infoBanner">You are currently viewing a dev deployment</div>}
-                    <AuthWrapper data-test={"AuthWrapper"}>
-                        <ApolloWrapper data-test={"ApolloWrapper"}>
-                            <NotificationWrapper data-test={"NotificationWrapper"}>
-                                <Tooltip.Provider data-test={"Tooltip.Provider"}>
-                                    <SelectRefreshProvider data-test={"SelectRefreshProvider"}>
+                    <AuthWrapper> {/*should be the outermost*/}
+                        <ApolloWrapper> {/*should also be out*/}
+                            <NotificationWrapper>
+                                <Tooltip.Provider>
+                                    <SelectRefreshProvider>
                                         {children}
                                     </SelectRefreshProvider>
                                 </Tooltip.Provider>

@@ -23,20 +23,24 @@ import AttributeValueSelect, {
 } from "@/components/attributeValueSelect/attributeValueSelect"
 import {SceneAttributeParser, ShotAttributeParser} from "@/util/AttributeParser"
 import {ShotDto} from "../../../lib/graphql/generated"
+import {ShotRef} from "@/components/shot/shot"
 
 export interface ShotAttributeProps {
-    attribute: AnyShotAttribute;
-    className?: string;
-    readOnly: boolean;
+    attribute: AnyShotAttribute
+    className?: string
+    readOnly: boolean
+    getNeighbourAt: (index: number) => ShotAttributeRef,
+    onFocus: () => void
 }
 
 export interface ShotAttributeRef {
-    setFocus: () => void;
+    setFocus: () => void,
+    getNeighbourAt: (index: number) => ShotAttributeRef
 }
 
 // Wrap your component in forwardRef
 const ShotAttribute = forwardRef<ShotAttributeRef, ShotAttributeProps>(
-({ attribute, className, readOnly }, ref) =>
+({ attribute, className, readOnly, getNeighbourAt, onFocus }: ShotAttributeProps, ref) =>
 {
     const [singleSelectValue, setSingleSelectValue] = useState<SelectOption>();
     const [multiSelectValue, setMultiSelectValue] = useState<SelectOption[]>();
@@ -46,6 +50,7 @@ const ShotAttribute = forwardRef<ShotAttributeRef, ShotAttributeProps>(
     const selectInputRef = useRef<AttributeValueSelectRef>(null)
 
     const { refreshMap, triggerRefresh } = useSelectRefresh();
+
 
     const client = useApolloClient()
 
@@ -86,7 +91,8 @@ const ShotAttribute = forwardRef<ShotAttributeRef, ShotAttributeProps>(
     }, [textValue]);
 
     useImperativeHandle(ref, () => ({
-        setFocus
+        setFocus,
+        getNeighbourAt
     }))
 
     function setFocus(){
@@ -294,7 +300,12 @@ const ShotAttribute = forwardRef<ShotAttributeRef, ShotAttributeProps>(
         }
     }
 
-    return <div className={`shotAttribute ${className || ""}`}>{content}</div>
+    return <div
+        className={`shotAttribute ${className || ""}`}
+        onFocus={onFocus}
+    >
+        {content}
+    </div>
 })
 
 export default React.memo(ShotAttribute);

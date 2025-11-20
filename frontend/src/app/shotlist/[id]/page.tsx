@@ -42,6 +42,7 @@ import {Metadata} from "next"
 import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
 import {Config} from "@/util/Utils"
+import {ShotAttributeRef} from "@/components/shotAttribute/shotAttribute"
 
 export default function Shotlist() {
     const params = useParams<{ id: string }>()
@@ -60,6 +61,11 @@ export default function Shotlist() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [shotCount, setShotCount] = useState(0);
     const [sceneCount, setSceneCount] = useState(0);
+    const [focusedShotAttribute, setFocusedShotAttribute] = useState<ShotAttributeRef | null>(null);
+
+    useEffect(() => {
+        console.log("im now focused", focusedShotAttribute)
+    }, [focusedShotAttribute]);
 
     const shotTableRef = useRef<ShotTableRef>(null);
     const headerRef = useRef<HTMLDivElement>(null);
@@ -371,7 +377,9 @@ export default function Shotlist() {
             shotCount: shotCount,
             setShotCount: setShotCount,
             sceneCount: sceneCount,
-            setSceneCount: setSceneCount
+            setSceneCount: setSceneCount,
+            focusedShotAttribute: focusedShotAttribute,
+            setFocusedShotAttribute: setFocusedShotAttribute
         }}>
             {
                 isReadOnly &&

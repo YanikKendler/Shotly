@@ -27,7 +27,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-resizable-panels": "^3.0.1",
-    "react-select": "^5.10.1"
+    "react-select": "^5.10.1",
+    "tinykeys": "^3.0.0"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.5",

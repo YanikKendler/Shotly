@@ -5,8 +5,7 @@ import gql from "graphql-tag"
 import Shot from "@/components/shot/shot"
 import "./shotTable.scss"
 import {SceneDto, ShotAttributeDefinitionBase} from "../../../lib/graphql/generated"
-import React, {forwardRef, RefObject, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
-import {ScrollArea} from "radix-ui"
+import React, {forwardRef, RefObject, useContext, useEffect, useImperativeHandle, useMemo, useRef, useState} from "react"
 import {
     closestCenter,
     DndContext,
@@ -22,6 +21,7 @@ import {ShotAttributeDefinitionParser} from "@/util/AttributeParser"
 import {AnyShotAttributeDefinition} from "@/util/Types"
 import {restrictToVerticalAxis} from "@dnd-kit/modifiers"
 import {ShotlistContext} from "@/context/ShotlistContext"
+import { tinykeys } from "@/../node_modules/tinykeys/dist/tinykeys" //package has incorrectly configured type exports
 
 export type ShotTableRef = {
     refresh: () => void;
@@ -34,18 +34,32 @@ const ShotTable = forwardRef((
     const shotTableElement = useRef<HTMLDivElement | null>(null)
     const [shots, setShots] = useState<{data: any[], loading: boolean, error: any}>({data: [], loading: true, error: null})
     const [focusAttributeAt, setFocusAttributeAt] = useState<number>(-1)
-    const isSyncingScroll = useRef(false);
-    const lastShotRef = useRef<React.ComponentRef<typeof Shot>>(null);
+    const isSyncingScroll = useRef(false)
+    //const lastShotRef = useRef<React.ComponentRef<typeof Shot>>(null)
+    const shotRefs = useRef(new Map())
 
     const client = useApolloClient()
 
     const shotlistContext = useContext(ShotlistContext)
 
     useEffect(() => {
-        console.log(sceneId)
+        let unsubscribe = tinykeys(window, {
+            "ArrowLeft": () => {
+                console.log("move left please", shotlistContext.focusedShotAttribute)
+                console.log("huh") //TODO
+                if(shotlistContext.focusedShotAttribute)
+                    shotlistContext.focusedShotAttribute.getNeighbourAt(0).setFocus()
+            }
+        })
+        return () => {
+            unsubscribe()
+        }
+    }, [])
+
+    useEffect(() => {
         if(sceneId != "")
             loadShots()
-    }, [sceneId]);
+    }, [sceneId])
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -67,7 +81,7 @@ const ShotTable = forwardRef((
     useEffect(() => {
         if(focusAttributeAt < 0) return
 
-        /**
+        /*
          * we need to focus the newly created cell in the same column as the one that was clicked in the "create new" row
          * because that cell does not exist yet, we set the "focusAttributeAt", then add the shot, causing a re-render
          * then query the now existing row and then set focus at the focusAttributeAt position
@@ -82,8 +96,8 @@ const ShotTable = forwardRef((
             attributeElement.querySelector("p")?.focus() //for text inputs*!/
         }*/
 
-        if(lastShotRef.current){
-            lastShotRef.current.setFocusToAttributeAt(focusAttributeAt)
+        if(shotRefs.current.get(-1)){
+            shotRefs.current.get(-1).setFocusToAttributeAt(focusAttributeAt)
         }
 
         setFocusAttributeAt(-1)
@@ -154,7 +168,7 @@ const ShotTable = forwardRef((
                 }
             `,
             variables: { sceneId: sceneId },
-        });
+        })
         console.timeEnd("createShot")
 
         if (errors) {
@@ -264,7 +278,16 @@ const ShotTable = forwardRef((
                                     onDelete={removeShot}
                                     moveShot={moveShot}
                                     readOnly={readOnly}
+/*
                                     ref={shots.data.length -1 == index ? lastShotRef : null}
+*/
+                                    ref={(node) => {
+                                        shotRefs.current.set(index, node);
+
+                                        return () => {
+                                            shotRefs.current.delete(index);
+                                        };
+                                    }}
                                 />
                             ))}
                         </SortableContext>

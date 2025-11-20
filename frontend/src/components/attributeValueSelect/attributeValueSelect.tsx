@@ -148,7 +148,7 @@ function AttributeValueSelect(
 
     const setFocus = () => {
         selectRef.current?.focus()
-        selectRef.current?.openMenu()
+        selectRef.current?.openMenu("first")
     }
 
     const CustomSelectMenu = <
@@ -241,6 +241,7 @@ function AttributeValueSelect(
             styles={styles}
             menuPlacement="auto"
             ref={selectRef}
+
 /*
             menuIsOpen={true}
 */
