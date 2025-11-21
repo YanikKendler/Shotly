@@ -2,9 +2,9 @@
 
 import {useApolloClient, useQuery} from "@apollo/client"
 import gql from "graphql-tag"
-import Shot from "@/components/shot/shot"
+import Shot, {ShotRef} from "@/components/shot/shot"
 import "./shotTable.scss"
-import {SceneDto, ShotAttributeDefinitionBase} from "../../../lib/graphql/generated"
+import {SceneDto, ShotAttributeDefinitionBase, ShotDto} from "../../../lib/graphql/generated"
 import React, {forwardRef, RefObject, useContext, useEffect, useImperativeHandle, useMemo, useRef, useState} from "react"
 import {
     closestCenter,
@@ -21,7 +21,8 @@ import {ShotAttributeDefinitionParser} from "@/util/AttributeParser"
 import {AnyShotAttributeDefinition} from "@/util/Types"
 import {restrictToVerticalAxis} from "@dnd-kit/modifiers"
 import {ShotlistContext} from "@/context/ShotlistContext"
-import { tinykeys } from "@/../node_modules/tinykeys/dist/tinykeys" //package has incorrectly configured type exports
+import { tinykeys } from "@/../node_modules/tinykeys/dist/tinykeys"//package has incorrectly configured type exports
+import {wuText} from "@yanikkendler/web-utils"
 
 export type ShotTableRef = {
     refresh: () => void;
@@ -32,53 +33,30 @@ const ShotTable = forwardRef((
     {sceneId: string, shotAttributeDefinitions: ShotAttributeDefinitionBase[], readOnly: boolean, shotlistHeaderRef: RefObject<HTMLDivElement | null> }, ref
 ) => {
     const shotTableElement = useRef<HTMLDivElement | null>(null)
-    const [shots, setShots] = useState<{data: any[], loading: boolean, error: any}>({data: [], loading: true, error: null})
-    const [focusAttributeAt, setFocusAttributeAt] = useState<number>(-1)
-    const isSyncingScroll = useRef(false)
+    const [shots, setShots] = useState<{data: ShotDto[], loading: boolean, error: any}>({data: [], loading: true, error: null})
+    const [focusAttributeAt, setFocusAttributeAt] = useState<number>(-1) //which attribute to set focus to next (-1 = dont move focus)
+    const isSyncingScroll = useRef(false) //to not detect updating the scroll as a scroll
     //const lastShotRef = useRef<React.ComponentRef<typeof Shot>>(null)
-    const shotRefs = useRef(new Map())
+    const shotRefs = useRef(new Map<ShotRef>())
 
     const client = useApolloClient()
 
     const shotlistContext = useContext(ShotlistContext)
 
-    useEffect(() => {
-        let unsubscribe = tinykeys(window, {
-            "ArrowLeft": () => {
-                console.log("move left please", shotlistContext.focusedShotAttribute)
-                console.log("huh") //TODO
-                if(shotlistContext.focusedShotAttribute)
-                    shotlistContext.focusedShotAttribute.getNeighbourAt(0).setFocus()
-            }
-        })
-        return () => {
-            unsubscribe()
-        }
-    }, [])
+    const focusedAttrRef = useRef(shotlistContext.focusedShotAttribute)
+    const shotAttributeCountRef = useRef(0)
 
     useEffect(() => {
-        if(sceneId != "")
-            loadShots()
-    }, [sceneId])
+        focusedAttrRef.current = shotlistContext.focusedShotAttribute
+    }, [shotlistContext.focusedShotAttribute])
 
-    const sensors = useSensors(
-        useSensor(PointerSensor, {
-            activationConstraint: {
-                distance: 4,
-            },
-        }),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
-        }),
-        useSensor(TouchSensor, {
-            activationConstraint: {
-                distance: 4,
-            }
-        })
-    )
 
     //everytime the shots change
     useEffect(() => {
+        if(shots.data && shots.data[0] && shots.data[0].attributes){
+            shotAttributeCountRef.current = shots.data[0].attributes.length-1
+        }
+
         if(focusAttributeAt < 0) return
 
         /*
@@ -102,6 +80,65 @@ const ShotTable = forwardRef((
 
         setFocusAttributeAt(-1)
     }, [shots])
+
+    //TODO this is a bit laggy when fast pressing.. might be just the css tho
+    useEffect(() => {
+        let unsubscribe = tinykeys(window, {
+            "ArrowLeft": () => moveFocusedCell(0, -1),
+            "ArrowRight": () => moveFocusedCell(0, 1),
+            "ArrowUp": () => moveFocusedCell(-1, 0),
+            "ArrowDown": () => moveFocusedCell(1, 0),
+        })
+        return () => {
+            unsubscribe()
+        }
+    }, [])
+
+    useEffect(() => {
+        if(sceneId != "")
+            loadShots()
+    }, [sceneId])
+
+    const moveFocusedCell = (row:number = 0, column: number = 0) => {
+        if(!focusedAttrRef.current || shotAttributeCountRef.current == 0) return
+
+        console.log("moving: ", row, column)
+
+        const newRow = wuText.clamp(
+            0,
+            focusedAttrRef.current.row+row,
+            shotRefs.current.size-1
+        )
+
+        const newColumn = wuText.clamp(
+            0,
+            focusedAttrRef.current.column+column,
+            shotAttributeCountRef.current
+        )
+
+        console.log(newRow, newColumn)
+
+        shotRefs
+            .current
+            .get(newRow)
+            .setFocusToAttributeAt(newColumn)
+    }
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 4,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        }),
+        useSensor(TouchSensor, {
+            activationConstraint: {
+                distance: 4,
+            }
+        })
+    )
 
     const loadShots = async () => {
         console.log("started loading shots")
@@ -267,7 +304,7 @@ const ShotTable = forwardRef((
                         modifiers={[restrictToVerticalAxis]}
                     >
                         <SortableContext
-                            items={shots.data.map(shot => shot.id)}
+                            items={shots.data.map(shot => shot.id as string)}
                             strategy={verticalListSortingStrategy}
                         >
                             {shots.data.map((shot: any, index) => (

@@ -36,7 +36,7 @@ import {apolloClient} from "@/ApolloWrapper"
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import auth from "@/Auth"
 import {useAccountDialog} from "@/components/dialog/accountDialog/accountDialog"
-import {wuGeneral} from "@yanikkendler/web-utils/dist"
+import {wuGeneral} from "@yanikkendler/web-utils"
 import Iconmark from "@/components/iconmark"
 import {Metadata} from "next"
 import {driver} from "driver.js"
@@ -65,7 +65,7 @@ export default function Shotlist() {
 
     useEffect(() => {
         console.log("im now focused", focusedShotAttribute)
-    }, [focusedShotAttribute]);
+    }, [focusedShotAttribute])
 
     const shotTableRef = useRef<ShotTableRef>(null);
     const headerRef = useRef<HTMLDivElement>(null);

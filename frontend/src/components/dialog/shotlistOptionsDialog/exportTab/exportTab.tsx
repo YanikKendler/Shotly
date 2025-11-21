@@ -3,7 +3,7 @@ import React, {useEffect, useRef, useState} from "react"
 import gql from "graphql-tag"
 import {pdf} from "@react-pdf/renderer"
 import PDFExport from "@/components/PDFExport"
-import {wuTime} from "@yanikkendler/web-utils/dist"
+import {wuTime} from "@yanikkendler/web-utils"
 import {useApolloClient} from "@apollo/client"
 import {SceneDto, ShotDto, ShotlistDto} from "../../../../../lib/graphql/generated"
 import "./exportTab.scss"
@@ -189,7 +189,7 @@ export default function ExportTab({shotlist}: { shotlist: ShotlistDto | null}) {
     }
 
     function generateFileName() {
-        return `shotly_${shotlist?.name?.replace(/\s/g, "-") || "unnamed-shotlist"}_${wuTime.toFullDateTimeString(Date.now(), {timeSeparator: "-", dateSeparator: "-"}).replace(/\s/g, "_")}`
+        return `shotly_${shotlist?.name?.replace(/\s/g, "-") || "unnamed-shotlist"}_${wuTime.toFullDateTimeString(Date.now(), {timeSeparator: "-", dateSeparator: "-", dateTimeSeparator: "_", showMilliseconds: false}).replace(/\s/g, "_")}`
     }
 
     if(!shotlist) return <Loader text={"loading shotlist export"}/>

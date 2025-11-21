@@ -9,7 +9,7 @@ import React, {useEffect, useState} from "react"
 import ErrorPage from "@/pages/errorPage/errorPage"
 import {ChevronDown, House, NotepadText, NotepadTextDashed, Plus, User} from "lucide-react"
 import {ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
-import {wuGeneral, wuTime} from "@yanikkendler/web-utils/dist"
+import {wuGeneral, wuTime} from "@yanikkendler/web-utils"
 import {useRouter, useSearchParams} from "next/navigation"
 import {useCreateShotlistDialog} from "@/components/dialog/createShotlistDialog/createShotlistDialog"
 import {useAccountDialog} from "@/components/dialog/accountDialog/accountDialog"
@@ -127,7 +127,7 @@ export default function Overview() {
                         <p className={"bold"}>{shotlist.sceneCount} scene • {shotlist.shotCount} shots</p>
                         <p>created by: <span className={"bold"}>{shotlist.owner?.name}</span></p>
                         <p>last edited: <span
-                            className={"bold"}>{wuTime.toRelativeTimeString(shotlist.editedAt)}</span></p>
+                            className={"bold"}>{wuTime.toFullTimeString(shotlist.editedAt) /*TODO fix timestamp*/} ago</span></p>
                     </Link>
                 ))}
                 <button className={"gridItem add shotlist"} onClick={() => {

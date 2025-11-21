@@ -15,7 +15,7 @@ import {
     TemplateDto
 } from "../../../../../lib/graphql/generated"
 import gql from "graphql-tag"
-import {wuGeneral} from "@yanikkendler/web-utils/dist"
+import {wuGeneral} from "@yanikkendler/web-utils"
 import {ChevronDown, Info, List, Menu, NotepadText, Pen, Pencil, Plus, Trash, Type} from "lucide-react"
 import Input from "@/components/input/input"
 import {

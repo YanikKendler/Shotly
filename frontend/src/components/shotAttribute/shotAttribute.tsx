@@ -29,18 +29,21 @@ export interface ShotAttributeProps {
     attribute: AnyShotAttribute
     className?: string
     readOnly: boolean
-    getNeighbourAt: (index: number) => ShotAttributeRef,
+    getNeighbourAt: (index: number) => ShotAttributeRef
     onFocus: () => void
+    row: number
+    column: number
 }
 
 export interface ShotAttributeRef {
-    setFocus: () => void,
+    row: number
+    column: number
+    setFocus: () => void
     getNeighbourAt: (index: number) => ShotAttributeRef
 }
 
-// Wrap your component in forwardRef
 const ShotAttribute = forwardRef<ShotAttributeRef, ShotAttributeProps>(
-({ attribute, className, readOnly, getNeighbourAt, onFocus }: ShotAttributeProps, ref) =>
+({ attribute, className, readOnly, getNeighbourAt, onFocus, row, column }: ShotAttributeProps, ref) =>
 {
     const [singleSelectValue, setSingleSelectValue] = useState<SelectOption>();
     const [multiSelectValue, setMultiSelectValue] = useState<SelectOption[]>();
@@ -51,10 +54,16 @@ const ShotAttribute = forwardRef<ShotAttributeRef, ShotAttributeProps>(
 
     const { refreshMap, triggerRefresh } = useSelectRefresh();
 
-
     const client = useApolloClient()
 
     const shotlistContext = useContext(ShotlistContext)
+
+    useImperativeHandle(ref, () => ({
+        row: row,
+        column: column,
+        setFocus: setFocus,
+        getNeighbourAt: getNeighbourAt
+    }))
 
     useEffect(() => {
         if (!attribute) return;
@@ -90,12 +99,7 @@ const ShotAttribute = forwardRef<ShotAttributeRef, ShotAttributeProps>(
         }
     }, [textValue]);
 
-    useImperativeHandle(ref, () => ({
-        setFocus,
-        getNeighbourAt
-    }))
-
-    function setFocus(){
+    const setFocus = () =>{
         if(attribute.__typename == "ShotTextAttributeDTO"){
             textInputRef.current?.focus()
         }

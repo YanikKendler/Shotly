@@ -3,7 +3,7 @@
 import {ShotDto} from "../../../lib/graphql/generated"
 import ShotAttribute, {ShotAttributeRef} from "@/components/shotAttribute/shotAttribute"
 import {AnyShotAttribute} from "@/util/Types"
-import {wuText} from "@yanikkendler/web-utils/dist"
+import {wuText} from "@yanikkendler/web-utils"
 import './shot.scss'
 import {
     ArrowBigDown,
@@ -75,11 +75,11 @@ export default forwardRef<ShotRef, ShotProps>(
     const shotlistContext = useContext(ShotlistContext)
 
     useImperativeHandle(ref, () => ({
-        setFocusToAttributeAt
+        setFocusToAttributeAt: setFocusToAttributeAt
     }))
 
     function setFocusToAttributeAt(index: number){
-        shotAttributeRefs.current.get(index-1)?.setFocus()
+        shotAttributeRefs.current.get(index)?.setFocus()
     }
 
     async function deleteShot(){
@@ -170,6 +170,8 @@ export default forwardRef<ShotRef, ShotProps>(
                     onFocus={() => {
                         shotlistContext.setFocusedShotAttribute(shotAttributeRefs.current.get(index));
                     }}
+                    column={index}
+                    row={position}
                 ></ShotAttribute>
             ))}
         </div>
