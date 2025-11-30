@@ -1,22 +1,29 @@
-import React, {useContext, useEffect, useRef, useState} from "react"
+import React, {forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
 import {SelectOption} from "@/util/Types"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import {ShotSingleSelectAttributeDto} from "../../../../../../lib/graphql/generated"
 import ShotService from "@/service/ShotService"
-import AttributeValueSelect, {selectShotStyles} from "@/components/attributeValueSelect/attributeValueSelect"
+import AttributeValueSelect, {
+    AttributeValueSelectRef,
+    selectShotStyles
+} from "@/components/attributeValueSelect/attributeValueSelect"
 import {ChevronDown} from "lucide-react"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {useSelectRefresh} from "@/context/SelectRefreshContext"
+import {CellInputRef} from "@/components/spreadsheet/cell/cell"
 
-export default function CellSingleSelectInput({
-    attribute
-}:{
+interface CellSingleSelectInputProps {
     attribute: ShotSingleSelectAttributeDto
-}){
+}
+
+const CellSingleSelectInput = forwardRef<CellInputRef, CellSingleSelectInputProps>(
+({
+     attribute
+ }, ref) => {
     const [singleSelectValue, setSingleSelectValue] = useState<SelectOption>();
 
-    const selectInputRef = useRef(null);
+    const selectInputRef = useRef<AttributeValueSelectRef>(null);
 
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
@@ -29,6 +36,14 @@ export default function CellSingleSelectInput({
             value: attribute.singleSelectValue?.id || "",
         })
     }, [])
+
+    useImperativeHandle(ref, () => ({
+        setFocus: setFocus
+    }))
+
+    const setFocus = () => {
+        selectInputRef.current?.setFocus()
+    }
 
     const updateSingleSelectValue = (value: SelectOption | null) => {
         setSingleSelectValue(value || undefined)
@@ -63,27 +78,33 @@ export default function CellSingleSelectInput({
         selectRefresh.triggerRefresh("shot", attribute.definition?.id)
     }
 
-    return <div className="cellInput">
-        <AttributeValueSelect
-            definitionId={attribute.definition?.id}
-            isMulti={false}
-            loadOptions={(searchTerm) => shotlistContext.searchShotSelectOptions(attribute.definition?.id, searchTerm)}
-            onChange={(newValue) => updateSingleSelectValue(newValue as SelectOption)}
-            onCreate={createOption}
-            placeholder={attribute.definition?.name || "Unnamed"}
-            value={singleSelectValue}
-            shotOrScene={"shot"}
-            editAction={() => shotlistContext.openShotlistOptionsDialog({
-                main: "attributes",
-                sub: "shot"
-            })}
-            styles={selectShotStyles}
-            ref={selectInputRef}
-        ></AttributeValueSelect>
-        {!singleSelectValue &&
-            <div className="icon">
-                <ChevronDown size={18} strokeWidth={2}/>
-            </div>
-        }
-    </div>
-}
+    return(
+        <div
+            className="cellInput"
+        >
+            <AttributeValueSelect
+                definitionId={attribute.definition?.id}
+                isMulti={false}
+                loadOptions={(searchTerm) => shotlistContext.searchShotSelectOptions(attribute.definition?.id, searchTerm)}
+                onChange={(newValue) => updateSingleSelectValue(newValue as SelectOption)}
+                onCreate={createOption}
+                placeholder={attribute.definition?.name || "Unnamed"}
+                value={singleSelectValue}
+                shotOrScene={"shot"}
+                editAction={() => shotlistContext.openShotlistOptionsDialog({
+                    main: "attributes",
+                    sub: "shot"
+                })}
+                styles={selectShotStyles}
+                ref={selectInputRef}
+            />
+            {!singleSelectValue &&
+                <div className="icon">
+                    <ChevronDown size={18} strokeWidth={2}/>
+                </div>
+            }
+        </div>
+    )
+})
+
+export default CellSingleSelectInput

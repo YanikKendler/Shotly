@@ -42,7 +42,7 @@ const ShotTable = forwardRef((
 
     const shotlistContext = useContext(ShotlistContext)
 
-    const focusedAttrRef = useRef(shotlistContext.focusedShotAttribute)
+    const focusedAttrRef = useRef(shotlistContext.focusedCell)
     const shotAttributeCountRef = useRef(0)
 
     // Used to conditionally render the dropLine
@@ -50,8 +50,8 @@ const ShotTable = forwardRef((
     const [dropLinePosition, setDropLinePosition] = useState<"" | "top" | "bottom">("")
 
     useEffect(() => {
-        focusedAttrRef.current = shotlistContext.focusedShotAttribute
-    }, [shotlistContext.focusedShotAttribute])
+        focusedAttrRef.current = shotlistContext.focusedCell
+    }, [shotlistContext.focusedCell])
 
     //everytime the shots change
     useEffect(() => {

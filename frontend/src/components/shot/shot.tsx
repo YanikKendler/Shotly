@@ -173,7 +173,7 @@ export default forwardRef<ShotRef, ShotProps>(
                     }}
                     getNeighbourAt={(index:number) => shotAttributeRefs.current.get(index)}
                     onFocus={() => {
-                        shotlistContext.setFocusedShotAttribute(shotAttributeRefs.current.get(index));
+                        shotlistContext.setFocusedCell(shotAttributeRefs.current.get(index));
                     }}
                     column={index}
                     row={position}

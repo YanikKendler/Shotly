@@ -45,6 +45,7 @@ import {Config} from "@/util/Utils"
 import {ShotAttributeRef} from "@/components/shotAttribute/shotAttribute"
 import SheetManager from "@/components/spreadsheet/sheetManager/sheetManager"
 import {SelectOption} from "@/util/Types"
+import {CellRef} from "@/components/spreadsheet/cell/cell"
 
 export default function Shotlist() {
     const params = useParams<{ id: string }>()
@@ -60,19 +61,15 @@ export default function Shotlist() {
     const [reloadKey, setReloadKey] = useState(0)
     const [isReadOnly, setIsReadOnly] = useState(false)
 
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [shotCount, setShotCount] = useState(0);
-    const [sceneCount, setSceneCount] = useState(0);
-    const [focusedShotAttribute, setFocusedShotAttribute] = useState<ShotAttributeRef | null>(null);
+    const [sidebarOpen, setSidebarOpen] = useState(false)
+    const [shotCount, setShotCount] = useState(0)
+    const [sceneCount, setSceneCount] = useState(0)
+    const focusedCell = useRef({row: -1, column:-1})
 
     const shotSelectOptionsCache = useRef(new Map<number, SelectOption[]>())
 
-    useEffect(() => {
-        console.log("im now focused", focusedShotAttribute)
-    }, [focusedShotAttribute])
-
-    const shotTableRef = useRef<ShotTableRef>(null);
-    const headerRef = useRef<HTMLDivElement>(null);
+    const shotTableRef = useRef<ShotTableRef>(null)
+    const headerRef = useRef<HTMLDivElement>(null)
 
     const client = useApolloClient()
     const router = useRouter()
@@ -423,8 +420,7 @@ export default function Shotlist() {
             setShotCount: setShotCount,
             sceneCount: sceneCount,
             setSceneCount: setSceneCount,
-            focusedShotAttribute: focusedShotAttribute,
-            setFocusedShotAttribute: setFocusedShotAttribute,
+            focusedCell: focusedCell,
             getShotSelectOptions: getShotSelectOptions,
             searchShotSelectOptions: searchShotSelectOptions,
             addShotSelectOption: addShotSelectOption
@@ -461,6 +457,7 @@ export default function Shotlist() {
                                     role={"heading"}
                                 />
                             </div>
+                            {/*TODO this absolutely should be its own component wth*/}
                             <div className="list" id="sceneList">
                                 {!shotlist.data.scenes || shotlist.data.scenes.length == 0 ?
                                     <p className={"empty"}>No scenes yet :(</p> :
@@ -514,8 +511,8 @@ export default function Shotlist() {
                             <div className="number"><p>#</p></div>
                             {!shotlist.data.shotAttributeDefinitions || shotlist.data.shotAttributeDefinitions.length == 0 ?
                                 <p className={"empty"}>No shot attributes defined</p> :
-                                (shotlist.data.shotAttributeDefinitions as ShotAttributeDefinitionBase[]).map((attr: any) => (
-                                    <div className={"attribute"} key={attr.id}><p>{attr.name || "Unnamed"}</p></div>
+                                (shotlist.data.shotAttributeDefinitions as ShotAttributeDefinitionBase[]).map((attr: any, index) => (
+                                    <div className={`attribute`} key={attr.id}><p>{attr.name || "Unnamed"}</p></div>
                                 ))
                             }
                         </div>
@@ -526,7 +523,10 @@ export default function Shotlist() {
                             readOnly={ isReadOnly }
                             shotlistHeaderRef={headerRef}
                         />*/}
-                        <SheetManager sceneId={selectedSceneId}/>
+                        <SheetManager
+                            sceneId={selectedSceneId}
+                            shotAttributeDefinitions={shotlist.data.shotAttributeDefinitions as ShotAttributeDefinitionBase[]}
+                        />
                     </Panel>
                 </PanelGroup>
                 <button className="openSidebar" onClick={() => setSidebarOpen(true)}><Menu/></button>

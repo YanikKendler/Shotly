@@ -1,19 +1,23 @@
 import {wuConstants, wuGeneral} from "@yanikkendler/web-utils"
 import {Type} from "lucide-react"
-import React, {useEffect, useMemo, useRef} from "react"
+import React, {forwardRef, useEffect, useImperativeHandle, useMemo, useRef} from "react"
 import {ShotTextAttributeDto} from "../../../../../../lib/graphql/generated"
 import ShotService from "@/service/ShotService"
+import {CellInputRef} from "@/components/spreadsheet/cell/cell"
+
+interface CellTextInputProps {
+    attribute: ShotTextAttributeDto
+}
 
 /**
  * Represents specifically a text input in a spreadsheet cell handles updating the value in the backend
  * @param attribute the text attribute of this cell
  * @constructor
  */
-export default function CellTextInput({
+const CellTextInput = forwardRef<CellInputRef, CellTextInputProps>(
+({
     attribute
-}:{
-    attribute: ShotTextAttributeDto
-}){
+}, ref) =>{
     const [textValue, setTextValue]  = React.useState<string>("")
     const inputRef = useRef<HTMLInputElement>(null)
 
@@ -26,6 +30,10 @@ export default function CellTextInput({
             inputRef.current.textContent = textValue
         }
     }, [textValue])
+
+    useImperativeHandle(ref, () => ({
+        setFocus: setFocus
+    }))
 
     const setFocus = () => {
         inputRef.current?.focus()
@@ -65,6 +73,91 @@ export default function CellTextInput({
         ShotService.debouncedUpdateAttribute(attribute.id, { textValue: cleaned })
     }
 
+    //AI generated
+    /** Returns true if caret can move left/right/up/down inside the text
+     *  without leaving the text block (i.e. spreadsheet should NOT handle the key)
+     */
+    function shouldEditorHandleArrow(e: React.KeyboardEvent<HTMLParagraphElement>): boolean {
+        const el = inputRef.current
+        if (!el) return false
+
+        const selection = window.getSelection()
+        if (!selection || selection.rangeCount === 0) return false
+
+        const range = selection.getRangeAt(0)
+
+        // ---- LEFT / RIGHT are trivial: use caret index ----
+        const caretOffset = (() => {
+            const r = range.cloneRange()
+            r.selectNodeContents(el)
+            r.setEnd(range.endContainer, range.endOffset)
+            return r.toString().length
+        })()
+
+        const text = el.innerText
+
+        if (e.key === "ArrowLeft") {
+            return caretOffset > 0     // caret CAN move left → editor should handle it
+        }
+
+        if (e.key === "ArrowRight") {
+            return caretOffset < text.length
+        }
+
+        // ---- UP / DOWN require pixel position from soft wrapping ----
+        const rects = range.getClientRects()
+        if (!rects || rects.length === 0) return false
+        const caretRect = rects[0]
+
+        const box = el.getBoundingClientRect()
+        const style = window.getComputedStyle(el)
+        const lineHeight = parseFloat(style.lineHeight)
+
+        const topLimit = box.top + parseFloat(style.paddingTop)
+        const bottomLimit = box.bottom - parseFloat(style.paddingBottom) - lineHeight
+
+        if (e.key === "ArrowUp") {
+            const nextRect = getPredictedCaretOffset(e.nativeEvent, el)
+            if (!nextRect) return false
+            if (nextRect.top > el.getBoundingClientRect().top + parseFloat(style.paddingTop)) {
+                e.stopPropagation() // caret can move up
+            }
+        }
+
+        if (e.key === "ArrowDown") {
+            const nextRect = getPredictedCaretOffset(e.nativeEvent, el)
+            if (!nextRect) return false
+            if (nextRect.bottom < el.getBoundingClientRect().bottom - parseFloat(style.paddingBottom)) {
+                e.stopPropagation() // caret can move down
+            }
+        }
+
+        return false
+    }
+
+    function getPredictedCaretOffset(e: KeyboardEvent, el: HTMLElement) {
+        const selection = window.getSelection()
+        if (!selection || selection.rangeCount === 0) return null
+
+        const range = selection.getRangeAt(0).cloneRange()
+
+        if (e.key === "ArrowDown") {
+            // Move a temporary range one character forward
+            if (range.endOffset < el.innerText.length) {
+                range.setStart(range.endContainer, range.endOffset + 1)
+            }
+        }
+
+        if (e.key === "ArrowUp") {
+            // Move a temporary range one character backward
+            if (range.endOffset > 0) {
+                range.setStart(range.endContainer, range.endOffset - 1)
+            }
+        }
+
+        return range.getClientRects()[0]
+    }
+
     return (
         <div
             className="cellInput"
@@ -76,6 +169,14 @@ export default function CellTextInput({
                 contentEditable={true}
                 onInput={updateTextValue}
                 onKeyDown={(e) => {
+                    // Prevent spreadsheet navigation
+                    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+                        if (shouldEditorHandleArrow(e)) {
+                            e.stopPropagation()   // caret moves *inside* wrapped text
+                            return
+                        }
+                    }
+
                     if (e.key === 'Enter') {
                         e.preventDefault()
                     }
@@ -93,4 +194,6 @@ export default function CellTextInput({
             }
         </div>
     )
-}
+})
+
+export default CellTextInput

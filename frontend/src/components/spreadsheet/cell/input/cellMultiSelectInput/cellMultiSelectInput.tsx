@@ -1,22 +1,30 @@
-import React, {useContext, useEffect, useRef, useState} from "react"
+import React, {forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
 import {SelectOption} from "@/util/Types"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import {ShotMultiSelectAttributeDto} from "../../../../../../lib/graphql/generated"
 import ShotService from "@/service/ShotService"
-import AttributeValueSelect, {selectShotStyles} from "@/components/attributeValueSelect/attributeValueSelect"
+import AttributeValueSelect, {
+    AttributeValueSelectRef,
+    selectShotStyles
+} from "@/components/attributeValueSelect/attributeValueSelect"
 import {ChevronDown, List} from "lucide-react"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {useSelectRefresh} from "@/context/SelectRefreshContext"
+import {CellInputRef} from "@/components/spreadsheet/cell/cell"
 
-export default function CellMultiSelectInput({
-    attribute
-}:{
+
+interface CellMultiSelectInputProps {
     attribute: ShotMultiSelectAttributeDto
-}){
+}
+
+const CellMultiSelectInput = forwardRef<CellInputRef, CellMultiSelectInputProps>(
+({
+     attribute
+ }, ref) =>{
     const [multiSelectValue, setMultiSelectValue] = useState<SelectOption[]>();
 
-    const selectInputRef = useRef(null);
+    const selectInputRef = useRef<AttributeValueSelectRef>(null);
 
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
@@ -34,6 +42,14 @@ export default function CellMultiSelectInput({
             }
         ))
     }, [])
+
+    useImperativeHandle(ref, () => ({
+        setFocus: setFocus
+    }))
+
+    const setFocus = () => {
+        selectInputRef.current?.setFocus()
+    }
 
     const updateMultiSelectValue = (value: SelectOption[] | null) => {
         setMultiSelectValue(value || [])
@@ -94,4 +110,6 @@ export default function CellMultiSelectInput({
             </div>
         }
     </div>
-}
+})
+
+export default CellMultiSelectInput

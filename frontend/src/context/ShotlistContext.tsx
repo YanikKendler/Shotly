@@ -1,12 +1,13 @@
 "use client";
 
-import {createContext} from "react"
+import {createContext, RefObject} from "react"
 import {
     ShotlistOptionsDialogPage,
     ShotlistOptionsDialogSubPage
 } from "@/components/dialog/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {ShotAttributeRef} from "@/components/shotAttribute/shotAttribute"
 import {SelectOption} from "@/util/Types"
+import {CellRef} from "@/components/spreadsheet/cell/cell"
 
 export const ShotlistContext = createContext<{
     openShotlistOptionsDialog: (page: { main: ShotlistOptionsDialogPage, sub?: ShotlistOptionsDialogSubPage }) => void
@@ -16,8 +17,7 @@ export const ShotlistContext = createContext<{
     setShotCount: (count: number) => void
     sceneCount: number
     setSceneCount: (count: number) => void
-    focusedShotAttribute: ShotAttributeRef | null
-    setFocusedShotAttribute: (attr: ShotAttributeRef) => void
+    focusedCell: RefObject<{row: number, column: number}>
     getShotSelectOptions: (shotAttributeDefinitionId: number) => Promise<SelectOption[]>
     searchShotSelectOptions: (shotAttributeDefinitionId: number, search: string) => Promise<SelectOption[]>
     addShotSelectOption: (shotAttributeDefinitionId: number, option: SelectOption) => void
@@ -26,17 +26,16 @@ export const ShotlistContext = createContext<{
     openShotlistOptionsDialog: (page) => {},
     //to disable tooltips when dragging
     elementIsBeingDragged: false,
-    setElementIsBeingDragged: (isBeingDragged: boolean) => {},
+    setElementIsBeingDragged: () => {},
     //for disabling move up/down buttons
     shotCount: 0,
-    setShotCount: (count: number) => {},
+    setShotCount: () => {},
     sceneCount: 0,
-    setSceneCount: (count: number) => {},
+    setSceneCount: () => {},
     //for navigation using arrow keys
-    focusedShotAttribute: {} as ShotAttributeRef,
-    setFocusedShotAttribute: (attr: ShotAttributeRef) => {},
+    focusedCell: { current: { row: -1, column: -1 } },
     //to get options for shot single/multi select attributes - handles caching and refetching
     getShotSelectOptions: () => Promise.resolve([]),
     searchShotSelectOptions: () => Promise.resolve([]),
     addShotSelectOption: () => {},
-});
+})

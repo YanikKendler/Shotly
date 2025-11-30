@@ -130,6 +130,7 @@ interface AttributeValueSelectProps {
 
 export interface AttributeValueSelectRef {
     setFocus: () => void
+    openMenu: () => void
 }
 
 export default forwardRef<AttributeValueSelectRef, AttributeValueSelectProps>(
@@ -140,14 +141,23 @@ function AttributeValueSelect(
     const { refreshMap } = useSelectRefresh();
 
     const selectRef = useRef<SelectInstance<any, boolean, any> | null>(null);
+    const menuIsOpen = useRef(false);
 
     useImperativeHandle(ref, () => ({
-        setFocus
+        setFocus,
+        openMenu
     }))
 
     const setFocus = () => {
         selectRef.current?.focus()
+    }
+
+    const openMenu = () => {
         selectRef.current?.openMenu("first")
+    }
+
+    const closeMenu = () => {
+        selectRef.current?.blur()
     }
 
     const CustomSelectMenu = <
@@ -227,6 +237,8 @@ function AttributeValueSelect(
             key={`${definitionId}-${refreshMap[`${shotOrScene}-${definitionId}`] || 0}`}
             value={value}
             onChange={onChange}
+            onMenuOpen={() => menuIsOpen.current = true}
+            onMenuClose={() => menuIsOpen.current = false}
             isMulti={isMulti}
             isClearable={false}
             onCreateOption={onCreate}
@@ -234,6 +246,7 @@ function AttributeValueSelect(
             defaultOptions
             placeholder={placeholder || ""}
             openMenuOnFocus={false}
+            blurInputOnSelect={false}
             className="select"
             components={getComponents(isMulti)}
             theme={reactSelectTheme}
@@ -241,7 +254,26 @@ function AttributeValueSelect(
             menuPlacement="auto"
             ref={selectRef}
             cacheOptions={null}
+            onKeyDown={e => {
+                if(menuIsOpen.current == true) {
+                    if(e.key == "ArrowUp" || e.key == "ArrowDown"){
+                        e.stopPropagation()
+                    }
 
+                    if(e.key == "ArrowLeft" || e.key == "ArrowRight"){
+                        closeMenu()
+                    }
+                }
+                else{
+                    if(e.key == "Enter"){
+                        openMenu()
+                        e.preventDefault()
+                    }
+                    if(e.key == "ArrowUp" || e.key == "ArrowDown"){
+                        closeMenu()
+                        e.preventDefault()                    }
+                }
+            }}
 /*
             menuIsOpen={true}
 */

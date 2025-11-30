@@ -1,14 +1,58 @@
 .sheetManager .sheetCell{
   border: 1px solid var(--cell-border);
+  position: relative;
 
   &.default{
     width: 100%;
   }
 
+  &.create{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    height: 38px;
+    align-items: center;
+    padding: {
+      right: .4rem;
+      left: .2rem;
+    }
+
+    &:hover{
+      --preview-cell-border: var(--preview-cell-hover-border);
+    }
+
+    border-color: var(--preview-cell-border);
+    transition: color .1s, border-color .1s;
+    color: var(--text-60);
+
+    &:not(.number):hover{
+      cursor: text;
+      color: var(--text-40);
+    }
+  }
+
   &.number{
     display: grid;
-    place-items: center;
+    place-content: center;
     min-width: 4ch;
+    width: auto;
+    font-weight: 600;
+  }
+
+  &::before{
+    content: "";
+    position: absolute;
+    z-index: 5;
+    inset: -2px;
+    border: 2px solid var(--accent);
+    border-radius: .3rem;
+    display: none;
+  }
+
+  &:focus-within{
+    &::before{
+      display: block;
+    }
   }
 
   .cellInput {

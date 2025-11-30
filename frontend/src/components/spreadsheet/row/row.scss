@@ -1,4 +1,26 @@
 .sheetManager .sheetRow{
   display: flex;
   width: 100%;
+
+  &:has(:hover){
+    .sheetCell.number{
+      color: var(--accent);
+    }
+  }
+
+  &:focus-within{
+    .sheetCell.number{
+      color: var(--accent);
+    }
+  }
+
+  .sheetCell:first-of-type{
+    border-top-left-radius: .3rem;
+    border-bottom-left-radius: .3rem;
+  }
+
+  .sheetCell:last-of-type{
+    border-top-right-radius: .3rem;
+    border-bottom-right-radius: .3rem;
+  }
 }
