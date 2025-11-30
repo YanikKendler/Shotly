@@ -2,6 +2,7 @@ import {wuText} from "@yanikkendler/web-utils/dist"
 import {ThemeConfig} from "react-select"
 import {ShotlistOrTemplate} from "@/util/Types"
 import {ShotlistDto} from "../../lib/graphql/generated"
+import {NetworkStatus} from "@apollo/client"
 
 export interface fontSizeBreakpoint {
     length: number
@@ -77,6 +78,13 @@ export default class Utils {
             const ratio = (text.length - bottom.length) / (top.length - bottom.length)
             return bottom.fontSize + (top.fontSize - bottom.fontSize) * ratio
         }
+    }
+
+    static defaultQueryResult = {
+        data: null,
+        loading: true,
+        errors: undefined,
+        networkStatus: NetworkStatus.loading
     }
 }
 

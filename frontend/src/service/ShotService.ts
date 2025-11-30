@@ -1,6 +1,8 @@
 import {ShotAttributeValueCollection} from "@/util/Types"
 import gql from "graphql-tag"
 import {apolloClient, makeClient} from "@/ApolloWrapper"
+import {useMemo} from "react"
+import {wuGeneral} from "@yanikkendler/web-utils"
 
 export default class ShotService {
     static async updateShot(shotId: string, position: number) {
@@ -26,6 +28,8 @@ export default class ShotService {
     }
 
     static async updateAttribute(attributeId: number, value: ShotAttributeValueCollection) {
+        //console.log("updating attribute", attributeId, value)
+
         const {data, errors} = await apolloClient.mutate({
             mutation: gql`
                 mutation updateShotAttribute($id: BigInteger!, $textValue: String, $singleSelectValue: BigInteger, $multiSelectValue: [BigInteger]) {
@@ -45,4 +49,6 @@ export default class ShotService {
             console.error(errors)
         }
     }
+
+    static debouncedUpdateAttribute = wuGeneral.debounce(ShotService.updateAttribute)
 }

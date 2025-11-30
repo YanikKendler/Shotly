@@ -37,6 +37,11 @@ div.shotAttribute{
     cursor: text;
     position: relative;
 
+    &:has(.text:focus-visible){
+      border-color: var(--accent);
+      outline-color: var(--accent);
+    }
+
     .text{
       width: 100%;
       height: fit-content;
@@ -54,11 +59,6 @@ div.shotAttribute{
       position: absolute;
       margin-left: .2rem;
       pointer-events: none;
-    }
-
-    &:has(.text:focus-visible){
-      border-color: var(--accent);
-      outline-color: var(--accent);
     }
   }
 

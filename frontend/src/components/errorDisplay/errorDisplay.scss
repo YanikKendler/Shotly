@@ -1,0 +1,31 @@
+div.errorDisplay{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+
+  svg{
+    width: 80px;
+    height: auto;
+
+    *{
+      color: var(--bad-60);
+    }
+  }
+
+  p {
+    text-align: center;
+    color: var(--bad-60);
+
+    &.text{
+      font-size: 1rem;
+    }
+
+    &.message{
+      font-size: .9rem;
+      opacity: 70%;
+      max-width: 60ch;
+    }
+  }
+}

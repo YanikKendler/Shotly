@@ -36,8 +36,7 @@ const ShotTable = forwardRef((
     const [shots, setShots] = useState<{data: ShotDto[], loading: boolean, error: any}>({data: [], loading: true, error: null})
     const [focusAttributeAt, setFocusAttributeAt] = useState<number>(-1) //which attribute to set focus to next (-1 = dont move focus)
     const isSyncingScroll = useRef(false) //to not detect updating the scroll as a scroll
-    //const lastShotRef = useRef<React.ComponentRef<typeof Shot>>(null)
-    const shotRefs = useRef(new Map<ShotRef>())
+    const shotRefs = useRef(new Map<string, ShotRef | null>())
 
     const client = useApolloClient()
 
@@ -46,10 +45,13 @@ const ShotTable = forwardRef((
     const focusedAttrRef = useRef(shotlistContext.focusedShotAttribute)
     const shotAttributeCountRef = useRef(0)
 
+    // Used to conditionally render the dropLine
+    const [overId, setOverId] = useState<number | string | null>(null)
+    const [dropLinePosition, setDropLinePosition] = useState<"" | "top" | "bottom">("")
+
     useEffect(() => {
         focusedAttrRef.current = shotlistContext.focusedShotAttribute
     }, [shotlistContext.focusedShotAttribute])
-
 
     //everytime the shots change
     useEffect(() => {
@@ -74,8 +76,8 @@ const ShotTable = forwardRef((
             attributeElement.querySelector("p")?.focus() //for text inputs*!/
         }*/
 
-        if(shotRefs.current.get(-1)){
-            shotRefs.current.get(-1).setFocusToAttributeAt(focusAttributeAt)
+        if(shotRefs.current){
+            [...shotRefs.current.values()].at(-1)?.setFocusToAttributeAt(focusAttributeAt)
         }
 
         setFocusAttributeAt(-1)
@@ -114,14 +116,11 @@ const ShotTable = forwardRef((
             0,
             focusedAttrRef.current.column+column,
             shotAttributeCountRef.current
-        )
+        );
 
-        console.log(newRow, newColumn)
-
-        shotRefs
-            .current
-            .get(newRow)
-            .setFocusToAttributeAt(newColumn)
+        [...shotRefs.current.values()]
+            .at(newRow)?.
+            setFocusToAttributeAt(newColumn)
     }
 
     const sensors = useSensors(
@@ -213,7 +212,7 @@ const ShotTable = forwardRef((
             return;
         }
 
-        setFocusAttributeAt(attributePosition+1)
+        setFocusAttributeAt(attributePosition)
 
         shotlistContext.setShotCount(shots.data.length + 1)
 
@@ -301,6 +300,23 @@ const ShotTable = forwardRef((
                         onDragStart={() => {
                             shotlistContext.setElementIsBeingDragged(true)
                         }}
+                        onDragOver={event => {
+                            const { active, over } = event;
+
+                            if (over) {
+                                setOverId(over.id)
+
+                                console.log(over.id, active.id)
+
+                                //component being dragged
+                                const activeIndex = [...shotRefs.current.keys()].indexOf(String(active.id))
+                                //component being hovered over
+                                const overIndex = [...shotRefs.current.keys()].indexOf(String(over.id))
+
+                                if (activeIndex > overIndex) setDropLinePosition("top");
+                                else setDropLinePosition("bottom");
+                            }
+                        }}
                         modifiers={[restrictToVerticalAxis]}
                     >
                         <SortableContext
@@ -319,15 +335,18 @@ const ShotTable = forwardRef((
                                     ref={shots.data.length -1 == index ? lastShotRef : null}
 */
                                     ref={(node) => {
-                                        shotRefs.current.set(index, node);
+                                        shotRefs.current.set(shot.id, node);
 
                                         return () => {
-                                            shotRefs.current.delete(index);
+                                            shotRefs.current.delete(shot.id);
                                         };
                                     }}
                                 />
                             ))}
                         </SortableContext>
+                        <DragOverlay>
+                            {shotlistContext.elementIsBeingDragged ? <p>blabla</p> : null}
+                        </DragOverlay>
                     </DndContext>
                     {
                         !readOnly &&

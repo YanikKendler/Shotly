@@ -22,8 +22,6 @@ import AttributeValueSelect, {
     selectShotStyles
 } from "@/components/attributeValueSelect/attributeValueSelect"
 import {SceneAttributeParser, ShotAttributeParser} from "@/util/AttributeParser"
-import {ShotDto} from "../../../lib/graphql/generated"
-import {ShotRef} from "@/components/shot/shot"
 
 export interface ShotAttributeProps {
     attribute: AnyShotAttribute

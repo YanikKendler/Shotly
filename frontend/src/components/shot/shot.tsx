@@ -103,17 +103,22 @@ export default forwardRef<ShotRef, ShotProps>(
     }
 
     return (
-        <div className={`shot ${isBeingEdited && "active"}`} ref={setNodeRef} style={style}>
+        <div className={`shot ${isBeingEdited && "active"}`} ref={setNodeRef} /*style={style}*/>
             <div className="shotAttribute first number">
                 {
                     !readOnly &&
                     <Popover.Root onOpenChange={setIsBeingEdited}>
-                        <Tooltip.Root open={tooltipVisible} onOpenChange={(newOpen) => {if(!shotlistContext.elementIsBeingDragged) setTooltipVisible(newOpen)}} delayDuration={500}>
+                        <Tooltip.Root
+                            open={tooltipVisible}
+                            onOpenChange={(newOpen) => {if(!shotlistContext.elementIsBeingDragged) setTooltipVisible(newOpen)}}
+                            delayDuration={500}
+                        >
                             <Popover.Trigger
                                 className="grip"
                                 ref={setActivatorNodeRef}
                                 {...listeners}
                                 {...attributes}
+                                onDrag={() => setTooltipVisible(false)}
                             >
                                 <Tooltip.Trigger className={"noPadding gripTooltipTrigger"} asChild>
                                     <GripVertical/>

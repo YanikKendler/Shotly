@@ -84,7 +84,9 @@ const styles = StyleSheet.create({
     bottomText: {
         color: 'gray',
     },
-});
+})
+
+//TODO add nice comments
 
 // Create Document Component
 export default function PDFExport({data}: { data: ShotlistDto | null }) {

@@ -43,6 +43,8 @@ import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
 import {Config} from "@/util/Utils"
 import {ShotAttributeRef} from "@/components/shotAttribute/shotAttribute"
+import SheetManager from "@/components/spreadsheet/sheetManager/sheetManager"
+import {SelectOption} from "@/util/Types"
 
 export default function Shotlist() {
     const params = useParams<{ id: string }>()
@@ -62,6 +64,8 @@ export default function Shotlist() {
     const [shotCount, setShotCount] = useState(0);
     const [sceneCount, setSceneCount] = useState(0);
     const [focusedShotAttribute, setFocusedShotAttribute] = useState<ShotAttributeRef | null>(null);
+
+    const shotSelectOptionsCache = useRef(new Map<number, SelectOption[]>())
 
     useEffect(() => {
         console.log("im now focused", focusedShotAttribute)
@@ -137,6 +141,47 @@ export default function Shotlist() {
             }
         }
     }, [shotlist]);
+
+    const getShotSelectOptions = async (shotAttributeDefinitionId: number): Promise<SelectOption[]> => {
+        //requested options are not in the cache
+        if(!shotSelectOptionsCache.current.has(shotAttributeDefinitionId)) {
+            const {data} = await client.query({
+                query: gql`
+                    query getShotSelectAttributeOptions($definitionId: BigInteger!) {
+                        shotSelectAttributeOptions(
+                            attributeDefinitionId: $definitionId
+                        ) {
+                            id
+                            name
+                        }
+                    }
+                `,
+                variables: {definitionId: shotAttributeDefinitionId},
+                fetchPolicy: 'no-cache'
+            })
+
+            shotSelectOptionsCache.current.set(
+                shotAttributeDefinitionId,
+                data.shotSelectAttributeOptions.map((option: any): SelectOption => ({
+                    value: option.id,
+                    label: option.name,
+                }))
+            )
+        }
+
+
+        return shotSelectOptionsCache.current.get(shotAttributeDefinitionId) || []
+    }
+
+    const searchShotSelectOptions = async (shotAttributeDefinitionId: number, search: string): Promise<SelectOption[]> => {
+        const allOptions = await getShotSelectOptions(shotAttributeDefinitionId)
+        return allOptions.filter(option => option.label.toLowerCase().includes(search.toLowerCase()))
+    }
+
+    const addShotSelectOption = async (shotAttributeDefinitionId: number, option: SelectOption) => {
+        const allOptions = await getShotSelectOptions(shotAttributeDefinitionId)
+        shotSelectOptionsCache.current.set(shotAttributeDefinitionId, [...allOptions, option])
+    }
 
     const loadData = async (noCache: boolean = false) => {
         const {data, errors, loading} = await client.query({
@@ -379,7 +424,10 @@ export default function Shotlist() {
             sceneCount: sceneCount,
             setSceneCount: setSceneCount,
             focusedShotAttribute: focusedShotAttribute,
-            setFocusedShotAttribute: setFocusedShotAttribute
+            setFocusedShotAttribute: setFocusedShotAttribute,
+            getShotSelectOptions: getShotSelectOptions,
+            searchShotSelectOptions: searchShotSelectOptions,
+            addShotSelectOption: addShotSelectOption
         }}>
             {
                 isReadOnly &&
@@ -471,13 +519,14 @@ export default function Shotlist() {
                                 ))
                             }
                         </div>
-                        <ShotTable
+                        {/*<ShotTable
                             ref={shotTableRef}
                             sceneId={selectedSceneId}
                             shotAttributeDefinitions={shotlist.data.shotAttributeDefinitions as ShotAttributeDefinitionBase[]}
                             readOnly={ isReadOnly }
                             shotlistHeaderRef={headerRef}
-                        />
+                        />*/}
+                        <SheetManager sceneId={selectedSceneId}/>
                     </Panel>
                 </PanelGroup>
                 <button className="openSidebar" onClick={() => setSidebarOpen(true)}><Menu/></button>
@@ -491,6 +540,7 @@ export default function Shotlist() {
                     loadData(true).then(() => {
                         setReloadKey(reloadKey + 1)
                     })
+                    shotSelectOptionsCache.current.clear()
                 }}
             ></ShotlistOptionsDialog>
             {AccountDialog}

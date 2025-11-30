@@ -4,6 +4,22 @@ import React, {useCallback, useEffect, useRef, useState} from "react"
 import "./input.scss"
 import {wuGeneral} from "@yanikkendler/web-utils/dist"
 
+/**
+ * simple input wrapper for use in static UIs like settings pages
+ * @param label
+ * @param value
+ * @param defaultValue
+ * @param valueChange
+ * @param placeholder
+ * @param info
+ * @param disabled
+ * @param maxLength
+ * @param maxWidth
+ * @param inputClass
+ * @param showError
+ * @param debounceValueChange
+ * @constructor
+ */
 export default function Input(
     {
         label,

@@ -111,7 +111,7 @@ export default function ExportTab({shotlist}: { shotlist: ShotlistDto | null}) {
     }
 
     async function exportShotlist() {
-        const data = await getData()
+        const data: ShotlistDto | null = await getData()
 
         if (!data) {
             console.error("No data found for export");
@@ -120,72 +120,81 @@ export default function ExportTab({shotlist}: { shotlist: ShotlistDto | null}) {
 
         switch (selectedFileType) {
             case "CSV-small":
-                let smallData: string[][] = []
-
-                let header: string[] = ["Shot"]; //this semicolon is actually needed :3 (typescript stupid)
-                (data.shotAttributeDefinitions as AnyShotAttributeDefinition[]).forEach(attr => {
-                    header.push(attr.name || "Unnamed")
-                }); //this one too
-
-                (data.scenes as SceneDto[]).forEach((scene) => {
-                    (scene.shots as ShotDto[]).forEach(shot => {
-                        let row: string[] = [scene.position + 1 + Utils.numberToShotLetter(shot.position)]; //mmh
-
-                        (shot.attributes as AnyShotAttribute[]).forEach(attribute => {
-                            row.push(ShotAttributeParser.toValueString(attribute, false))
-                        })
-                        smallData.push(row)
-                    })
-                })
-
-                downloadCSV(smallData, header, ";", generateFileName())
-
+                exportCSVSmall(data)
                 break
             case "CSV-full":
-                let fullData: string[][] = [];
-
-                let sceneHeader: string[] = ["Scene"]; //ts :(
-                (data.sceneAttributeDefinitions as AnySceneAttributeDefinition[]).forEach(attr => {
-                    sceneHeader.push(attr.name || "Unnamed")
-                });
-
-                let shotHeader: string[] = ["Shot"]; //hrmmm
-                (data.shotAttributeDefinitions as AnyShotAttributeDefinition[]).forEach(attr => {
-                    shotHeader.push(attr.name || "Unnamed")
-                });
-
-                (data.scenes as SceneDto[]).forEach((scene) => {
-                    let sceneRow: string[] = ["Scene " + (scene.position + 1)]; // :(
-                    (scene.attributes as AnySceneAttribute[]).forEach((attribute) => {
-                        sceneRow.push(SceneAttributeParser.toValueString(attribute, false))
-                    })
-                    fullData.push(sceneRow)
-                    fullData.push(shotHeader); //...
-
-                    (scene.shots as ShotDto[]).forEach(shot => {
-                        let row: string[] = [Utils.numberToShotLetter(shot.position)]; //hrmpf
-
-                        (shot.attributes as AnyShotAttribute[]).forEach(attribute => {
-                            row.push(ShotAttributeParser.toValueString(attribute, false))
-                        })
-                        fullData.push(row)
-                    })
-                })
-
-                downloadCSV(fullData, sceneHeader, ";", generateFileName())
-
+                exportCSVFull(data)
                 break
             case "PDF":
-                const blob = await pdf(<PDFExport data={data}/>).toBlob()
-                const url = URL.createObjectURL(blob)
-                const link = document.createElement('a')
-                link.href = url
-                link.download = generateFileName() + ".pdf"
-                link.click()
-                URL.revokeObjectURL(url)
+                exportPDF(data)
                 break
         }
+    }
 
+    function exportCSVSmall(data: ShotlistDto){
+        let smallData: string[][] = []
+
+        let header: string[] = ["Shot"]; //this semicolon is actually needed :3 (typescript stupid)
+        (data.shotAttributeDefinitions as AnyShotAttributeDefinition[]).forEach(attr => {
+            header.push(attr.name || "Unnamed")
+        }); //this one too
+
+        (data.scenes as SceneDto[]).forEach((scene) => {
+            (scene.shots as ShotDto[]).forEach(shot => {
+                let row: string[] = [scene.position + 1 + Utils.numberToShotLetter(shot.position)]; //mmh
+
+                (shot.attributes as AnyShotAttribute[]).forEach(attribute => {
+                    row.push(ShotAttributeParser.toValueString(attribute, false))
+                })
+                smallData.push(row)
+            })
+        })
+
+        downloadCSV(smallData, header, ";", generateFileName())
+    }
+
+    function exportCSVFull(data: ShotlistDto){
+        let fullData: string[][] = []
+
+        let sceneHeader: string[] = ["Scene"]; //ts :(
+        (data.sceneAttributeDefinitions as AnySceneAttributeDefinition[]).forEach(attr => {
+            sceneHeader.push(attr.name || "Unnamed")
+        });
+
+        let shotHeader: string[] = ["Shot"]; //hrmmm
+        (data.shotAttributeDefinitions as AnyShotAttributeDefinition[]).forEach(attr => {
+            shotHeader.push(attr.name || "Unnamed")
+        });
+
+        (data.scenes as SceneDto[]).forEach((scene) => {
+            let sceneRow: string[] = ["Scene " + (scene.position + 1)]; // :(
+            (scene.attributes as AnySceneAttribute[]).forEach((attribute) => {
+                sceneRow.push(SceneAttributeParser.toValueString(attribute, false))
+            })
+            fullData.push(sceneRow)
+            fullData.push(shotHeader); //...
+
+            (scene.shots as ShotDto[]).forEach(shot => {
+                let row: string[] = [Utils.numberToShotLetter(shot.position)]; //hrmpf
+
+                (shot.attributes as AnyShotAttribute[]).forEach(attribute => {
+                    row.push(ShotAttributeParser.toValueString(attribute, false))
+                })
+                fullData.push(row)
+            })
+        })
+
+        downloadCSV(fullData, sceneHeader, ";", generateFileName())
+    }
+
+    async function exportPDF(data: ShotlistDto){
+        const blob = await pdf(<PDFExport data={data}/>).toBlob()
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = generateFileName() + ".pdf"
+        link.click()
+        URL.revokeObjectURL(url)
     }
 
     function generateFileName() {

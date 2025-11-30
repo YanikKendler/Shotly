@@ -65,14 +65,13 @@ export const selectShotStyles: StylesConfig<SelectOption, boolean, GroupBase<Sel
     ...reactSelectBaseStyles,
     control: (baseStyles, state) => ({
         ...baseStyles,
-        borderColor: state.isFocused ? 'var(--accent)' : 'transparent',
+        border: "none",
+        outline: "none",
+        boxShadow: "none",
         backgroundColor: "var(--shot-background)",
         zIndex: state.isFocused ? 100 : 0,
         cursor: 'text',
         transition: 'background-color 0.2s ease, border-color 0.2s ease',
-        '&:hover': {
-            borderColor: state.isFocused ? 'var(--accent)' : 'transparent',
-        },
         height: "inherit",
     })
 }
@@ -241,6 +240,7 @@ function AttributeValueSelect(
             styles={styles}
             menuPlacement="auto"
             ref={selectRef}
+            cacheOptions={null}
 
 /*
             menuIsOpen={true}
