@@ -80,7 +80,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             href: '../dashboard'
         }
     }}/>
-    if(query.loading) return <LoadingPage text={"loading your dashboard"}/>
+    if(query.loading) return <LoadingPage title={"loading your dashboard"}/>
 
     return (
         <main className="home">

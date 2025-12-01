@@ -2,9 +2,10 @@
 
 import gql from "graphql-tag"
 import React, {use, useEffect, useRef, useState} from "react"
-import {useApolloClient} from "@apollo/client"
+import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import Scene from "@/components/scene/scene"
 import {
+    Query,
     SceneDto,
     ShotAttributeDefinitionBase,
     ShotlistDto, UserDto
@@ -41,7 +42,7 @@ import Iconmark from "@/components/iconmark"
 import {Metadata} from "next"
 import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
-import {Config} from "@/util/Utils"
+import Utils, {Config} from "@/util/Utils"
 import {ShotAttributeRef} from "@/components/shotAttribute/shotAttribute"
 import SheetManager from "@/components/spreadsheet/sheetManager/sheetManager"
 import {SelectOption} from "@/util/Types"
@@ -53,7 +54,7 @@ export default function Shotlist() {
     const searchParams = useSearchParams()
     const sceneId = searchParams?.get('sid')
 
-    const [shotlist, setShotlist] = useState<{data: ShotlistDto , loading: boolean, error: any}>({data: {} as ShotlistDto, loading: true, error: null})
+    const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
     const [selectedSceneId, setSelectedSceneId] = useState(sceneId || "")
     const [optionsDialogOpen, setOptionsDialogOpen] = useState(false)
     const [selectedOptionsDialogPage, setSelectedOptionsDialogPage] = useState<{main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage}>({main: "general", sub: "shot"})
@@ -131,13 +132,13 @@ export default function Shotlist() {
     }, [id])
 
     useEffect(() => {
-        if(!shotlist.loading && !shotlist.error && shotlist.data && shotlist.data.id) {
+        if(!query.loading && !query.error && query.data && query.data.shotlist && query.data.shotlist.id) {
             if(localStorage["shotly-shotlist-tour-completed"] != "true") {
                 localStorage["shotly-shotlist-tour-completed"] = "true"
                 driverObj.drive()
             }
         }
-    }, [shotlist]);
+    }, [query]);
 
     const getShotSelectOptions = async (shotAttributeDefinitionId: number): Promise<SelectOption[]> => {
         //requested options are not in the cache
@@ -181,7 +182,7 @@ export default function Shotlist() {
     }
 
     const loadData = async (noCache: boolean = false) => {
-        const {data, errors, loading} = await client.query({
+        const result = await client.query({
             query: gql`
                 query shotlist($id: String!){
                     shotlist(id: $id){
@@ -228,13 +229,19 @@ export default function Shotlist() {
             errorPolicy: "all",
         })
 
-        if(data.shotlist && data.shotlist.owner && data.shotlist.owner.tier == "BASIC" && data.shotlist.owner.shotlistCount > 1) {
+        //users in basic mode are only allowed to have one single shotlist
+        if(
+            result.data.shotlist &&
+            result.data.shotlist.owner &&
+            result.data.shotlist.owner.tier == "BASIC" &&
+            result.data.shotlist.owner.shotlistCount > 1
+        ) {
             setIsReadOnly(true)
         }
 
-        setSceneCount(data.shotlist.scenes.length || 0)
+        setSceneCount(result.data.shotlist.scenes.length || 0)
 
-        setShotlist({data: data.shotlist, loading: loading, error: errors})
+        setQuery(result)
     }
 
     const updateShotlistName = async (name: string) => {
@@ -258,11 +265,16 @@ export default function Shotlist() {
             return;
         }
 
-        setShotlist({
-            ...shotlist,
+        const newShotlist: ShotlistDto = {
+            ...query.data.shotlist,
+            name: data.updateShotlist.name
+        }
+
+        setQuery({
+            ...query,
             data: {
-                ...shotlist.data,
-                name: data.updateShotlist.name
+                ...query.data,
+                shotlist: newShotlist
             }
         })
     }
@@ -278,15 +290,15 @@ export default function Shotlist() {
     }
 
     const removeScene = (sceneId: string) => {
-        if(!shotlist.data.scenes) return
+        if(!query.data.shotlist || !query.data.shotlist.scenes) return
 
-        let currentScenes = shotlist.data.scenes as SceneDto[]
+        let currentScenes = query.data.shotlist.scenes as SceneDto[]
         let newScenes: SceneDto[] = currentScenes.filter((scene: SceneDto) => scene.id != sceneId)
 
-        setShotlist({
-            ...shotlist,
+        setQuery({
+            ...query,
             data: {
-                ...shotlist.data,
+                ...query.data,
                 scenes: newScenes
             }
         })
@@ -329,15 +341,15 @@ export default function Shotlist() {
             return;
         }
 
-        let currentScenes = shotlist.data.scenes as SceneDto[]
+        let currentScenes = query.data.shotlist?.scenes as SceneDto[]
         let newScenes: SceneDto[] = []
         if(currentScenes) newScenes = [...currentScenes]
         newScenes.push(data.createScene)
 
-        setShotlist({
-            ...shotlist,
+        setQuery({
+            ...query,
             data: {
-                ...shotlist.data,
+                ...query.data,
                 scenes: newScenes
             }
         })
@@ -352,9 +364,9 @@ export default function Shotlist() {
 
         const {active, over} = event;
 
-        if (active.id !== over.id && shotlist && shotlist.data.scenes && shotlist.data.scenes.length > 0) {
-            const oldIndex = shotlist.data.scenes!.findIndex((scene) => scene!.id === active.id);
-            const newIndex = shotlist.data.scenes!.findIndex((scene) => scene!.id === over.id);
+        if (active.id !== over.id && query && query.data.shotlist?.scenes && query.data.shotlist.scenes.length > 0) {
+            const oldIndex = query.data.shotlist.scenes!.findIndex((scene) => scene!.id === active.id);
+            const newIndex = query.data.shotlist.scenes!.findIndex((scene) => scene!.id === over.id);
 
             moveScene(active.id, oldIndex, newIndex);
         }
@@ -376,11 +388,11 @@ export default function Shotlist() {
             variables: {id: sceneId, position: to},
         })
 
-        setShotlist(() => {
-            let newData = {...shotlist.data}
+        setQuery(() => {
+            let newData = {...query.data}
             newData.scenes = arrayMove(newData.scenes || [], from, to)
 
-            return {data: newData, error: shotlist.error, loading: shotlist.loading}
+            return {...query, data: newData}
         })
     }
 
@@ -389,27 +401,28 @@ export default function Shotlist() {
         setOptionsDialogOpen(true)
     }
 
-    if(shotlist.error) return <ErrorPage settings={{
-        title: 'Data could not be loaded',
-        description: shotlist.error.message,
-        link: {
+    if(query.error) return <ErrorPage
+        title='Data could not be loaded'
+        description={query.error.message}
+        link={{
             text: 'Dashboard',
-            href: '../dashboard'
-        }
-    }}/>
+            href: '/dashboard'
+        }}
+    />
 
-    if(shotlist.loading) return <LoadingPage text={"loading shotlist"}/>
+    if(query.loading) return <LoadingPage title={"loading shotlist"}/>
 
-    if(!shotlist.data) return <ErrorPage settings={{
-        title: '404',
-        description: 'Sorry, we could not find the shotlist you were looking for. Please check the URL or return to the dashboard.',
-        link: {
+    if(!query.data || !query.data.shotlist) return <ErrorPage
+        title='404'
+        description='Sorry, we could not find the shotlist you were looking for. Please check the URL or return to the dashboard.'
+        link={{
             text: 'Dashboard',
-            href: '../dashboard'
-        }
-    }}/>
+            href: '/dashboard'
+        }}
+    />
 
-    if(selectedSceneId == "" && shotlist?.data?.scenes && shotlist.data.scenes[0]?.id != undefined) setSelectedSceneId(shotlist?.data?.scenes[0].id)
+    if(selectedSceneId == "" && query.data.shotlist.scenes && query.data.shotlist.scenes[0]?.id != undefined)
+        setSelectedSceneId(query.data.shotlist.scenes[0].id)
 
     return (
         <ShotlistContext.Provider value={{
@@ -451,7 +464,7 @@ export default function Shotlist() {
                                 <p>/</p>
                                 <input
                                     type="text"
-                                    defaultValue={shotlist.data.name || ""}
+                                    defaultValue={query.data.shotlist?.name || ""}
                                     placeholder={"shotlist name"}
                                     onInput={e => debounceUpdateShotlistName(e.currentTarget.value)}
                                     role={"heading"}
@@ -459,7 +472,7 @@ export default function Shotlist() {
                             </div>
                             {/*TODO this absolutely should be its own component wth*/}
                             <div className="list" id="sceneList">
-                                {!shotlist.data.scenes || shotlist.data.scenes.length == 0 ?
+                                {!query.data.shotlist.scenes || query.data.shotlist.scenes.length == 0 ?
                                     <p className={"empty"}>No scenes yet :(</p> :
                                     <DndContext
                                         sensors={sensors}
@@ -471,10 +484,10 @@ export default function Shotlist() {
                                         modifiers={[restrictToVerticalAxis]}
                                     >
                                         <SortableContext
-                                            items={(shotlist.data?.scenes as SceneDto[]).map(scene => scene.id) as string[]}
+                                            items={(query.data.shotlist?.scenes as SceneDto[]).map(scene => scene.id) as string[]}
                                             strategy={verticalListSortingStrategy}
                                         >
-                                            {(shotlist.data?.scenes as SceneDto[]).map((scene: SceneDto, index) => (
+                                            {(query.data.shotlist?.scenes as SceneDto[]).map((scene: SceneDto, index) => (
                                                 <Scene
                                                     key={scene.id}
                                                     scene={scene}
@@ -509,9 +522,9 @@ export default function Shotlist() {
                     <Panel className="content" id={"shotTable"}>
                         <div className="header" ref={headerRef}>
                             <div className="number"><p>#</p></div>
-                            {!shotlist.data.shotAttributeDefinitions || shotlist.data.shotAttributeDefinitions.length == 0 ?
+                            {!query.data.shotlist.shotAttributeDefinitions || query.data.shotlist.shotAttributeDefinitions.length == 0 ?
                                 <p className={"empty"}>No shot attributes defined</p> :
-                                (shotlist.data.shotAttributeDefinitions as ShotAttributeDefinitionBase[]).map((attr: any, index) => (
+                                (query.data.shotlist.shotAttributeDefinitions as ShotAttributeDefinitionBase[]).map((attr: any, index) => (
                                     <div className={`attribute`} key={attr.id}><p>{attr.name || "Unnamed"}</p></div>
                                 ))
                             }
@@ -525,7 +538,7 @@ export default function Shotlist() {
                         />*/}
                         <SheetManager
                             sceneId={selectedSceneId}
-                            shotAttributeDefinitions={shotlist.data.shotAttributeDefinitions as ShotAttributeDefinitionBase[]}
+                            shotAttributeDefinitions={query.data.shotlist.shotAttributeDefinitions as ShotAttributeDefinitionBase[]}
                         />
                     </Panel>
                 </PanelGroup>
@@ -535,7 +548,7 @@ export default function Shotlist() {
                 isOpen={optionsDialogOpen}
                 setIsOpen={setOptionsDialogOpen}
                 selectedPage={selectedOptionsDialogPage}
-                shotlistId={shotlist.data.id || ""}
+                shotlistId={query.data.shotlist?.id || ""}
                 refreshShotlist={() => {
                     loadData(true).then(() => {
                         setReloadKey(reloadKey + 1)

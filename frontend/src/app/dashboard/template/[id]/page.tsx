@@ -360,7 +360,7 @@ export default function Template (){
         }
     }}/></main>
 
-    if(template.loading) return <LoadingPage text={"loading template"}/>
+    if(template.loading) return <LoadingPage title={"loading template"}/>
 
     if(!template.data) return <main className={"dashboardContent"}><ErrorPage settings={{
         title: '404',

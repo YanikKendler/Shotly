@@ -11,6 +11,6 @@ export default function LoginRedirectPage() {
     }, []);
 
     return (
-        <LoadingPage text={"logging you in"}/>
+        <LoadingPage title={"logging you in"}/>
     )
 }

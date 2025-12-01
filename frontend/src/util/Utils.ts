@@ -81,7 +81,7 @@ export default class Utils {
     }
 
     static defaultQueryResult = {
-        data: null,
+        data: {},
         loading: true,
         errors: undefined,
         networkStatus: NetworkStatus.loading

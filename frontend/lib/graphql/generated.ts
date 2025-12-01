@@ -809,10 +809,10 @@ export type ShotlistDto = {
   name?: Maybe<Scalars['String']['output']>;
   owner?: Maybe<UserDto>;
   sceneAttributeDefinitions?: Maybe<Array<Maybe<SceneAttributeDefinitionBase>>>;
-  sceneCount: Scalars['Int']['output'];
+  sceneCount?: Maybe<Scalars['Int']['output']>;
   scenes?: Maybe<Array<Maybe<SceneDto>>>;
   shotAttributeDefinitions?: Maybe<Array<Maybe<ShotAttributeDefinitionBaseDto>>>;
-  shotCount: Scalars['Int']['output'];
+  shotCount?: Maybe<Scalars['Int']['output']>;
   template?: Maybe<Template>;
 };
 
@@ -897,12 +897,12 @@ export enum UserTier {
 export type HomeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type HomeQuery = { __typename?: 'Query', shotlists?: Array<{ __typename?: 'ShotlistDTO', id?: string | null, name?: string | null, sceneCount: number, shotCount: number, editedAt?: any | null } | null> | null, templates?: Array<{ __typename?: 'TemplateDTO', id?: string | null, name?: string | null } | null> | null };
+export type HomeQuery = { __typename?: 'Query', shotlists?: Array<{ __typename?: 'ShotlistDTO', id?: string | null, name?: string | null, sceneCount?: number | null, shotCount?: number | null, editedAt?: any | null } | null> | null, templates?: Array<{ __typename?: 'TemplateDTO', id?: string | null, name?: string | null } | null> | null };
 
 export type DashboardQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type DashboardQuery = { __typename?: 'Query', shotlists?: Array<{ __typename?: 'ShotlistDTO', id?: string | null, name?: string | null, sceneCount: number, shotCount: number, editedAt?: any | null, owner?: { __typename?: 'UserDTO', name?: string | null } | null } | null> | null, templates?: Array<{ __typename?: 'TemplateDTO', id?: string | null, name?: string | null, shotAttributeCount: number, sceneAttributeCount: number, owner?: { __typename?: 'UserDTO', name?: string | null } | null } | null> | null };
+export type DashboardQuery = { __typename?: 'Query', shotlists?: Array<{ __typename?: 'ShotlistDTO', id?: string | null, name?: string | null, sceneCount?: number | null, shotCount?: number | null, editedAt?: any | null, owner?: { __typename?: 'UserDTO', name?: string | null } | null } | null> | null, templates?: Array<{ __typename?: 'TemplateDTO', id?: string | null, name?: string | null, shotAttributeCount: number, sceneAttributeCount: number, owner?: { __typename?: 'UserDTO', name?: string | null } | null } | null> | null };
 
 export type TemplateQueryVariables = Exact<{
   id: Scalars['String']['input'];
@@ -962,6 +962,13 @@ export type CheckCurrentUserTierQueryVariables = Exact<{ [key: string]: never; }
 
 
 export type CheckCurrentUserTierQuery = { __typename?: 'Query', currentUser?: { __typename?: 'UserDTO', id?: string | null, tier?: UserTier | null, hasCancelled: boolean } | null };
+
+export type GetShotSelectAttributeOptionsQueryVariables = Exact<{
+  definitionId: Scalars['BigInteger']['input'];
+}>;
+
+
+export type GetShotSelectAttributeOptionsQuery = { __typename?: 'Query', shotSelectAttributeOptions?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null };
 
 export type ShotlistQueryVariables = Exact<{
   id: Scalars['String']['input'];
@@ -1087,7 +1094,7 @@ export type DataQueryVariables = Exact<{
 }>;
 
 
-export type DataQuery = { __typename?: 'Query', shotlist?: { __typename?: 'ShotlistDTO', id?: string | null, name?: string | null, sceneCount: number, shotCount: number, editedAt?: any | null, createdAt?: any | null, owner?: { __typename?: 'UserDTO', name?: string | null, tier?: UserTier | null, shotlistCount: number } | null } | null, shotAttributeDefinitions?: Array<{ __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, options?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null } | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, options?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null } | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number } | null> | null, sceneAttributeDefinitions?: Array<{ __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, options?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null } | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, options?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null } | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number } | null> | null };
+export type DataQuery = { __typename?: 'Query', shotlist?: { __typename?: 'ShotlistDTO', id?: string | null, name?: string | null, sceneCount?: number | null, shotCount?: number | null, editedAt?: any | null, createdAt?: any | null, owner?: { __typename?: 'UserDTO', name?: string | null, tier?: UserTier | null, shotlistCount: number } | null } | null, shotAttributeDefinitions?: Array<{ __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, options?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null } | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, options?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null } | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number } | null> | null, sceneAttributeDefinitions?: Array<{ __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, options?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null } | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, options?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null } | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number } | null> | null };
 
 export type DeleteSceneMutationVariables = Exact<{
   sceneId: Scalars['String']['input'];
@@ -1742,6 +1749,47 @@ export type CheckCurrentUserTierQueryHookResult = ReturnType<typeof useCheckCurr
 export type CheckCurrentUserTierLazyQueryHookResult = ReturnType<typeof useCheckCurrentUserTierLazyQuery>;
 export type CheckCurrentUserTierSuspenseQueryHookResult = ReturnType<typeof useCheckCurrentUserTierSuspenseQuery>;
 export type CheckCurrentUserTierQueryResult = Apollo.QueryResult<CheckCurrentUserTierQuery, CheckCurrentUserTierQueryVariables>;
+export const GetShotSelectAttributeOptionsDocument = gql`
+    query getShotSelectAttributeOptions($definitionId: BigInteger!) {
+  shotSelectAttributeOptions(attributeDefinitionId: $definitionId) {
+    id
+    name
+  }
+}
+    `;
+
+/**
+ * __useGetShotSelectAttributeOptionsQuery__
+ *
+ * To run a query within a React component, call `useGetShotSelectAttributeOptionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetShotSelectAttributeOptionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetShotSelectAttributeOptionsQuery({
+ *   variables: {
+ *      definitionId: // value for 'definitionId'
+ *   },
+ * });
+ */
+export function useGetShotSelectAttributeOptionsQuery(baseOptions: Apollo.QueryHookOptions<GetShotSelectAttributeOptionsQuery, GetShotSelectAttributeOptionsQueryVariables> & ({ variables: GetShotSelectAttributeOptionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetShotSelectAttributeOptionsQuery, GetShotSelectAttributeOptionsQueryVariables>(GetShotSelectAttributeOptionsDocument, options);
+      }
+export function useGetShotSelectAttributeOptionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetShotSelectAttributeOptionsQuery, GetShotSelectAttributeOptionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetShotSelectAttributeOptionsQuery, GetShotSelectAttributeOptionsQueryVariables>(GetShotSelectAttributeOptionsDocument, options);
+        }
+export function useGetShotSelectAttributeOptionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetShotSelectAttributeOptionsQuery, GetShotSelectAttributeOptionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetShotSelectAttributeOptionsQuery, GetShotSelectAttributeOptionsQueryVariables>(GetShotSelectAttributeOptionsDocument, options);
+        }
+export type GetShotSelectAttributeOptionsQueryHookResult = ReturnType<typeof useGetShotSelectAttributeOptionsQuery>;
+export type GetShotSelectAttributeOptionsLazyQueryHookResult = ReturnType<typeof useGetShotSelectAttributeOptionsLazyQuery>;
+export type GetShotSelectAttributeOptionsSuspenseQueryHookResult = ReturnType<typeof useGetShotSelectAttributeOptionsSuspenseQuery>;
+export type GetShotSelectAttributeOptionsQueryResult = Apollo.QueryResult<GetShotSelectAttributeOptionsQuery, GetShotSelectAttributeOptionsQueryVariables>;
 export const ShotlistDocument = gql`
     query shotlist($id: String!) {
   shotlist(id: $id) {

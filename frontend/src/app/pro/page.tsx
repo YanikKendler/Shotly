@@ -47,7 +47,7 @@ export default function Pro(){
         })
     }, []);
 
-    if(isLoading) return <LoadingPage text={"loading account data"}/>
+    if(isLoading) return <LoadingPage title={"loading account data"}/>
 
     return (
         <main className={"pro"}>

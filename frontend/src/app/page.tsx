@@ -21,7 +21,7 @@ import Image from "next/image"
 import {Popover, Separator, Tooltip} from "radix-ui"
 import AuthSwitcher from "@/components/authSwitcher/authSwitcher"
 import ThemeSwitcher from "@/components/themeSwitcher/themeSwitcher"
-import Skeleton from "@/components/skeleton/skeleton"
+import Skeleton from "react-loading-skeleton"
 
 export default function Landing() {
     const pageRef = useRef<HTMLDivElement>(null);

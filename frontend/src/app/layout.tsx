@@ -1,4 +1,5 @@
 import "./globals.scss"
+import 'react-loading-skeleton/dist/skeleton.css'
 import React from "react"
 import {ApolloWrapper} from "@/ApolloWrapper"
 import SelectRefreshProvider from "@/context/SelectRefreshContext"
@@ -8,6 +9,7 @@ import AuthWrapper from "@/AuthWrapper"
 import NotificationWrapper from "@/NotificationWrapper"
 import {Config} from "@/util/Utils"
 import {Metadata, Viewport} from "next"
+import {SkeletonTheme} from "react-loading-skeleton"
 
 export const metadata: Metadata = {
     title: "Shotly | Shotlist creation made easy",
@@ -117,7 +119,9 @@ export default function RootLayout({
                             <NotificationWrapper>
                                 <Tooltip.Provider>
                                     <SelectRefreshProvider>
-                                        {children}
+                                        <SkeletonTheme baseColor="var(--skelleton-base-color)" highlightColor="var(--skelleton-highlight-color)">
+                                            {children}
+                                        </SkeletonTheme>
                                     </SelectRefreshProvider>
                                 </Tooltip.Provider>
                             </NotificationWrapper>

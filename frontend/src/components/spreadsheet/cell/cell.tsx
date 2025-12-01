@@ -18,7 +18,7 @@ export interface CellRef {
 
 interface CellProps {
     attribute?: AnyShotAttribute
-    type?: ("default" | "number" | "create")[]
+    type?: ("default" | "number" | "create" | "loader")[]
     children?: ReactNode
     row: number
     column: number

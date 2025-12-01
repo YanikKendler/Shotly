@@ -2,12 +2,11 @@
   border: 1px solid var(--cell-border);
   position: relative;
 
-  &.default{
+  &:not(.number){
     width: 100%;
   }
 
   &.create{
-    width: 100%;
     display: flex;
     justify-content: space-between;
     height: 38px;
@@ -32,11 +31,22 @@
   }
 
   &.number{
-    display: grid;
-    place-content: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     min-width: 4ch;
-    width: auto;
     font-weight: 600;
+  }
+
+  &.loader{
+    line-height: 1;
+    overflow: hidden;
+    span{
+      font-size: 2.2rem;
+      flex: 1;
+      width: 100%;
+      border-radius: 0;
+    }
   }
 
   &::before{

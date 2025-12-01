@@ -5,7 +5,7 @@ import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import Loader from "@/components/loader/loader"
 import ErrorDisplay from "@/components/errorDisplay/errorDisplay"
 import "./sheetManager.scss"
-import {ShotAttributeDefinitionBase, ShotDto} from "../../../../lib/graphql/generated"
+import {Query, ShotAttributeDefinitionBase, ShotDto} from "../../../../lib/graphql/generated"
 import Row from "@/components/spreadsheet/row/row"
 import {AnyShotAttribute, AnyShotAttributeDefinition} from "@/util/Types"
 import Utils from "@/util/Utils"
@@ -14,10 +14,12 @@ import { tinykeys } from "@/../node_modules/tinykeys/dist/tinykeys"//package has
 import {wuText} from "@yanikkendler/web-utils"
 import {ShotAttributeDefinitionParser} from "@/util/AttributeParser"
 import {useSelectRefresh} from "@/context/SelectRefreshContext"
+import Skeleton from "react-loading-skeleton"
 
 /**
  * Query's shots based on the passed sceneId and displays them in a spreadsheet, handles all spreadsheet actions
  * @param sceneId
+ * @param shotAttributeDefinitions
  * @constructor
  */
 export default function SheetManager({
@@ -34,14 +36,16 @@ export default function SheetManager({
     //Map[row = shot][column = attribute]
     const cellRefs = useRef(new Map<number, Map<number, CellRef | null>>)
 
-    const [shots, setShots] = useState<ApolloQueryResult<any>>(Utils.defaultQueryResult)
+    const [shots, setShots] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
+    //const [showCreationLoader, setShowCreationLoader] = useState(false)
+    const creationLoaderRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         let unsubscribe = tinykeys(window, {
-            "ArrowLeft": () => moveFocusedCell(0, -1),
-            "ArrowRight": () => moveFocusedCell(0, 1),
-            "ArrowUp": () => moveFocusedCell(-1, 0),
-            "ArrowDown": () => moveFocusedCell(1, 0),
+            "ArrowLeft": (e) => moveFocusedCell(e, 0, -1),
+            "ArrowRight": (e) => moveFocusedCell(e, 0, 1),
+            "ArrowUp": (e) => moveFocusedCell(e, -1, 0),
+            "ArrowDown": (e) => moveFocusedCell(e, 1, 0),
         })
         return () => {
             unsubscribe()
@@ -61,12 +65,21 @@ export default function SheetManager({
         }
     }, [sceneId])
 
+    const setCreationLoaderVisibility = (visible:boolean) => {
+        if(!creationLoaderRef.current) return
+
+        creationLoaderRef.current.style.display = visible ? "block" : "none"
+    }
+
     const refocusCell = () =>{
         getCellRef(shotlistContext.focusedCell.current.row, shotlistContext.focusedCell.current.column)?.setFocus()
     }
 
-    const moveFocusedCell = useCallback((row:number = 0, column: number = 0) => {
+    const moveFocusedCell = useCallback((e:KeyboardEvent, row:number = 0, column: number = 0) => {
         if(!shotlistContext.focusedCell.current || shotlistContext.focusedCell.current.row < 0 && shotlistContext.focusedCell.current.column < 0) return
+
+        e.stopPropagation()
+        e.preventDefault()
 
         const newRow = wuText.clamp(
             0,
@@ -97,7 +110,8 @@ export default function SheetManager({
     }
 
     const loadShots = async () => {
-        const { data, errors, loading, networkStatus } = await client.query({
+        console.log("started loading shots")
+        const result = await client.query({
             query : gql`
                 query shots($sceneId: String!){
                     shots(sceneId: $sceneId){
@@ -125,14 +139,16 @@ export default function SheetManager({
             fetchPolicy: "no-cache",
         })
 
-        shotlistContext.setShotCount(data.shots.length || 0)
+        shotlistContext.setShotCount(result.data.shots.length || 0)
 
-        setShots({data: data.shots, loading: loading, errors: errors, networkStatus: networkStatus})
+        setShots(result)
+
+        console.log(result)
     }
 
     const createShot = async (attributePosition: number) => {
-        console.log("started creating")
-        console.time("createShot")
+        setCreationLoaderVisibility(true)
+
         const { data, errors } = await client.mutate({
             mutation: gql`
                 mutation createShot($sceneId: String!) {
@@ -159,26 +175,29 @@ export default function SheetManager({
             `,
             variables: { sceneId: sceneId },
         })
-        console.timeEnd("createShot")
 
         if (errors) {
             console.error(errors);
             return;
         }
 
-        shotlistContext.setShotCount(shots.data.length + 1)
+        shotlistContext.setShotCount((shots.data.shots?.length || 0) + 1)
 
-        setShots({...shots, data: [...shots.data, data.createShot]})
+        const newShots = [...shots.data.shots || [], data.createShot]
+
+        setShots({...shots, data: {...shots.data, shots: newShots}})
+
+        setCreationLoaderVisibility(false)
     }
 
     if(shots.loading)
         return <Loader text={"Loading shots..."}/>
 
     if(shots.error)
-        return <ErrorDisplay text={shots.error.message}/>
+        return <ErrorDisplay title={shots.error.message}/>
 
     return <div className="sheetManager">
-        {shots.data.map((shot: ShotDto, row: number) => (
+        {(shots.data.shots as ShotDto[])?.map((shot: ShotDto, row: number) => (
             <Row key={shot.id}>
                 <Cell
                     row={row}
@@ -204,6 +223,24 @@ export default function SheetManager({
                 ))}
             </Row>
         ))}
+
+        <div ref={creationLoaderRef} style={{display: "none"}}><Row>
+            <Cell row={-1} column={-1} type={["number", "loader"]}><Skeleton/></Cell>
+
+            {shotAttributeDefinitions.map((shotAttributeDefinition, index) => {
+                return (
+                    <Cell
+                        row={-1}
+                        column={index}
+                        type={["loader"]}
+                        key={shotAttributeDefinition.id}
+                    >
+                        <Skeleton/>
+                    </Cell>
+                )
+            })}
+        </Row></div>
+
         <Row>
             <Cell row={-1} column={-1} type={["number", "create"]}><span>#</span></Cell>
 

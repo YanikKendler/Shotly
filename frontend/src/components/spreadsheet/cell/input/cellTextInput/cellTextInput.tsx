@@ -36,7 +36,17 @@ const CellTextInput = forwardRef<CellInputRef, CellTextInputProps>(
     }))
 
     const setFocus = () => {
-        inputRef.current?.focus()
+        if(!inputRef.current) return
+
+        inputRef.current.focus()
+
+        //set the cursor to the end of the text
+        const range = document.createRange()
+        range.selectNodeContents(inputRef.current)
+        range.collapse(false)
+        const sel = window.getSelection()
+        sel?.removeAllRanges()
+        sel?.addRange(range)
     }
 
     const updateTextValue = () => {

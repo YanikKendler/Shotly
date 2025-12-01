@@ -18,8 +18,8 @@ public record ShotlistDTO(
     List<SceneDTO> scenes,
     List<SceneAttributeDefinitionBase> sceneAttributeDefinitions,
     List<ShotAttributeDefinitionBaseDTO> shotAttributeDefinitions,
-    int sceneCount,
-    int shotCount,
+    Integer sceneCount,
+    Integer shotCount,
     String name,
     ZonedDateTime createdAt,
     ZonedDateTime editedAt

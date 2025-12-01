@@ -2,7 +2,7 @@
 
 import gql from "graphql-tag"
 import Link from "next/link"
-import {useApolloClient, useQuery, useSuspenseQuery} from "@apollo/client"
+import {ApolloQueryResult, useApolloClient, useQuery, useSuspenseQuery} from "@apollo/client"
 import "./dashboard.scss"
 import LoadingPage from "@/pages/loadingPage/loadingPage"
 import React, {useEffect, useState} from "react"
@@ -22,7 +22,7 @@ import "driver.js/dist/driver.css";
 import Loader from "@/components/loader/loader"
 
 export default function Overview() {
-    const [query, setQuery] = useState<{ error: any, loading: boolean }>({error: null, loading: true})
+    const [query, setQuery] = useState<ApolloQueryResult<any>>(Utils.defaultQueryResult)
 
     const [shotlists, setShotlists] = useState<ShotlistDto[]>([])
     const [templates, setTemplates] = useState<TemplateDto[]>([])
@@ -65,7 +65,7 @@ export default function Overview() {
 
     const loadData = async () => {
         console.time("loadData")
-        const { data, error, loading } = await client.query({query: gql`
+        const result = await client.query({query: gql`
                 query dashboard{
                     shotlists{
                         id
@@ -91,12 +91,10 @@ export default function Overview() {
             errorPolicy: "all"
         })
 
-        //console.log(data)
+        setQuery(result)
 
-        setQuery({error, loading})
-
-        setShotlists(data.shotlists)
-        setTemplates(data.templates)
+        setShotlists(result.data.shotlists)
+        setTemplates(result.data.templates)
 
         console.timeEnd("loadData")
     }
@@ -106,15 +104,18 @@ export default function Overview() {
         router.replace("/dashboard")
     }
 
-    if(query.error) return <ErrorPage settings={{
-        title: 'Data could not be loaded',
-        description: query.error.message,
-        link: {
-            text: 'Dashboard',
-            href: '../dashboard'
-        }
-    }}/>
-    if(query.loading) return <LoadingPage text={"loading shotlists"} className={"dashboardContent"}/>
+    if(query.error) return (
+        <ErrorPage settings={{
+            title: 'Data could not be loaded',
+            description: query.error.message,
+            link: {
+                text: 'Dashboard',
+                href: '../dashboard'
+            }
+        }}/>
+    )
+
+    if(query.loading) return <LoadingPage title={"loading shotlists"} className={"dashboardContent"}/>
 
     return (
         <main className="overview dashboardContent">
