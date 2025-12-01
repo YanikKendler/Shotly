@@ -29,6 +29,7 @@
     "react-loading-skeleton": "^3.5.0",
     "react-resizable-panels": "^3.0.1",
     "react-select": "^5.10.1",
+    "sortablejs": "^1.15.6",
     "tinykeys": "^3.0.0"
   },
   "devDependencies": {
@@ -40,6 +41,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sortablejs": "^1.15.9",
     "sass": "^1.86.3",
     "typescript": "^5.8.3"
   }

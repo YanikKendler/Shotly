@@ -86,6 +86,13 @@ export default class Utils {
         errors: undefined,
         networkStatus: NetworkStatus.loading
     }
+
+    static reorderArray(array: any[], startIndex:number, endIndex:number) {
+        const result = Array.from(array)
+        const [removed] = result.splice(startIndex, 1)
+        result.splice(endIndex, 0, removed)
+        return result
+    }
 }
 
 export const reactSelectTheme: ThemeConfig = (theme) => ({

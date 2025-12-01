@@ -34,12 +34,6 @@ const Row = memo(({
 
     const [isBeingEdited, setIsBeingEdited] = useState(false)
 
-    const {attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition} = useSortable({id: shot?.id || -1})
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-    }
-
     async function deleteShot(){
         const { errors } = await client.mutate({
             mutation: gql`
@@ -76,17 +70,13 @@ const Row = memo(({
     return (
     <div
         className={`sheetRow ${isBeingEdited && "active"}`}
-        ref={setNodeRef}
-        style={style}
+        data-shot-id={shot.id}
     >
         {
             !isReadOnly &&
             <Popover.Root onOpenChange={setIsBeingEdited}>
                 <Popover.Trigger
                     className="grip"
-                    ref={setActivatorNodeRef}
-                    {...listeners}
-                    {...attributes}
                 >
                     <GripVertical/>
                 </Popover.Trigger>

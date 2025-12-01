@@ -15,19 +15,8 @@ import {wuText} from "@yanikkendler/web-utils"
 import {ShotAttributeDefinitionParser} from "@/util/AttributeParser"
 import {useSelectRefresh} from "@/context/SelectRefreshContext"
 import Skeleton from "react-loading-skeleton"
-import shot from "@/components/shot/shot"
 import ShotService from "@/service/ShotService"
-import {arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy} from "@dnd-kit/sortable"
-import {
-    closestCenter, DndContext,
-    DragOverlay,
-    KeyboardSensor,
-    PointerSensor,
-    TouchSensor,
-    useSensor,
-    useSensors
-} from "@dnd-kit/core"
-import {restrictToVerticalAxis} from "@dnd-kit/modifiers"
+import Sortable from 'sortablejs';
 
 /**
  * Query's shots based on the passed sceneId and displays them in a spreadsheet, handles all spreadsheet actions
@@ -47,25 +36,11 @@ export default function SheetManager({
     const shotlistContext = useContext(ShotlistContext)
     const selectRefreshContext = useSelectRefresh()
     const client = useApolloClient()
-    //for dnd-kit reordering
-    const sensors = useSensors(
-        useSensor(PointerSensor, {
-            activationConstraint: {
-                distance: 2,
-            },
-        }),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
-        }),
-        useSensor(TouchSensor, {
-            activationConstraint: {
-                distance: 2,
-            }
-        })
-    )
 
     //Map[row = shot][column = attribute]
     const cellRefs = useRef(new Map<number, Map<number, CellRef | null>>)
+
+    const sortableRef = useRef<Sortable|null>(null)
 
     const [shots, setShots] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
     const creationLoaderRef = useRef<HTMLDivElement>(null)
@@ -96,6 +71,33 @@ export default function SheetManager({
             console.log(getCellRef(cellRefs.current.size-1, attributePositionToSelect.current))
             getCellRef(cellRefs.current.size-1, attributePositionToSelect.current)?.setFocus()
             attributePositionToSelect.current = -1
+        }
+
+        if(sortableRef.current){
+            sortableRef.current.destroy()
+        }
+
+        /**
+         * creating a new SortableJS instance
+         * using a native JS library without react because the reordering is quite simple but the react re-renders
+         * were creating substantial complexity and performance issues
+         */
+        const shots = document.querySelector('#shots')
+        if(shots){
+            sortableRef.current = Sortable.create(shots as HTMLElement, {
+                handle: '.grip',
+                animation: 150,
+                forceFallback: true,
+                onEnd: (event) => {
+                    if(!event.item || event.oldIndex === undefined || event.newIndex === undefined) return
+
+                    moveShot(
+                        event.item.dataset.shotId as string,
+                        event.oldIndex,
+                        event.newIndex
+                    )
+                }
+            })
         }
     }, [shots]);
 
@@ -257,24 +259,9 @@ export default function SheetManager({
             ...shots,
             data: {
                 ...shots.data,
-                shots: arrayMove(shots.data.shots || [], from, to)
+                shots: Utils.reorderArray(shots.data.shots || [], from, to)
             }
         })
-    }, [shots])
-
-    const handleDragEnd = useCallback((event: any) => {
-        shotlistContext.setElementIsBeingDragged(false)
-
-        if(!shots || !shots.data.shots) return
-
-        const {active, over} = event;
-
-        if (active.id !== over.id) {
-            const oldIndex = (shots.data.shots as ShotDto[]).findIndex((shot) => shot.id === active.id)
-            const newIndex = (shots.data.shots as ShotDto[]).findIndex((shot) => shot.id === over.id)
-
-            moveShot(active.id, oldIndex, newIndex)
-        }
     }, [shots])
 
     if(shots.loading)
@@ -283,20 +270,9 @@ export default function SheetManager({
     if(shots.error)
         return <ErrorDisplay title={shots.error.message}/>
 
-    return <div className="sheetManager">
-        <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-            onDragStart={() => {
-                shotlistContext.setElementIsBeingDragged(true)
-            }}
-            modifiers={[restrictToVerticalAxis]}
-        >
-            <SortableContext
-                items={shots.data.shots?.map(shot => shot?.id as string) || []}
-                strategy={verticalListSortingStrategy}
-            >
+    return (
+        <div className="sheetManager">
+            <div id="shots">
                 {(shots.data.shots as ShotDto[])?.map((shot: ShotDto, row: number) => (
                     <Row
                         key={shot.id}
@@ -330,46 +306,46 @@ export default function SheetManager({
                         ))}
                     </Row>
                 ))}
-            </SortableContext>
-        </DndContext>
+            </div>
 
-        <div ref={creationLoaderRef} style={{display: "none"}} className={"sheetRow"}>
-            <Cell row={-1} column={-1} type={["number", "loader"]}><Skeleton/></Cell>
+            <div ref={creationLoaderRef} style={{display: "none"}} className={"sheetRow"}>
+                <Cell row={-1} column={-1} type={["number", "loader"]}><Skeleton/></Cell>
 
-            {shotAttributeDefinitions.map((shotAttributeDefinition, index) => {
-                return (
-                    <Cell
-                        row={-1}
-                        column={index}
-                        type={["loader"]}
-                        key={shotAttributeDefinition.id}
-                    >
-                        <Skeleton/>
-                    </Cell>
-                )
-            })}
+                {shotAttributeDefinitions.map((shotAttributeDefinition, index) => {
+                    return (
+                        <Cell
+                            row={-1}
+                            column={index}
+                            type={["loader"]}
+                            key={shotAttributeDefinition.id}
+                        >
+                            <Skeleton/>
+                        </Cell>
+                    )
+                })}
+            </div>
+
+            <div className={"sheetRow"}>
+                <Cell row={-1} column={-1} type={["number", "create"]}><span>#</span></Cell>
+
+                {shotAttributeDefinitions.map((shotAttributeDefinition, index) => {
+                    let Icon = ShotAttributeDefinitionParser.toIcon(shotAttributeDefinition as AnyShotAttributeDefinition)
+                    return (
+                        <Cell
+                            row={-1}
+                            column={index}
+                            type={["create"]}
+                            key={shotAttributeDefinition.id}
+                            onClick={() => createShot(index)}
+                        >
+                            <p>{shotAttributeDefinition.name || "Unnamed"}</p>
+                            <div className="icon">
+                                <Icon size={18}/>
+                            </div>
+                        </Cell>
+                    )
+                })}
+            </div>
         </div>
-
-        <div className={"sheetRow"}>
-            <Cell row={-1} column={-1} type={["number", "create"]}><span>#</span></Cell>
-
-            {shotAttributeDefinitions.map((shotAttributeDefinition, index) => {
-                let Icon = ShotAttributeDefinitionParser.toIcon(shotAttributeDefinition as AnyShotAttributeDefinition)
-                return (
-                    <Cell
-                        row={-1}
-                        column={index}
-                        type={["create"]}
-                        key={shotAttributeDefinition.id}
-                        onClick={() => createShot(index)}
-                    >
-                        <p>{shotAttributeDefinition.name || "Unnamed"}</p>
-                        <div className="icon">
-                            <Icon size={18}/>
-                        </div>
-                    </Cell>
-                )
-            })}
-        </div>
-    </div>
+    )
 }
