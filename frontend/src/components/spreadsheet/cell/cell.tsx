@@ -1,4 +1,4 @@
-import {forwardRef, ReactNode, useContext, useEffect, useImperativeHandle, useRef} from "react"
+import {forwardRef, memo, ReactNode, useContext, useEffect, useImperativeHandle, useRef} from "react"
 import "./cell.scss"
 import {AnyShotAttribute} from "@/util/Types"
 import CellTextInput from "@/components/spreadsheet/cell/input/cellTextInput/cellTextInput"
@@ -31,7 +31,7 @@ interface CellProps {
  * @param type the purpose of the cell, affects styling - default or number (shot number on the left)
  * @constructor
  */
-const Cell = forwardRef<CellRef, CellProps>(({
+const CellBase = forwardRef<CellRef, CellProps>(({
     attribute,
     type = ["default"],
     children,
@@ -89,4 +89,4 @@ const Cell = forwardRef<CellRef, CellProps>(({
     )
 })
 
-export default Cell
+export const Cell = memo(CellBase)

@@ -9,12 +9,25 @@ import {Query, ShotAttributeDefinitionBase, ShotDto} from "../../../../lib/graph
 import Row from "@/components/spreadsheet/row/row"
 import {AnyShotAttribute, AnyShotAttributeDefinition} from "@/util/Types"
 import Utils from "@/util/Utils"
-import Cell, {CellRef} from "@/components/spreadsheet/cell/cell"
+import {Cell, CellRef} from "@/components/spreadsheet/cell/cell"
 import { tinykeys } from "@/../node_modules/tinykeys/dist/tinykeys"//package has incorrectly configured type exports
 import {wuText} from "@yanikkendler/web-utils"
 import {ShotAttributeDefinitionParser} from "@/util/AttributeParser"
 import {useSelectRefresh} from "@/context/SelectRefreshContext"
 import Skeleton from "react-loading-skeleton"
+import shot from "@/components/shot/shot"
+import ShotService from "@/service/ShotService"
+import {arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy} from "@dnd-kit/sortable"
+import {
+    closestCenter, DndContext,
+    DragOverlay,
+    KeyboardSensor,
+    PointerSensor,
+    TouchSensor,
+    useSensor,
+    useSensors
+} from "@dnd-kit/core"
+import {restrictToVerticalAxis} from "@dnd-kit/modifiers"
 
 /**
  * Query's shots based on the passed sceneId and displays them in a spreadsheet, handles all spreadsheet actions
@@ -24,21 +37,39 @@ import Skeleton from "react-loading-skeleton"
  */
 export default function SheetManager({
     sceneId,
-    shotAttributeDefinitions
+    shotAttributeDefinitions,
+    isReadOnly
 }:{
     shotAttributeDefinitions: ShotAttributeDefinitionBase[]
     sceneId: string
+    isReadOnly: boolean
 }){
     const shotlistContext = useContext(ShotlistContext)
     const selectRefreshContext = useSelectRefresh()
     const client = useApolloClient()
+    //for dnd-kit reordering
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 2,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        }),
+        useSensor(TouchSensor, {
+            activationConstraint: {
+                distance: 2,
+            }
+        })
+    )
 
     //Map[row = shot][column = attribute]
     const cellRefs = useRef(new Map<number, Map<number, CellRef | null>>)
 
     const [shots, setShots] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
-    //const [showCreationLoader, setShowCreationLoader] = useState(false)
     const creationLoaderRef = useRef<HTMLDivElement>(null)
+    const attributePositionToSelect = useRef<number>(-1) //position of attribute to select on next re-render
 
     useEffect(() => {
         let unsubscribe = tinykeys(window, {
@@ -52,12 +83,21 @@ export default function SheetManager({
         }
     }, [])
 
-    //the refresh context would cause the current cell to loose focus since the component is re-rendered
+    //the selectRefreshContext causes the current cell to lose focus after creating a new option since the component is re-rendered
     useEffect(() => {
         if(selectRefreshContext.lastRefresh.includes("shot")){
             refocusCell()
         }
     }, [selectRefreshContext.lastRefresh]);
+
+    //select a attribute (in a newly created shot) specified by attributePositionToSelect.current after the shots are re rendered
+    useEffect(() => {
+        if(attributePositionToSelect.current >= 0){
+            console.log(getCellRef(cellRefs.current.size-1, attributePositionToSelect.current))
+            getCellRef(cellRefs.current.size-1, attributePositionToSelect.current)?.setFocus()
+            attributePositionToSelect.current = -1
+        }
+    }, [shots]);
 
     useEffect(() => {
         if(sceneId){
@@ -68,7 +108,7 @@ export default function SheetManager({
     const setCreationLoaderVisibility = (visible:boolean) => {
         if(!creationLoaderRef.current) return
 
-        creationLoaderRef.current.style.display = visible ? "block" : "none"
+        creationLoaderRef.current.style.display = visible ? "flex" : "none"
     }
 
     const refocusCell = () =>{
@@ -98,12 +138,12 @@ export default function SheetManager({
         getCellRef(newRow, newColumn)?.setFocus()
     }, [shotlistContext.focusedCell])
 
-    const setCellRef = (row: number, column: number, value: CellRef | null) => {
+    const setCellRef = useCallback((row: number, column: number, value: CellRef | null) => {
         if (!cellRefs.current.has(row)) {
             cellRefs.current.set(row, new Map());
         }
         cellRefs.current.get(row)!.set(column, value);
-    }
+    },[cellRefs.current])
 
     const getCellRef = (row: number, column: number) => {
         return cellRefs.current.get(row)?.get(column);
@@ -148,6 +188,7 @@ export default function SheetManager({
 
     const createShot = async (attributePosition: number) => {
         setCreationLoaderVisibility(true)
+        attributePositionToSelect.current = attributePosition
 
         const { data, errors } = await client.mutate({
             mutation: gql`
@@ -190,6 +231,52 @@ export default function SheetManager({
         setCreationLoaderVisibility(false)
     }
 
+    const deleteShot = useCallback((shotId: string) => {
+        if(!shots || !shots.data.shots) return
+
+        let currentShots = shots.data.shots as ShotDto[]
+        let newShots= currentShots.filter((shot) => shot.id != shotId)
+
+        setShots({
+            ...shots,
+            data: {
+                ...shots.data,
+                shots: newShots
+            }
+        })
+
+        shotlistContext.setShotCount(newShots.length)
+    }, [shots])
+
+    const moveShot = useCallback((shotId: string, from: number, to: number) => {
+        ShotService.updateShot(shotId, to).then(response => {
+            if(response.errors) console.error(response.errors) //TODO notify
+        })
+
+        setShots({
+            ...shots,
+            data: {
+                ...shots.data,
+                shots: arrayMove(shots.data.shots || [], from, to)
+            }
+        })
+    }, [shots])
+
+    const handleDragEnd = useCallback((event: any) => {
+        shotlistContext.setElementIsBeingDragged(false)
+
+        if(!shots || !shots.data.shots) return
+
+        const {active, over} = event;
+
+        if (active.id !== over.id) {
+            const oldIndex = (shots.data.shots as ShotDto[]).findIndex((shot) => shot.id === active.id)
+            const newIndex = (shots.data.shots as ShotDto[]).findIndex((shot) => shot.id === over.id)
+
+            moveShot(active.id, oldIndex, newIndex)
+        }
+    }, [shots])
+
     if(shots.loading)
         return <Loader text={"Loading shots..."}/>
 
@@ -197,34 +284,56 @@ export default function SheetManager({
         return <ErrorDisplay title={shots.error.message}/>
 
     return <div className="sheetManager">
-        {(shots.data.shots as ShotDto[])?.map((shot: ShotDto, row: number) => (
-            <Row key={shot.id}>
-                <Cell
-                    row={row}
-                    column={-1}
-                    type={["number"]}
-                >
-                    {Utils.numberToShotLetter(row)}
-                </Cell>
-                {(shot.attributes as AnyShotAttribute[]).map((attribute: AnyShotAttribute, column: number)=> (
-                    <Cell
-                        key={attribute.id}
-                        attribute={attribute}
-                        row={row}
-                        column={column}
-                        ref={(node) => {
-                            setCellRef(row, column, node)
+        <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+            onDragStart={() => {
+                shotlistContext.setElementIsBeingDragged(true)
+            }}
+            modifiers={[restrictToVerticalAxis]}
+        >
+            <SortableContext
+                items={shots.data.shots?.map(shot => shot?.id as string) || []}
+                strategy={verticalListSortingStrategy}
+            >
+                {(shots.data.shots as ShotDto[])?.map((shot: ShotDto, row: number) => (
+                    <Row
+                        key={shot.id}
+                        shot={shot}
+                        position={row}
+                        onDelete={deleteShot}
+                        moveShot={moveShot}
+                        isReadOnly={isReadOnly}
+                    >
+                        <Cell
+                            row={row}
+                            column={-1}
+                            type={["number"]}
+                        >
+                            {Utils.numberToShotLetter(row)}
+                        </Cell>
+                        {(shot.attributes as AnyShotAttribute[]).map((attribute: AnyShotAttribute, column: number)=> (
+                            <Cell
+                                key={attribute.id}
+                                attribute={attribute}
+                                row={row}
+                                column={column}
+                                ref={(node) => {
+                                    setCellRef(row, column, node)
 
-                            return () => {
-                                setCellRef(row, column, null)
-                            }
-                        }}
-                    />
+                                    return () => {
+                                        setCellRef(row, column, null)
+                                    }
+                                }}
+                            />
+                        ))}
+                    </Row>
                 ))}
-            </Row>
-        ))}
+            </SortableContext>
+        </DndContext>
 
-        <div ref={creationLoaderRef} style={{display: "none"}}><Row>
+        <div ref={creationLoaderRef} style={{display: "none"}} className={"sheetRow"}>
             <Cell row={-1} column={-1} type={["number", "loader"]}><Skeleton/></Cell>
 
             {shotAttributeDefinitions.map((shotAttributeDefinition, index) => {
@@ -239,9 +348,9 @@ export default function SheetManager({
                     </Cell>
                 )
             })}
-        </Row></div>
+        </div>
 
-        <Row>
+        <div className={"sheetRow"}>
             <Cell row={-1} column={-1} type={["number", "create"]}><span>#</span></Cell>
 
             {shotAttributeDefinitions.map((shotAttributeDefinition, index) => {
@@ -261,6 +370,6 @@ export default function SheetManager({
                     </Cell>
                 )
             })}
-        </Row>
+        </div>
     </div>
 }

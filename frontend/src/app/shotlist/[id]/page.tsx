@@ -341,16 +341,13 @@ export default function Shotlist() {
             return;
         }
 
-        let currentScenes = query.data.shotlist?.scenes as SceneDto[]
-        let newScenes: SceneDto[] = []
-        if(currentScenes) newScenes = [...currentScenes]
-        newScenes.push(data.createScene)
+        const newScenes = [...query.data.shotlist?.scenes as SceneDto[] || [], data.createScene]
 
         setQuery({
             ...query,
             data: {
                 ...query.data,
-                scenes: newScenes
+                shotlist: {...query.data.shotlist, scenes: newScenes}
             }
         })
 
@@ -539,6 +536,7 @@ export default function Shotlist() {
                         <SheetManager
                             sceneId={selectedSceneId}
                             shotAttributeDefinitions={query.data.shotlist.shotAttributeDefinitions as ShotAttributeDefinitionBase[]}
+                            isReadOnly={isReadOnly}
                         />
                     </Panel>
                 </PanelGroup>

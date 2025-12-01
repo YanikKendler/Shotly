@@ -32,8 +32,4 @@
     padding-left: 1.5rem;
     padding-bottom: 3rem;
   }
-
-  .sheetRow:nth-of-type(odd):not(:has(.create)){
-    background-color: var(--second-cell-bg);
-  }
 }
