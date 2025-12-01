@@ -6,7 +6,7 @@ import Loader from "@/components/loader/loader"
 import ErrorDisplay from "@/components/errorDisplay/errorDisplay"
 import "./sheetManager.scss"
 import {Query, ShotAttributeDefinitionBase, ShotDto} from "../../../../lib/graphql/generated"
-import Row from "@/components/spreadsheet/row/row"
+import {Row, RowRef} from "@/components/spreadsheet/row/row"
 import {AnyShotAttribute, AnyShotAttributeDefinition} from "@/util/Types"
 import Utils from "@/util/Utils"
 import {Cell, CellRef} from "@/components/spreadsheet/cell/cell"
@@ -39,6 +39,7 @@ export default function SheetManager({
 
     //Map[row = shot][column = attribute]
     const cellRefs = useRef(new Map<number, Map<number, CellRef | null>>)
+    const rowRefs = useRef<Map<number, RowRef | null>>(new Map())
 
     const sortableRef = useRef<Sortable|null>(null)
 
@@ -88,14 +89,23 @@ export default function SheetManager({
                 handle: '.grip',
                 animation: 150,
                 forceFallback: true,
-                onEnd: (event) => {
-                    if(!event.item || event.oldIndex === undefined || event.newIndex === undefined) return
+                fallbackTolerance: 5,
+                onStart: (event) => {
+                    if(event.oldIndex === undefined) return
 
-                    moveShot(
-                        event.item.dataset.shotId as string,
-                        event.oldIndex,
-                        event.newIndex
-                    )
+                    rowRefs.current.get(event.oldIndex)?.closePopover()
+                },
+                onEnd: (event) => {
+                    //so that the drag ghost is hidden before re-rendering otherwise it hangs in the air for half a second
+                    requestAnimationFrame(() => {
+                        if(!event.item || event.oldIndex === undefined || event.newIndex === undefined) return
+
+                        moveShot(
+                            event.item.dataset.shotId as string,
+                            event.oldIndex,
+                            event.newIndex
+                        )
+                    })
                 }
             })
         }
@@ -281,6 +291,13 @@ export default function SheetManager({
                         onDelete={deleteShot}
                         moveShot={moveShot}
                         isReadOnly={isReadOnly}
+                        ref={(node) => {
+                            rowRefs.current.set(row, node)
+
+                            return () => {
+                                rowRefs.current.delete(row)
+                            }
+                        }}
                     >
                         <Cell
                             row={row}

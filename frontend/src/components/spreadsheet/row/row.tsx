@@ -1,4 +1,4 @@
-import React, {memo, ReactNode, useContext, useMemo, useState} from "react"
+import React, {forwardRef, memo, ReactNode, useContext, useImperativeHandle, useMemo, useState} from "react"
 import "./row.scss"
 import {Popover, Separator, Tooltip} from "radix-ui"
 import {ArrowBigDown, ArrowBigUp, CornerDownRight, GripVertical, List, NotepadText, Trash} from "lucide-react"
@@ -6,33 +6,45 @@ import {ShotDto} from "../../../../lib/graphql/generated"
 import {useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import {ShotlistContext} from "@/context/ShotlistContext"
-import {useSortable} from "@dnd-kit/sortable"
-import {CSS} from "@dnd-kit/utilities"
+
+export interface RowRef {
+    closePopover: () => void
+}
+
+export interface RowProps {
+    shot: ShotDto
+    position: number
+    onDelete: (shotId: string) => void
+    moveShot: (shotId: string, oldPos: number, newPos: number) => void
+    isReadOnly: boolean
+    children: ReactNode
+}
 
 /**
  * Represents a single row in the spreadsheet aka a shot
  * @param children
  * @constructor
  */
-const Row = memo(({
+const RowBase = forwardRef<RowRef, RowProps>(({
     shot,
     position,
     onDelete,
     moveShot,
     isReadOnly,
     children,
-}:{
-    shot: ShotDto,
-    position: number,
-    onDelete: (shotId: string) => void,
-    moveShot: (shotId: string, oldPos: number, newPos: number) => void,
-    isReadOnly: boolean,
-    children: ReactNode,
-}) =>{
+}, ref) => {
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
 
     const [isBeingEdited, setIsBeingEdited] = useState(false)
+
+    useImperativeHandle(ref, () => ({
+        closePopover
+    }))
+
+    const closePopover = () => {
+        setIsBeingEdited(false)
+    }
 
     async function deleteShot(){
         const { errors } = await client.mutate({
@@ -54,19 +66,6 @@ const Row = memo(({
         }
     }
 
-    /*return (
-        <div
-            ref={setNodeRef}
-            style={{...style, backgroundColor: "gray", border: "1px solid white"}}
-        >
-            <p
-                ref={setActivatorNodeRef}
-                {...listeners}
-                {...attributes}
-            ><GripVertical /> item</p>
-        </div>
-    )*/
-
     return (
     <div
         className={`sheetRow ${isBeingEdited && "active"}`}
@@ -74,7 +73,7 @@ const Row = memo(({
     >
         {
             !isReadOnly &&
-            <Popover.Root onOpenChange={setIsBeingEdited}>
+            <Popover.Root onOpenChange={setIsBeingEdited} open={isBeingEdited}>
                 <Popover.Trigger
                     className="grip"
                 >
@@ -111,4 +110,4 @@ const Row = memo(({
     )
 })
 
-export default Row
+export const Row = memo(RowBase)
