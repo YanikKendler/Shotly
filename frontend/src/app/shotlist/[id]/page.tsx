@@ -529,7 +529,7 @@ export default function Shotlist() {
                         {/*<ShotTable
                             ref={shotTableRef}
                             sceneId={selectedSceneId}
-                            shotAttributeDefinitions={shotlist.data.shotAttributeDefinitions as ShotAttributeDefinitionBase[]}
+                            shotAttributeDefinitions={query.data.shotlist.shotAttributeDefinitions as ShotAttributeDefinitionBase[]}
                             readOnly={ isReadOnly }
                             shotlistHeaderRef={headerRef}
                         />*/}

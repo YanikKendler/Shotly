@@ -4,6 +4,7 @@
 
   &:not(.number){
     width: 100%;
+    min-width: var(--shotAttribute-width);
   }
 
   &.create{
@@ -36,6 +37,10 @@
     align-items: center;
     min-width: 4ch;
     font-weight: 600;
+    z-index: 50;
+    position: sticky;
+    left: -1.5rem;
+    background-color: var(--shot-background)
   }
 
   &.loader{

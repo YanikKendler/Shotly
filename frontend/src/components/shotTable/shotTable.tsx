@@ -102,7 +102,7 @@ const ShotTable = forwardRef((
     }, [sceneId])
 
     const moveFocusedCell = (row:number = 0, column: number = 0) => {
-        if(!focusedAttrRef.current || shotAttributeCountRef.current == 0) return
+        /*if(!focusedAttrRef.current || shotAttributeCountRef.current == 0) return
 
         console.log("moving: ", row, column)
 
@@ -120,7 +120,7 @@ const ShotTable = forwardRef((
 
         [...shotRefs.current.values()]
             .at(newRow)?.
-            setFocusToAttributeAt(newColumn)
+            setFocusToAttributeAt(newColumn)*/
     }
 
     const sensors = useSensors(

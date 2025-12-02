@@ -22,6 +22,7 @@
   padding-bottom: 5rem;
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+  position: relative;
 
   &::-webkit-scrollbar {
     display: none; /*Chrome, Safari and Opera */
@@ -31,5 +32,10 @@
     padding: .5rem;
     padding-left: 1.5rem;
     padding-bottom: 3rem;
+  }
+
+  #shots{
+    width: fit-content;
+    min-width: 100%;
   }
 }
