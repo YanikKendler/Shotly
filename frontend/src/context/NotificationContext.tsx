@@ -4,8 +4,8 @@ import {createContext} from "react"
 import {
     ShotlistOptionsDialogPage,
     ShotlistOptionsDialogSubPage
-} from "@/components/dialog/shotlistOptionsDialog/shotlistOptionsDialoge"
-import {NotificationSettings} from "@/components/notification/notification"
+} from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
+import {NotificationSettings} from "@/components/feedback/notification/notification"
 
 export const NotificationContext = createContext<{
     notify: (settings: NotificationSettings) => void;

@@ -19,8 +19,8 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 import {Popover, Separator, Tooltip} from "radix-ui"
-import AuthSwitcher from "@/components/authSwitcher/authSwitcher"
-import ThemeSwitcher from "@/components/themeSwitcher/themeSwitcher"
+import AuthSwitcher from "@/components/utility/authSwitcher/authSwitcher"
+import ThemeSwitcher from "@/components/utility/themeSwitcher/themeSwitcher"
 import Skeleton from "react-loading-skeleton"
 
 export default function Landing() {

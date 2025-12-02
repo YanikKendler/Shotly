@@ -3,7 +3,7 @@
 import {useEffect} from "react"
 import auth from "@/Auth"
 import { useRouter } from 'next/navigation'
-import LoadingPage from "@/pages/loadingPage/loadingPage"
+import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 import Auth from "@/Auth"
 
 export default function CallbackPage() {

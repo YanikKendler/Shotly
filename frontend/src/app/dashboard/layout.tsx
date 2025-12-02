@@ -4,9 +4,9 @@ import gql from "graphql-tag"
 import Link from "next/link"
 import {useApolloClient, useQuery, useSuspenseQuery} from "@apollo/client"
 import "./layout.scss"
-import LoadingPage from "@/pages/loadingPage/loadingPage"
+import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 import React, {useEffect, useState} from "react"
-import ErrorPage from "@/pages/errorPage/errorPage"
+import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
 import {ChevronDown, House, Menu, NotepadText, NotepadTextDashed, Plus, User} from "lucide-react"
 import {ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
@@ -14,11 +14,11 @@ import {Collapsible, Separator, Tooltip} from "radix-ui"
 import {wuGeneral} from "@yanikkendler/web-utils"
 import auth from "@/Auth"
 import {usePathname, useRouter} from "next/navigation"
-import {useCreateShotlistDialog} from "@/components/dialog/createShotlistDialog/createShotlistDialog"
-import {useAccountDialog} from "@/components/dialog/accountDialog/accountDialog"
+import {useCreateShotlistDialog} from "@/components/dialogs/createShotlistDialog/createShotlistDialog"
+import {useAccountDialog} from "@/components/dialogs/accountDialog/accountDialog"
 import Utils from "@/util/Utils"
 import Iconmark from "@/components/iconmark"
-import {useCreateTemplateDialog} from "@/components/dialog/createTemplateDialog/createTemplateDialog"
+import {useCreateTemplateDialog} from "@/components/dialogs/createTemplateDialog/createTemplateDialog"
 
 export default function DashboardLayout({children}: { children: React.ReactNode }) {
     const [query, setQuery] = useState<{ error: any, loading: boolean }>({error: null, loading: true})
@@ -72,21 +72,25 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         setTemplates(data.templates)
     }
 
-    if(query.error) return <ErrorPage settings={{
-        title: 'Data could not be loaded',
-        description: query.error.message,
-        link: {
+    if(query.error) return <ErrorPage
+        title='Data could not be loaded'
+        description={query.error.message}
+        link={{
             text: 'Dashboard',
             href: '../dashboard'
-        }
-    }}/>
+        }}
+    />
     if(query.loading) return <LoadingPage title={"loading your dashboard"}/>
 
     return (
         <main className="home">
             <PanelGroup autoSaveId={"shotly-dashboard-sidebar-width"} direction="horizontal" className={"PanelGroup"}>
-                <Panel defaultSize={20} maxSize={30} minSize={12}
-                       className={`sidebar ${pathname?.includes("template") ? "collapse" : ""} ${sidebarOpen ? "open" : "closed"}`}>
+                <Panel
+                    defaultSize={20}
+                    maxSize={30}
+                    minSize={12}
+                    className={`sidebar ${pathname?.includes("template") ? "collapse" : ""} ${sidebarOpen ? "open" : "closed"}`}
+                >
                     <div className="content">
                         <div className="top">
                             <Tooltip.Root>

@@ -4,10 +4,8 @@ import {createContext, RefObject} from "react"
 import {
     ShotlistOptionsDialogPage,
     ShotlistOptionsDialogSubPage
-} from "@/components/dialog/shotlistOptionsDialog/shotlistOptionsDialoge"
-import {ShotAttributeRef} from "@/components/legacy/shotAttribute/shotAttribute"
+} from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {SelectOption} from "@/util/Types"
-import {CellRef} from "@/components/spreadsheet/cell/cell"
 
 export const ShotlistContext = createContext<{
     openShotlistOptionsDialog: (page: { main: ShotlistOptionsDialogPage, sub?: ShotlistOptionsDialogSubPage }) => void

@@ -41,6 +41,7 @@
 
   --contrast: hsl(0, 0%, 100%);
 
+  --hover-bg-solid: hsl(0, 0%, 20%);
   --hover-bg-10: hsla(0, 0%, 50%, 10%);
   --hover-bg-20: hsla(0, 0%, 50%, 20%);
   --hover-bg-30: hsla(0, 0%, 50%, 30%);
@@ -105,9 +106,13 @@
 
   --contrast: hsl(0, 0%, 10%);
 
+  --hover-bg-solid: hsl(0, 0%, 20%);
   --hover-bg-10: hsla(0, 0%, 50%, 15%);
   --hover-bg-20: hsla(0, 0%, 50%, 25%);
   --hover-bg-30: hsla(0, 0%, 50%, 35%);
+  --hover-bg-bad-10: hsla(0, 70%, 60%, 10%);
+  --hover-bg-good-10: hsla(120, 40%, 50%, 10%);
+  --hover-bg-accent-10: hsla(20, 100%, 50%, 10%);
 
   --sidebar-bg: hsl(20, 20%, 5%);
   --home-button-bg: hsl(14, 21%, 8%);

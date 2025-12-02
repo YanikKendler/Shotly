@@ -3,7 +3,7 @@
 
 import {useEffect} from "react"
 import auth from "@/Auth"
-import LoadingPage from "@/pages/loadingPage/loadingPage"
+import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 
 export default function LoginRedirectPage() {
     useEffect(() => {

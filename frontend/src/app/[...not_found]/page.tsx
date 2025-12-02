@@ -1,4 +1,4 @@
-import ErrorPage from "@/pages/errorPage/errorPage"
+import ErrorPage from "@/components/feedback/errorPage/errorPage"
 
 export default function notFound(){
     return <ErrorPage settings={{

@@ -1,6 +1,6 @@
 import {ShotAttributeValueCollection} from "@/util/Types"
 import gql from "graphql-tag"
-import {apolloClient, makeClient} from "@/ApolloWrapper"
+import {apolloClient, makeClient} from "@/context/ApolloWrapper"
 import {useMemo} from "react"
 import {wuGeneral} from "@yanikkendler/web-utils"
 

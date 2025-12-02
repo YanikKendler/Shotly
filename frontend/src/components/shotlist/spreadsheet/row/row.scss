@@ -1,0 +1,106 @@
+[data-theme="dark"] .sheetManager .sheetRow {
+  --shot-background: var(--contrast);
+  --number-color: var(--text);
+  --grip-color: hsl(0, 0%, 60%);
+  --grip-hover-color: hsl(0, 0%, 90%);
+}
+
+.sheetManager .sheetRow{
+  --shot-background: var(--contrast);
+  --number-color: var(--text);
+  --grip-color: hsl(0, 0%, 70%);
+  --grip-hover-color: hsl(0, 0%, 50%);
+
+  display: flex;
+  width: fit-content;
+  min-width: 100%;
+  position: relative;
+  background-color: var(--shot-background);
+
+  &:has(:hover){
+    --number-color: var(--accent);
+  }
+
+  &:focus-within{
+    --number-color: var(--accent);
+  }
+
+  &:nth-of-type(odd):not(:has(.create)){
+    --shot-background: var(--second-cell-bg);
+  }
+
+  .sheetCell:first-of-type{
+    border-top-left-radius: .3rem;
+    border-bottom-left-radius: .3rem;
+  }
+
+  .sheetCell:last-of-type{
+    border-top-right-radius: .3rem;
+    border-bottom-right-radius: .3rem;
+  }
+
+  &:hover, &:focus-within, &.active{
+    .grip {
+      opacity: 1;
+    }
+
+    .number {
+      p{
+        color: var(--accent);
+      }
+    }
+  }
+
+  &.active{
+    --shot-background: var(--accent-95) !important;
+    --grip-color: var(--accent-60);
+    --grip-hover-color: var(--accent);
+    --number-color: var(--accent);
+  }
+}
+
+.shotContextOptionsPopup{
+  padding: .3rem;
+
+  button{
+    font-size: .95rem;
+    width: 100%;
+    justify-content: left;
+    padding: .4rem;
+    color: var(--text-20);
+    font-weight: 500;
+
+    svg{
+      color: var(--text-30);
+      transition: color .2s;
+    }
+
+    &:not(.bad):not([disabled]):hover{
+      background-color: var(--hover-bg-10);
+      color: var(--text);
+
+      svg{
+        color: var(--text);
+      }
+    }
+
+    &.bad:hover{
+      svg{
+        color: var(--bad);
+      }
+    }
+  }
+
+  .Separator{
+    margin: 0;
+  }
+
+  .instructions{
+    color: var(--text-50);
+    font-size: .8rem;
+  }
+
+  .bold{
+    color: var(--text-30);
+  }
+}

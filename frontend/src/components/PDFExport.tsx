@@ -12,7 +12,7 @@ import {
     AnyShotAttributeDefinition
 } from "@/util/Types"
 import {SceneAttributeParser, ShotAttributeParser} from "@/util/AttributeParser"
-import {makeClient} from "@/ApolloWrapper"
+import {makeClient} from "@/context/ApolloWrapper"
 import {wuText} from "@yanikkendler/web-utils/dist"
 import Utils from "@/util/Utils"
 

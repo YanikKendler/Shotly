@@ -20,7 +20,7 @@ import {ChevronDown, List, Type} from "lucide-react"
 import AttributeValueSelect, {
     AttributeValueSelectRef,
     selectShotStyles
-} from "@/components/attributeValueSelect/attributeValueSelect"
+} from "@/components/inputs/attributeValueSelect/attributeValueSelect"
 import {SceneAttributeParser, ShotAttributeParser} from "@/util/AttributeParser"
 
 export interface ShotAttributeProps {

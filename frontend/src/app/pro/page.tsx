@@ -4,7 +4,7 @@ import Auth from "@/Auth"
 import "./pro.scss";
 import {use, useEffect, useState} from "react"
 import auth from "@/Auth"
-import LoadingPage from "@/pages/loadingPage/loadingPage"
+import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {useRouter} from "next/navigation"

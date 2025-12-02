@@ -3,8 +3,8 @@
 import "./template.scss"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
 import {useApolloClient} from "@apollo/client"
-import ErrorPage from "@/pages/errorPage/errorPage"
-import LoadingPage from "@/pages/loadingPage/loadingPage"
+import ErrorPage from "@/components/feedback/errorPage/errorPage"
+import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 import React, {useEffect, useState} from "react"
 import {
     SceneAttributeTemplateBase, SceneAttributeType,
@@ -17,7 +17,7 @@ import {
 import gql from "graphql-tag"
 import {wuGeneral} from "@yanikkendler/web-utils"
 import {ChevronDown, Info, List, Menu, NotepadText, Pen, Pencil, Plus, Trash, Type} from "lucide-react"
-import Input from "@/components/input/input"
+import Input from "@/components/inputs/input/input"
 import {
     closestCenter,
     DndContext,
@@ -28,16 +28,16 @@ import {
     useSensors
 } from "@dnd-kit/core"
 import {arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy} from "@dnd-kit/sortable"
-import ShotAttributeDefinition from "@/components/shotAttributeDefinition/shotAttributeDefinition"
+import ShotAttributeDefinition from "@/components/dialogs/shotlistOptionsDialog/attributeTab/shotAttributeDefinition/shotAttributeDefinition"
 import {Collapsible, Popover} from "radix-ui"
-import {apolloClient} from "@/ApolloWrapper"
-import ShotAttributeTemplate from "@/components/shotAttributeTemplate/shotAttributeTemplate"
+import {apolloClient} from "@/context/ApolloWrapper"
+import ShotAttributeTemplate from "@/components/template/shotAttributeTemplate/shotAttributeTemplate"
 import {AnySceneAttributeDefinition, AnyShotAttributeTemplate} from "@/util/Types"
 import Utils from "@/util/Utils"
 import Link from "next/link"
-import SceneAttributeTemplate from "@/components/sceneAttributeTemplate/sceneAttributeTemplate"
+import SceneAttributeTemplate from "@/components/template/sceneAttributeTemplate/sceneAttributeTemplate"
 import {router} from "next/client"
-import {useConfirmDialog} from "@/components/dialog/confirmDialog/confirmDialoge"
+import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
 import {driver} from "driver.js"
 
 export default function Template (){

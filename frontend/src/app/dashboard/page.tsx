@@ -4,22 +4,19 @@ import gql from "graphql-tag"
 import Link from "next/link"
 import {ApolloQueryResult, useApolloClient, useQuery, useSuspenseQuery} from "@apollo/client"
 import "./dashboard.scss"
-import LoadingPage from "@/pages/loadingPage/loadingPage"
+import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 import React, {useEffect, useState} from "react"
-import ErrorPage from "@/pages/errorPage/errorPage"
+import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import {ChevronDown, House, NotepadText, NotepadTextDashed, Plus, User} from "lucide-react"
 import {ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
 import {wuGeneral, wuTime} from "@yanikkendler/web-utils"
 import {useRouter, useSearchParams} from "next/navigation"
-import {useCreateShotlistDialog} from "@/components/dialog/createShotlistDialog/createShotlistDialog"
-import {useAccountDialog} from "@/components/dialog/accountDialog/accountDialog"
+import {useCreateShotlistDialog} from "@/components/dialogs/createShotlistDialog/createShotlistDialog"
 import Utils from "@/util/Utils"
-import {useCreateTemplateDialog} from "@/components/dialog/createTemplateDialog/createTemplateDialog"
-import auth from "@/Auth"
+import {useCreateTemplateDialog} from "@/components/dialogs/createTemplateDialog/createTemplateDialog"
 import * as Dialog from "@radix-ui/react-dialog"
 import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
-import Loader from "@/components/loader/loader"
 
 export default function Overview() {
     const [query, setQuery] = useState<ApolloQueryResult<any>>(Utils.defaultQueryResult)
@@ -105,14 +102,14 @@ export default function Overview() {
     }
 
     if(query.error) return (
-        <ErrorPage settings={{
-            title: 'Data could not be loaded',
-            description: query.error.message,
-            link: {
+        <ErrorPage
+            title='Data could not be loaded'
+            description={query.error.message}
+            link= {{
                 text: 'Dashboard',
                 href: '../dashboard'
-            }
-        }}/>
+            }}
+        />
     )
 
     if(query.loading) return <LoadingPage title={"loading shotlists"} className={"dashboardContent"}/>

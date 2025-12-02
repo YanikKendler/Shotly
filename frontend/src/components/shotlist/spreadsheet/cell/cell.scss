@@ -1,0 +1,179 @@
+.sheetManager .sheetCell{
+  border: 1px solid var(--cell-border);
+  position: relative;
+
+  &:not(.number){
+    width: 100%;
+    min-width: var(--shotAttribute-width);
+  }
+
+  &.create{
+    display: flex;
+    justify-content: space-between;
+    height: 38px;
+    align-items: center;
+    padding: {
+      right: .4rem;
+      left: .2rem;
+    }
+
+    &:hover{
+      --preview-cell-border: var(--preview-cell-hover-border);
+    }
+
+    border-color: var(--preview-cell-border);
+    transition: color .1s, border-color .1s;
+    color: var(--text-60);
+
+    &:not(.number):hover{
+      cursor: text;
+      color: var(--text-40);
+    }
+  }
+
+  &.number{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 4ch;
+    font-weight: 600;
+    z-index: 50;
+    position: sticky;
+    background-color: var(--shot-background);
+    user-select: none;
+    left: 0;
+    color: var(--number-color);
+
+    &::after{
+      content: '';
+      height: calc(100% + 2px);
+      width: 1.5rem;
+      background: linear-gradient(90deg,color-mix(in srgb, var(--contrast), transparent 80%) 0%, var(--contrast) 100%);
+      position: absolute;
+      right: calc(100% + 1px);
+    }
+
+    @media screen and (max-width: 600px){
+      left: -1.5rem;
+    }
+
+    .grip{
+      position: absolute;
+      right: 100%;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      padding: 0;
+      opacity: 0;
+      color: var(--grip-color);
+      cursor: pointer;
+      box-sizing: border-box;
+      display: grid;
+      place-items: center;
+      transition: color .3s, opacity .1s;
+      translate: -1.5rem 0;
+      z-index: 10;
+
+      &:hover{
+        color: var(--grip-hover-color);
+
+        &::before{
+          background-color: var(--hover-bg-solid);
+        }
+      }
+
+      &::before{
+        content: '';
+        border-radius: .3rem;
+        height: 80%;
+        width: 80%;
+        background-color: var(--contrast);
+        grid-area: 1/1/2/2;
+      }
+
+      *{
+        grid-area: 1/1/2/2;
+      }
+
+      @media (pointer: coarse){
+        opacity: 1;
+      }
+    }
+  }
+
+  &.loader{
+    line-height: 1;
+    overflow: hidden;
+
+    span{
+      font-size: 2.2rem;
+      flex: 1;
+      width: 100%;
+      border-radius: 0;
+    }
+  }
+
+  &::before{
+    content: "";
+    position: absolute;
+    z-index: 5;
+    inset: -2px;
+    border: 2px solid var(--accent);
+    border-radius: .3rem;
+    display: none;
+  }
+
+  .cellInput {
+    cursor: text;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    align-items: center;
+
+    *{
+      grid-area: 1 / 1 / 2 / 2;
+    }
+
+    .text{
+      width: 100%;
+      height: fit-content;
+      color: var(--text);
+      padding: .2rem;
+      font-size: 1rem;
+      vertical-align: middle;
+      border: none;
+      outline: none;
+    }
+
+    .select{
+      width: 100%;
+      height: 100%;
+    }
+
+    .placeholder{
+      font-weight: 400;
+      color: var(--cell-placeholder);
+      position: absolute;
+      margin-left: .2rem;
+      justify-self: start;
+      pointer-events: none;
+    }
+
+    .icon{
+      position: absolute;
+      margin-right: .4rem;
+      justify-self: end;
+      pointer-events: none;
+    }
+  }
+
+  &:not(.number):focus-within{
+    &::before{
+      display: block;
+    }
+
+    .icon{
+      display: none;
+    }
+  }
+}

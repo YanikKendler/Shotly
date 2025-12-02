@@ -32,9 +32,9 @@ const ShotTable = forwardRef((
     {sceneId, shotAttributeDefinitions, readOnly, shotlistHeaderRef}:
     {sceneId: string, shotAttributeDefinitions: ShotAttributeDefinitionBase[], readOnly: boolean, shotlistHeaderRef: RefObject<HTMLDivElement | null> }, ref
 ) => {
-    const shotTableElement = useRef<HTMLDivElement | null>(null)
     const [shots, setShots] = useState<{data: ShotDto[], loading: boolean, error: any}>({data: [], loading: true, error: null})
     const [focusAttributeAt, setFocusAttributeAt] = useState<number>(-1) //which attribute to set focus to next (-1 = dont move focus)
+    const shotTableElement = useRef<HTMLDivElement | null>(null)
     const isSyncingScroll = useRef(false) //to not detect updating the scroll as a scroll
     const shotRefs = useRef(new Map<string, ShotRef | null>())
 

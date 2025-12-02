@@ -5,31 +5,6 @@ main.shotlist{
   display: flex;
   flex-direction: column;
 
-  .sidebar{
-    .top{
-      gap: 0;
-
-      p{
-        margin-left: .2rem;
-      }
-
-      input{
-        padding-inline: .2rem;
-        text-overflow: ellipsis;
-
-        &:focus-visible{
-          outline-color: var(--accent);
-        }
-      }
-    }
-    .list >.empty{
-      text-align: center;
-      color: var(--text-40);
-      font-size: .9rem;
-      margin-block: 1rem;
-    }
-  }
-
   .content{
     display: flex;
     flex-direction: column;
@@ -62,7 +37,7 @@ main.shotlist{
         font-size: .95rem;
 
         &.number{
-          width: 5ch;
+          width: 4ch;
           flex-shrink: 0;
           text-align: center;
           color: var(--text-40);
