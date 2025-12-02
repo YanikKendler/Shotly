@@ -40,7 +40,8 @@
     z-index: 50;
     position: sticky;
     left: -1.5rem;
-    background-color: var(--shot-background)
+    background-color: var(--shot-background);
+    user-select: none;
   }
 
   &.loader{

@@ -1,7 +1,7 @@
 'use client'
 
-import {ShotDto} from "../../../lib/graphql/generated"
-import ShotAttribute, {ShotAttributeRef} from "@/components/shotAttribute/shotAttribute"
+import {ShotDto} from "../../../../lib/graphql/generated"
+import ShotAttribute, {ShotAttributeRef} from "@/components/legacy/shotAttribute/shotAttribute"
 import {AnyShotAttribute} from "@/util/Types"
 import {wuText} from "@yanikkendler/web-utils"
 import './shot.scss'

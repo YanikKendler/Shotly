@@ -2,9 +2,9 @@
 
 import {useApolloClient, useQuery} from "@apollo/client"
 import gql from "graphql-tag"
-import Shot, {ShotRef} from "@/components/shot/shot"
+import Shot, {ShotRef} from "@/components/legacy/shot/shot"
 import "./shotTable.scss"
-import {SceneDto, ShotAttributeDefinitionBase, ShotDto} from "../../../lib/graphql/generated"
+import {SceneDto, ShotAttributeDefinitionBase, ShotDto} from "../../../../lib/graphql/generated"
 import React, {forwardRef, RefObject, useContext, useEffect, useImperativeHandle, useMemo, useRef, useState} from "react"
 import {
     closestCenter,

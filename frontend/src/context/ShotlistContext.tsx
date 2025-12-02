@@ -5,7 +5,7 @@ import {
     ShotlistOptionsDialogPage,
     ShotlistOptionsDialogSubPage
 } from "@/components/dialog/shotlistOptionsDialog/shotlistOptionsDialoge"
-import {ShotAttributeRef} from "@/components/shotAttribute/shotAttribute"
+import {ShotAttributeRef} from "@/components/legacy/shotAttribute/shotAttribute"
 import {SelectOption} from "@/util/Types"
 import {CellRef} from "@/components/spreadsheet/cell/cell"
 

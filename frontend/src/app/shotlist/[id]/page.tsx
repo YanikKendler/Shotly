@@ -11,7 +11,7 @@ import {
     ShotlistDto, UserDto
 } from "../../../../lib/graphql/generated"
 import { useParams, useRouter, useSearchParams} from "next/navigation"
-import ShotTable, {ShotTableRef} from "@/components/shotTable/shotTable"
+import ShotTable, {ShotTableRef} from "@/components/legacy/shotTable/shotTable"
 import {FileSliders, House, Menu, Plus, User} from "lucide-react"
 import Link from "next/link"
 import './shotlist.scss'
@@ -43,7 +43,7 @@ import {Metadata} from "next"
 import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
 import Utils, {Config} from "@/util/Utils"
-import {ShotAttributeRef} from "@/components/shotAttribute/shotAttribute"
+import {ShotAttributeRef} from "@/components/legacy/shotAttribute/shotAttribute"
 import SheetManager from "@/components/spreadsheet/sheetManager/sheetManager"
 import {SelectOption} from "@/util/Types"
 import {CellRef} from "@/components/spreadsheet/cell/cell"
