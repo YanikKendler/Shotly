@@ -44,18 +44,22 @@
     }
   }
 
-  &:hover, &.active{
+  &:hover, &.menuOpen{
     .name .grip{
       opacity: 1;
     }
   }
 
-  &.active:not(.expanded){
-    background-color: var(--accent-92);
-    --scene-hover-border: var(--accent-90);
+  &.menuOpen{
+    background-color: var(--accent-95);
 
-    .name{
-      color: var(--text);
+    &:not(.expanded){
+      --scene-hover-border: var(--accent-90);
+      background-color: var(--accent-92);
+
+      .name{
+        color: var(--text);
+      }
     }
   }
 

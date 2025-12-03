@@ -17,6 +17,7 @@ import {useCreateTemplateDialog} from "@/components/dialogs/createTemplateDialog
 import * as Dialog from "@radix-ui/react-dialog"
 import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
+import Skeleton from "react-loading-skeleton"
 
 export default function Overview() {
     const [query, setQuery] = useState<ApolloQueryResult<any>>(Utils.defaultQueryResult)
@@ -61,7 +62,6 @@ export default function Overview() {
     }, []);
 
     const loadData = async () => {
-        console.time("loadData")
         const result = await client.query({query: gql`
                 query dashboard{
                     shotlists{
@@ -92,8 +92,6 @@ export default function Overview() {
 
         setShotlists(result.data.shotlists)
         setTemplates(result.data.templates)
-
-        console.timeEnd("loadData")
     }
 
     function handleJustBoughtProDialogOpenChange(newOpen: boolean) {
@@ -112,7 +110,20 @@ export default function Overview() {
         />
     )
 
-    if(query.loading) return <LoadingPage title={"loading shotlists"} className={"dashboardContent"}/>
+    if(query.loading) return (
+        <main className="overview dashboardContent">
+            <h2>Shotlists</h2>
+            <div className="grid">
+                <Skeleton height={150}/>
+                <Skeleton height={150}/>
+            </div>
+            <h2>Templates</h2>
+            <div className="grid">
+                <Skeleton height={150}/>
+                <Skeleton height={150}/>
+            </div>
+        </main>
+    )
 
     return (
         <main className="overview dashboardContent">

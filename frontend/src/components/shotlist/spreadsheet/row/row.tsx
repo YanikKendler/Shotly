@@ -22,6 +22,8 @@ export interface RowProps {
     children: ReactNode
 }
 
+//TODO options open after drag
+
 /**
  * Represents a single row in the spreadsheet aka a shot
  * @param children
@@ -81,7 +83,14 @@ const RowBase = forwardRef<RowRef, RowProps>(({
             {Utils.numberToShotLetter(position)}
             {
                 !isReadOnly &&
-                <Popover.Root onOpenChange={setIsBeingEdited} open={isBeingEdited}>
+                <Popover.Root
+                    open={isBeingEdited}
+                    onOpenChange={(open) => {
+                        if (shotlistContext.elementIsBeingDragged) return
+
+                        setIsBeingEdited(open)
+                    }}
+                >
                     <Popover.Trigger
                         className="grip"
                     >

@@ -3,38 +3,48 @@
 import {SceneAttributeParser} from "@/util/AttributeParser"
 import {SceneDto} from "../../../../../lib/graphql/generated"
 import "./sidebarScene.scss"
-import React, {useContext, useEffect, useState} from "react"
+import React, {forwardRef, useContext, useEffect, useState} from "react"
 import {Collapsible, Popover, Separator, Tooltip} from "radix-ui"
 import {AnySceneAttribute, AnyShotAttribute} from "@/util/Types"
 import {ArrowBigDown, ArrowBigUp, CornerDownRight, GripVertical, List, NotepadText, Trash} from "lucide-react"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
-import {useSortable} from "@dnd-kit/sortable"
-import {CSS} from '@dnd-kit/utilities';
 import {ShotlistContext} from "@/context/ShotlistContext"
 import SceneAttribute from "../sceneAttribute/sceneAttribute"
 
-export default function SidebarScene(
-    {scene, position, expanded, onSelect, onDelete, moveScene, readOnly}:
-    {scene: SceneDto, position:number, expanded: boolean, onSelect: ( id: string) => void, onDelete: ( id: string) => void, moveScene: (sceneId: string, from: number, to: number) => void, readOnly: boolean}
-) {
+export interface SidebarSceneRef {
+    closePopover: () => void
+}
+
+export interface SidebarSceneProps {
+    scene: SceneDto,
+    position:number,
+    expanded: boolean,
+    onSelect: ( id: string) => void, onDelete: ( id: string) => void,
+    moveScene: (sceneId: string, from: number, to: number) => void,
+    readOnly: boolean
+}
+
+//TODO first open is laggy
+const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>((
+    {
+        scene,
+        position,
+        expanded,
+        onSelect,
+        onDelete,
+        moveScene,
+        readOnly
+    }, ref
+) => {
     const [overflowVisible, setOverflowVisible] = useState(false);
     const [sceneAttributes, setSceneAttributes] = useState<AnySceneAttribute[]>(scene.attributes as AnySceneAttribute[]);
-    const [isBeingEdited, setIsBeingEdited] = useState(false);
-    const [tooltipVisible, setTooltipVisible] = useState(false);
+    const [editMenuIsOpen, setEditMenuIsOpen] = useState(false);
 
     const { confirm, ConfirmDialog } = useConfirmDialog();
 
     const shotlistContext = useContext(ShotlistContext)
-
-    // @ts-ignore
-    const {attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition} = useSortable({id: scene.id});
-
-    const style = {
-        transform: CSS.Translate.toString(transform),
-        transition,
-    };
 
     const client = useApolloClient()
 
@@ -75,10 +85,12 @@ export default function SidebarScene(
 
     return (
         <div
-            className={`sidebarScene ${expanded ? 'expanded' : ''} ${isBeingEdited && "active"}`}
-            onClick={() => {onSelect(scene.id as string)}}
-            ref={setNodeRef}
-            style={style}
+            className={`sidebarScene ${expanded ? 'expanded' : ''} ${editMenuIsOpen && "menuOpen"}`}
+            onClick={() => {
+                if(!shotlistContext.elementIsBeingDragged)
+                    onSelect(scene.id as string)
+            }}
+            data-scene-id={scene.id}
         >
             <div className="name">
                 <p className="number">{position + 1}</p>
@@ -92,29 +104,22 @@ export default function SidebarScene(
                 }</p>
                 {
                     !readOnly &&
-                    <Popover.Root onOpenChange={setIsBeingEdited}>
-                        <Tooltip.Root open={tooltipVisible} onOpenChange={(newOpen) => {
-                            if (!shotlistContext.elementIsBeingDragged) setTooltipVisible(newOpen)
-                        }}>
-                            <Popover.Trigger
-                                className="grip"
-                                ref={setActivatorNodeRef}
-                                {...listeners}
-                                {...attributes}
-                                onClick={e => e.stopPropagation()}
-                            >
-                                <Tooltip.Trigger className={"noPadding"} asChild>
-                                    <GripVertical size={expanded ? 22 : 20}/>
-                                </Tooltip.Trigger>
-                            </Popover.Trigger>
-                            <Tooltip.Portal>
-                                <Tooltip.Content className={"TooltipContent"}>
-                                    <Tooltip.Arrow/>
-                                    <p><span className="bold">Click</span> to edit</p>
-                                    <p><span className="bold">Drag</span> to reorder</p>
-                                </Tooltip.Content>
-                            </Tooltip.Portal>
-                        </Tooltip.Root>
+                    <Popover.Root
+                        open={editMenuIsOpen}
+                        onOpenChange={(open) => {
+                            if (shotlistContext.elementIsBeingDragged) return
+
+                            setEditMenuIsOpen(open)
+                        }}
+                    >
+                        <Popover.Trigger
+                            className="grip"
+                            onClick={e => {
+                                e.stopPropagation()
+                            }}
+                        >
+                            <GripVertical size={expanded ? 22 : 20}/>
+                        </Popover.Trigger>
                         <Popover.Portal>
                             <Popover.Content className="PopoverContent sceneContextOptionsPopup" align={"start"}
                                              side={"right"} sideOffset={12} alignOffset={-10}>
@@ -174,5 +179,7 @@ export default function SidebarScene(
 
             {ConfirmDialog}
         </div>
-    );
-}
+    )
+})
+
+export default SidebarScene

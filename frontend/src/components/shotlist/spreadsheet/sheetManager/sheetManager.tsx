@@ -46,7 +46,7 @@ export default function SheetManager({
 
     const sortableRef = useRef<Sortable|null>(null)
 
-    const [shots, setShots] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
+    const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
     const creationLoaderRef = useRef<HTMLDivElement>(null)
     const attributePositionToSelect = useRef<number>(-1) //position of attribute to select on next re-render
 
@@ -69,21 +69,21 @@ export default function SheetManager({
         }
     }, [selectRefreshContext.lastRefresh]);
 
-    //select a attribute (in a newly created shot) specified by attributePositionToSelect.current after the shots are re rendered
     useEffect(() => {
+        // select a attribute (in a newly created shot)
+        // specified by attributePositionToSelect.current after the shots are re rendered
         if(attributePositionToSelect.current >= 0){
-            console.log(getCellRef(cellRefs.current.size-1, attributePositionToSelect.current))
             getCellRef(cellRefs.current.size-1, attributePositionToSelect.current)?.setFocus()
             attributePositionToSelect.current = -1
         }
 
-        if(sortableRef.current){
+        if (sortableRef.current?.el) {
             sortableRef.current.destroy()
         }
 
         /**
          * creating a new SortableJS instance
-         * using a native JS library without react because the reordering is quite simple but the react re-renders
+         * using a native JS library without react because the reordering is quite simple and the react re-renders
          * were creating substantial complexity and performance issues
          */
         const shots = document.querySelector('#shots')
@@ -95,6 +95,8 @@ export default function SheetManager({
                 fallbackTolerance: 5,
                 onStart: (event) => {
                     if(event.oldIndex === undefined) return
+
+                    shotlistContext.elementIsBeingDragged = true
 
                     rowRefs.current.get(event.oldIndex)?.closePopover()
                 },
@@ -108,14 +110,20 @@ export default function SheetManager({
                             event.oldIndex,
                             event.newIndex
                         )
+
+                        shotlistContext.elementIsBeingDragged = false
                     })
                 }
             })
         }
-    }, [shots]);
+    }, [query])
 
     useEffect(() => {
         if(sceneId){
+            setQuery({
+                ...query,
+                loading: true
+            })
             loadShots()
         }
     }, [sceneId])
@@ -196,7 +204,7 @@ export default function SheetManager({
 
         shotlistContext.setShotCount(result.data.shots.length || 0)
 
-        setShots(result)
+        setQuery(result)
 
         console.log(result)
     }
@@ -237,45 +245,45 @@ export default function SheetManager({
             return;
         }
 
-        shotlistContext.setShotCount((shots.data.shots?.length || 0) + 1)
+        shotlistContext.setShotCount((query.data.shots?.length || 0) + 1)
 
-        const newShots = [...shots.data.shots || [], data.createShot]
+        const newShots = [...query.data.shots || [], data.createShot]
 
-        setShots({...shots, data: {...shots.data, shots: newShots}})
+        setQuery({...query, data: {...query.data, shots: newShots}})
 
         setCreationLoaderVisibility(false)
     }
 
     const deleteShot = useCallback((shotId: string) => {
-        if(!shots || !shots.data.shots) return
+        if(!query || !query.data.shots) return
 
-        let currentShots = shots.data.shots as ShotDto[]
+        let currentShots = query.data.shots as ShotDto[]
         let newShots= currentShots.filter((shot) => shot.id != shotId)
 
-        setShots({
-            ...shots,
+        setQuery({
+            ...query,
             data: {
-                ...shots.data,
+                ...query.data,
                 shots: newShots
             }
         })
 
         shotlistContext.setShotCount(newShots.length)
-    }, [shots])
+    }, [query])
 
     const moveShot = useCallback((shotId: string, from: number, to: number) => {
         ShotService.updateShot(shotId, to).then(response => {
             if(response.errors) console.error(response.errors) //TODO notify
         })
 
-        setShots({
-            ...shots,
+        setQuery({
+            ...query,
             data: {
-                ...shots.data,
-                shots: Utils.reorderArray(shots.data.shots || [], from, to)
+                ...query.data,
+                shots: Utils.reorderArray(query.data.shots || [], from, to)
             }
         })
-    }, [shots])
+    }, [query])
 
     const handleScroll = () => {
         const table = shotTableElement.current
@@ -292,11 +300,13 @@ export default function SheetManager({
         })
     }
 
-    if(shots.loading)
-        return <Loader text={"Loading shots..."}/>
+    if(query.loading)
+        return <div className="sheetManager">
+            <Skeleton count={5} height="38px"/>
+        </div>
 
-    if(shots.error)
-        return <ErrorDisplay title={shots.error.message}/>
+    if(query.error)
+        return <ErrorDisplay title={query.error.message}/>
 
     return (
         <div
@@ -306,7 +316,7 @@ export default function SheetManager({
             ref={shotTableElement}
         >
             <div id="shots">
-                {(shots.data.shots as ShotDto[])?.map((shot: ShotDto, row: number) => (
+                {(query.data.shots as ShotDto[])?.map((shot: ShotDto, row: number) => (
                     <Row
                         key={shot.id}
                         shot={shot}

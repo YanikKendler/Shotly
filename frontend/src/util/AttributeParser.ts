@@ -22,7 +22,7 @@ export abstract class SceneAttributeParser {
                 result = <string>attribute.multiSelectValue?.map((value) => value?.name).join(", ")
                 break
         }
-        return truncate ? wuText.truncateText(result, 15, "..") : result
+        return truncate ? wuText.truncate(result, 15, "..") : result
     }
 
     static isEmpty(attribute: AnySceneAttribute): boolean{
@@ -52,7 +52,7 @@ export abstract class ShotAttributeParser {
                 result = <string>attribute.multiSelectValue?.map((value) => value?.name).join(", ")
                 break
         }
-        return truncate ? wuText.truncateText(result, 15, "..") : result
+        return truncate ? wuText.truncate(result, 15, "..") : result
     }
 }
 

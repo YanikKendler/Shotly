@@ -6,18 +6,14 @@ import {Query, SceneDto, ShotlistDto} from "../../../../lib/graphql/generated"
 import gql from "graphql-tag"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {wuGeneral} from "@yanikkendler/web-utils"
-import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import ErrorDisplay from "@/components/feedback/errorDisplay/errorDisplay"
-import SidebarScene from "@/components/shotlist/shotlistSidebar/sidebarScene/sidebarScene"
-import {
-    ShotlistOptionsDialogPage,
-    ShotlistOptionsDialogSubPage
-} from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
-import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
-import React from "react"
+import SidebarScene, {SidebarSceneRef} from "@/components/shotlist/shotlistSidebar/sidebarScene/sidebarScene"
+import React, {useContext, useEffect, useRef} from "react"
 import Utils from "@/util/Utils"
-import {useParams} from "next/navigation"
 import {useAccountDialog} from "@/components/dialogs/accountDialog/accountDialog"
+import Sortable from "sortablejs"
+import {ShotlistContext} from "@/context/ShotlistContext"
+import "./shotlistSidebar.scss"
 
 export default function shotlistSidebar({
     query,
@@ -44,6 +40,57 @@ export default function shotlistSidebar({
 }){
     const client = useApolloClient()
     const {openAccountDialog, AccountDialog} = useAccountDialog()
+    const shotlistContext = useContext(ShotlistContext)
+
+    const sortableRef = useRef<Sortable|null>(null)
+
+    const sceneRefs = useRef<Map<number, SidebarSceneRef | null>>(new Map())
+
+    useEffect(() => {
+        if (sortableRef.current?.el) {
+            sortableRef.current.destroy()
+        }
+
+        /**
+         * creating a new SortableJS instance
+         * using a native JS library without react because the reordering is quite simple and the react re-renders
+         * were creating substantial complexity and performance issues
+         */
+        const shots = document.querySelector('#scenes')
+        if(shots){
+            sortableRef.current = Sortable.create(shots as HTMLElement, {
+                handle: '.grip',
+                animation: 150,
+                forceFallback: true,
+                fallbackTolerance: 5,
+                onStart: (event) => {
+                    console.log("drag started")
+
+                    if(event.oldIndex === undefined) return
+
+                    shotlistContext.elementIsBeingDragged = true
+
+                    sceneRefs.current.get(event.oldIndex)?.closePopover()
+                },
+                onEnd: (event) => {
+                    //so that the drag ghost is hidden before re-rendering otherwise it hangs in the air for half a second
+                    requestAnimationFrame(() => {
+                        if(!event.item || event.oldIndex === undefined || event.newIndex === undefined) return
+
+                        sceneRefs.current.get(event.oldIndex)?.closePopover()
+
+                        moveScene(
+                            event.item.dataset.sceneId as string,
+                            event.oldIndex,
+                            event.newIndex
+                        )
+
+                        shotlistContext.elementIsBeingDragged = false
+                    })
+                }
+            })
+        }
+    }, [query]);
 
     const updateShotlistName = async (name: string) => {
         const { data, errors } = await client.mutate({
@@ -100,13 +147,20 @@ export default function shotlistSidebar({
 
         if(!query.data.shotlist || !query.data.shotlist.scenes) return
 
+        console.log("actually swapping")
+
         const newScenes = Utils.reorderArray(query.data.shotlist.scenes || [], from, to)
+
+        console.log(newScenes)
 
         setQuery({
             ...query,
             data: {
                 ...query.data,
-                scenes: newScenes
+                shotlist: {
+                    ...query.data.shotlist,
+                    scenes: newScenes
+                }
             }
         })
     }
@@ -210,23 +264,31 @@ export default function shotlistSidebar({
                         role={"heading"}
                     />
                 </div>
-                {/*TODO this absolutely should be its own component wth*/}
                 <div className="list" id="sceneList">
-                    {!query.data.shotlist.scenes || query.data.shotlist.scenes.length == 0 ?
-                        <p className={"empty"}>No scenes yet :(</p> :
-                        (query.data.shotlist?.scenes as SceneDto[]).map((scene: SceneDto, index) => (
-                            <SidebarScene
-                                key={scene.id}
-                                scene={scene}
-                                position={index}
-                                expanded={selectedSceneId == scene.id}
-                                onSelect={selectScene}
-                                onDelete={removeScene}
-                                moveScene={moveScene}
-                                readOnly={isReadOnly}
-                            />
-                        ))
-                    }
+                    <div id="scenes">
+                        {!query.data.shotlist.scenes || query.data.shotlist.scenes.length == 0 ?
+                            <p className={"empty"}>No scenes yet :(</p> :
+                            (query.data.shotlist.scenes as SceneDto[]).map((scene: SceneDto, index) => (
+                                <SidebarScene
+                                    key={scene.id}
+                                    scene={scene}
+                                    position={index}
+                                    expanded={selectedSceneId == scene.id}
+                                    onSelect={selectScene}
+                                    onDelete={removeScene}
+                                    moveScene={moveScene}
+                                    readOnly={isReadOnly}
+                                    ref={(node) => {
+                                        sceneRefs.current.set(index, node)
+
+                                        return () => {
+                                            sceneRefs.current.delete(index)
+                                        }
+                                    }}
+                                />
+                            ))
+                        }
+                    </div>
                     <button className={"create"} disabled={isReadOnly} onClick={createScene}>Add
                         scene <Plus/></button>
                     <div className="bottom">
