@@ -2,14 +2,13 @@
 
 import gql from "graphql-tag"
 import Link from "next/link"
-import {useApolloClient, useQuery, useSuspenseQuery} from "@apollo/client"
+import {ApolloError, ApolloQueryResult, useApolloClient, useQuery, useSuspenseQuery} from "@apollo/client"
 import "./layout.scss"
-import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 import React, {useEffect, useState} from "react"
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
 import {ChevronDown, House, Menu, NotepadText, NotepadTextDashed, Plus, User} from "lucide-react"
-import {ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
+import {Query, ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
 import {Collapsible, Separator, Tooltip} from "radix-ui"
 import {wuGeneral} from "@yanikkendler/web-utils"
 import auth from "@/Auth"
@@ -19,15 +18,10 @@ import {useAccountDialog} from "@/components/dialogs/accountDialog/accountDialog
 import Utils from "@/util/Utils"
 import Iconmark from "@/components/iconmark"
 import {useCreateTemplateDialog} from "@/components/dialogs/createTemplateDialog/createTemplateDialog"
+import Skeleton from "react-loading-skeleton"
+import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 
 export default function DashboardLayout({children}: { children: React.ReactNode }) {
-    const [query, setQuery] = useState<{ error: any, loading: boolean }>({error: null, loading: true})
-
-    const [shotlists, setShotlists] = useState<ShotlistDto[] | null>(null)
-    const [templates, setTemplates] = useState<TemplateDto[] | null>(null)
-
-    const [sidebarOpen, setSidebarOpen] = useState<boolean>(false)
-
     const client = useApolloClient()
     const router = useRouter()
     const pathname = usePathname()
@@ -35,6 +29,12 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const { openCreateShotlistDialog, CreateShotlistDialog } = useCreateShotlistDialog()
     const { openCreateTemplateDialog, CreateTemplateDialog } = useCreateTemplateDialog()
     const { openAccountDialog, AccountDialog } = useAccountDialog()
+
+    const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
+    const [shotlists, setShotlists] = useState<ShotlistDto[] | null>(null)
+    const [templates, setTemplates] = useState<TemplateDto[] | null>(null)
+
+    const [sidebarOpen, setSidebarOpen] = useState<boolean>(false)
 
     useEffect(() => {
         if(!auth.isAuthenticated()){
@@ -45,42 +45,49 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         if(!auth.getUser()) return
 
         loadData()
-    }, []);
+    }, [])
 
     const loadData = async () => {
-        const { data, error, loading } = await client.query({query: gql`
-                query home{
-                    shotlists{
-                        id
-                        name
-                        sceneCount
-                        shotCount
-                        editedAt
-                    }
-                    templates {
-                        id
-                        name
-                    }
-                }`,
-                fetchPolicy: "no-cache"
-            }
-        )
+        console.log("loading dashboard layout data")
 
-        setQuery({error, loading})
+        try {
+            const result = await client.query({query: gql`
+                    query home{
+                        shotlists{
+                            id
+                            name
+                            sceneCount
+                            shotCount
+                            editedAt
+                        }
+                        templates {
+                            id
+                            name
+                        }
+                    }`,
+                    fetchPolicy: "no-cache"
+                }
+            )
 
-        setShotlists(data.shotlists)
-        setTemplates(data.templates)
+            setQuery(result)
+
+            setShotlists(result.data.shotlists)
+            setTemplates(result.data.templates)
+        }
+        catch (error) {
+            setQuery({...query, error: error as ApolloError})
+        }
     }
 
     if(query.error) return <ErrorPage
         title='Data could not be loaded'
         description={query.error.message}
-        link={{
-            text: 'Dashboard',
-            href: '../dashboard'
-        }}
+        reload={true}
     />
-    if(query.loading) return <LoadingPage title={"loading your dashboard"}/>
+
+    if(!auth.getUser()) return (
+        <LoadingPage title={"logging you in..."}/>
+    )
 
     return (
         <main className="home">
@@ -123,17 +130,22 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                     className="CollapsibleContent dashboardSidebar"
                                 >
                                     {
+                                        query.loading ? <>
+                                            <Skeleton/>
+                                            <Skeleton/>
+                                        </> :
                                         !shotlists || shotlists.length === 0 ? (
-                                                <button onClick={openCreateShotlistDialog} className={"create"}>
-                                                    create new <Plus size={16}/>
-                                                </button>) :
-                                            shotlists.sort(Utils.orderShotlistsOrTemplatesByName).map((shotlist) => (
-                                                <Link key={shotlist.id} href={`/shotlist/${shotlist.id}`}>
-                                                    <NotepadText size={18}/>
-                                                    {shotlist.name ? <span className={"wrap"}>{shotlist.name}</span> : (
-                                                        <span className={"italic"}>Unnamed</span>)}
-                                                </Link>
-                                            ))
+                                            <button onClick={openCreateShotlistDialog} className={"create"}>
+                                                create new <Plus size={16}/>
+                                            </button>
+                                        ) :
+                                        shotlists.sort(Utils.orderShotlistsOrTemplatesByName).map((shotlist) => (
+                                            <Link key={shotlist.id} href={`/shotlist/${shotlist.id}`}>
+                                                <NotepadText size={18}/>
+                                                {shotlist.name ? <span className={"wrap"}>{shotlist.name}</span> : (
+                                                    <span className={"italic"}>Unnamed</span>)}
+                                            </Link>
+                                        ))
                                     }
                                 </Collapsible.Content>
                             </Collapsible.Root>
@@ -159,17 +171,21 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                     className="CollapsibleContent dashboardSidebar"
                                 >
                                     {
+                                        query.loading ? <>
+                                            <Skeleton/>
+                                            <Skeleton/>
+                                        </> :
                                         !templates || templates.length === 0 ? (
-                                                <p className="empty">Nothing here yet</p>)
-                                            :
-                                            templates.sort(Utils.orderShotlistsOrTemplatesByName).map((template) => (
-                                                <Link key={template.id} href={`/dashboard/template/${template.id}`}
-                                                      className={"template"}>
-                                                    <NotepadTextDashed size={18}/>
-                                                    {template.name ? <span className={"wrap"}>{template.name}</span> : (
-                                                        <span className={"italic"}>Unnamed</span>)}
-                                                </Link>
-                                            ))
+                                            <p className="empty">Nothing here yet</p>
+                                        ) :
+                                        templates.sort(Utils.orderShotlistsOrTemplatesByName).map((template) => (
+                                            <Link key={template.id} href={`/dashboard/template/${template.id}`}
+                                                  className={"template"}>
+                                                <NotepadTextDashed size={18}/>
+                                                {template.name ? <span className={"wrap"}>{template.name}</span> : (
+                                                    <span className={"italic"}>Unnamed</span>)}
+                                            </Link>
+                                        ))
                                     }
                                 </Collapsible.Content>
                             </Collapsible.Root>

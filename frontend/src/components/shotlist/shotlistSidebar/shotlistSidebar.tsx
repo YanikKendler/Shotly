@@ -30,7 +30,7 @@ export default function shotlistSidebar({
     query: ApolloQueryResult<Query>
     selectScene: (id: string) => void
     setQuery: (query: ApolloQueryResult<Query>) => void
-    selectedSceneId: string
+    selectedSceneId: string | null
     setSelectedSceneId: (id: string) => void
     sceneCount: number
     setSceneCount: (count: number) => void
@@ -147,11 +147,7 @@ export default function shotlistSidebar({
 
         if(!query.data.shotlist || !query.data.shotlist.scenes) return
 
-        console.log("actually swapping")
-
         const newScenes = Utils.reorderArray(query.data.shotlist.scenes || [], from, to)
-
-        console.log(newScenes)
 
         setQuery({
             ...query,

@@ -13,15 +13,17 @@ export default function ErrorPage(
         link = {
             text: "Dashboard",
             href: "/dashboard"
-        }
+        },
+        reload = false
     }:
     {
         title: string
         description: string
-        link: {
+        link?: {
             text: string
             href: string
         }
+        reload?: boolean
     }
 ) {
     return (
@@ -35,7 +37,17 @@ export default function ErrorPage(
                         {title}
                     </h1>
                     <p className={"description"}>{description}</p>
-                    <Link className={"solid"} href={link.href}>{link.text}</Link>
+                    {
+                        reload ?
+                        <Link
+                            className={"solid"}
+                            href="#"
+                            onClick={() => window.location.reload()}
+                        >
+                            Reload
+                        </Link> :
+                        <Link className={"solid"} href={link.href}>{link.text}</Link>
+                    }
                 </div>
             </div>
         </div>

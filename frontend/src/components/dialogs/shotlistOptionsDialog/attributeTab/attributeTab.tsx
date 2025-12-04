@@ -28,7 +28,7 @@ export default function AttributeTab(
     { shotlistId, shotAttributeDefinitions, setShotAttributeDefinitions, sceneAttributeDefinitions, setSceneAttributeDefinitions, selectedPage = "shot", dataChanged }
         :
     {
-        shotlistId: string,
+        shotlistId: string | null,
         shotAttributeDefinitions: AnyShotAttributeDefinition[] | null,
         setShotAttributeDefinitions: (definitions: AnyShotAttributeDefinition[]) => void,
         sceneAttributeDefinitions: AnySceneAttributeDefinition[] | null,

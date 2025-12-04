@@ -31,7 +31,7 @@ export default function SheetManager({
     shotlistHeaderRef
 }:{
     shotAttributeDefinitions: ShotAttributeDefinitionBase[]
-    sceneId: string
+    sceneId: string | null
     isReadOnly: boolean
     shotlistHeaderRef: RefObject<HTMLDivElement | null>
 }){
@@ -61,6 +61,16 @@ export default function SheetManager({
             unsubscribe()
         }
     }, [])
+
+    useEffect(() => {
+        if(sceneId && sceneId !== ""){
+            setQuery({
+                ...query,
+                loading: true
+            })
+            loadShots()
+        }
+    }, [sceneId])
 
     //the selectRefreshContext causes the current cell to lose focus after creating a new option since the component is re-rendered
     useEffect(() => {
@@ -117,16 +127,6 @@ export default function SheetManager({
             })
         }
     }, [query])
-
-    useEffect(() => {
-        if(sceneId){
-            setQuery({
-                ...query,
-                loading: true
-            })
-            loadShots()
-        }
-    }, [sceneId])
 
     const setCreationLoaderVisibility = (visible:boolean) => {
         if(!creationLoaderRef.current) return

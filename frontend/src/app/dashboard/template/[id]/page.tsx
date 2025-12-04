@@ -2,11 +2,12 @@
 
 import "./template.scss"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
-import {useApolloClient} from "@apollo/client"
+import {ApolloError, ApolloQueryResult, useApolloClient} from "@apollo/client"
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 import React, {useEffect, useState} from "react"
 import {
+    Query,
     SceneAttributeTemplateBase, SceneAttributeType,
     ShotAttributeBase,
     ShotAttributeTemplateBase,
@@ -39,12 +40,13 @@ import SceneAttributeTemplate from "@/components/template/sceneAttributeTemplate
 import {router} from "next/client"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
 import {driver} from "driver.js"
+import Skeleton from "react-loading-skeleton"
 
 export default function Template (){
     const params = useParams<{ id: string }>()
     const id = params?.id || ""
 
-    const [template, setTemplate] = useState<{data: TemplateDto, loading: boolean, error: any}>({data: {} as TemplateDto, loading: true, error: null})
+    const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
     const client = useApolloClient()
     const router = useRouter()
@@ -63,17 +65,19 @@ export default function Template (){
         allowClose: true,
         steps: [
             { popover: { title: 'Templates', description: 'Templates store any number of attributes for scenes and shotlists. A template can be selected when creating a new shotlist.' } },
-            { element: '.attributeTemplates', popover: { title: 'Shot Attributes', description: `Every shotlist that is created based on this template will automatically have a "${template.data.shotAttributes?.at(0)?.name}" column.`, side: "left", align: 'center' }},
+            { element: '.attributeTemplates', popover: { title: 'Shot Attributes', description: `Every shotlist that is created based on this template will automatically have a "${query.data.template?.shotAttributes?.at(0)?.name}" column.`, side: "left", align: 'center' }},
             { element: '.infoTrigger', popover: { title: 'More info', description: 'You can always click here to read up on templates.', side: "bottom", align: 'center' }},
             { element: 'button.add', popover: { description: 'Click here to add a new shot attribute to this template.', side: "bottom", align: 'center' }},
         ]
     })
 
     useEffect(() => {
-        if(!id || id.length !== 36)
-            setTemplate({data: {} as TemplateDto, loading: false, error: new Error("Invalid template ID")})
-        else
+        if(!id || id.length !== 36) {
+            setQuery({...query, error: new ApolloError({errorMessage: "Invalid template ID"})})
+        }
+        else {
             loadTemplate()
+        }
 
         if(localStorage["shotly-template-tour-completed"] != "true") {
             localStorage["shotly-template-tour-completed"] = "true"
@@ -82,7 +86,7 @@ export default function Template (){
     }, []);
 
     const loadTemplate = async (noCache: boolean = false) => {
-        const { data, errors, loading } = await client.query({query: gql`
+        const result = await client.query({query: gql`
                 query template($id: String!){
                     template(id: $id) {
                         id
@@ -133,7 +137,7 @@ export default function Template (){
             variables: {id: id},
             fetchPolicy: noCache ? "no-cache" : "cache-first"})
 
-        setTemplate({data: data.template, loading: loading, error: errors})
+        setQuery(result)
     }
 
     const updateTemplateName = async (name: string) => {
@@ -159,11 +163,14 @@ export default function Template (){
     }
 
     const handleTemplateNameChange = (name: string) => {
-        setTemplate({
-            ...template,
+        setQuery({
+            ...query,
             data: {
-                ...template.data,
-                name: name
+                ...query.data,
+                template: {
+                    ...query.data.template,
+                    name: name
+                }
             }
         })
 
@@ -175,7 +182,7 @@ export default function Template (){
     const deleteTemplate = async () => {
         let decision = await confirm({
             title: 'Are you sure?',
-            message: `Do you want to delete the template "${template.data.name}". No Shotlists will be affected by this action. This action cannot be undone.`,
+            message: `Do you want to delete the template "${query.data.template?.name || "Unknown"}". No Shotlists will be affected by this action. This action cannot be undone.`,
             buttons: {
                 confirm: {
                     text: 'Delete Template',
@@ -223,11 +230,17 @@ export default function Template (){
             return;
         }
 
-        setTemplate({
-            ...template,
+        setQuery({
+            ...query,
             data: {
-                ...template.data,
-                shotAttributes: [...(template.data.shotAttributes || []), data.createShotAttributeTemplate]
+                ...query.data,
+                template:{
+                    ...query.data.template,
+                    shotAttributes: [
+                        ...(query.data.template?.shotAttributes || []),
+                        data.createShotAttributeTemplate
+                    ]
+                }
             }
         });
     }
@@ -235,9 +248,9 @@ export default function Template (){
     function handleShotDragEnd(event: any) {
         const {active, over} = event;
 
-        if (active.id !== over.id && template.data.shotAttributes) {
-            const oldIndex = template.data.shotAttributes.findIndex((definition) => definition!.id === active.id);
-            const newIndex = template.data.shotAttributes.findIndex((definition) => definition!.id === over.id);
+        if (active.id !== over.id && query.data.template && query.data.template.shotAttributes) {
+            const oldIndex = query.data.template.shotAttributes.findIndex((definition) => definition!.id === active.id);
+            const newIndex = query.data.template.shotAttributes.findIndex((definition) => definition!.id === over.id);
 
             apolloClient.mutate({
                 mutation: gql`
@@ -254,26 +267,32 @@ export default function Template (){
                 variables: {id: active.id, position: newIndex},
             })
 
-            setTemplate({
-                ...template,
+            setQuery({
+                ...query,
                 data: {
-                    ...template.data,
-                    shotAttributes: arrayMove(template.data.shotAttributes, oldIndex, newIndex)
+                    ...query.data,
+                    template:{
+                        ...query.data.template,
+                        shotAttributes: arrayMove(query.data.template.shotAttributes, oldIndex, newIndex)
+                    }
                 }
             })
         }
     }
 
     function removeShotAttributeTemplate(id: number) {
-        if(!template.data.shotAttributes || template.data.shotAttributes.length == 0) return
+        if(!query.data.template || !query.data.template.shotAttributes || query.data.template.shotAttributes.length == 0) return
 
-        let newShotTemplates: AnyShotAttributeTemplate[] = (template.data.shotAttributes as AnyShotAttributeTemplate[]).filter((shotTemplate) => shotTemplate.id != id)
+        let newShotAttributes: AnyShotAttributeTemplate[] = (query.data.template.shotAttributes as AnyShotAttributeTemplate[]).filter((shotTemplate) => shotTemplate.id != id)
 
-        setTemplate({
-            ...template,
+        setQuery({
+            ...query,
             data: {
-                ...template.data,
-                shotAttributes: newShotTemplates
+                ...query.data,
+                template:{
+                    ...query.data.template,
+                    shotAttributes: newShotAttributes
+                }
             }
         })
     }
@@ -296,11 +315,14 @@ export default function Template (){
             return;
         }
 
-        setTemplate({
-            ...template,
+        setQuery({
+            ...query,
             data: {
-                ...template.data,
-                sceneAttributes: [...(template.data.sceneAttributes || []), data.createSceneAttributeTemplate]
+                ...query.data,
+                template:{
+                    ...query.data.template,
+                    sceneAttributes: [...(query.data.template?.sceneAttributes || []), data.createSceneAttributeTemplate]
+                }
             }
         });
     }
@@ -308,9 +330,9 @@ export default function Template (){
     function handleSceneDragEnd(event: any) {
         const {active, over} = event;
 
-        if (active.id !== over.id && template.data.sceneAttributes) {
-            const oldIndex = template.data.sceneAttributes.findIndex((definition) => definition!.id === active.id);
-            const newIndex = template.data.sceneAttributes.findIndex((definition) => definition!.id === over.id);
+        if (active.id !== over.id && query.data.template && query.data.template.sceneAttributes) {
+            const oldIndex = query.data.template.sceneAttributes.findIndex((definition) => definition!.id === active.id);
+            const newIndex = query.data.template.sceneAttributes.findIndex((definition) => definition!.id === over.id);
 
             apolloClient.mutate({
                 mutation: gql`
@@ -327,67 +349,82 @@ export default function Template (){
                 variables: {id: active.id, position: newIndex},
             })
 
-            setTemplate({
-                ...template,
+            setQuery({
+                ...query,
                 data: {
-                    ...template.data,
-                    sceneAttributes: arrayMove(template.data.sceneAttributes, oldIndex, newIndex)
+                    ...query.data,
+                    template:{
+                        ...query.data.template,
+                        sceneAttributes: arrayMove(query.data.template.sceneAttributes, oldIndex, newIndex)
+                    }
                 }
             })
         }
     }
 
     function removeSceneAttributeTemplate(id: number) {
-        if(!template.data.sceneAttributes || template.data.sceneAttributes.length == 0) return
+        if(!query.data.template || !query.data.template.sceneAttributes || query.data.template.sceneAttributes.length == 0) return
 
-        let newSceneTemplates: AnyShotAttributeTemplate[] = (template.data.sceneAttributes as AnyShotAttributeTemplate[]).filter((sceneTemplate) => sceneTemplate.id != id)
+        let newSceneTemplates: AnyShotAttributeTemplate[] = (query.data.template.sceneAttributes as AnyShotAttributeTemplate[]).filter((sceneTemplate) => sceneTemplate.id != id)
 
-        setTemplate({
-            ...template,
+        setQuery({
+            ...query,
             data: {
-                ...template.data,
-                sceneAttributes: newSceneTemplates
+                ...query.data,
+                template:{
+                    ...query.data.template,
+                    sceneAttributes: newSceneTemplates
+                }
             }
         })
     }
 
-    if(template.error) return <main className={"dashboardContent"}><ErrorPage settings={{
-        title: 'Data could not be loaded',
-        description: template.error.message,
-        link: {
-            text: 'Dashboard',
-            href: '/dashboard'
-        }
-    }}/></main>
+    if(query.error) return <main className={"dashboardContent"}>
+        <ErrorPage
+            title='Data could not be loaded'
+            description={query.error.message}
+            link={{
+                text: 'Dashboard',
+                href: '/dashboard'
+            }}
+        />
+    </main>
 
-    if(template.loading) return <LoadingPage title={"loading template"}/>
-
-    if(!template.data) return <main className={"dashboardContent"}><ErrorPage settings={{
-        title: '404',
-        description: 'Sorry, we could not find the template you were looking for. Please check the URL or return to the dashboard.',
-        link: {
-            text: 'Dashboard',
-            href: '/dashboard'
-        }
-    }}/></main>
+    if(!query.data) return <main className={"dashboardContent"}>
+        <ErrorPage
+            title="404"
+            description='Sorry, we could not find the template you were looking for. Please check the URL or return to the dashboard.'
+            link= {{
+                text: 'Dashboard',
+                href: '/dashboard'
+            }}
+        />
+    </main>
 
     return (
         <main className={"template dashboardContent"}>
             <div className="top">
                 <h2>
-                    <Input
-                        value={template.data.name || ""}
-                        placeholder={"template name"}
-                        valueChange={handleTemplateNameChange}
-                        inputClass={"templateName"}
-                        maxLength={80}
-                        maxWidth={"90ch"}
-                        showError={false}
-                    />
-                    <div className="spacerContainer">
-                        <p className="spacer">{template.data.name}</p>
-                        <Pencil size={18} style={{display: template.data.name == "" ? "none" : "block"}}/>
-                    </div>
+                    {
+                        query.loading ?
+                        <Skeleton height="2rem"/> :
+                        <>
+                            <Input
+                                value={query.data.template?.name || ""}
+                                placeholder={"template name"}
+                                valueChange={handleTemplateNameChange}
+                                inputClass={"templateName"}
+                                maxLength={80}
+                                maxWidth={"90ch"}
+                                showError={false}
+                            />
+                            <div className="spacerContainer">
+                                <p className="spacer">{query.data.template?.name}</p>
+                                <Pencil size={18}
+                                        style={{display: query.data.template?.name == "" ? "none" : "block"}}/>
+                            </div>
+                        </>
+                    }
                 </h2>
 
                 <Popover.Root defaultOpen={false}>
@@ -420,13 +457,17 @@ export default function Template (){
                 onDragEnd={handleShotDragEnd}
             >
                 <SortableContext
-                    items={template.data.shotAttributes?.map(def => def!.id) || []}
+                    items={query.data.template?.shotAttributes?.map(def => def!.id) || []}
                     strategy={verticalListSortingStrategy}
                 >
                     {
-                        template.data.shotAttributes && template.data.shotAttributes.length > 0 &&
+                        query.loading ?
+                        <div style={{display: 'flex', flexDirection: 'column'}}>
+                            <Skeleton height="2rem" count={2}/>
+                        </div> :
+                        query.data.template && query.data.template.shotAttributes && query.data.template.shotAttributes.length > 0 &&
                         (<div className="attributeTemplates">
-                            {(template.data.shotAttributes as ShotAttributeTemplateBase[]).map(attr =>
+                            {(query.data.template.shotAttributes as ShotAttributeTemplateBase[]).map(attr =>
                                 <ShotAttributeTemplate attributeTemplate={attr} onDelete={removeShotAttributeTemplate}
                                                        key={attr.id}/>
                             )}
@@ -434,25 +475,30 @@ export default function Template (){
                     }
                 </SortableContext>
             </DndContext>
-            <Popover.Root>
-                <Popover.Trigger className={"add"}>Add Shot Attribute <Plus size={20}/></Popover.Trigger>
-                <Popover.Portal>
-                    <Popover.Content className="PopoverContent addAttributeTemplatePopup" sideOffset={5}
-                                     align={"start"}>
-                        <button onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotTextAttribute)}><Type
-                            size={16} strokeWidth={3}/>Text
-                        </button>
-                        <button
-                            onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotSingleSelectAttribute)}>
-                            <ChevronDown size={16} strokeWidth={3}/>Single select
-                        </button>
-                        <button
-                            onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotMultiSelectAttribute)}>
-                            <List size={16} strokeWidth={3}/>Multi select
-                        </button>
-                    </Popover.Content>
-                </Popover.Portal>
-            </Popover.Root>
+            {
+                query.loading ?
+                <Skeleton height="2rem" count={2}/> :
+                <Popover.Root>
+                    <Popover.Trigger className={"add"}>Add Shot Attribute <Plus size={20}/></Popover.Trigger>
+                    <Popover.Portal>
+                        <Popover.Content className="PopoverContent addAttributeTemplatePopup" sideOffset={5}
+                                         align={"start"}>
+                            <button onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotTextAttribute)}><Type
+                                size={16} strokeWidth={3}/>Text
+                            </button>
+                            <button
+                                onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotSingleSelectAttribute)}>
+                                <ChevronDown size={16} strokeWidth={3}/>Single select
+                            </button>
+                            <button
+                                onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotMultiSelectAttribute)}>
+                                <List size={16} strokeWidth={3}/>Multi select
+                            </button>
+                        </Popover.Content>
+                    </Popover.Portal>
+                </Popover.Root>
+            }
+
             <h3>Scene Attributes</h3>
             <DndContext
                 sensors={sensors}
@@ -460,13 +506,17 @@ export default function Template (){
                 onDragEnd={handleSceneDragEnd}
             >
                 <SortableContext
-                    items={template.data.sceneAttributes?.map(def => def!.id) || []}
+                    items={query.data.template?.sceneAttributes?.map(def => def!.id) || []}
                     strategy={verticalListSortingStrategy}
                 >
                     {
-                        template.data.sceneAttributes && template.data.sceneAttributes.length > 0 &&
+                        query.loading ?
+                        <div style={{display: 'flex', flexDirection: 'column'}}>
+                            <Skeleton height="2rem" count={2}/>
+                        </div> :
+                        query.data.template && query.data.template.sceneAttributes && query.data.template.sceneAttributes.length > 0 &&
                         (<div className="attributeTemplates">
-                            {(template.data.sceneAttributes as SceneAttributeTemplateBase[]).map(attr =>
+                            {(query.data.template.sceneAttributes as SceneAttributeTemplateBase[]).map(attr =>
                                 <SceneAttributeTemplate attributeTemplate={attr} onDelete={removeSceneAttributeTemplate}
                                                         key={attr.id}/>
                             )}
@@ -474,25 +524,29 @@ export default function Template (){
                     }
                 </SortableContext>
             </DndContext>
-            <Popover.Root>
-                <Popover.Trigger className={"add"}>Add Scene Attribute <Plus size={20}/></Popover.Trigger>
-                <Popover.Portal>
-                    <Popover.Content className="PopoverContent addAttributeTemplatePopup" sideOffset={5}
-                                     align={"start"}>
-                        <button onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneTextAttribute)}>
-                            <Type size={16} strokeWidth={3}/>Text
-                        </button>
-                        <button
-                            onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneSingleSelectAttribute)}>
-                            <ChevronDown size={16} strokeWidth={3}/>Single select
-                        </button>
-                        <button
-                            onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneMultiSelectAttribute)}>
-                            <List size={16} strokeWidth={3}/>Multi select
-                        </button>
-                    </Popover.Content>
-                </Popover.Portal>
-            </Popover.Root>
+            {
+                query.loading ?
+                <Skeleton height="2rem" count={2}/> :
+                <Popover.Root>
+                    <Popover.Trigger className={"add"}>Add Scene Attribute <Plus size={20}/></Popover.Trigger>
+                    <Popover.Portal>
+                        <Popover.Content className="PopoverContent addAttributeTemplatePopup" sideOffset={5}
+                                         align={"start"}>
+                            <button onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneTextAttribute)}>
+                                <Type size={16} strokeWidth={3}/>Text
+                            </button>
+                            <button
+                                onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneSingleSelectAttribute)}>
+                                <ChevronDown size={16} strokeWidth={3}/>Single select
+                            </button>
+                            <button
+                                onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneMultiSelectAttribute)}>
+                                <List size={16} strokeWidth={3}/>Multi select
+                            </button>
+                        </Popover.Content>
+                    </Popover.Portal>
+                </Popover.Root>
+                }
             {ConfirmDialog}
         </main>
     )

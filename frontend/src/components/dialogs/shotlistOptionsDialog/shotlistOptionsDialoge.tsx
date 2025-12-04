@@ -27,7 +27,7 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
     isOpen: boolean,
     setIsOpen: any,
     selectedPage: { main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage },
-    shotlistId: string,
+    shotlistId: string | null,
     refreshShotlist: () => void
 }) {
     const [sceneAttributeDefinitions, setSceneAttributeDefinitions] = useState<AnySceneAttributeDefinition[] | null>(null);
@@ -43,6 +43,8 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
     const router = useRouter()
 
     useEffect(() => {
+        if(!shotlist) return
+
         loadData()
         setDataChanged(false)
     }, [shotlistId, isOpen]);

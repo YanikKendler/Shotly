@@ -30,6 +30,8 @@ import Utils, {Config} from "@/util/Utils"
 import {SelectOption} from "@/util/Types"
 import SheetManager from "@/components/shotlist/spreadsheet/sheetManager/sheetManager"
 import ShotlistSidebar from "@/components/shotlist/shotlistSidebar/shotlistSidebar"
+import Skeleton from "react-loading-skeleton"
+import Loader from "@/components/feedback/loader/loader"
 
 export default function Shotlist() {
     const client = useApolloClient()
@@ -41,7 +43,7 @@ export default function Shotlist() {
     const sceneId = searchParams?.get('sid')
 
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
-    const [selectedSceneId, setSelectedSceneId] = useState(sceneId || "")
+    const [selectedSceneId, setSelectedSceneId] = useState(sceneId || null)
     const [optionsDialogOpen, setOptionsDialogOpen] = useState(false)
     const [selectedOptionsDialogPage, setSelectedOptionsDialogPage] = useState<{main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage}>({main: "general", sub: "shot"})
     const [elementIsBeingDragged, setElementIsBeingDragged] = useState(false)
@@ -230,9 +232,9 @@ export default function Shotlist() {
         }}
     />
 
-    if(query.loading) return <LoadingPage title={"loading shotlist"}/>
+    if(!auth.getUser()) return <LoadingPage title={"loading shotlist..."}/>
 
-    if(!query.data.shotlist) return <ErrorPage
+    if(!query.loading && !query.data.shotlist) return <ErrorPage
         title='404'
         description='Sorry, we could not find the shotlist you were looking for. Please check the URL or return to the dashboard.'
         link={{
@@ -241,8 +243,18 @@ export default function Shotlist() {
         }}
     />
 
-    if(selectedSceneId == "" && query.data.shotlist.scenes && query.data.shotlist.scenes[0]?.id != undefined)
+    if(
+        (
+            selectedSceneId == "" ||
+            selectedSceneId == null
+        ) &&
+        !query.loading &&
+        query.data.shotlist &&
+        query.data.shotlist.scenes &&
+        query.data.shotlist.scenes[0]?.id != undefined
+    ) {
         setSelectedSceneId(query.data.shotlist.scenes[0].id)
+    }
 
     return (
         <ShotlistContext.Provider value={{
@@ -271,29 +283,43 @@ export default function Shotlist() {
                         minSize={12}
                         className={`sidebar collapse ${sidebarOpen ? "open" : "closed"}`}
                     >
-                        <ShotlistSidebar
-                            query={query}
-                            setQuery={setQuery}
-                            sceneCount={sceneCount}
-                            setSceneCount={setSceneCount}
-                            selectedSceneId={selectedSceneId}
-                            setSelectedSceneId={setSelectedSceneId}
+                        {
+                            query.loading ?
+                            <div style={{display: "flex", flexDirection: "column", padding: ".5rem", height: "100%"}}>
+                                <Skeleton height="2rem" style={{marginBottom: "1rem"}}/>
+                                <Skeleton height="2rem" count={6} style={{marginBottom: ".3rem"}}/>
+                            </div> :
+                            <ShotlistSidebar
+                                query={query}
+                                setQuery={setQuery}
+                                sceneCount={sceneCount}
+                                setSceneCount={setSceneCount}
+                                selectedSceneId={selectedSceneId}
+                                setSelectedSceneId={setSelectedSceneId}
 
-                            selectScene={selectScene}
-                            isReadOnly={isReadOnly}
-                            setSidebarOpen={setSidebarOpen}
+                                selectScene={selectScene}
+                                isReadOnly={isReadOnly}
+                                setSidebarOpen={setSidebarOpen}
 
-                            openShotlistOptionsDialog={() => {
-                                setOptionsDialogOpen(true)
-                                driverObj.destroy()
-                            }}
-                        />
+                                openShotlistOptionsDialog={() => {
+                                    setOptionsDialogOpen(true)
+                                    driverObj.destroy()
+                                }}
+                            />
+                        }
                     </Panel>
-                    <PanelResizeHandle className="PanelResizeHandle" hitAreaMargins={{fine: 3, coarse: 10}}/>
+                    <PanelResizeHandle className="PanelResizeHandle" hitAreaMargins={{fine: 5, coarse: 10}}/>
                     <Panel className="content" id={"shotTable"}>
                         <div className="header" ref={headerRef}>
                             <div className="number"><p>#</p></div>
-                            {!query.data.shotlist.shotAttributeDefinitions || query.data.shotlist.shotAttributeDefinitions.length == 0 ?
+                            {
+                                query.loading ?
+                                <>
+                                    <Skeleton width="18vw" height="1rem"/>
+                                    <Skeleton width="18vw" height="1rem"/>
+                                    <Skeleton width="18vw" height="1rem"/>
+                                </> :
+                                !query.data.shotlist?.shotAttributeDefinitions || query.data.shotlist.shotAttributeDefinitions.length == 0 ?
                                 <p className={"empty"}>No shot attributes defined</p> :
                                 (query.data.shotlist.shotAttributeDefinitions as ShotAttributeDefinitionBase[]).map((attr: any, index) => (
                                     <div className={`attribute`} key={attr.id}><p>{attr.name || "Unnamed"}</p></div>
@@ -302,7 +328,7 @@ export default function Shotlist() {
                         </div>
                         <SheetManager
                             sceneId={selectedSceneId}
-                            shotAttributeDefinitions={query.data.shotlist.shotAttributeDefinitions as ShotAttributeDefinitionBase[]}
+                            shotAttributeDefinitions={query.data.shotlist?.shotAttributeDefinitions as ShotAttributeDefinitionBase[]}
                             isReadOnly={isReadOnly}
                             shotlistHeaderRef={headerRef}
                         />
@@ -314,7 +340,7 @@ export default function Shotlist() {
                 isOpen={optionsDialogOpen}
                 setIsOpen={setOptionsDialogOpen}
                 selectedPage={selectedOptionsDialogPage}
-                shotlistId={query.data.shotlist?.id || ""}
+                shotlistId={query.data.shotlist?.id || null}
                 refreshShotlist={() => {
                     loadData(true).then(() => {
                         setReloadKey(reloadKey + 1)

@@ -63,7 +63,7 @@
   --dialog-close-button-bg: hsl(0, 0%, 90%);
   --dialog-close-button-hover-bg: hsl(0, 0%, 85%);
 
-  --drag-handle-hover: hsl(0, 0%, 80%);
+  --drag-handle-hover: var(--accent-80);
 
   --default-interactable-border: hsl(0, 0%, 82%);
   --default-interactable-hover-border: hsl(0, 0%, 25%);
@@ -128,7 +128,7 @@
   --dialog-close-button-bg: hsl(0, 0%, 10%);
   --dialog-close-button-hover-bg: hsl(0, 0%, 15%);
 
-  --drag-handle-hover: hsl(0, 0%, 20%);
+  --drag-handle-hover: var(--accent-80);
 
   --default-interactable-border: hsl(0, 0%, 18%);
   --default-interactable-hover-border: hsl(0, 0%, 70%);
@@ -317,6 +317,7 @@ span.wrap{
   height: 100%;
   flex-grow: 1;
   width: var(--sidebar-width);
+  max-width: var(--sidebar-width);
 
   .closearea{
     display: none;
@@ -331,6 +332,7 @@ span.wrap{
       width: 100vw;
       opacity: 1;
       transition: opacity .2s ease-in, translate .1s ease-in-out;
+      --sidebar-width: 100vw;
 
       &.closed{
         translate: -100vw 0;
@@ -578,8 +580,9 @@ span.wrap{
 //Style react-resizable-panels
 
 .PanelResizeHandle{
-  outline: 1px solid transparent;
+  outline: 1.5px solid transparent;
   transition: outline-color .1s;
+  z-index: 100;
 
   &[data-resize-handle-state="hover"], &[data-resize-handle-state="drag"]{
     outline-color: var(--drag-handle-hover);

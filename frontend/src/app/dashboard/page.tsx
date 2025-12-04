@@ -2,13 +2,13 @@
 
 import gql from "graphql-tag"
 import Link from "next/link"
-import {ApolloQueryResult, useApolloClient, useQuery, useSuspenseQuery} from "@apollo/client"
+import {ApolloError, ApolloQueryResult, useApolloClient, useQuery, useSuspenseQuery} from "@apollo/client"
 import "./dashboard.scss"
 import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 import React, {useEffect, useState} from "react"
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import {ChevronDown, House, NotepadText, NotepadTextDashed, Plus, User} from "lucide-react"
-import {ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
+import {Query, ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
 import {wuGeneral, wuTime} from "@yanikkendler/web-utils"
 import {useRouter, useSearchParams} from "next/navigation"
 import {useCreateShotlistDialog} from "@/components/dialogs/createShotlistDialog/createShotlistDialog"
@@ -18,9 +18,10 @@ import * as Dialog from "@radix-ui/react-dialog"
 import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
 import Skeleton from "react-loading-skeleton"
+import auth from "@/Auth"
 
 export default function Overview() {
-    const [query, setQuery] = useState<ApolloQueryResult<any>>(Utils.defaultQueryResult)
+    const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
     const [shotlists, setShotlists] = useState<ShotlistDto[]>([])
     const [templates, setTemplates] = useState<TemplateDto[]>([])
@@ -49,11 +50,11 @@ export default function Overview() {
     })
 
     useEffect(() => {
-        loadData()
-
         if (justBoughtPro) {
             setJustBoughtProDialogOpen(true)
         }
+
+        loadData()
 
         if(localStorage["shotly-dashboard-tour-completed"] != "true") {
             localStorage["shotly-dashboard-tour-completed"] = "true"
@@ -62,36 +63,42 @@ export default function Overview() {
     }, []);
 
     const loadData = async () => {
-        const result = await client.query({query: gql`
-                query dashboard{
-                    shotlists{
-                        id
-                        name
-                        sceneCount
-                        shotCount
-                        editedAt
-                        owner {
+        try {
+            const result = await client.query({
+                query: gql`
+                    query dashboard{
+                        shotlists{
+                            id
                             name
+                            sceneCount
+                            shotCount
+                            editedAt
+                            owner {
+                                name
+                            }
                         }
-                    }
-                    templates {
-                        id
-                        name
-                        shotAttributeCount
-                        sceneAttributeCount
-                        owner {
+                        templates {
+                            id
                             name
+                            shotAttributeCount
+                            sceneAttributeCount
+                            owner {
+                                name
+                            }
                         }
-                    }
-                }`,
-            fetchPolicy: "no-cache",
-            errorPolicy: "all"
-        })
+                    }`,
+                fetchPolicy: "no-cache",
+                errorPolicy: "all"
+            })
 
-        setQuery(result)
+            setQuery(result)
 
-        setShotlists(result.data.shotlists)
-        setTemplates(result.data.templates)
+            setShotlists(result.data.shotlists)
+            setTemplates(result.data.templates)
+        }
+        catch (error) {
+            setQuery({...query, error: error as ApolloError})
+        }
     }
 
     function handleJustBoughtProDialogOpenChange(newOpen: boolean) {
@@ -103,6 +110,17 @@ export default function Overview() {
         <ErrorPage
             title='Data could not be loaded'
             description={query.error.message}
+            link= {{
+                text: 'Dashboard',
+                href: '../dashboard'
+            }}
+        />
+    )
+
+    if(query.errors) return (
+        <ErrorPage
+            title='Data could not be loaded'
+            description={query.errors.map(e => e.message).join(", ")}
             link= {{
                 text: 'Dashboard',
                 href: '../dashboard'
