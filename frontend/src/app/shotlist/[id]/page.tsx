@@ -2,7 +2,7 @@
 
 import gql from "graphql-tag"
 import React, {use, useEffect, useRef, useState} from "react"
-import {ApolloQueryResult, useApolloClient} from "@apollo/client"
+import {ApolloError, ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {
     Query,
     SceneDto,
@@ -148,66 +148,71 @@ export default function Shotlist() {
     }
 
     const loadData = async (noCache: boolean = false) => {
-        const result = await client.query({
-            query: gql`
-                query shotlist($id: String!){
-                    shotlist(id: $id){
-                        id
-                        name
-                        scenes{
+        try {
+            const result = await client.query({
+                query: gql`
+                    query shotlist($id: String!){
+                        shotlist(id: $id){
                             id
-                            position
-                            attributes{
+                            name
+                            scenes{
                                 id
-                                definition{id, name, position}
+                                position
+                                attributes{
+                                    id
+                                    definition{id, name, position}
 
-                                ... on SceneSingleSelectAttributeDTO{
-                                    singleSelectValue{id,name}
-                                }
+                                    ... on SceneSingleSelectAttributeDTO{
+                                        singleSelectValue{id,name}
+                                    }
 
-                                ... on SceneMultiSelectAttributeDTO{
-                                    multiSelectValue{id,name}
-                                }
-                                ... on SceneTextAttributeDTO{
-                                    textValue
+                                    ... on SceneMultiSelectAttributeDTO{
+                                        multiSelectValue{id,name}
+                                    }
+                                    ... on SceneTextAttributeDTO{
+                                        textValue
+                                    }
                                 }
                             }
+                            sceneAttributeDefinitions{
+                                id
+                                name
+                                position
+                            }
+                            shotAttributeDefinitions{
+                                id
+                                name
+                                position
+                            }
+                            owner {
+                                id
+                                tier
+                                shotlistCount
+                            }
                         }
-                        sceneAttributeDefinitions{
-                            id
-                            name
-                            position
-                        }
-                        shotAttributeDefinitions{
-                            id
-                            name
-                            position
-                        }
-                        owner {
-                            id
-                            tier
-                            shotlistCount
-                        }
-                    }
-                }`,
-            variables: {id: id},
-            fetchPolicy: noCache ? "no-cache" : "cache-first",
-            errorPolicy: "all",
-        })
+                    }`,
+                variables: {id: id},
+                fetchPolicy: noCache ? "no-cache" : "cache-first",
+                errorPolicy: "all",
+            })
 
-        //users in basic mode are only allowed to have one single shotlist
-        if(
-            result.data.shotlist &&
-            result.data.shotlist.owner &&
-            result.data.shotlist.owner.tier == "BASIC" &&
-            result.data.shotlist.owner.shotlistCount > 1
-        ) {
-            setIsReadOnly(true)
+            //users in basic mode are only allowed to have one single shotlist
+            if (
+                result.data.shotlist &&
+                result.data.shotlist.owner &&
+                result.data.shotlist.owner.tier == "BASIC" &&
+                result.data.shotlist.owner.shotlistCount > 1
+            ) {
+                setIsReadOnly(true)
+            }
+
+            setSceneCount(result.data.shotlist.scenes.length || 0)
+
+            setQuery(result)
         }
-
-        setSceneCount(result.data.shotlist.scenes.length || 0)
-
-        setQuery(result)
+        catch (e){
+            setQuery({...query, error: e as ApolloError})
+        }
     }
 
     const selectScene = (sceneId: string) => {

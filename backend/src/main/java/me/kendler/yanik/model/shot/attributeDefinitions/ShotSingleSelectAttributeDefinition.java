@@ -36,7 +36,7 @@ public class ShotSingleSelectAttributeDefinition extends ShotAttributeDefinition
             id,
             name,
             position,
-            null
+            new LinkedList<>(List.of(new ShotSelectAttributeOptionDefinition("Sorry, I'm lazy - this does not actually list the options, please use the specific shotAttributeDefinitions query", null)))
         );
     }
 }

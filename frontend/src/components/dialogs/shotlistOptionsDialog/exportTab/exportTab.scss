@@ -1,8 +1,12 @@
 div.shotlistOptionsDialogExportTab{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
   .filters{
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: .5rem;
 
     .filter{
       display: flex;
@@ -19,19 +23,38 @@ div.shotlistOptionsDialogExportTab{
           color: var(--text-30);
         }
       }
+
+      .right{
+        display: flex;
+        gap: .5rem;
+
+        button.remove{
+          color: var(--text-30);
+          border: 2px solid var(--default-interactable-border);
+          border-radius: .3rem;
+
+          &:hover{
+            color: var(--bad);
+            border-color: var(--bad);
+          }
+        }
+      }
     }
   }
 
   button.addFilter{
-    border: .1rem solid var(--default-interactable-border);
-    width: fit-content;
+    border: 1px solid var(--interactible-border);
     color: var(--text-30);
-    padding-block: .3rem;
-    margin-top: .5rem;
+    padding-block: .4rem;
+    padding-inline: .6rem;
+    font-weight: 500;
+    font-size: .95rem;
+    margin-top: 1.5rem;
+    width: fit-content;
 
     &:hover{
       border-color: var(--default-interactable-hover-border);
-      color: var(--text);
+      color: var(--text-10);
     }
   }
 
@@ -40,8 +63,9 @@ div.shotlistOptionsDialogExportTab{
     color: var(--contrast);
     background-color: var(--accent);
     font-weight: bold;
-    margin-top: 2rem;
+    margin-top: auto;
     font-size: .95rem;
+    width: fit-content;
 
     &:hover{
       background-color: var(--accent-55);

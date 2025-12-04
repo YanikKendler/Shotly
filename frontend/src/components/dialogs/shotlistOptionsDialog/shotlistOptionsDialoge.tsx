@@ -73,9 +73,8 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
     }
 
     const loadData = async () => {
-        //TODO not getting the options
-
-        const { data, errors, loading } = await client.query({query: gql`
+        //fetching the defintions separately because im lazy and the shotlist query doesnt actually return the options hehe
+        const result = await client.query({query: gql`
                 query data($shotlistId: String!){
                     shotlist(id: $shotlistId){
                         id
@@ -89,42 +88,42 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
                             tier
                             shotlistCount
                         }
-                        shotAttributeDefinitions{
-                            id
-                            name
-                            position
-    
-                            ... on ShotSingleSelectAttributeDefinitionDTO{
-                                options{
-                                    id
-                                    name
-                                }
-                            }
-    
-                            ... on ShotMultiSelectAttributeDefinitionDTO{
-                                options {
-                                    id
-                                    name
-                                }
+                    }
+                    shotAttributeDefinitions(shotlistId: $shotlistId){
+                        id
+                        name
+                        position
+
+                        ... on ShotSingleSelectAttributeDefinitionDTO{
+                            options{
+                                id
+                                name
                             }
                         }
-                        sceneAttributeDefinitions{
-                            id
-                            name
-                            position
-    
-                            ... on SceneSingleSelectAttributeDefinitionDTO{
-                                options{
-                                    id
-                                    name
-                                }
+
+                        ... on ShotMultiSelectAttributeDefinitionDTO{
+                            options {
+                                id
+                                name
                             }
-    
-                            ... on SceneMultiSelectAttributeDefinitionDTO{
-                                options{
-                                    id
-                                    name
-                                }
+                        }
+                    }
+                    sceneAttributeDefinitions(shotlistId: $shotlistId){
+                        id
+                        name
+                        position
+
+                        ... on SceneSingleSelectAttributeDefinitionDTO{
+                            options{
+                                id
+                                name
+                            }
+                        }
+
+                        ... on SceneMultiSelectAttributeDefinitionDTO{
+                            options{
+                                id
+                                name
                             }
                         }
                     }
@@ -134,15 +133,21 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
             },
         )
 
-        if(data.shotlist?.owner?.tier == "BASIC" && data.shotlist.owner.shotlistCount > 1) {
+        console.log(result.data)
+
+        if(result.data.shotlist?.owner?.tier == "BASIC" && result.data.shotlist.owner.shotlistCount > 1) {
             setIsReadOnly(true)
         }
 
-        setSceneAttributeDefinitions(data.shotlist.sceneAttributeDefinitions)
-        setShotAttributeDefinitions(data.shotlist.shotAttributeDefinitions)
-        setShotlist(data.shotlist)
+        setSceneAttributeDefinitions(result.data.sceneAttributeDefinitions)
+        setShotAttributeDefinitions(result.data.shotAttributeDefinitions)
+        setShotlist(result.data.shotlist)
 
-        setStringifiedAttributeData(JSON.stringify(data.shotlist.shotAttributeDefinitions) + JSON.stringify(data.shotlist.sceneAttributeDefinitions) + JSON.stringify(data.shotlist))
+        setStringifiedAttributeData(
+            JSON.stringify(result.data.shotAttributeDefinitions) +
+            JSON.stringify(result.data.sceneAttributeDefinitions) +
+            JSON.stringify(result.data.shotlist)
+        )
     }
 
     function runRefreshShotlistCheck(){
@@ -231,7 +236,10 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
                                 }
                             </Tabs.Content>
                             <Tabs.Content value={"export"} className={"content"}>
-                                <ExportTab shotlist={shotlist}/>
+                                <ExportTab
+                                    shotlist={shotlist}
+                                    shotAttributeDefinitions={shotAttributeDefinitions}
+                                />
                             </Tabs.Content>
                         </Tabs.Root>
                     </div>

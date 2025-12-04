@@ -222,7 +222,7 @@ export default function AttributeTab(
                                 </SortableContext>
                             </DndContext>
                             <Popover.Root>
-                                <Popover.Trigger className={"add"}>Add attribute <Plus/></Popover.Trigger>
+                                <Popover.Trigger className={"add"}>Add attribute <Plus size={20}/></Popover.Trigger>
                                 <Popover.Portal>
                                     <Popover.Content className="PopoverContent addAttributeDefinitionPopup" sideOffset={5} align={"start"}>
                                         <button onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotTextAttribute)}><Type size={16}/>Text</button>

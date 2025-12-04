@@ -1,4 +1,4 @@
-import {ChevronDown, Download, File, List, ListOrdered, Plus, Type} from "lucide-react"
+import {ChevronDown, Download, File, List, ListOrdered, Plus, Trash, Type, X} from "lucide-react"
 import React, {useEffect, useRef, useState} from "react"
 import gql from "graphql-tag"
 import {pdf} from "@react-pdf/renderer"
@@ -23,15 +23,24 @@ import {
 } from "@/util/Types"
 import Utils from "@/util/Utils"
 import MultiSelect from "@/components/inputs/multiSelect/multiSelect"
-import {SceneAttributeParser, ShotAttributeParser} from "@/util/AttributeParser"
+import {SceneAttributeParser, ShotAttributeDefinitionParser, ShotAttributeParser} from "@/util/AttributeParser"
 //@ts-ignore
 import Loader from "@/components/feedback/loader/loader"
 import {downloadCSV} from "@/downloadCSV"
-import {Popover} from "radix-ui"
+import {Popover, Separator} from "radix-ui"
 
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full"
 
-export default function ExportTab({shotlist}: { shotlist: ShotlistDto | null}) {
+export default function ExportTab(
+    {
+        shotlist,
+        shotAttributeDefinitions
+    }:
+    {
+        shotlist: ShotlistDto | null
+        shotAttributeDefinitions?: AnyShotAttributeDefinition[]
+    }
+) {
     const [selectedFileType, setSelectedFileType] = useState<SelectedFileTypes>("PDF")
     const [sceneOptions, setSceneOptions] = useState<SelectOption[]>([{value: "this is bad", label: "1"}])
     const [selectedScenes, setSelectedScenes] = useState<number[]>([])
@@ -112,8 +121,12 @@ export default function ExportTab({shotlist}: { shotlist: ShotlistDto | null}) {
         )
 
         let filteredScenes= data.shotlist.scenes as SceneDto[]
+
         if(selectedScenes.length > 0)
-            filteredScenes = (data.shotlist.scenes as SceneDto[]).filter((scene) => selectedScenes.includes(scene.position))
+            filteredScenes = (data.shotlist.scenes as SceneDto[])
+                .filter((scene) => selectedScenes.includes(scene.position))
+
+        //TODO filter logic
 
         return {...data.shotlist, scenes: filteredScenes} as ShotlistDto;
     }
@@ -215,6 +228,18 @@ export default function ExportTab({shotlist}: { shotlist: ShotlistDto | null}) {
         setCustomFilters(newCustomFilters)
     }
 
+    const setFilterValue = (attributeDefinitionId: number, values: number[]) => {
+        const newCustomFilters = new Map(customFilters)
+        newCustomFilters.set(attributeDefinitionId, values)
+        setCustomFilters(newCustomFilters)
+    }
+
+    const removeFilter = (attributeDefinitionId: number) => {
+        const newCustomFilters = new Map(customFilters)
+        newCustomFilters.delete(attributeDefinitionId)
+        setCustomFilters(newCustomFilters)
+    }
+
     if(!shotlist) return <Loader text={"loading shotlist export"}/>
 
     return (
@@ -256,49 +281,62 @@ export default function ExportTab({shotlist}: { shotlist: ShotlistDto | null}) {
                         minWidth={"20rem"}
                     />
                 </div>
-                {Array.from(customFilters).map(attributeDefinitionId => {
-                    const definition = shotlist.shotAttributeDefinitions?.find(def => def?.id === attributeDefinitionId[0]) as ShotSingleOrMultiSelectAttributeDefinition
 
-                    console.log(definition)
+                <Separator.Separator orientation="horizontal" className={"Separator"}/>
+
+
+                {Array.from(customFilters).map(filter => {
+                    const definition = shotAttributeDefinitions?.find(def => def?.id === filter[0]) as ShotSingleOrMultiSelectAttributeDefinition
+                    const Icon = ShotAttributeDefinitionParser.toIcon(definition)
 
                     return (
-                        <div className="filter" key={attributeDefinitionId[0]}>
+                        <div className="filter" key={filter[0]}>
                             <div className="left">
-                                <ListOrdered size={22}/>
-                                <p>Scenes</p>
+                                <Icon size={22}/>
+                                <p>{definition.name}</p>
                             </div>
 
-                            <MultiSelect
-                                name={"Scenes"}
-                                placeholder={"All Scenes"}
-                                options={
-                                    (definition.options as ShotSelectAttributeOptionDefinition[])
-                                        ?.map(option =>
-                                            ({value: option.id.toString(), label: option.name || "Unnamed"})
-                                        ) || []
-                                }
-                                onChange={newValue => {
+                            <div className="right">
+                                <MultiSelect
+                                    name={"Scenes"}
+                                    placeholder={"All Scenes"}
+                                    options={
+                                        (definition.options as ShotSelectAttributeOptionDefinition[])
+                                            ?.map(option =>
+                                                ({value: option.id.toString(), label: option.name || "Unnamed"})
+                                            ) || []
+                                    }
+                                    onChange={newValue => {
+                                        setFilterValue(definition.id, newValue.map((option: SelectOption) => parseInt(option.value)))
+                                    }}
+                                    sorted={true}
+                                    minWidth={"20rem"}
+                                />
 
-                                }}
-                                sorted={true}
-                                minWidth={"20rem"}
-                            />
+                                <button
+                                    className="remove bad"
+                                    onClick={() => removeFilter(definition.id)}
+                                >
+                                    <X size={18}/>
+                                </button>
+                            </div>
                         </div>
                     )
                 })}
             </div>
 
             <Popover.Root>
-                <Popover.Trigger className={"addFilter"}>Add filter<Plus size={16}/></Popover.Trigger>
+                <Popover.Trigger className={"addFilter"}>Add filter<Plus size={20}/></Popover.Trigger>
                 <Popover.Portal>
                     <Popover.Content className="PopoverContent addAttributeDefinitionPopup" sideOffset={5} align={"start"}>
-                        {shotlist.shotAttributeDefinitions
+                        {shotAttributeDefinitions
                             ?.filter(attributeDefinition => {
+                                console.log(attributeDefinition)
                                 if(customFilters.has(attributeDefinition?.id)) return false
                                 if((attributeDefinition as AnyShotAttributeDefinition).__typename === "ShotTextAttributeDefinitionDTO") return false
                                 return true
                             })
-                            .map((attributeDefinition, index) => (
+                            ?.map((attributeDefinition, index) => (
                                 <button
                                     key={index}
                                     onClick={() => addFilter(attributeDefinition?.id || -1)}
