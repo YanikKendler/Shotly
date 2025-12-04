@@ -1,11 +1,17 @@
-import {Download, File, ListOrdered, Plus} from "lucide-react"
+import {ChevronDown, Download, File, List, ListOrdered, Plus, Type} from "lucide-react"
 import React, {useEffect, useRef, useState} from "react"
 import gql from "graphql-tag"
 import {pdf} from "@react-pdf/renderer"
 import PDFExport from "@/components/PDFExport"
 import {wuTime} from "@yanikkendler/web-utils"
 import {useApolloClient} from "@apollo/client"
-import {SceneDto, ShotDto, ShotlistDto} from "../../../../../lib/graphql/generated"
+import {
+    SceneAttributeType,
+    SceneDto,
+    ShotDto,
+    ShotlistDto,
+    ShotSelectAttributeOptionDefinition
+} from "../../../../../lib/graphql/generated"
 import "./exportTab.scss"
 import SimpleSelect from "@/components/inputs/simpleSelect/simpleSelect"
 import {
@@ -13,7 +19,7 @@ import {
     AnySceneAttributeDefinition,
     AnyShotAttribute,
     AnyShotAttributeDefinition,
-    SelectOption
+    SelectOption, ShotSingleOrMultiSelectAttributeDefinition
 } from "@/util/Types"
 import Utils from "@/util/Utils"
 import MultiSelect from "@/components/inputs/multiSelect/multiSelect"
@@ -21,13 +27,15 @@ import {SceneAttributeParser, ShotAttributeParser} from "@/util/AttributeParser"
 //@ts-ignore
 import Loader from "@/components/feedback/loader/loader"
 import {downloadCSV} from "@/downloadCSV"
+import {Popover} from "radix-ui"
 
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full"
 
 export default function ExportTab({shotlist}: { shotlist: ShotlistDto | null}) {
     const [selectedFileType, setSelectedFileType] = useState<SelectedFileTypes>("PDF")
-    const [sceneOptions, setSceneOptions] = useState<SelectOption[]>([{value: "this is bad", label: "1"}]);
-    const [selectedScenes, setSelectedScenes] = useState<number[]>([]);
+    const [sceneOptions, setSceneOptions] = useState<SelectOption[]>([{value: "this is bad", label: "1"}])
+    const [selectedScenes, setSelectedScenes] = useState<number[]>([])
+    const [customFilters, setCustomFilters] = useState<Map<number, number[]>>(new Map())
 
     const client = useApolloClient()
 
@@ -131,7 +139,7 @@ export default function ExportTab({shotlist}: { shotlist: ShotlistDto | null}) {
         }
     }
 
-    function exportCSVSmall(data: ShotlistDto){
+    const exportCSVSmall = (data: ShotlistDto) =>{
         let smallData: string[][] = []
 
         let header: string[] = ["Shot"]; //this semicolon is actually needed :3 (typescript stupid)
@@ -153,7 +161,7 @@ export default function ExportTab({shotlist}: { shotlist: ShotlistDto | null}) {
         downloadCSV(smallData, header, ";", generateFileName())
     }
 
-    function exportCSVFull(data: ShotlistDto){
+    const exportCSVFull =(data: ShotlistDto) =>{
         let fullData: string[][] = []
 
         let sceneHeader: string[] = ["Scene"]; //ts :(
@@ -197,8 +205,14 @@ export default function ExportTab({shotlist}: { shotlist: ShotlistDto | null}) {
         URL.revokeObjectURL(url)
     }
 
-    function generateFileName() {
+    const generateFileName = () => {
         return `shotly_${shotlist?.name?.replace(/\s/g, "-") || "unnamed-shotlist"}_${wuTime.toFullDateTimeString(Date.now(), {timeSeparator: "-", dateSeparator: "-", dateTimeSeparator: "_", showMilliseconds: false}).replace(/\s/g, "_")}`
+    }
+
+    const addFilter = (attributeDefinitionId: number) => {
+        const newCustomFilters = new Map(customFilters)
+        newCustomFilters.set(attributeDefinitionId, [])
+        setCustomFilters(newCustomFilters)
     }
 
     if(!shotlist) return <Loader text={"loading shotlist export"}/>
@@ -242,9 +256,61 @@ export default function ExportTab({shotlist}: { shotlist: ShotlistDto | null}) {
                         minWidth={"20rem"}
                     />
                 </div>
-                {/*TODO custom filters*/}
-                {/*<button className="addFilter">add filter<Plus size={16}/></button>*/}
+                {Array.from(customFilters).map(attributeDefinitionId => {
+                    const definition = shotlist.shotAttributeDefinitions?.find(def => def?.id === attributeDefinitionId[0]) as ShotSingleOrMultiSelectAttributeDefinition
+
+                    console.log(definition)
+
+                    return (
+                        <div className="filter" key={attributeDefinitionId[0]}>
+                            <div className="left">
+                                <ListOrdered size={22}/>
+                                <p>Scenes</p>
+                            </div>
+
+                            <MultiSelect
+                                name={"Scenes"}
+                                placeholder={"All Scenes"}
+                                options={
+                                    (definition.options as ShotSelectAttributeOptionDefinition[])
+                                        ?.map(option =>
+                                            ({value: option.id.toString(), label: option.name || "Unnamed"})
+                                        ) || []
+                                }
+                                onChange={newValue => {
+
+                                }}
+                                sorted={true}
+                                minWidth={"20rem"}
+                            />
+                        </div>
+                    )
+                })}
             </div>
+
+            <Popover.Root>
+                <Popover.Trigger className={"addFilter"}>Add filter<Plus size={16}/></Popover.Trigger>
+                <Popover.Portal>
+                    <Popover.Content className="PopoverContent addAttributeDefinitionPopup" sideOffset={5} align={"start"}>
+                        {shotlist.shotAttributeDefinitions
+                            ?.filter(attributeDefinition => {
+                                if(customFilters.has(attributeDefinition?.id)) return false
+                                if((attributeDefinition as AnyShotAttributeDefinition).__typename === "ShotTextAttributeDefinitionDTO") return false
+                                return true
+                            })
+                            .map((attributeDefinition, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => addFilter(attributeDefinition?.id || -1)}
+                                >
+                                    {attributeDefinition?.name || "Unnamed"}
+                                </button>
+                            )
+                        )}
+                    </Popover.Content>
+                </Popover.Portal>
+            </Popover.Root>
+
             <button className={"export"} onClick={exportShotlist}>download shotlist<Download size={16} strokeWidth={3}/></button>
         </div>
     )

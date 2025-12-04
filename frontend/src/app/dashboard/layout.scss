@@ -13,6 +13,8 @@ main.home{
         gap: .5rem;
 
         .bottom .new{
+          color: var(--accent-40);
+          border-color: var(--accent);
           display: none;
 
           @media screen and (max-width: 600px){

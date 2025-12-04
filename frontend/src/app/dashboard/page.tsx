@@ -153,8 +153,9 @@ export default function Overview() {
                         <h3>{shotlist.name || <span className='italic'>Unnamed</span>}</h3>
                         <p className={"bold"}>{shotlist.sceneCount} scene • {shotlist.shotCount} shots</p>
                         <p>created by: <span className={"bold"}>{shotlist.owner?.name}</span></p>
-                        <p>last edited: <span
-                            className={"bold"}>{wuTime.toFullTimeString(shotlist.editedAt) /*TODO fix timestamp*/} ago</span></p>
+                        <p>last edited:
+                            <span className={"bold"}>{wuTime.toRelativeString(shotlist.editedAt, 1)}</span>
+                        </p>
                     </Link>
                 ))}
                 <button className={"gridItem add shotlist"} onClick={() => {

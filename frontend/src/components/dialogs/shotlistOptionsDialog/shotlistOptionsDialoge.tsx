@@ -43,7 +43,7 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
     const router = useRouter()
 
     useEffect(() => {
-        if(!shotlist) return
+        if(!shotlistId) return
 
         loadData()
         setDataChanged(false)
@@ -73,6 +73,8 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
     }
 
     const loadData = async () => {
+        //TODO not getting the options
+
         const { data, errors, loading } = await client.query({query: gql`
                 query data($shotlistId: String!){
                     shotlist(id: $shotlistId){
@@ -87,42 +89,42 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
                             tier
                             shotlistCount
                         }
-                    }
-                    shotAttributeDefinitions(shotlistId: $shotlistId){
-                        id
-                        name
-                        position
-
-                        ... on ShotSingleSelectAttributeDefinitionDTO{
-                            options{
-                                id
-                                name
+                        shotAttributeDefinitions{
+                            id
+                            name
+                            position
+    
+                            ... on ShotSingleSelectAttributeDefinitionDTO{
+                                options{
+                                    id
+                                    name
+                                }
+                            }
+    
+                            ... on ShotMultiSelectAttributeDefinitionDTO{
+                                options {
+                                    id
+                                    name
+                                }
                             }
                         }
-
-                        ... on ShotMultiSelectAttributeDefinitionDTO{
-                            options {
-                                id
-                                name
+                        sceneAttributeDefinitions{
+                            id
+                            name
+                            position
+    
+                            ... on SceneSingleSelectAttributeDefinitionDTO{
+                                options{
+                                    id
+                                    name
+                                }
                             }
-                        }
-                    }
-                    sceneAttributeDefinitions(shotlistId: $shotlistId){
-                        id
-                        name
-                        position
-
-                        ... on SceneSingleSelectAttributeDefinitionDTO{
-                            options{
-                                id
-                                name
-                            }
-                        }
-
-                        ... on SceneMultiSelectAttributeDefinitionDTO{
-                            options{
-                                id
-                                name
+    
+                            ... on SceneMultiSelectAttributeDefinitionDTO{
+                                options{
+                                    id
+                                    name
+                                }
                             }
                         }
                     }
@@ -136,11 +138,11 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
             setIsReadOnly(true)
         }
 
-        setSceneAttributeDefinitions(data.sceneAttributeDefinitions)
-        setShotAttributeDefinitions(data.shotAttributeDefinitions)
+        setSceneAttributeDefinitions(data.shotlist.sceneAttributeDefinitions)
+        setShotAttributeDefinitions(data.shotlist.shotAttributeDefinitions)
         setShotlist(data.shotlist)
 
-        setStringifiedAttributeData(JSON.stringify(data.shotAttributeDefinitions) + JSON.stringify(data.sceneAttributeDefinitions) + JSON.stringify(data.shotlist));
+        setStringifiedAttributeData(JSON.stringify(data.shotlist.shotAttributeDefinitions) + JSON.stringify(data.shotlist.sceneAttributeDefinitions) + JSON.stringify(data.shotlist))
     }
 
     function runRefreshShotlistCheck(){

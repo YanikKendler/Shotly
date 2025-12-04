@@ -201,10 +201,12 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                             </Collapsible.Root>
 
                             <div className="bottom">
-                                <button className="shotlist new" onClick={openCreateShotlistDialog}>New
-                                    Shotlist <NotepadText size={18}/></button>
-                                <button className="template new" onClick={openCreateTemplateDialog}>New
-                                    Template <NotepadTextDashed size={18}/></button>
+                                <button className="shotlist new accent" onClick={openCreateShotlistDialog}>
+                                    New Shotlist <NotepadText size={18}/>
+                                </button>
+                                <button className="template new accent" onClick={openCreateTemplateDialog}>
+                                    New Template <NotepadTextDashed size={18}/>
+                                </button>
                                 <button onClick={openAccountDialog}>Account <User size={18}/></button>
                             </div>
                         </div>
@@ -217,8 +219,18 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                 <PanelResizeHandle className="PanelResizeHandle"/>
                 <Panel className={`headerContainer ${pathname?.includes("template") ? "template" : ""}`}>
                     <div className="header">
-                        <button className="template" onClick={openCreateTemplateDialog}>New Template</button>
-                        <button className="shotlist" onClick={openCreateShotlistDialog}>New Shotlist</button>
+                        {
+                            query.loading ?
+                            <>
+                                <Skeleton height="2rem" width="12ch"/>
+                                <Skeleton height="2rem" width="12ch"/>
+                            </>
+                            :
+                            <>
+                                <button className="template" onClick={openCreateTemplateDialog}>New Template</button>
+                                <button className="shotlist" onClick={openCreateShotlistDialog}>New Shotlist</button>
+                            </>
+                        }
                     </div>
                     {children}
                 </Panel>

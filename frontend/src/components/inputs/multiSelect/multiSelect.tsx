@@ -110,7 +110,11 @@ export default function MultiSelect({name, placeholder = "Select...", options, o
                 option: (base, state) => ({
                     ...base,
                     borderRadius: '0.3rem',
-                    backgroundColor: state.isFocused ? 'var(--hover-bg-accent-10)' : 'transparent',
+                    backgroundColor: state.isSelected
+                        ? 'var(--hover-bg-accent-10)'
+                        : state.isFocused
+                            ? 'var(--hover-bg-10)'
+                            : 'transparent',
                 }),
                 multiValue: (baseStyles) => ({
                     ...baseStyles,

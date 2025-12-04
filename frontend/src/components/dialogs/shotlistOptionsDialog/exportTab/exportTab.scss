@@ -20,23 +20,23 @@ div.shotlistOptionsDialogExportTab{
         }
       }
     }
+  }
 
-    button.addFilter{
-      border: .1rem solid var(--default-interactable-border);
-      width: fit-content;
-      color: var(--text-30);
-      padding-block: .3rem;
-      font-size: .9rem;
+  button.addFilter{
+    border: .1rem solid var(--default-interactable-border);
+    width: fit-content;
+    color: var(--text-30);
+    padding-block: .3rem;
+    margin-top: .5rem;
 
-      &:hover{
-        border-color: var(--default-interactable-hover-border);
-        color: var(--text);
-      }
+    &:hover{
+      border-color: var(--default-interactable-hover-border);
+      color: var(--text);
     }
   }
 
   button.export{
-    padding: .4rem .8rem;
+    padding: .5rem .8rem;
     color: var(--contrast);
     background-color: var(--accent);
     font-weight: bold;

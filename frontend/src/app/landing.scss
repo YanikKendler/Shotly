@@ -334,6 +334,12 @@ main.landing{
         display: grid;
         place-items: center;
         color: var(--accent);
+
+        svg.raw{
+          width: 2.5rem;
+          height: 2.5rem;
+          fill: var(--accent);
+        }
       }
 
       h2{

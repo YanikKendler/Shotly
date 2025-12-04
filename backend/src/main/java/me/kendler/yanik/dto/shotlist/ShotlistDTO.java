@@ -1,6 +1,7 @@
 package me.kendler.yanik.dto.shotlist;
 
 import me.kendler.yanik.dto.scene.SceneDTO;
+import me.kendler.yanik.dto.scene.attributeDefinitions.SceneAttributeDefinitionBaseDTO;
 import me.kendler.yanik.dto.shot.attributeDefinitions.ShotAttributeDefinitionBaseDTO;
 import me.kendler.yanik.dto.user.UserDTO;
 import me.kendler.yanik.model.User;
@@ -16,7 +17,7 @@ public record ShotlistDTO(
     UserDTO owner,
     Template template,
     List<SceneDTO> scenes,
-    List<SceneAttributeDefinitionBase> sceneAttributeDefinitions,
+    List<SceneAttributeDefinitionBaseDTO> sceneAttributeDefinitions,
     List<ShotAttributeDefinitionBaseDTO> shotAttributeDefinitions,
     Integer sceneCount,
     Integer shotCount,
