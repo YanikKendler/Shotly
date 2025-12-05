@@ -40,10 +40,16 @@ div.shotlistOptionsDialogExportTab{
         }
       }
     }
+
+    .combinationInfo{
+      color: var(--text-50);
+      font-size: .95rem;
+      margin-left: 1rem;
+    }
   }
 
   button.addFilter{
-    border: 1px solid var(--interactible-border);
+    border: 2px solid var(--default-interactable-border);
     color: var(--text-30);
     padding-block: .4rem;
     padding-inline: .6rem;
@@ -52,7 +58,7 @@ div.shotlistOptionsDialogExportTab{
     margin-top: 1.5rem;
     width: fit-content;
 
-    &:hover{
+    &:not([disabled]):hover{
       border-color: var(--default-interactable-hover-border);
       color: var(--text-10);
     }

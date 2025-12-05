@@ -30,7 +30,7 @@ export default function SheetManager({
     isReadOnly,
     shotlistHeaderRef
 }:{
-    shotAttributeDefinitions: ShotAttributeDefinitionBase[]
+    shotAttributeDefinitions: ShotAttributeDefinitionBase[] | null
     sceneId: string | null
     isReadOnly: boolean
     shotlistHeaderRef: RefObject<HTMLDivElement | null>
@@ -300,7 +300,7 @@ export default function SheetManager({
         })
     }
 
-    if(query.loading)
+    if(query.loading || !shotAttributeDefinitions)
         return <div className="sheetManager">
             <Skeleton count={5} height="38px"/>
         </div>

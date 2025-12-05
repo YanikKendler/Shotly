@@ -48,7 +48,7 @@ main.pro{
         &.outlined{
           background-color: transparent;
           color: var(--accent);
-          border: 1px solid var(--accent);
+          border: 2px solid var(--accent);
 
           &:hover{
             background-color: var(--hover-bg-accent-10);

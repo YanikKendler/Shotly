@@ -7,7 +7,7 @@ label{
 }
 
 .SelectTrigger {
-  border: .15rem solid var(--default-interactable-border);
+  border: 2px solid var(--default-interactable-border);
   display: flex;
   align-items: center;
   padding: .5rem .3rem;
@@ -43,7 +43,7 @@ label{
   overflow: hidden;
   background-color: var(--contrast);
   border-radius: .3rem;
-  border: .15rem solid var(--default-interactable-border);
+  border: 2px solid var(--default-interactable-border);
   padding: .3rem .2rem;
   width: var(--radix-select-trigger-width);
   min-width: 20ch;

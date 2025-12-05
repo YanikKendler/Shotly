@@ -1,15 +1,15 @@
 [data-theme="dark"] .shotTable {
   --cell-border: hsl(0, 0%, 40%);
-  --second-cell-bg: hsl(0, 0%, 14%);
-  --cell-placeholder: hsl(0, 0%, 50%);
+  --second-row-bg: hsl(0, 0%, 14%);
+  --cell-placeholder-color: hsl(0, 0%, 50%);
   --preview-cell-border: hsl(0, 0%, 20%);
   --preview-cell-hover-border: hsl(0, 0%, 30%);
 }
 
 .shotTable{
   --cell-border: hsl(0, 0%, 50%);
-  --second-cell-bg: hsl(0, 0%, 96%);
-  --cell-placeholder: hsl(0, 0%, 50%);
+  --second-row-bg: hsl(0, 0%, 96%);
+  --cell-placeholder-color: hsl(0, 0%, 50%);
   --preview-cell-border: hsl(0, 0%, 87%);
   --preview-cell-hover-border: hsl(0, 0%, 70%);
 

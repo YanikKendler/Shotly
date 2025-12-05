@@ -1,5 +1,5 @@
 import {ChevronDown, Download, File, List, ListOrdered, Plus, Trash, Type, X} from "lucide-react"
-import React, {useEffect, useRef, useState} from "react"
+import React, {Fragment, useEffect, useRef, useState} from "react"
 import gql from "graphql-tag"
 import {pdf} from "@react-pdf/renderer"
 import PDFExport from "@/components/PDFExport"
@@ -32,6 +32,12 @@ import {MultiValue} from "react-select"
 
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full"
 
+interface ExportSettingsLocalStorage {
+    selectedFileType?: SelectedFileTypes
+    selectedScenes?: MultiValue<SelectOption>
+    customFilters?: [number, MultiValue<SelectOption>][]
+}
+
 export default function ExportTab(
     {
         shotlist,
@@ -42,13 +48,45 @@ export default function ExportTab(
         shotAttributeDefinitions?: AnyShotAttributeDefinition[] | null
     }
 ) {
-    const [selectedFileType, setSelectedFileType] = useState<SelectedFileTypes>("PDF")
     const [sceneOptions, setSceneOptions] = useState<SelectOption[]>([{value: "this is bad", label: "1"}])
-    const [selectedScenes, setSelectedScenes] = useState<number[]>([])
-    const [customFilters, setCustomFilters] = useState<Map<number, number[]>>(new Map())
+
+    const [selectedFileType, setSelectedFileType] = useState<SelectedFileTypes>("PDF")
+    const [selectedScenes, setSelectedScenes] = useState<MultiValue<SelectOption>>([])
+    const [customFilters, setCustomFilters] = useState<Map<number, MultiValue<SelectOption>>>(new Map())
 
     const client = useApolloClient()
 
+    //retrieve settings from local storage
+    useEffect(() => {
+        const settingsString = localStorage.getItem("shotly-export-settings")
+        if (!settingsString) return;
+
+        const settingsObject = JSON.parse(settingsString) as ExportSettingsLocalStorage
+
+        console.log(settingsObject)
+
+        if(settingsObject.selectedFileType)
+            setSelectedFileType(settingsObject.selectedFileType)
+        if(settingsObject.selectedScenes && settingsObject.selectedScenes.length > 0)
+            setSelectedScenes(settingsObject.selectedScenes)
+        if(settingsObject.customFilters && settingsObject.customFilters.length > 0) {
+            setCustomFilters(new Map(settingsObject.customFilters))
+        }
+
+    }, [])
+
+    //save settings to local storrage
+    useEffect(() => {
+        const settingsObject: ExportSettingsLocalStorage = {
+            selectedFileType: selectedFileType,
+            selectedScenes: selectedScenes,
+            customFilters: Array.from(customFilters)
+        }
+        const settingsString = JSON.stringify(settingsObject)
+        localStorage.setItem("shotly-export-settings", settingsString)
+    }, [selectedFileType, selectedScenes, customFilters]);
+
+    //extract scenes as SelectOptions from shotlist
     useEffect(() => {
         if (!shotlist) return;
 
@@ -59,7 +97,7 @@ export default function ExportTab(
         setSceneOptions(newSceneOptions)
     }, [shotlist]);
 
-    async function getData() {
+    async function getFilteredData() {
         if(!shotlist) return null;
 
         const {data, error, loading} = await client.query({
@@ -121,11 +159,16 @@ export default function ExportTab(
             }
         )
 
+        //TODO error handling and notification
+
         let filteredScenes= data.shotlist.scenes as SceneDto[]
 
-        if(selectedScenes.length > 0)
+        if(selectedScenes.length > 0) {
+            const selectedScenesArray = Array.from(selectedScenes.entries()).map(s => s[1].value)
+
             filteredScenes = (data.shotlist.scenes as SceneDto[])
-                .filter((scene) => selectedScenes.includes(scene.position))
+                .filter((scene) => selectedScenesArray.includes(String(scene.position)))
+        }
 
         filteredScenes.forEach(scene => {
             if(!scene.shots || scene.shots.length == 0) return
@@ -138,8 +181,10 @@ export default function ExportTab(
                 const matchesFilters = (shot.attributes as AnyShotAttribute[]).every(attribute => {
                     if(!customFilters.has(attribute.definition?.id)) return true
 
-                    const filter = customFilters.get(attribute.definition?.id)
+                    const filter = customFilters.get(attribute.definition?.id)?.map(f => Number(f.value))
                     if(!filter) return true
+
+                    console.log(attribute.definition?.name, filter)
 
                     switch (attribute.__typename){
                         case "ShotSingleSelectAttributeDTO":
@@ -173,7 +218,7 @@ export default function ExportTab(
     }
 
     async function exportShotlist() {
-        const data: ShotlistDto | null = await getData()
+        const data: ShotlistDto | null = await getFilteredData()
 
         if (!data) {
             console.error("No data found for export");
@@ -249,7 +294,7 @@ export default function ExportTab(
         downloadCSV(fullData, sceneHeader, ";", generateFileName())
     }
 
-    async function exportPDF(data: ShotlistDto){
+    const exportPDF = async (data: ShotlistDto) => {
         const blob = await pdf(<PDFExport data={data}/>).toBlob()
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
@@ -269,9 +314,9 @@ export default function ExportTab(
         setCustomFilters(newCustomFilters)
     }
 
-    const setFilterValue = (attributeDefinitionId: number, values: number[]) => {
+    const setFilterValue = (attributeDefinitionId: number, value: MultiValue<SelectOption>) => {
         const newCustomFilters = new Map(customFilters)
-        newCustomFilters.set(attributeDefinitionId, values)
+        newCustomFilters.set(attributeDefinitionId, value)
         setCustomFilters(newCustomFilters)
     }
 
@@ -285,9 +330,10 @@ export default function ExportTab(
 
     const customFilterCandidates = shotAttributeDefinitions
         ?.filter(attributeDefinition => {
-            console.log(attributeDefinition)
-            if(customFilters.has(attributeDefinition?.id)) return false
-            if((attributeDefinition as AnyShotAttributeDefinition).__typename === "ShotTextAttributeDefinitionDTO") return false
+            if(
+                customFilters.has(attributeDefinition?.id) ||
+                (attributeDefinition as AnyShotAttributeDefinition).__typename === "ShotTextAttributeDefinitionDTO"
+            ) return false
             return true
         })
 
@@ -309,7 +355,7 @@ export default function ExportTab(
                             {value: "CSV-full", label: "CSV (full)"},
                             {value: "CSV-small", label: "CSV (shots only)"},
                         ]}
-                        value={"PDF"}
+                        value={selectedFileType}
                         fontSize={".95rem"}
                     />
                 </div>
@@ -323,8 +369,9 @@ export default function ExportTab(
                         name={"Scenes"}
                         placeholder={"All Scenes"}
                         options={sceneOptions}
+                        value={selectedScenes}
                         onChange={newValue => {
-                            setSelectedScenes(newValue.map((option: SelectOption) => parseInt(option.value)))
+                            setSelectedScenes(newValue)
                         }}
                         sorted={true}
                         minWidth={"20rem"}
@@ -338,17 +385,20 @@ export default function ExportTab(
                     const definition = shotAttributeDefinitions?.find(def => def?.id === filter[0]) as ShotSingleOrMultiSelectAttributeDefinition
                     const Icon = ShotAttributeDefinitionParser.toIcon(definition)
 
-                    return (<>
-                        <div className="filter" key={filter[0]}>
+                    return (<Fragment key={definition.id}>
+                        <div className="filter">
                             <div className="left">
                                 <Icon size={22}/>
                                 <p>{definition.name || "Unnamed"}</p>
                             </div>
 
+                            <p className="combinationInfo">is {(customFilters.get(definition.id)?.length || 0) > 1 && "one of"}</p>
+
                             <div className="right">
                                 <MultiSelect
                                     name={definition.name || "Unnamed"}
-                                    placeholder={"All " + definition.name || "Unnamed" + "s"}
+                                    placeholder={"All " + (definition.name || "Unnamed") + "s"}
+                                    value={filter[1]}
                                     options={
                                         (definition.options as ShotSelectAttributeOptionDefinition[])
                                             ?.map(option =>
@@ -356,7 +406,7 @@ export default function ExportTab(
                                             ) || []
                                     }
                                     onChange={newValue => {
-                                        setFilterValue(definition.id, newValue.map((option: SelectOption) => parseInt(option.value)))
+                                        setFilterValue(definition.id, newValue)
                                     }}
                                     sorted={true}
                                     minWidth={"20rem"}
@@ -370,9 +420,8 @@ export default function ExportTab(
                                 </button>
                             </div>
                         </div>
-                        {/*TODO finish this dude*/}
-                        {customFilters.size > index+1 && <p>and</p>}
-                    </>)
+                        {customFilters.size > index+1 && <p className="combinationInfo">and</p>}
+                    </Fragment>)
                 })}
             </div>
 
@@ -380,16 +429,17 @@ export default function ExportTab(
                 <Popover.Trigger className={"addFilter"} disabled={customFilterCandidates?.length == 0}>Add filter<Plus size={20}/></Popover.Trigger>
                 <Popover.Portal>
                     <Popover.Content className="PopoverContent addAttributeDefinitionPopup" sideOffset={5} align={"start"}>
-                        {
-                            customFilterCandidates?.map((attributeDefinition, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => addFilter(attributeDefinition?.id || -1)}
-                                >
-                                    {attributeDefinition?.name || "Unnamed"}
-                                </button>
-                            )
-                        )}
+                            {
+                                customFilterCandidates?.map((attributeDefinition, index) => (
+                                    <Popover.Close asChild key={index}>
+                                        <button
+                                            onClick={() => addFilter(attributeDefinition?.id || -1)}
+                                        >
+                                            {attributeDefinition?.name || "Unnamed"}
+                                        </button>
+                                    </Popover.Close>
+                                ))
+                            }
                     </Popover.Content>
                 </Popover.Portal>
             </Popover.Root>

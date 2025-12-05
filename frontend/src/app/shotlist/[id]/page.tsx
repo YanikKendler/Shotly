@@ -333,7 +333,7 @@ export default function Shotlist() {
                         </div>
                         <SheetManager
                             sceneId={selectedSceneId}
-                            shotAttributeDefinitions={query.data.shotlist?.shotAttributeDefinitions as ShotAttributeDefinitionBase[]}
+                            shotAttributeDefinitions={query.data.shotlist?.shotAttributeDefinitions as ShotAttributeDefinitionBase[] || null}
                             isReadOnly={isReadOnly}
                             shotlistHeaderRef={headerRef}
                         />

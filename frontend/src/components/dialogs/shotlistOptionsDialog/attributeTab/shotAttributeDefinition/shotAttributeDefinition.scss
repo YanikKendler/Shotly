@@ -1,15 +1,11 @@
 [data-theme="dark"] div.shotAttributeDefinition {
   --grip-color: hsl(0, 0%, 35%);
   --grip-hover-color: hsl(0, 0%, 70%);
-  --input-border: hsl(0, 0%, 30%);
-  --input-hover-border: hsl(0, 0%, 70%);
 }
 
 div.shotAttributeDefinition{
   --grip-color: hsl(0, 0%, 65%);
   --grip-hover-color: hsl(0, 0%, 30%);
-  --input-border: hsl(0, 0%, 82%);
-  --input-hover-border: hsl(0, 0%, 50%);
 
   display: flex;
   align-items: center;
@@ -36,13 +32,13 @@ div.shotAttributeDefinition{
 
   input{
     padding: .5rem;
-    border: 1px solid var(--input-border);
+    border: 2px solid var(--default-interactable-border);
     border-radius: .3rem;
     flex-shrink: 1;
     min-width: 10ch;
 
     &:hover{
-      border-color: var(--input-hover-border);
+      border-color: var(--default-interactable-hover-border);
     }
 
     &:focus-visible{
@@ -54,13 +50,13 @@ div.shotAttributeDefinition{
   button{
     font-size: .95rem;
     color: var(--text-30);
-    border: 1px solid var(--input-border);
+    border: 2px solid var(--default-interactable-border);
     border-radius: .3rem;
 
     &:not(.bad):hover{
       /*background-color: var(--hover-bg-10);*/
       color: var(--text);
-      border-color: var(--input-hover-border);
+      border-color: var(--default-interactable-hover-border);
     }
 
     &.delete{
@@ -76,7 +72,7 @@ div.shotAttributeDefinition{
 }
 
 .editShotAttributeOptionsPopup{
-  --input-border: hsl(0, 0%, 82%);
+  --default-interactable-border: hsl(0, 0%, 82%);
 
   display: flex;
   flex-direction: column;
@@ -98,7 +94,7 @@ div.shotAttributeDefinition{
     input{
       border-radius: 0;
       border: none;
-      border-bottom: 2px solid var(--input-border);
+      border-bottom: 2px solid var(--default-interactable-border);
       padding: .3rem;
       width: 100%;
       font-size: .95rem;
@@ -115,7 +111,7 @@ div.shotAttributeDefinition{
       position: absolute;
       right: .5rem;
       aspect-ratio: 1;
-      border: 1px solid var(--input-border);
+      border: 2px solid var(--default-interactable-border);
       padding: .3rem;
       display: none;
       background-color: var(--contrast);

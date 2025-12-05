@@ -124,7 +124,7 @@ export default function MultiSelect(
                     ...base,
                     padding: '0.3rem',
                     borderRadius: '0.4rem',
-                    border: '.15rem solid var(--default-interactable-border)',
+                    border: '2px solid var(--default-interactable-border)',
                     marginBlock: '.1rem',
                     backgroundColor: "var(--contrast)"
                 }),

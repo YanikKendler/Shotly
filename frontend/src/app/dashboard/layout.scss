@@ -115,7 +115,7 @@ main.home{
 
         &.template{
           font-weight: 600;
-          border: .15rem solid var(--accent);
+          border: 2px solid var(--accent);
           color: var(--accent-40);
 
           &:hover{
@@ -146,7 +146,7 @@ main.home{
   .openSidebar{
     position: absolute;
     background-color: var(--contrast);
-    border: .15rem solid var(--default-interactable-border);
+    border: 2px solid var(--default-interactable-border);
     border-radius: 100%;
     bottom: 1rem;
     right: 1rem;

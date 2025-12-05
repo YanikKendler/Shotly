@@ -1,5 +1,5 @@
 div.shotAttribute{
-  border: 1px solid var(--cell-border);
+  border: 2px solid var(--cell-border);
   box-sizing: border-box;
   min-height: 2.5rem;
   display: flex;
@@ -28,7 +28,7 @@ div.shotAttribute{
 
   .input{
     flex: 1;
-    border: 1px solid transparent;
+    border: 2px solid transparent;
     height: 100%;
     border-radius: .2rem;
     outline: 1px solid transparent;
@@ -55,7 +55,7 @@ div.shotAttribute{
 
     .placeholder{
       font-weight: 400;
-      color: var(--cell-placeholder);
+      color: var(--cell-placeholder-color);
       position: absolute;
       margin-left: .2rem;
       pointer-events: none;

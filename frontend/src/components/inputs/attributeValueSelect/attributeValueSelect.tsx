@@ -68,7 +68,7 @@ export const selectShotStyles: StylesConfig<SelectOption, boolean, GroupBase<Sel
         border: "none",
         outline: "none",
         boxShadow: "none",
-        backgroundColor: "var(--shot-background)",
+        backgroundColor: "var(--cell-background)",
         zIndex: state.isFocused ? 100 : 0,
         cursor: 'text',
         transition: 'background-color 0.2s ease, border-color 0.2s ease',

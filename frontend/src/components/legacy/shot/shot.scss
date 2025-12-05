@@ -1,22 +1,22 @@
 [data-theme="dark"] div.shot {
-  --shot-background: var(--contrast);
+  --row-bg: var(--contrast);
   --grip-color: hsl(0, 0%, 60%);
   --grip-hover-color: hsl(0, 0%, 90%);
 }
 
 div.shot{
-  --shot-background: var(--contrast);
+  --row-bg: var(--contrast);
   --grip-color: hsl(0, 0%, 70%);
   --grip-hover-color: hsl(0, 0%, 50%);
 
   display: flex;
-  background-color: var(--shot-background);
+  background-color: var(--row-bg);
   position: relative;
   width: fit-content;
   min-width: 100%;
 
   &:nth-of-type(even){
-    --shot-background: var(--second-cell-bg);
+    --row-bg: var(--second-row-bg);
   }
 
   .number{
@@ -33,7 +33,7 @@ div.shot{
     }
 
     &:not(.create){
-      background-color: var(--shot-background);
+      background-color: var(--row-bg);
     }
 
     p{
@@ -55,7 +55,7 @@ div.shot{
     display: grid;
     place-items: center;
     transition: color .3s, opacity .1s;
-    background-color: var(--shot-background);
+    background-color: var(--row-bg);
     translate: -.1rem 0;
 
     &:hover{
@@ -96,7 +96,7 @@ div.shot{
   }
 
   &.active{
-    --shot-background: var(--accent-95);
+    --row-bg: var(--accent-95);
   }
 }
 

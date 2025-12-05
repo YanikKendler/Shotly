@@ -1,6 +1,9 @@
 .sheetManager .sheetCell{
+  --cell-background: var(--row-bg);
+
   border: 1px solid var(--cell-border);
   position: relative;
+  background-color: var(--cell-background);
 
   &:not(.number){
     width: 100%;
@@ -39,7 +42,7 @@
     font-weight: 600;
     z-index: 50;
     position: sticky;
-    background-color: var(--shot-background);
+    background-color: var(--row-bg);
     user-select: none;
     left: 0;
     color: var(--number-color);
@@ -113,16 +116,6 @@
     }
   }
 
-  &::before{
-    content: "";
-    position: absolute;
-    z-index: 5;
-    inset: -2px;
-    border: 2px solid var(--accent);
-    border-radius: .3rem;
-    display: none;
-  }
-
   .cellInput {
     cursor: text;
     height: 100%;
@@ -152,7 +145,7 @@
 
     .placeholder{
       font-weight: 400;
-      color: var(--cell-placeholder);
+      color: var(--cell-placeholder-color);
       position: absolute;
       margin-left: .2rem;
       justify-self: start;
@@ -167,13 +160,30 @@
     }
   }
 
-  &:not(.number):focus-within{
-    &::before{
-      display: block;
+  &::before{
+    content: "";
+    position: absolute;
+    z-index: 5;
+    inset: -2px;
+    border: 2px solid transparent;
+    border-radius: .3rem;
+    pointer-events: none;
+  }
+
+  &:not(.number):not(.create) {
+    &:not(:focus-within):hover{
+      /*--cell-background: var(--cell-hover-bg);*/
+      border-color: var(--cell-hover-border);
     }
 
-    .icon{
-      display: none;
+    &:focus-within {
+      &::before {
+        border-color: var(--accent);
+      }
+
+      .icon {
+        display: none;
+      }
     }
   }
 }

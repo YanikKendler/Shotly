@@ -105,7 +105,7 @@ export default function PDFExport({data}: { data: ShotlistDto | null }) {
                     <View style={[styles.row, styles.sceneDefinitions]}>
                         <Text style={[styles.cell, styles.number, styles.small]}>Scene</Text>
                         {(data.sceneAttributeDefinitions as AnySceneAttributeDefinition[]).map((attribute) => (
-                            <Text style={[styles.cell]} key={attribute.id}>{attribute.name}</Text>
+                            <Text style={[styles.cell]} key={attribute.id}>{attribute.name || "Unnamed"}</Text>
                         ))}
                     </View>
                     {(data.scenes as SceneDto[]).map((scene: SceneDto) => (
@@ -126,7 +126,7 @@ export default function PDFExport({data}: { data: ShotlistDto | null }) {
                                 </View>
                                 {(data.shotAttributeDefinitions as AnyShotAttributeDefinition[]).map((attribute) => (
                                     <View style={[styles.cell]} key={attribute.id}>
-                                        <Text>{attribute.name}</Text>
+                                        <Text>{attribute.name || "Unnamed"}</Text>
                                     </View>
                                 ))}
                             </View>

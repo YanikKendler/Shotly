@@ -3,7 +3,7 @@ div.shotAttributeTemplate{
   gap: .3rem;
   padding: .3rem;
   border-radius: .5rem;
-  border: .1rem solid var(--default-interactable-border);
+  border: 2px solid var(--default-interactable-border);
   align-items: center;
   background-color: var(--contrast);
 
@@ -32,7 +32,7 @@ div.shotAttributeTemplate{
     border-width: .1rem;
     outline: 1px solid transparent;
     font-weight: 500;
-    border-color: var(--interactable-border);
+    border-color: var(--default-interactable-border);
 
     &:focus-visible{
       outline: 1px solid var(--accent);
@@ -41,7 +41,7 @@ div.shotAttributeTemplate{
 
   .editOptions{
     font-size: .9rem;
-    border: .1rem solid var(--interactable-border);
+    border: 2px solid var(--default-interactable-border);
     align-self: stretch;
     gap: 1rem;
     color: var(--text-40);

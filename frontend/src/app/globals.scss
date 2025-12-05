@@ -379,7 +379,7 @@ span.wrap{
         padding: .15rem;
         aspect-ratio: 1;
         border-radius: 0.25rem;
-        border: 1px solid var(--home-button-border);
+        border: 2px solid var(--home-button-border);
         color: var(--text-20);
 
         &:hover{
@@ -596,7 +596,7 @@ span.wrap{
   padding: .4rem;
   font-size: .9rem;
   border-radius: .5rem;
-  border: 1px solid var(--popup-border);
+  border: 2px solid var(--popup-border);
   translate: 0 -.2rem;
   text-align: center;
   animation: slideUpAndFade 200ms ease-in-out;

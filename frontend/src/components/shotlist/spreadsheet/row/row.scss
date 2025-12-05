@@ -1,21 +1,31 @@
 [data-theme="dark"] .sheetManager .sheetRow {
-  --shot-background: var(--contrast);
+  --row-bg: var(--contrast);
+  --second-row-bg: hsl(0, 0%, 14%);
   --number-color: var(--text);
   --grip-color: hsl(0, 0%, 60%);
   --grip-hover-color: hsl(0, 0%, 90%);
+
+  /*unused*/
+  --cell-hover-bg: hsl(0, 0%, 14%);
+  --second-cell-hover-bg: hsl(0, 0%, 20%);
 }
 
 .sheetManager .sheetRow{
-  --shot-background: var(--contrast);
+  --row-bg: var(--contrast);
+  --second-row-bg: hsl(0, 0%, 96%);
   --number-color: var(--text);
   --grip-color: hsl(0, 0%, 70%);
   --grip-hover-color: hsl(0, 0%, 50%);
+
+  /*unused*/
+  --cell-hover-bg: hsl(0, 0%, 90%);
+  --second-cell-hover-bg: hsl(0, 0%, 86%);
 
   display: flex;
   width: fit-content;
   min-width: 100%;
   position: relative;
-  background-color: var(--shot-background);
+  background-color: var(--row-bg);
 
   &:has(:hover){
     --number-color: var(--accent);
@@ -26,7 +36,8 @@
   }
 
   &:nth-of-type(odd):not(:has(.create)){
-    --shot-background: var(--second-cell-bg);
+    --row-bg: var(--second-row-bg);
+    --cell-hover-bg: var(--second-cell-hover-bg);
   }
 
   .sheetCell:first-of-type{
@@ -52,7 +63,7 @@
   }
 
   &.active{
-    --shot-background: var(--accent-95) !important;
+    --row-bg: var(--accent-95) !important;
     --grip-color: var(--accent-60);
     --grip-hover-color: var(--accent);
     --number-color: var(--accent);
