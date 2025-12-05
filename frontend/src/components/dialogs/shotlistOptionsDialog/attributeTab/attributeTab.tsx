@@ -182,7 +182,11 @@ export default function AttributeTab(
 
     return (
         <div className={"shotlistOptionsDialogAttributeTab"}>
-            <Tabs.Root className={"attributeTypeTabRoot"} defaultValue={selectedPage} onValueChange={page => updateUrl(page as ShotlistOptionsDialogSubPage)}>
+            <Tabs.Root
+                className={"attributeTypeTabRoot"}
+                defaultValue={selectedPage}
+                onValueChange={page => updateUrl(page as ShotlistOptionsDialogSubPage)}
+            >
                 <Tabs.List className={"tabs"}>
                     <Tabs.Trigger value={"shot"}>
                         Shot

@@ -12,6 +12,9 @@ import {
 export type AnySceneAttribute = SceneTextAttributeDto | SceneSingleSelectAttributeDto | SceneMultiSelectAttributeDto
 export type AnyShotAttribute = ShotTextAttributeDto | ShotSingleSelectAttributeDto | ShotMultiSelectAttributeDto
 
+export type ShotSingleOrMultiSelectAttribute = ShotSingleSelectAttributeDto | ShotMultiSelectAttributeDto
+export type SceneSingleOrMultiSelectAttribute = SceneSingleSelectAttributeDto | SceneMultiSelectAttributeDto
+
 export type AnyShotAttributeDefinition = ShotTextAttributeDefinitionDto | ShotSingleSelectAttributeDefinitionDto | ShotMultiSelectAttributeDefinitionDto
 export type AnySceneAttributeDefinition = SceneTextAttributeDefinitionDto | SceneMultiSelectAttributeDefinitionDto | SceneSingleSelectAttributeDefinitionDto
 

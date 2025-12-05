@@ -32,9 +32,41 @@ const CustomClearIndicator = (
  * @param sorted
  * @constructor
  */
-export default function MultiSelect({name, placeholder = "Select...", options, onChange, minWidth = '8rem', sorted = false}: {name: string, placeholder?: string, options: SelectOption[], onChange: (newValue: MultiValue<SelectOption>)=>void, minWidth?: string, sorted?: boolean}) {
+export default function MultiSelect(
+    {
+        name,
+        placeholder = "Select...",
+        options,
+        onChange,
+        minWidth = '8rem',
+        sorted = false,
+        value
+    }: {
+        name: string
+        placeholder?: string
+        options: SelectOption[]
+        onChange: (newValue: MultiValue<SelectOption>)=>void
+        minWidth?: string
+        sorted?: boolean
+        value?: MultiValue<SelectOption>
+    }
+) {
     const [selectedOptions, setSelectedOptions] = useState<MultiValue<SelectOption>>([]);
     const [actualMinWidth, setActualMinWidth] = useState<string>(minWidth);
+
+    useEffect(() => {
+        console.log("minWidth changed to: ", minWidth, "window.innerWidth: ", window.innerWidth)
+        if(window.innerWidth < 600)
+            setActualMinWidth("0")
+        else
+            setActualMinWidth(minWidth)
+    }, [minWidth])
+
+    useEffect(() => {
+        if(!value) return
+
+        setSelectedOptions(value || [])
+    }, [value]);
 
     const handleChange = (selectedOptions: MultiValue<SelectOption>) => {
         let newOptions= selectedOptions.values().toArray()
@@ -42,17 +74,10 @@ export default function MultiSelect({name, placeholder = "Select...", options, o
             newOptions = selectedOptions.values().toArray().sort((a, b) =>
                 a.value.localeCompare(b.value)
             )
-        setSelectedOptions(newOptions);
-        onChange(newOptions);
-    };
+        setSelectedOptions(newOptions)
+        onChange(newOptions)
+    }
 
-    useEffect(() => {
-        console.log("minWidth changed to: ", minWidth, "window.innerWidth: ", window.innerWidth);
-        if(window.innerWidth < 600)
-            setActualMinWidth("0")
-        else
-            setActualMinWidth(minWidth);
-    }, [minWidth]);
 
     return (
         <Select
@@ -127,5 +152,5 @@ export default function MultiSelect({name, placeholder = "Select...", options, o
                 }),
             }}
         />
-    );
+    )
 }

@@ -36,8 +36,8 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
     // used for refreshing the shotlist on dialog close, only when any data has been edited
     const [stringifiedAttributeData, setStringifiedAttributeData] = useState<string>("");
     const [dataChanged, setDataChanged] = useState(false);
-
     const [isReadOnly, setIsReadOnly] = useState(false);
+    const [currentTab, setCurrentTab] = useState<ShotlistOptionsDialogPage>(selectedPage.main)
 
     const client = useApolloClient()
     const router = useRouter()
@@ -50,10 +50,16 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
     }, [shotlistId, isOpen]);
 
     useEffect(() => {
+        setCurrentTab(selectedPage.main)
+    }, [selectedPage]);
+
+    useEffect(() => {
         if (isOpen) {
             setStringifiedAttributeData(JSON.stringify(shotAttributeDefinitions) + JSON.stringify(sceneAttributeDefinitions) + JSON.stringify(shotlist));
         }
+        //TODO rework this - when opening the dialog it always selects the page from the initial URL and the data storrage is ass
         updateUrl(selectedPage.main)
+        setCurrentTab(selectedPage.main)
     }, [isOpen]);
 
     const updateUrl = (page?: ShotlistOptionsDialogPage) => {
@@ -179,7 +185,14 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
                         }}>
                             <X size={18}/>
                         </button>
-                        <Tabs.Root className={"optionsDialogPageTabRoot"} defaultValue={selectedPage.main} onValueChange={page => updateUrl(page as ShotlistOptionsDialogPage)}>
+                        <Tabs.Root
+                            className={"optionsDialogPageTabRoot"}
+                            defaultValue={selectedPage.main}
+                            onValueChange={page => {
+                                setCurrentTab(page as ShotlistOptionsDialogPage)
+                                updateUrl(page as ShotlistOptionsDialogPage)
+                            }}
+                        >
                             <Tabs.List className={"tabs"}>
                                 <Tabs.Trigger value={"general"}>
                                     <Settings2 size={18} strokeWidth={2}/>
@@ -235,7 +248,13 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
                                         <CollaboratorsTab/>
                                 }
                             </Tabs.Content>
-                            <Tabs.Content value={"export"} className={"content"}>
+                            {/*keep the tab mounted so that the selected filters don't disappear when switching tabs*/}
+                            <Tabs.Content
+                                value={"export"}
+                                className={"content"}
+                                forceMount={true}
+                                style={{display: currentTab == "export" ? "block" : "none"}}
+                            >
                                 <ExportTab
                                     shotlist={shotlist}
                                     shotAttributeDefinitions={shotAttributeDefinitions}

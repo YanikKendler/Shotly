@@ -19,7 +19,7 @@ import {
     AnySceneAttributeDefinition,
     AnyShotAttribute,
     AnyShotAttributeDefinition,
-    SelectOption, ShotSingleOrMultiSelectAttributeDefinition
+    SelectOption, ShotSingleOrMultiSelectAttribute, ShotSingleOrMultiSelectAttributeDefinition
 } from "@/util/Types"
 import Utils from "@/util/Utils"
 import MultiSelect from "@/components/inputs/multiSelect/multiSelect"
@@ -28,6 +28,7 @@ import {SceneAttributeParser, ShotAttributeDefinitionParser, ShotAttributeParser
 import Loader from "@/components/feedback/loader/loader"
 import {downloadCSV} from "@/downloadCSV"
 import {Popover, Separator} from "radix-ui"
+import {MultiValue} from "react-select"
 
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full"
 
@@ -38,7 +39,7 @@ export default function ExportTab(
     }:
     {
         shotlist: ShotlistDto | null
-        shotAttributeDefinitions?: AnyShotAttributeDefinition[]
+        shotAttributeDefinitions?: AnyShotAttributeDefinition[] | null
     }
 ) {
     const [selectedFileType, setSelectedFileType] = useState<SelectedFileTypes>("PDF")
@@ -126,7 +127,47 @@ export default function ExportTab(
             filteredScenes = (data.shotlist.scenes as SceneDto[])
                 .filter((scene) => selectedScenes.includes(scene.position))
 
-        //TODO filter logic
+        filteredScenes.forEach(scene => {
+            if(!scene.shots || scene.shots.length == 0) return
+
+            const filteredShots: ShotDto[] = []
+
+            scene.shots.forEach(shot => {
+                if(!shot) return
+
+                const matchesFilters = (shot.attributes as AnyShotAttribute[]).every(attribute => {
+                    if(!customFilters.has(attribute.definition?.id)) return true
+
+                    const filter = customFilters.get(attribute.definition?.id)
+                    if(!filter) return true
+
+                    switch (attribute.__typename){
+                        case "ShotSingleSelectAttributeDTO":
+                            const singleValueId = attribute.singleSelectValue?.id
+                            if(filter.includes(singleValueId)) {
+                                return true
+                            }
+                            break
+                        case "ShotMultiSelectAttributeDTO":
+                            const multiValue = attribute.multiSelectValue
+                            if(multiValue?.some(value =>
+                                filter.includes(value?.id))
+                            ) {
+                                return true
+                            }
+                            break
+                    }
+
+                    return false
+                })
+
+                if(matchesFilters){
+                    filteredShots.push(shot)
+                }
+            })
+
+            scene.shots = filteredShots;
+        })
 
         return {...data.shotlist, scenes: filteredScenes} as ShotlistDto;
     }
@@ -242,6 +283,14 @@ export default function ExportTab(
 
     if(!shotlist) return <Loader text={"loading shotlist export"}/>
 
+    const customFilterCandidates = shotAttributeDefinitions
+        ?.filter(attributeDefinition => {
+            console.log(attributeDefinition)
+            if(customFilters.has(attributeDefinition?.id)) return false
+            if((attributeDefinition as AnyShotAttributeDefinition).__typename === "ShotTextAttributeDefinitionDTO") return false
+            return true
+        })
+
     return (
         <div className={"shotlistOptionsDialogExportTab"}>
             <h2>Configure the export</h2>
@@ -285,21 +334,21 @@ export default function ExportTab(
                 <Separator.Separator orientation="horizontal" className={"Separator"}/>
 
 
-                {Array.from(customFilters).map(filter => {
+                {Array.from(customFilters).map((filter, index) => {
                     const definition = shotAttributeDefinitions?.find(def => def?.id === filter[0]) as ShotSingleOrMultiSelectAttributeDefinition
                     const Icon = ShotAttributeDefinitionParser.toIcon(definition)
 
-                    return (
+                    return (<>
                         <div className="filter" key={filter[0]}>
                             <div className="left">
                                 <Icon size={22}/>
-                                <p>{definition.name}</p>
+                                <p>{definition.name || "Unnamed"}</p>
                             </div>
 
                             <div className="right">
                                 <MultiSelect
-                                    name={"Scenes"}
-                                    placeholder={"All Scenes"}
+                                    name={definition.name || "Unnamed"}
+                                    placeholder={"All " + definition.name || "Unnamed" + "s"}
                                     options={
                                         (definition.options as ShotSelectAttributeOptionDefinition[])
                                             ?.map(option =>
@@ -321,22 +370,18 @@ export default function ExportTab(
                                 </button>
                             </div>
                         </div>
-                    )
+                        {/*TODO finish this dude*/}
+                        {customFilters.size > index+1 && <p>and</p>}
+                    </>)
                 })}
             </div>
 
             <Popover.Root>
-                <Popover.Trigger className={"addFilter"}>Add filter<Plus size={20}/></Popover.Trigger>
+                <Popover.Trigger className={"addFilter"} disabled={customFilterCandidates?.length == 0}>Add filter<Plus size={20}/></Popover.Trigger>
                 <Popover.Portal>
                     <Popover.Content className="PopoverContent addAttributeDefinitionPopup" sideOffset={5} align={"start"}>
-                        {shotAttributeDefinitions
-                            ?.filter(attributeDefinition => {
-                                console.log(attributeDefinition)
-                                if(customFilters.has(attributeDefinition?.id)) return false
-                                if((attributeDefinition as AnyShotAttributeDefinition).__typename === "ShotTextAttributeDefinitionDTO") return false
-                                return true
-                            })
-                            ?.map((attributeDefinition, index) => (
+                        {
+                            customFilterCandidates?.map((attributeDefinition, index) => (
                                 <button
                                     key={index}
                                     onClick={() => addFilter(attributeDefinition?.id || -1)}

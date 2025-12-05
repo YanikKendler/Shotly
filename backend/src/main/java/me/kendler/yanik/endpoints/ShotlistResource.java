@@ -35,10 +35,7 @@ public class ShotlistResource {
 
     @Query
     public List<ShotlistDTO> getShotlists() {
-        long start = System.nanoTime();
-        List<ShotlistDTO> result = shotlistRepository.findAllForUser(jwt);
-        Util.timer(start, "getShotlists");
-        return result;
+        return shotlistRepository.findAllForUser(jwt);
     }
 
     @Query
