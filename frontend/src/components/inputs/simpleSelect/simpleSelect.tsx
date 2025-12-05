@@ -30,7 +30,7 @@ export default function SimpleSelect ({
     fontSize?: string
 }) {
     return (
-        <div className="select">
+        <div className="simpleSelect">
             { label && <label>{label}</label>}
             <Select.Root onValueChange={onChange} defaultValue={value}>
                 <Select.Trigger className="SelectTrigger noClickFx" aria-label="select" style={{fontSize: fontSize}}>

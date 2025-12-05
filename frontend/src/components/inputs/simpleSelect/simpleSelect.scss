@@ -1,69 +1,71 @@
-label{
-  font-size: .9rem;
-  color: var(--text-40);
-  margin-bottom: .2rem;
-  margin-left: .2rem;
-  font-weight: 500;
-}
-
-.SelectTrigger {
-  border: 2px solid var(--default-interactable-border);
-  display: flex;
-  align-items: center;
-  padding: .5rem .3rem;
-  min-width: 8rem;
-  max-width: 40ch;
-  width: 100%;
-  border-radius: .3rem;
-
-  .SelectIcon {
-    display: flex;
-    align-items: center;
-    color: var(--text-50);
+.simpleSelect {
+  label {
+    font-size: .9rem;
+    color: var(--text-40);
+    margin-bottom: .2rem;
+    margin-left: .2rem;
+    font-weight: 500;
   }
 
-  &:hover {
-    border-color: var(--default-interactable-hover-border);
+  .SelectTrigger {
+    border: 2px solid var(--default-interactable-border);
+    display: flex;
+    align-items: center;
+    padding: .5rem .3rem;
+    min-width: 8rem;
+    max-width: 40ch;
+    width: 100%;
+    border-radius: .3rem;
 
     .SelectIcon {
-      color: var(--text-10);
+      display: flex;
+      align-items: center;
+      color: var(--text-50);
+    }
+
+    &:hover {
+      border-color: var(--default-interactable-hover-border);
+
+      .SelectIcon {
+        color: var(--text-10);
+      }
+    }
+
+    &[data-placeholder] {
+      color: var(--text-40);
+    }
+
+    &[data-state=open] {
+      border-color: var(--accent);
     }
   }
 
-  &[data-placeholder] {
-    color: var(--text-40);
+  .SelectContent {
+    overflow: hidden;
+    background-color: var(--contrast);
+    border-radius: .3rem;
+    border: 2px solid var(--default-interactable-border);
+    padding: .3rem .2rem;
+    width: var(--radix-select-trigger-width);
+    min-width: 20ch;
+
+    .empty {
+      text-align: center;
+      color: var(--text-50);
+    }
   }
 
-  &[data-state=open] {
-    border-color: var(--accent);
-  }
-}
+  .SelectItem {
+    padding: .4rem .4rem;
+    user-select: none;
+    cursor: pointer;
+    border-radius: .3rem;
+    color: var(--text-20);
 
-.SelectContent {
-  overflow: hidden;
-  background-color: var(--contrast);
-  border-radius: .3rem;
-  border: 2px solid var(--default-interactable-border);
-  padding: .3rem .2rem;
-  width: var(--radix-select-trigger-width);
-  min-width: 20ch;
-
-  .empty{
-    text-align: center;
-    color: var(--text-50);
-  }
-}
-
-.SelectItem {
-  padding: .4rem .4rem;
-  user-select: none;
-  cursor: pointer;
-  border-radius: .3rem;
-  color: var(--text-20);
-
-  &:hover, &[data-highlighted], &:focus-visible {
-    outline: none;
-    background-color: var(--hover-bg-10);
-    color: var(--text);
+    &:hover, &[data-highlighted], &:focus-visible {
+      outline: none;
+      background-color: var(--hover-bg-10);
+      color: var(--text);
+    }
   }
 }

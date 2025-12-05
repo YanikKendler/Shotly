@@ -14,7 +14,7 @@ import {
     FileCode,
     GripVertical,
     Heart,
-    Info, NotepadTextDashed,
+    Info, Blocks,
     Users
 } from "lucide-react"
 import Image from "next/image"
@@ -189,7 +189,7 @@ export default function Landing() {
                         </div>
                         <div className="feature">
                             <div className="icon">
-                                <NotepadTextDashed size={40}/>
+                                <Blocks size={40}/>
                             </div>
                             <h2>Templates</h2>
                             <p>Save your preferred Attributes and Layouts and reuse them for future Shotlists.</p>

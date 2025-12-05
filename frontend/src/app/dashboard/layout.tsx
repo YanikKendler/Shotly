@@ -7,7 +7,7 @@ import "./layout.scss"
 import React, {useEffect, useState} from "react"
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
-import {ChevronDown, House, Menu, NotepadText, NotepadTextDashed, Plus, User} from "lucide-react"
+import {ChevronDown, House, Menu, NotepadText, Blocks, Plus, User} from "lucide-react"
 import {Query, ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
 import {Collapsible, Separator, Tooltip} from "radix-ui"
 import {wuGeneral} from "@yanikkendler/web-utils"
@@ -181,7 +181,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                         templates.sort(Utils.orderShotlistsOrTemplatesByName).map((template) => (
                                             <Link key={template.id} href={`/dashboard/template/${template.id}`}
                                                   className={"template"}>
-                                                <NotepadTextDashed size={18}/>
+                                                <Blocks size={18}/>
                                                 {template.name ? <span className={"wrap"}>{template.name}</span> : (
                                                     <span className={"italic"}>Unnamed</span>)}
                                             </Link>
@@ -205,7 +205,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                     New Shotlist <NotepadText size={18}/>
                                 </button>
                                 <button className="template new accent" onClick={openCreateTemplateDialog}>
-                                    New Template <NotepadTextDashed size={18}/>
+                                    New Template <Blocks size={18}/>
                                 </button>
                                 <button onClick={openAccountDialog}>Account <User size={18}/></button>
                             </div>

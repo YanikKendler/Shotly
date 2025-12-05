@@ -7,7 +7,11 @@ import "./dashboard.scss"
 import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 import React, {useEffect, useState} from "react"
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
-import {ChevronDown, House, NotepadText, NotepadTextDashed, Plus, User} from "lucide-react"
+import {
+    Blocks,
+    NotepadText,
+    Plus,
+} from "lucide-react"
 import {Query, ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
 import {wuGeneral, wuTime} from "@yanikkendler/web-utils"
 import {useRouter, useSearchParams} from "next/navigation"
@@ -149,13 +153,13 @@ export default function Overview() {
             <div className="grid">
                 {shotlists.sort(Utils.oderShotlistsByChangeDate).map((shotlist: ShotlistDto) => (
                     <Link href={`/shotlist/${shotlist.id}`} key={shotlist.id} className="gridItem shotlist">
-                        <label><NotepadText size={15}/>Shotlist</label>
-                        <h3>{shotlist.name || <span className='italic'>Unnamed</span>}</h3>
+                        <div className="top">
+                            <NotepadText size={18}/>
+                            <h3>{shotlist.name || <span className='italic'>Unnamed</span>}</h3>
+                        </div>
                         <p className={"bold"}>{shotlist.sceneCount} scene • {shotlist.shotCount} shots</p>
                         <p>created by: <span className={"bold"}>{shotlist.owner?.name}</span></p>
-                        <p>last edited:
-                            <span className={"bold"}>{wuTime.toRelativeString(shotlist.editedAt, 1)}</span>
-                        </p>
+                        <p>last edited: <span className={"bold"}>{wuTime.toRelativeString(shotlist.editedAt, 1)}</span></p>
                     </Link>
                 ))}
                 <button className={"gridItem add shotlist"} onClick={() => {
@@ -169,8 +173,10 @@ export default function Overview() {
             <div className="grid">
                 {templates.sort(Utils.orderShotlistsOrTemplatesByName).map((template: TemplateDto) => (
                     <Link href={`dashboard/template/${template.id}`} key={template.id} className="gridItem template">
-                        <label><NotepadTextDashed size={15}/>Template</label>
-                        <h3>{template.name || <span className='italic'>Unnamed</span>}</h3>
+                        <div className="top">
+                            <Blocks size={18}/>
+                            <h3>{template.name || <span className='italic'>Unnamed</span>}</h3>
+                        </div>
                         <p>Shots: <span className={"bold"}>{template.shotAttributeCount} Attributes</span></p>
                         <p>Scenes: <span className={"bold"}>{template.sceneAttributeCount} Attributes</span></p>
                         <p>created by: <span className={"bold"}>{template.owner?.name}</span></p>
