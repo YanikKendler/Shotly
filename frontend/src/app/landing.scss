@@ -123,7 +123,7 @@ main.landing{
       width: fit-content;
       position: relative;
 
-      &:before{
+      &::before{
         content: '';
         position: absolute;
         top: 50%;
@@ -135,6 +135,11 @@ main.landing{
         filter: blur(100px);
         border-radius: 100%;
         z-index: -1;
+
+        @media screen and (max-width: 900px) {
+          width: 90vw;
+          aspect-ratio: 1;
+        }
       }
 
       svg{
@@ -248,18 +253,24 @@ main.landing{
       }
 
       @media screen and (max-width: 1200px) {
+        scale: 90%;
+
         &.first{
           display: none;
         }
       }
 
       @media screen and (max-width: 900px) {
+        scale: 80%;
+
         &.second{
           display: none;
         }
       }
 
       @media screen and (max-width: 400px) {
+        scale: 70%;
+
         &.third{
           display: none;
         }

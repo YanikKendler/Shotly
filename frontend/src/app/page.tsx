@@ -106,7 +106,7 @@ export default function Landing() {
                                 width={80}
                                 height={97}
                                 alt={"<--"}
-                                fetchPriority={"low"}
+                                fetchPriority={"high"}
                             />
                         </div>
                         <div className="beta">Beta</div>
@@ -199,7 +199,7 @@ export default function Landing() {
                                 <FileCode size={40}/>
                             </div>
                             <h2>Open Source</h2>
-                            <p>Self host your shotlists, add your own features or improve shotly.</p>
+                            <p>Self host your shotlists or add your own features and improve Shotly.</p>
                         </div>
                         <div className="feature unavailable">
                             <div className="icon">

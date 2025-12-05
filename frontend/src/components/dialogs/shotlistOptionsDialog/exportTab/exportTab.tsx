@@ -163,6 +163,7 @@ export default function ExportTab(
 
         let filteredScenes= data.shotlist.scenes as SceneDto[]
 
+        //scene number filter
         if(selectedScenes.length > 0) {
             const selectedScenesArray = Array.from(selectedScenes.entries()).map(s => s[1].value)
 
@@ -170,21 +171,29 @@ export default function ExportTab(
                 .filter((scene) => selectedScenesArray.includes(String(scene.position)))
         }
 
+        //custom attribute filters
         filteredScenes.forEach(scene => {
             if(!scene.shots || scene.shots.length == 0) return
 
             const filteredShots: ShotDto[] = []
 
+            /**
+             * For every shot - check if all the attributes match the filters
+             * if any attribute does not match, the whole shot is not included
+             *
+             * Every attribute can only have one filter associated with it so iterating over all the attributes
+             * and then checking if a filter exists for each attribute covers all cases
+             *
+             * The shots of the scene are then replaced with only those that passed the filter (filteredShots)
+             */
             scene.shots.forEach(shot => {
                 if(!shot) return
 
                 const matchesFilters = (shot.attributes as AnyShotAttribute[]).every(attribute => {
-                    if(!customFilters.has(attribute.definition?.id)) return true
+                    if(!customFilters.has(attribute.definition?.id)) return true //no filter was defined for this attribute
 
                     const filter = customFilters.get(attribute.definition?.id)?.map(f => Number(f.value))
-                    if(!filter) return true
-
-                    console.log(attribute.definition?.name, filter)
+                    if(!filter || filter.length == 0) return true //a filter was defined but no options were selected
 
                     switch (attribute.__typename){
                         case "ShotSingleSelectAttributeDTO":
@@ -203,7 +212,7 @@ export default function ExportTab(
                             break
                     }
 
-                    return false
+                    return false //filters were found but not passed
                 })
 
                 if(matchesFilters){
@@ -221,6 +230,7 @@ export default function ExportTab(
         const data: ShotlistDto | null = await getFilteredData()
 
         if (!data) {
+            //TODO notification
             console.error("No data found for export");
             return;
         }
@@ -239,13 +249,14 @@ export default function ExportTab(
     }
 
     const exportCSVSmall = (data: ShotlistDto) =>{
-        let smallData: string[][] = []
-
+        //CSV header
         let header: string[] = ["Shot"]; //this semicolon is actually needed :3 (typescript stupid)
         (data.shotAttributeDefinitions as AnyShotAttributeDefinition[]).forEach(attr => {
             header.push(attr.name || "Unnamed")
         }); //this one too
 
+        //CSV body
+        let smallData: string[][] = [];
         (data.scenes as SceneDto[]).forEach((scene) => {
             (scene.shots as ShotDto[]).forEach(shot => {
                 let row: string[] = [scene.position + 1 + Utils.numberToShotLetter(shot.position)]; //mmh
@@ -261,8 +272,6 @@ export default function ExportTab(
     }
 
     const exportCSVFull =(data: ShotlistDto) =>{
-        let fullData: string[][] = []
-
         let sceneHeader: string[] = ["Scene"]; //ts :(
         (data.sceneAttributeDefinitions as AnySceneAttributeDefinition[]).forEach(attr => {
             sceneHeader.push(attr.name || "Unnamed")
@@ -273,6 +282,7 @@ export default function ExportTab(
             shotHeader.push(attr.name || "Unnamed")
         });
 
+        let fullData: string[][] = [];
         (data.scenes as SceneDto[]).forEach((scene) => {
             let sceneRow: string[] = ["Scene " + (scene.position + 1)]; // :(
             (scene.attributes as AnySceneAttribute[]).forEach((attribute) => {
@@ -326,6 +336,7 @@ export default function ExportTab(
         setCustomFilters(newCustomFilters)
     }
 
+    //TODO check if this is correct or should be an error
     if(!shotlist) return <Loader text={"loading shotlist export"}/>
 
     const customFilterCandidates = shotAttributeDefinitions
