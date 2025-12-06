@@ -16,7 +16,7 @@ import {Query, ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
 import {wuGeneral, wuTime} from "@yanikkendler/web-utils"
 import {useRouter, useSearchParams} from "next/navigation"
 import {useCreateShotlistDialog} from "@/components/dialogs/createShotlistDialog/createShotlistDialog"
-import Utils from "@/util/Utils"
+import Utils, {Config} from "@/util/Utils"
 import {useCreateTemplateDialog} from "@/components/dialogs/createTemplateDialog/createTemplateDialog"
 import * as Dialog from "@radix-ui/react-dialog"
 import {driver} from "driver.js"
@@ -60,8 +60,8 @@ export default function Overview() {
 
         loadData()
 
-        if(localStorage["shotly-dashboard-tour-completed"] != "true") {
-            localStorage["shotly-dashboard-tour-completed"] = "true"
+        if(localStorage.getItem(Config.localStorageKey.dashboardTourCompleted) != "true") {
+            localStorage.setItem(Config.localStorageKey.dashboardTourCompleted, "true")
             driverObj.drive()
         }
     }, []);

@@ -15,7 +15,6 @@ interface CustomAuthResult extends Auth0DecodedHash {
 
 class Auth {
     private auth0: WebAuth
-    private readonly authFlag: string
     private idToken: string = "no-token"
     private authUser: AuthUser | null = null
 
@@ -39,8 +38,6 @@ class Auth {
         this.isAuthenticated = this.isAuthenticated.bind(this)
         this.getTokenSilently = this.getTokenSilently.bind(this)
         this.silentAuth = this.silentAuth.bind(this)
-
-        this.authFlag = 'isLoggedIn'
     }
 
     login() {
@@ -60,7 +57,7 @@ class Auth {
     }
 
     logout() {
-        localStorage.setItem(this.authFlag, JSON.stringify(false));
+        localStorage.setItem(Config.localStorageKey.isLoggedIn, JSON.stringify(false));
         this.auth0.logout({
             returnTo: Config.frontendURL,
         });
@@ -130,7 +127,7 @@ class Auth {
             sub: authResult.idTokenPayload.sub,
             isSocial: authResult.idTokenPayload.sub.startsWith("google-oauth2|")
         }
-        localStorage.setItem(this.authFlag, JSON.stringify(true))
+        localStorage.setItem(Config.localStorageKey.isLoggedIn, JSON.stringify(true))
     }
 
     silentAuth() {
@@ -140,7 +137,7 @@ class Auth {
             this.auth0.checkSession({}, (err, authResult) => {
                 if (err) {
                     console.error(err)
-                    localStorage.removeItem(this.authFlag);
+                    localStorage.removeItem(Config.localStorageKey.isLoggedIn);
                     return reject(err);
                 }
                 this.setSession(authResult);
@@ -150,7 +147,7 @@ class Auth {
     }
 
     isAuthenticated() {
-        return JSON.parse(localStorage.getItem(this.authFlag) || 'false');
+        return JSON.parse(localStorage.getItem(Config.localStorageKey.isLoggedIn) || 'false');
     }
 }
 

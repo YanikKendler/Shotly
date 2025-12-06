@@ -99,8 +99,8 @@ export default function Shotlist() {
 
     useEffect(() => {
         if(!query.loading && !query.error && query.data && query.data.shotlist && query.data.shotlist.id) {
-            if(localStorage["shotly-shotlist-tour-completed"] != "true") {
-                localStorage["shotly-shotlist-tour-completed"] = "true"
+            if(localStorage.getItem(Config.localStorageKey.shotlistTourCompleted) != "true") {
+                localStorage.setItem(Config.localStorageKey.shotlistTourCompleted, "true")
                 driverObj.drive()
             }
         }

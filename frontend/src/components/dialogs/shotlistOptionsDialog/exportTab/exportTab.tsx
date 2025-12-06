@@ -21,7 +21,7 @@ import {
     AnyShotAttributeDefinition,
     SelectOption, ShotSingleOrMultiSelectAttribute, ShotSingleOrMultiSelectAttributeDefinition
 } from "@/util/Types"
-import Utils from "@/util/Utils"
+import Utils, {Config} from "@/util/Utils"
 import MultiSelect from "@/components/inputs/multiSelect/multiSelect"
 import {SceneAttributeParser, ShotAttributeDefinitionParser, ShotAttributeParser} from "@/util/AttributeParser"
 //@ts-ignore
@@ -58,7 +58,7 @@ export default function ExportTab(
 
     //retrieve settings from local storage
     useEffect(() => {
-        const settingsString = localStorage.getItem("shotly-export-settings")
+        const settingsString = localStorage.getItem(Config.localStorageKey.exportSettings)
         if (!settingsString) return;
 
         const settingsObject = JSON.parse(settingsString) as ExportSettingsLocalStorage
@@ -83,7 +83,7 @@ export default function ExportTab(
             customFilters: Array.from(customFilters)
         }
         const settingsString = JSON.stringify(settingsObject)
-        localStorage.setItem("shotly-export-settings", settingsString)
+        localStorage.setItem(Config.localStorageKey.exportSettings, settingsString)
     }, [selectedFileType, selectedScenes, customFilters]);
 
     //extract scenes as SelectOptions from shotlist

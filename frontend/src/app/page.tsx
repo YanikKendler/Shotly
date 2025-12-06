@@ -22,6 +22,7 @@ import {Popover, Separator, Tooltip} from "radix-ui"
 import AuthSwitcher from "@/components/utility/authSwitcher/authSwitcher"
 import ThemeSwitcher from "@/components/utility/themeSwitcher/themeSwitcher"
 import Skeleton from "react-loading-skeleton"
+import {Config} from "@/util/Utils"
 
 export default function Landing() {
     const pageRef = useRef<HTMLDivElement>(null);
@@ -52,9 +53,9 @@ export default function Landing() {
         //reset tour local storage on call
         if(url.searchParams.get("rtl") == "1"){
             console.log("resetting localstorage")
-            localStorage["shotly-shotlist-tour-completed"] = "false"
-            localStorage["shotly-dashboard-tour-completed"] = "false"
-            localStorage["shotly-template-tour-completed"] = "false"
+            localStorage.setItem(Config.localStorageKey.shotlistTourCompleted,"false")
+            localStorage.setItem(Config.localStorageKey.dashboardTourCompleted,"false")
+            localStorage.setItem(Config.localStorageKey.templateTourCompleted,"false")
         }
 
         if(pageRef.current) {

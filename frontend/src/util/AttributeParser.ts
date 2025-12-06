@@ -4,7 +4,7 @@ import {
     AnyShotAttribute,
     AnyShotAttributeDefinition, AnyShotAttributeTemplate
 } from "@/util/Types"
-import {ChevronDown, List, Type} from "lucide-react"
+import {ChevronDown, List, Type, Loader} from "lucide-react"
 import {JSX} from "react"
 import {wuText} from "@yanikkendler/web-utils/dist"
 
@@ -58,6 +58,7 @@ export abstract class ShotAttributeParser {
 
 export abstract class ShotAttributeDefinitionParser {
     static toIcon(attribute: AnyShotAttributeDefinition){
+        if(!attribute) return Loader
         switch (attribute.__typename) {
             case "ShotTextAttributeDefinitionDTO":
                 return Type
@@ -73,6 +74,7 @@ export abstract class ShotAttributeDefinitionParser {
 
 export abstract class SceneAttributeDefinitionParser {
     static toIcon(attribute: AnySceneAttributeDefinition){
+        if(!attribute) return Loader
         switch (attribute.__typename) {
             case "SceneTextAttributeDefinitionDTO":
                 return Type
@@ -88,6 +90,7 @@ export abstract class SceneAttributeDefinitionParser {
 
 export abstract class SceneAttributeTemplateParser {
     static toIcon(attribute: AnySceneAttributeTemplate){
+        if(!attribute) return Loader
         switch (attribute.__typename) {
             case "SceneTextAttributeTemplateDTO":
                 return Type
@@ -103,6 +106,7 @@ export abstract class SceneAttributeTemplateParser {
 
 export abstract class ShotAttributeTemplateParser {
     static toIcon(attribute: AnyShotAttributeTemplate){
+        if(!attribute) return Loader
         switch (attribute.__typename) {
             case "ShotTextAttributeTemplateDTO":
                 return Type

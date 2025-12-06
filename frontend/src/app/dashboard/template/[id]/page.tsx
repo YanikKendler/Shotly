@@ -79,8 +79,8 @@ export default function Template (){
             loadTemplate()
         }
 
-        if(localStorage["shotly-template-tour-completed"] != "true") {
-            localStorage["shotly-template-tour-completed"] = "true"
+        if(localStorage.getItem(Config.localStorageKey.templateTourCompleted) != "true") {
+            localStorage.setItem(Config.localStorageKey.templateTourCompleted,"true")
             driverObj.drive()
         }
     }, []);

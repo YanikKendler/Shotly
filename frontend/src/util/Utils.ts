@@ -3,6 +3,7 @@ import {ThemeConfig} from "react-select"
 import {ShotlistOrTemplate} from "@/util/Types"
 import {ShotlistDto} from "../../lib/graphql/generated"
 import {NetworkStatus} from "@apollo/client"
+import {UserSettings} from "@/components/dialogs/accountDialog/accountDialog"
 
 export interface fontSizeBreakpoint {
     length: number
@@ -32,6 +33,16 @@ export class Config {
             Config.mode == "prod-deployment" ?
                 "https://shotly.at" :
                 "https://shotly-frontend-development-566625943723.europe-west1.run.app";
+
+    static readonly localStorageKey = {
+        theme: "shotly-theme",
+        exportSettings: "shotly-export-settings",
+        userSettings: "shotly-user-settings",
+        dashboardTourCompleted: "shotly-dashboard-tour-completed",
+        shotlistTourCompleted: "shotly-shotlist-tour-completed",
+        templateTourCompleted: "shotly-template-tour-completed",
+        isLoggedIn: "shotly-is-logged-in"
+    }
 }
 
 export default class Utils {
@@ -53,20 +64,48 @@ export default class Utils {
         if(!b.editedAt) return 1
 
         if (a.editedAt < b.editedAt) {
-            return 1;
+            return 1
         }
         if (a.editedAt > b.editedAt) {
-            return -1;
+            return -1
         }
-        return 0;
+        return 0
     }
 
-    static numberToShotLetter(number: number){
-        let result = wuText.numberToLetter(number)
-        for (let i = 0; i < Math.floor(number / 26); i++) {
-            result += wuText.numberToLetter(number)
+    static numberToShotLetter(num: number): string {
+        if (num < 0) {
+            throw new Error('Number must be non-negative');
         }
-        return result;
+
+        if (Utils.getUserSettingsFromLocalStorage().shotNumberingAfterZ == "repeating") {
+            const cycle = Math.floor(num / 26) + 1;
+
+            // Determine position within the cycle (0-25)
+            const position = num % 26;
+
+            // Get the base letter using wuText.numberToLetter (0->A, 1->B, etc.)
+            const letter = wuText.numberToLetter(position);
+
+            // Repeat the letter 'cycle' times
+            return letter.repeat(cycle);
+        } else {
+            let result = '';
+            let n = num;
+
+            while (n >= 0) {
+                // Get the current letter using wuText.numberToLetter
+                const remainder = n % 26;
+                result = wuText.numberToLetter(remainder) + result;
+
+                // Move to the next position
+                n = Math.floor(n / 26) - 1;
+
+                // Stop if we've processed all digits
+                if (n < 0) break;
+            }
+
+            return result;
+        }
     }
 
     static clampFontSizeByTextLength(text: string, bottom: fontSizeBreakpoint, top: fontSizeBreakpoint){
@@ -92,6 +131,19 @@ export default class Utils {
         const [removed] = result.splice(startIndex, 1)
         result.splice(endIndex, 0, removed)
         return result
+    }
+
+    static getUserSettingsFromLocalStorage(): UserSettings {
+        const settingsString = localStorage.getItem(Config.localStorageKey.userSettings)
+        if(settingsString) {
+            return JSON.parse(settingsString)
+        }
+
+        return {
+            displaySceneNumbersNextToShotNumbers: false,
+            saveExportSettingsInLocalstorage: false,
+            shotNumberingAfterZ: "repeating"
+        }
     }
 }
 

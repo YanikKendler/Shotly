@@ -48,6 +48,7 @@
   --hover-bg-bad-10: hsla(0, 70%, 60%, 10%);
   --hover-bg-good-10: hsla(120, 40%, 50%, 10%);
   --hover-bg-accent-10: hsla(20, 100%, 50%, 10%);
+  --hover-bg-accent-20: hsla(20, 100%, 50%, 20%);
 
   --sidebar-bg: hsl(20, 20%, 96%);
   --home-button-bg: hsl(14, 21%, 92%);
@@ -73,6 +74,11 @@
 
   --skelleton-base-color: hsl(0, 0%, 90%);
   --skelleton-highlight-color: hsl(0, 0%, 100%);
+
+  --switch-bg: hsl(0, 0%, 80%);
+  --switch-knob-bg: hsl(0, 0%, 30%);
+  --switch-knob-focused-bg: hsl(0, 0%, 30%);
+  --switch-knob-hover-bg: hsl(0, 0%, 10%);
 }
 
 [data-theme="dark"] {
@@ -113,6 +119,7 @@
   --hover-bg-bad-10: hsla(0, 70%, 60%, 10%);
   --hover-bg-good-10: hsla(120, 40%, 50%, 10%);
   --hover-bg-accent-10: hsla(20, 100%, 50%, 10%);
+  --hover-bg-accent-20: hsla(20, 100%, 50%, 20%);
 
   --sidebar-bg: hsl(20, 20%, 5%);
   --home-button-bg: hsl(14, 21%, 8%);
@@ -135,6 +142,11 @@
 
   --skelleton-base-color: hsl(0, 0%, 15%);
   --skelleton-highlight-color: hsl(0, 0%, 25%);
+
+  --switch-bg: hsl(0, 0%, 30%);
+  --switch-knob-bg: hsl(0, 0%, 80%);
+  --switch-knob-focused-bg: hsl(0, 0%, 100%);
+  --switch-knob-hover-bg: hsl(0, 0%, 100%);
 
   color-scheme: dark;
 }
@@ -797,3 +809,91 @@ body .driver-popover {
 .sortable-drag {
   display: none;
 }
+
+//style radix radio group
+
+.RadioGroupRoot.RadioGroupRoot.RadioGroupRoot.RadioGroupRoot.RadioGroupRoot.RadioGroupRoot{
+  display: flex;
+  gap: .5rem;
+
+  .RadioGroupItem{
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    padding: .5rem;
+
+    &:hover{
+      background-color: var(--hover-bg-10);
+      color: var(--text);
+      border-color: var(--default-interactable-hover-border);
+    }
+
+    &[data-state="checked"]{
+      background-color: var(--accent-90);
+      border-color: var(--accent);
+      color: var(--accent-30);
+
+      &:hover{
+        background-color: var(--accent-90);
+        color: var(--accent-20);
+        border-color: var(--accent-60);
+      }
+    }
+  }
+
+  &.rect{
+    .RadioGroupItem{
+      aspect-ratio: auto;
+    }
+  }
+}
+
+// style radix switch
+
+body button.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot {
+  all: unset;
+
+  display: flex;
+  align-items: center;
+  padding: 0;
+  width: 2.3rem;
+  height: 1.3rem;
+  background-color: var(--switch-bg);
+  border-radius: 9999px;
+  position: relative;
+  -webkit-tap-highlight-color: var(--accent);
+
+  &[data-state="checked"] {
+    background-color: var(--accent);
+  }
+
+  .SwitchThumb {
+    display: block;
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: var(--switch-knob-bg);
+    border-radius: 9999px;
+    transition: transform 100ms;
+    will-change: transform;
+    transform: translateX(-.2rem);
+
+    &[data-state="checked"] {
+      transform: translateX(1rem);
+      background-color: var(--switch-knob-focused-bg);
+    }
+  }
+
+  &:hover{
+    &[data-state="checked"] {
+      background-color: var(--accent-60);
+    }
+    &:not([data-state="checked"]) .SwitchThumb{
+      background-color: var(--switch-knob-hover-bg);
+    }
+
+    .SwitchThumb{
+      box-shadow: 0 0 4px 4px var(--hover-bg-accent-20);
+    }
+  }
+}
+

@@ -17,6 +17,7 @@
     gap: 1rem;
     width: 100%;
     justify-content: space-between;
+    height: 2rem;
 
     p{
       color: var(--text-20);
@@ -48,30 +49,6 @@
         }
       }
 
-    }
-
-    .RadioGroupRoot{
-      display: flex;
-      gap: .5rem;
-
-      .RadioGroupItem{
-        aspect-ratio: 1;
-        display: grid;
-        place-items: center;
-        padding: .5rem;
-
-        &[data-state="checked"]{
-          background-color: var(--accent-90);
-          border-color: var(--accent);
-          color: var(--accent-30);
-
-          &:hover{
-            background-color: var(--accent-90);
-            color: var(--accent-20);
-            border-color: var(--accent-60);
-          }
-        }
-      }
     }
 
     &.legal{

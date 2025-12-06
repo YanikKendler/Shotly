@@ -1,39 +1,95 @@
 'use client';
 
 import * as Dialog from '@radix-ui/react-dialog';
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import "./accountDialog.scss"
 import {useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import {Monitor, Moon, Sun, X} from "lucide-react"
 import Auth from "@/Auth"
 import {User} from "../../../../lib/graphql/generated"
-import {RadioGroup, Separator, VisuallyHidden} from "radix-ui"
+import {RadioGroup, Separator, Switch, VisuallyHidden} from "radix-ui"
 import Input from "@/components/inputs/input/input"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
 import Loader from "@/components/feedback/loader/loader"
 import {NotificationContext} from "@/context/NotificationContext"
 import Link from "next/link"
-import {Config} from "@/util/Utils"
 import PaymentService from "@/service/PaymentService"
+import {ShotlistContext} from "@/context/ShotlistContext"
+import Utils, {Config} from "@/util/Utils"
+
+export interface UserSettings {
+    saveExportSettingsInLocalstorage: boolean
+    displaySceneNumbersNextToShotNumbers: boolean
+    shotNumberingAfterZ: "different" | "repeating"
+}
 
 export function useAccountDialog() {
-    const [isOpen, setIsOpen] = useState(false);
-    const [user, setUser] = useState<User | null>(null);
-    const [deleting, setDeleting] = useState(false);
-    const [passwordResetDisabled, setPasswordResetDisabled] = useState(false);
-    const [selectedAppearance, setSelectedAppearance] = useState<string>("system");
-
     const client = useApolloClient()
     const {confirm, ConfirmDialog} = useConfirmDialog()
     const notificationContext = useContext(NotificationContext)
 
+    const [isOpen, setIsOpen] = useState(false);
+    const [user, setUser] = useState<User | null>(null);
+    const [deleting, setDeleting] = useState(false);
+    const [passwordResetDisabled, setPasswordResetDisabled] = useState(false);
+
+    const [selectedAppearance, setSelectedAppearance] = useState<string>("system");
+    const [userSettings, setUserSettings] = useState<UserSettings>({
+        saveExportSettingsInLocalstorage: true,
+        displaySceneNumbersNextToShotNumbers: false,
+        shotNumberingAfterZ: "repeating"
+    })
+
+    const initialLoadCompleted = useRef(false);
+
     useEffect(() => {
-        setSelectedAppearance(localStorage.getItem("shotly-theme") || "system");
-    }, []);
+        setSelectedAppearance(localStorage.getItem(Config.localStorageKey.theme) || "system")
+
+        const userSettingsString = localStorage.getItem(Config.localStorageKey.userSettings)
+        if(userSettingsString != null) {
+            setUserSettings(JSON.parse(userSettingsString))
+        }
+        else{
+            //nothing in localstorage currently, so write the default settings
+            writeSettingsToLocalStorage()
+        }
+
+        initialLoadCompleted.current = true;
+    }, [])
+
+    /**
+     * this is handled individually and not with the other settings
+     * because the appearance is applied and loaded in the root layout before anything else so that there is no flashing
+     * @param value
+     */
+    useEffect(() => {
+        localStorage.setItem(Config.localStorageKey.theme, selectedAppearance)
+
+        switch (selectedAppearance) {
+            case "light":
+            case "dark":
+                document.documentElement.setAttribute("data-theme", selectedAppearance)
+                break
+            case "system":
+                const systemPref = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+                document.documentElement.setAttribute('data-theme', systemPref)
+                break
+        }
+    }, [selectedAppearance])
+
+    useEffect(() => {
+        if(initialLoadCompleted.current)
+            writeSettingsToLocalStorage()
+    }, [userSettings])
+
+    const writeSettingsToLocalStorage = () => {
+        const userSettingsString = JSON.stringify(userSettings)
+        localStorage.setItem(Config.localStorageKey.userSettings, userSettingsString)
+    }
 
     function openAccountDialog() {
-        setIsOpen(true);
+        setIsOpen(true)
         getCurrentUser()
     }
 
@@ -57,8 +113,8 @@ export function useAccountDialog() {
         })
 
         if(error) {
-            console.error("Error fetching current user:", error);
-            return;
+            console.error("Error fetching current user:", error)
+            return
         }
 
         setUser(data.currentUser)
@@ -125,22 +181,6 @@ export function useAccountDialog() {
         Auth.logout();
     }
 
-    function handleAppearanceChange(value: string) {
-        localStorage.setItem("shotly-theme", value)
-        setSelectedAppearance(value)
-
-        switch (value) {
-            case "light":
-            case "dark":
-                document.documentElement.setAttribute("data-theme", value)
-                break
-            case "system":
-                const systemPref = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-                document.documentElement.setAttribute('data-theme', systemPref)
-                break
-        }
-    }
-
     let dialogContent
 
     if(deleting)
@@ -186,7 +226,7 @@ export function useAccountDialog() {
                         className="RadioGroupRoot"
                         defaultValue={selectedAppearance}
                         aria-label="Appearance"
-                        onValueChange={handleAppearanceChange}
+                        onValueChange={setSelectedAppearance}
                     >
                         <RadioGroup.Item className="RadioGroupItem" value="light">
                             <Sun size={20}/>
@@ -199,6 +239,62 @@ export function useAccountDialog() {
                         </RadioGroup.Item>
                     </RadioGroup.Root>
                 </div>
+
+                <div className="row">
+                    <p>Save export settings between reloads</p>
+                    <Switch.Root
+                        className="SwitchRoot"
+                        defaultChecked={userSettings.saveExportSettingsInLocalstorage}
+                        onCheckedChange={(checked) => {
+                            setUserSettings({
+                                ...userSettings,
+                                saveExportSettingsInLocalstorage: checked
+                            })
+                        }}
+                    >
+                        <Switch.Thumb className="SwitchThumb"/>
+                    </Switch.Root>
+                </div>
+
+                <div className="row">
+                    <p>Display Scene numbers next to Shot numbers</p>
+                    <Switch.Root
+                        className="SwitchRoot"
+                        defaultChecked={userSettings.displaySceneNumbersNextToShotNumbers}
+                        onCheckedChange={(checked) => {
+                            setUserSettings({
+                                ...userSettings,
+                                displaySceneNumbersNextToShotNumbers: checked
+                            })
+                        }}
+                    >
+                        <Switch.Thumb className="SwitchThumb"/>
+                    </Switch.Root>
+                </div>
+
+                <div className="row">
+                    <p>Display shot numbers after Z as</p>
+                    <RadioGroup.Root
+                        className="RadioGroupRoot rect"
+                        aria-label="Shot numbering after Z"
+                        defaultValue={userSettings.shotNumberingAfterZ}
+                        onValueChange={(value) => {
+                            setUserSettings({
+                                ...userSettings,
+                                shotNumberingAfterZ: value as "different" | "repeating"
+                            })
+                        }}
+                    >
+                        <RadioGroup.Item className="RadioGroupItem" value="different">
+                            AA, AB, AC
+                        </RadioGroup.Item>
+                        <RadioGroup.Item className="RadioGroupItem" value="repeating">
+                            AA, BB, CC
+                        </RadioGroup.Item>
+                    </RadioGroup.Root>
+                </div>
+
+                <Separator.Root className={"Separator"}/>
 
                 <div className="row">
                     <p>Report a bug or request a feature</p>
