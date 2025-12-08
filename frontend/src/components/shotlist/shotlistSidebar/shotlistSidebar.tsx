@@ -14,13 +14,13 @@ import {useAccountDialog} from "@/components/dialogs/accountDialog/accountDialog
 import Sortable from "sortablejs"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import "./shotlistSidebar.scss"
+import {SelectedScene} from "@/app/shotlist/[id]/page"
 
 export default function shotlistSidebar({
     query,
     selectScene,
     setQuery,
-    selectedSceneId,
-    setSelectedSceneId,
+    selectedScene,
     sceneCount,
     setSceneCount,
     isReadOnly,
@@ -28,10 +28,9 @@ export default function shotlistSidebar({
     openShotlistOptionsDialog
 }: {
     query: ApolloQueryResult<Query>
-    selectScene: (id: string) => void
+    selectScene: (id: string | null, position: number | null) => void
     setQuery: (query: ApolloQueryResult<Query>) => void
-    selectedSceneId: string | null
-    setSelectedSceneId: (id: string) => void
+    selectedScene: SelectedScene
     sceneCount: number
     setSceneCount: (count: number) => void
     isReadOnly: boolean
@@ -73,6 +72,7 @@ export default function shotlistSidebar({
                     sceneRefs.current.get(event.oldIndex)?.closePopover()
                 },
                 onEnd: (event) => {
+                    console.log("drag end")
                     //so that the drag ghost is hidden before re-rendering otherwise it hangs in the air for half a second
                     requestAnimationFrame(() => {
                         if(!event.item || event.oldIndex === undefined || event.newIndex === undefined) return
@@ -130,6 +130,8 @@ export default function shotlistSidebar({
     const debounceUpdateShotlistName = wuGeneral.debounce(updateShotlistName)
 
     const moveScene = (sceneId: string, from: number, to: number) => {
+        if(!query.data.shotlist || !query.data.shotlist.scenes) return
+
         client.mutate({
             mutation: gql`
                 mutation updateScene($id: String!, $position: Int!) {
@@ -145,8 +147,6 @@ export default function shotlistSidebar({
             variables: {id: sceneId, position: to},
         })
 
-        if(!query.data.shotlist || !query.data.shotlist.scenes) return
-
         const newScenes = Utils.reorderArray(query.data.shotlist.scenes || [], from, to)
 
         setQuery({
@@ -159,6 +159,12 @@ export default function shotlistSidebar({
                 }
             }
         })
+
+        // updates the position of the currently selected scene so that the scene number
+        // next to the shots is displayed correctly - this causes a re-render which is why its avoided
+        // if scene nums are turned off
+        if(Utils.getUserSettingsFromLocalStorage().displaySceneNumbersNextToShotNumbers)
+            selectScene(sceneId, to)
     }
 
     const removeScene = (sceneId: string) => {
@@ -171,13 +177,15 @@ export default function shotlistSidebar({
             ...query,
             data: {
                 ...query.data,
-                scenes: newScenes
+                shotlist: {...query.data.shotlist, scenes: newScenes}
             }
         })
 
+        console.log(newScenes)
+
         setSceneCount(newScenes.length)
 
-        setSelectedSceneId("")
+        selectScene(null, null)
     }
 
     const createScene = async () => {
@@ -225,7 +233,7 @@ export default function shotlistSidebar({
 
         setSceneCount(newScenes.length)
 
-        selectScene(data.createScene.id)
+        selectScene(data.createScene.id, newScenes.length-1)
     }
 
     if(!query.data.shotlist?.scenes) return (
@@ -269,7 +277,7 @@ export default function shotlistSidebar({
                                     key={scene.id}
                                     scene={scene}
                                     position={index}
-                                    expanded={selectedSceneId == scene.id}
+                                    expanded={selectedScene.id == scene.id}
                                     onSelect={selectScene}
                                     onDelete={removeScene}
                                     moveScene={moveScene}

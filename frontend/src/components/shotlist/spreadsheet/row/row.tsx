@@ -16,6 +16,7 @@ export interface RowRef {
 export interface RowProps {
     shot: ShotDto
     position: number
+    scenePosition: number
     onDelete: (shotId: string) => void
     moveShot: (shotId: string, oldPos: number, newPos: number) => void
     isReadOnly: boolean
@@ -32,6 +33,7 @@ export interface RowProps {
 const RowBase = forwardRef<RowRef, RowProps>(({
     shot,
     position,
+    scenePosition,
     onDelete,
     moveShot,
     isReadOnly,
@@ -80,7 +82,7 @@ const RowBase = forwardRef<RowRef, RowProps>(({
             column={-1}
             type={["number"]}
         >
-            {Utils.numberToShotLetter(position)}
+            {Utils.numberToShotLetter(position, scenePosition)}
             {
                 !isReadOnly &&
                 <Popover.Root

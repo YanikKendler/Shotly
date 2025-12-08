@@ -259,7 +259,7 @@ export default function ExportTab(
         let smallData: string[][] = [];
         (data.scenes as SceneDto[]).forEach((scene) => {
             (scene.shots as ShotDto[]).forEach(shot => {
-                let row: string[] = [scene.position + 1 + Utils.numberToShotLetter(shot.position)]; //mmh
+                let row: string[] = [scene.position + 1 + Utils.numberToShotLetter(shot.position, scene.position)]; //mmh
 
                 (shot.attributes as AnyShotAttribute[]).forEach(attribute => {
                     row.push(ShotAttributeParser.toValueString(attribute, false))
@@ -292,7 +292,7 @@ export default function ExportTab(
             fullData.push(shotHeader); //...
 
             (scene.shots as ShotDto[]).forEach(shot => {
-                let row: string[] = [Utils.numberToShotLetter(shot.position)]; //hrmpf
+                let row: string[] = [Utils.numberToShotLetter(shot.position, scene.position)]; //hrmpf
 
                 (shot.attributes as AnyShotAttribute[]).forEach(attribute => {
                     row.push(ShotAttributeParser.toValueString(attribute, false))

@@ -72,25 +72,28 @@ export default class Utils {
         return 0
     }
 
-    static numberToShotLetter(num: number): string {
-        if (num < 0) {
+    //AI generated
+    static numberToShotLetter(shotNum: number, sceneNum: number): string {
+        if (shotNum < 0) {
             throw new Error('Number must be non-negative');
         }
 
+        let shotLetter = "##"
+
         if (Utils.getUserSettingsFromLocalStorage().shotNumberingAfterZ == "repeating") {
-            const cycle = Math.floor(num / 26) + 1;
+            const cycle = Math.floor(shotNum / 26) + 1;
 
             // Determine position within the cycle (0-25)
-            const position = num % 26;
+            const position = shotNum % 26;
 
             // Get the base letter using wuText.numberToLetter (0->A, 1->B, etc.)
             const letter = wuText.numberToLetter(position);
 
             // Repeat the letter 'cycle' times
-            return letter.repeat(cycle);
+            shotLetter = letter.repeat(cycle);
         } else {
             let result = '';
-            let n = num;
+            let n = shotNum;
 
             while (n >= 0) {
                 // Get the current letter using wuText.numberToLetter
@@ -104,8 +107,14 @@ export default class Utils {
                 if (n < 0) break;
             }
 
-            return result;
+            shotLetter = result;
         }
+
+        if(Utils.getUserSettingsFromLocalStorage().displaySceneNumbersNextToShotNumbers) {
+            shotLetter = `${sceneNum + 1}${shotLetter}`
+        }
+
+        return shotLetter;
     }
 
     static clampFontSizeByTextLength(text: string, bottom: fontSizeBreakpoint, top: fontSizeBreakpoint){

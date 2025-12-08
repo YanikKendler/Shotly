@@ -22,8 +22,6 @@ import ShotlistOptionsDialog, {
 import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
 import auth from "@/Auth"
-import {useAccountDialog} from "@/components/dialogs/accountDialog/accountDialog"
-import {wuGeneral} from "@yanikkendler/web-utils"
 import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
 import Utils, {Config} from "@/util/Utils"
@@ -31,7 +29,11 @@ import {SelectOption} from "@/util/Types"
 import SheetManager from "@/components/shotlist/spreadsheet/sheetManager/sheetManager"
 import ShotlistSidebar from "@/components/shotlist/shotlistSidebar/shotlistSidebar"
 import Skeleton from "react-loading-skeleton"
-import Loader from "@/components/feedback/loader/loader"
+
+export interface SelectedScene {
+    id: string | null
+    position: number | null
+}
 
 export default function Shotlist() {
     const client = useApolloClient()
@@ -43,7 +45,7 @@ export default function Shotlist() {
     const sceneId = searchParams?.get('sid')
 
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
-    const [selectedSceneId, setSelectedSceneId] = useState(sceneId || null)
+    const [selectedScene, setSelectedScene] = useState<SelectedScene>({ id: null, position: null })
     const [optionsDialogOpen, setOptionsDialogOpen] = useState(false)
     const [selectedOptionsDialogPage, setSelectedOptionsDialogPage] = useState<{main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage}>({main: "general", sub: "shot"})
     const [elementIsBeingDragged, setElementIsBeingDragged] = useState(false)
@@ -104,7 +106,22 @@ export default function Shotlist() {
                 driverObj.drive()
             }
         }
-    }, [query]);
+
+        console.log(query)
+
+        if(
+            (
+                selectedScene?.id == "" ||
+                selectedScene?.id == null
+            ) &&
+            !query.loading &&
+            query.data.shotlist &&
+            query.data.shotlist.scenes &&
+            query.data.shotlist.scenes[0]?.id != undefined
+        ) {
+            selectScene(query.data.shotlist.scenes[0].id, query.data.shotlist.scenes[0].position)
+        }
+    }, [query])
 
     const getShotSelectOptions = async (shotAttributeDefinitionId: number): Promise<SelectOption[]> => {
         //requested options are not in the cache
@@ -215,11 +232,16 @@ export default function Shotlist() {
         }
     }
 
-    const selectScene = (sceneId: string) => {
-        setSelectedSceneId(sceneId)
+    const selectScene = (id: string | null, position: number | null) => {
+        setSelectedScene({
+            id: id,
+            position: position,
+        })
+
+        console.log("now selected", id, position)
 
         const url = new URL(window.location.href)
-        url.searchParams.set("sid", sceneId)
+        url.searchParams.set("sid", id || "")
         router.push(url.toString())
     }
 
@@ -247,19 +269,6 @@ export default function Shotlist() {
             href: '/dashboard'
         }}
     />
-
-    if(
-        (
-            selectedSceneId == "" ||
-            selectedSceneId == null
-        ) &&
-        !query.loading &&
-        query.data.shotlist &&
-        query.data.shotlist.scenes &&
-        query.data.shotlist.scenes[0]?.id != undefined
-    ) {
-        setSelectedSceneId(query.data.shotlist.scenes[0].id)
-    }
 
     return (
         <ShotlistContext.Provider value={{
@@ -299,10 +308,9 @@ export default function Shotlist() {
                                 setQuery={setQuery}
                                 sceneCount={sceneCount}
                                 setSceneCount={setSceneCount}
-                                selectedSceneId={selectedSceneId}
-                                setSelectedSceneId={setSelectedSceneId}
-
+                                selectedScene={selectedScene}
                                 selectScene={selectScene}
+
                                 isReadOnly={isReadOnly}
                                 setSidebarOpen={setSidebarOpen}
 
@@ -332,7 +340,7 @@ export default function Shotlist() {
                             }
                         </div>
                         <SheetManager
-                            sceneId={selectedSceneId}
+                            selectedScene={selectedScene}
                             shotAttributeDefinitions={query.data.shotlist?.shotAttributeDefinitions as ShotAttributeDefinitionBase[] || null}
                             isReadOnly={isReadOnly}
                             shotlistHeaderRef={headerRef}

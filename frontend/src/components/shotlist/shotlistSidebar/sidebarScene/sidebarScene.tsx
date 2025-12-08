@@ -21,7 +21,8 @@ export interface SidebarSceneProps {
     scene: SceneDto,
     position:number,
     expanded: boolean,
-    onSelect: ( id: string) => void, onDelete: ( id: string) => void,
+    onSelect: ( id: string | null, position: number | null) => void,
+    onDelete: ( id: string) => void,
     moveScene: (sceneId: string, from: number, to: number) => void,
     readOnly: boolean
 }
@@ -88,7 +89,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>((
             className={`sidebarScene ${expanded ? 'expanded' : ''} ${editMenuIsOpen && "menuOpen"}`}
             onClick={() => {
                 if(!shotlistContext.elementIsBeingDragged)
-                    onSelect(scene.id as string)
+                    onSelect(scene.id as string, position)
             }}
             data-scene-id={scene.id}
         >

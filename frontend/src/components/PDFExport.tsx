@@ -133,7 +133,7 @@ export default function PDFExport({data}: { data: ShotlistDto | null }) {
                             {(scene.shots as ShotDto[])?.map((shot, index) =>
                                 <View style={[styles.row , index%2==0 ? styles.rowOdd : {}]} key={shot.id}>
                                     <View style={[styles.cell, styles.number]}>
-                                        <Text>{Utils.numberToShotLetter(shot.position)}</Text>
+                                        <Text>{Utils.numberToShotLetter(shot.position, scene.position)}</Text>
                                     </View>
                                     {(shot.attributes as AnyShotAttribute[])?.map((attribute) =>
                                         <View style={[styles.cell]} key={attribute.id}>

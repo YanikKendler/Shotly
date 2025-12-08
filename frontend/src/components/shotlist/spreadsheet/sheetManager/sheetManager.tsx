@@ -17,21 +17,20 @@ import ShotService from "@/service/ShotService"
 import Sortable from 'sortablejs';
 import {Cell, CellRef} from "@/components/shotlist/spreadsheet/cell/cell"
 import {Row, RowRef} from "../row/row";
+import {SelectedScene} from "@/app/shotlist/[id]/page"
 
 /**
  * Query's shots based on the passed sceneId and displays them in a spreadsheet, handles all spreadsheet actions
- * @param sceneId
- * @param shotAttributeDefinitions
  * @constructor
  */
 export default function SheetManager({
-    sceneId,
+    selectedScene,
     shotAttributeDefinitions,
     isReadOnly,
     shotlistHeaderRef
 }:{
+    selectedScene: SelectedScene
     shotAttributeDefinitions: ShotAttributeDefinitionBase[] | null
-    sceneId: string | null
     isReadOnly: boolean
     shotlistHeaderRef: RefObject<HTMLDivElement | null>
 }){
@@ -63,14 +62,16 @@ export default function SheetManager({
     }, [])
 
     useEffect(() => {
-        if(sceneId && sceneId !== ""){
+        console.log(selectedScene)
+
+        if(selectedScene.id && selectedScene.id !== null && selectedScene.id != query.data.shots?.at(0)?.scene?.id){
             setQuery({
                 ...query,
                 loading: true
             })
             loadShots()
         }
-    }, [sceneId])
+    }, [selectedScene])
 
     //the selectRefreshContext causes the current cell to lose focus after creating a new option since the component is re-rendered
     useEffect(() => {
@@ -195,10 +196,13 @@ export default function SheetManager({
                                 textValue
                             }
                         }
+                        scene {
+                            id
+                        }
                     }
                 }
             `,
-            variables: { sceneId: sceneId },
+            variables: { sceneId: selectedScene.id },
             fetchPolicy: "no-cache",
         })
 
@@ -237,7 +241,7 @@ export default function SheetManager({
                     }
                 }
             `,
-            variables: { sceneId: sceneId },
+            variables: { sceneId: selectedScene.id },
         })
 
         if (errors) {
@@ -300,6 +304,11 @@ export default function SheetManager({
         })
     }
 
+    if(!selectedScene.id || selectedScene.position == null)
+        return <div className="sheetManager">
+            <p className="empty">Please select a scene from the sidebar</p>
+        </div>
+
     if(query.loading || !shotAttributeDefinitions)
         return <div className="sheetManager">
             <Skeleton count={5} height="38px"/>
@@ -321,6 +330,7 @@ export default function SheetManager({
                         key={shot.id}
                         shot={shot}
                         position={row}
+                        scenePosition={selectedScene.position || 0}
                         onDelete={deleteShot}
                         moveShot={moveShot}
                         isReadOnly={isReadOnly}

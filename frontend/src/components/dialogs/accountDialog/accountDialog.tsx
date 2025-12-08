@@ -15,8 +15,8 @@ import Loader from "@/components/feedback/loader/loader"
 import {NotificationContext} from "@/context/NotificationContext"
 import Link from "next/link"
 import PaymentService from "@/service/PaymentService"
-import {ShotlistContext} from "@/context/ShotlistContext"
 import Utils, {Config} from "@/util/Utils"
+import Skeleton from "react-loading-skeleton"
 
 export interface UserSettings {
     saveExportSettingsInLocalstorage: boolean
@@ -41,8 +41,8 @@ export function useAccountDialog() {
         shotNumberingAfterZ: "repeating"
     })
 
-    const initialLoadCompleted = useRef(false);
-
+    const [settingsLoaded, setSettingsLoaded] = useState(false)
+    
     useEffect(() => {
         setSelectedAppearance(localStorage.getItem(Config.localStorageKey.theme) || "system")
 
@@ -55,7 +55,7 @@ export function useAccountDialog() {
             writeSettingsToLocalStorage()
         }
 
-        initialLoadCompleted.current = true;
+        setSettingsLoaded(true)
     }, [])
 
     /**
@@ -79,8 +79,9 @@ export function useAccountDialog() {
     }, [selectedAppearance])
 
     useEffect(() => {
-        if(initialLoadCompleted.current)
-            writeSettingsToLocalStorage()
+        if(settingsLoaded == false) return
+
+        writeSettingsToLocalStorage()
     }, [userSettings])
 
     const writeSettingsToLocalStorage = () => {
@@ -191,12 +192,16 @@ export function useAccountDialog() {
                 <Input
                     label={"email"}
                     value={user?.email || "unknown"}
-                    disabled={true}/><Input
-                label={"display name"}
-                value={user?.name || "unknown"}
-                info={"This a publicly visible name used for collaboration with others. You cannot use it to log in."}
-                maxLength={50}
-                placeholder={"John Doe"}/>
+                    disabled={true}
+                />
+
+                <Input
+                    label={"display name"}
+                    value={user?.name || "unknown"}
+                    info={"This a publicly visible name used for collaboration with others. You cannot use it to log in."}
+                    maxLength={50}
+                    placeholder={"John Doe"}
+                />
 
                 { !Auth.getUser()?.isSocial &&
                     <div className="row">
@@ -240,59 +245,64 @@ export function useAccountDialog() {
                     </RadioGroup.Root>
                 </div>
 
-                <div className="row">
-                    <p>Save export settings between reloads</p>
-                    <Switch.Root
-                        className="SwitchRoot"
-                        defaultChecked={userSettings.saveExportSettingsInLocalstorage}
-                        onCheckedChange={(checked) => {
-                            setUserSettings({
-                                ...userSettings,
-                                saveExportSettingsInLocalstorage: checked
-                            })
-                        }}
-                    >
-                        <Switch.Thumb className="SwitchThumb"/>
-                    </Switch.Root>
-                </div>
+                {   settingsLoaded == false ?
+                    <Skeleton count={3} height={"30px"}/> :
+                    <>
+                        <div className="row">
+                            <p>Remember export settings between reloads</p>
+                            <Switch.Root
+                                className="SwitchRoot"
+                                checked={userSettings.saveExportSettingsInLocalstorage}
+                                onCheckedChange={(checked) => {
+                                    setUserSettings({
+                                        ...userSettings,
+                                        saveExportSettingsInLocalstorage: checked
+                                    })
+                                }}
+                            >
+                                <Switch.Thumb className="SwitchThumb"/>
+                            </Switch.Root>
+                        </div>
 
-                <div className="row">
-                    <p>Display Scene numbers next to Shot numbers</p>
-                    <Switch.Root
-                        className="SwitchRoot"
-                        defaultChecked={userSettings.displaySceneNumbersNextToShotNumbers}
-                        onCheckedChange={(checked) => {
-                            setUserSettings({
-                                ...userSettings,
-                                displaySceneNumbersNextToShotNumbers: checked
-                            })
-                        }}
-                    >
-                        <Switch.Thumb className="SwitchThumb"/>
-                    </Switch.Root>
-                </div>
+                        <div className="row">
+                            <p>Display Scene numbers next to Shot numbers</p>
+                            <Switch.Root
+                                className="SwitchRoot"
+                                checked={userSettings.displaySceneNumbersNextToShotNumbers}
+                                onCheckedChange={(checked) => {
+                                    setUserSettings({
+                                        ...userSettings,
+                                        displaySceneNumbersNextToShotNumbers: checked
+                                    })
+                                }}
+                            >
+                                <Switch.Thumb className="SwitchThumb"/>
+                            </Switch.Root>
+                        </div>
 
-                <div className="row">
-                    <p>Display shot numbers after Z as</p>
-                    <RadioGroup.Root
-                        className="RadioGroupRoot rect"
-                        aria-label="Shot numbering after Z"
-                        defaultValue={userSettings.shotNumberingAfterZ}
-                        onValueChange={(value) => {
-                            setUserSettings({
-                                ...userSettings,
-                                shotNumberingAfterZ: value as "different" | "repeating"
-                            })
-                        }}
-                    >
-                        <RadioGroup.Item className="RadioGroupItem" value="different">
-                            AA, AB, AC
-                        </RadioGroup.Item>
-                        <RadioGroup.Item className="RadioGroupItem" value="repeating">
-                            AA, BB, CC
-                        </RadioGroup.Item>
-                    </RadioGroup.Root>
-                </div>
+                        <div className="row">
+                            <p>Display shot numbers after Z as</p>
+                            <RadioGroup.Root
+                                className="RadioGroupRoot rect"
+                                aria-label="Shot numbering after Z"
+                                value={userSettings.shotNumberingAfterZ}
+                                onValueChange={(value) => {
+                                    setUserSettings({
+                                        ...userSettings,
+                                        shotNumberingAfterZ: value as "different" | "repeating"
+                                    })
+                                }}
+                            >
+                                <RadioGroup.Item className="RadioGroupItem" value="different">
+                                    AA, AB, AC
+                                </RadioGroup.Item>
+                                <RadioGroup.Item className="RadioGroupItem" value="repeating">
+                                    AA, BB, CC
+                                </RadioGroup.Item>
+                            </RadioGroup.Root>
+                        </div>
+                    </>
+                }
 
                 <Separator.Root className={"Separator"}/>
 
