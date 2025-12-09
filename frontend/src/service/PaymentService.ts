@@ -11,7 +11,8 @@ export default class PaymentService {
         })
             .then(res => res.json())
             .then(data => {
-                window.location.href = data.url;
+                console.log(data);
+                //window.location.href = data.url;
             })
             .catch(err => console.error("Error:", err));
     }

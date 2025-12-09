@@ -114,10 +114,7 @@ export default function Overview() {
         <ErrorPage
             title='Data could not be loaded'
             description={query.error.message}
-            link= {{
-                text: 'Dashboard',
-                href: '../dashboard'
-            }}
+            reload
         />
     )
 
@@ -125,10 +122,7 @@ export default function Overview() {
         <ErrorPage
             title='Data could not be loaded'
             description={query.errors.map(e => e.message).join(", ")}
-            link= {{
-                text: 'Dashboard',
-                href: '../dashboard'
-            }}
+            reload
         />
     )
 

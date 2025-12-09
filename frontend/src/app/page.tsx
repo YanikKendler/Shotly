@@ -294,10 +294,10 @@ export default function Landing() {
                     </div>
                     <div>
                         <h3>Legal</h3>
-                        <Link className={"noPadding"} href={"./legal/cookies"}>Cookies</Link>
-                        <Link className={"noPadding"} href={"./legal/privacy"}>Privacy</Link>
-                        <Link className={"noPadding"} href={"./legal/legalNotice"}>Legal notice</Link>
-                        <Link className={"noPadding"} href={"./legal/termsOfUse"}>Terms of use</Link>
+                        <Link className={"noPadding"} href={"/legal/cookies"}>Cookies</Link>
+                        <Link className={"noPadding"} href={"/legal/privacy"}>Privacy</Link>
+                        <Link className={"noPadding"} href={"/legal/legalNotice"}>Legal notice</Link>
+                        <Link className={"noPadding"} href={"/legal/termsOfUse"}>Terms of use</Link>
                     </div>
 
                     <div>
@@ -305,6 +305,7 @@ export default function Landing() {
                         <Link className={"noPadding"} href={"/"}>Documentation</Link>
                         <Link className={"noPadding"} href={"https://github.com/YanikKendler/shotly/issues/new/choose"}>Report a Bug</Link>
                         <Link className={"noPadding"} href={"https://github.com/YanikKendler/shotly/issues/new/choose"}>Suggest a Feature</Link>
+                        <Link className={"noPadding"} href={"/freeForStudents"}>Free for Students</Link>
                     </div>
                 </footer>
             </div>

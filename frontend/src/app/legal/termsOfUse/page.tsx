@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 export default function TermsOfUse(){
     return (
         <>
@@ -32,7 +34,7 @@ export default function TermsOfUse(){
             <p>Austrian law applies. Jurisdiction is Wels, Austria.</p>
 
             <h2>10. Contact</h2>
-            <p>For questions regarding these terms, please contact: <a href="mailto:yanik.kendler@gmail.com">yanik.kendler@gmail.com</a></p>
+            <p>For questions regarding these terms, please contact: <Link className={"inline"} href="mailto:yanik.kendler@gmail.com">yanik.kendler@gmail.com</Link></p>
         </>
     )
 }

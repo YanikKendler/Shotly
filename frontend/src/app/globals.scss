@@ -235,7 +235,7 @@ input{
   border-radius: .2rem;
 }
 
-button, a{
+button, a:not(.inline){
   display: flex;
   justify-content: space-between; /* This was a mistake but I wont refactor this :D */
   align-items: center;

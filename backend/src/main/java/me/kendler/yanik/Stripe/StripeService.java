@@ -88,7 +88,7 @@ public class StripeService {
                 .setAllowPromotionCodes(true)
                 .putAllMetadata(sessionMetadata)
                 .setSuccessUrl(frontendUrl + "/dashboard?jbp=true")
-                .setCancelUrl(frontendUrl + "/pro/cancel");
+                .setCancelUrl(frontendUrl + "/pro/canceled");
 
         // use existing customer if present, otherwise stripe will create a new one
         if (user.stripeCustomerId != null && !user.stripeCustomerId.isEmpty()) {
@@ -100,6 +100,12 @@ public class StripeService {
 
     public com.stripe.model.billingportal.Session createPortalSession(JsonWebToken jwt) throws StripeException {
         User user = userRepository.findOrCreateByJWT(jwt);
+
+        //edge case where the DB lost the user's stripeCustomerId
+        if(user.stripeCustomerId == null){
+            LOGGER.warn("User " + user.name + " does not have a Stripe Customer ID when trying to create a portal session. But has sub tier: " + user.tier);
+            throw new IllegalArgumentException("User does not have a Stripe Customer ID.");
+        }
 
         return com.stripe.model.billingportal.Session.create(
                 com.stripe.param.billingportal.SessionCreateParams.builder()
