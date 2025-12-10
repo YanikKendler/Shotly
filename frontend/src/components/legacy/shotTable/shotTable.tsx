@@ -144,7 +144,7 @@ const ShotTable = forwardRef((
         console.time("loadShots-"+sceneId)
         const { data, errors, loading } = await client.query({
             query : gql`
-                query shots($sceneId: String!){
+                query getShots($sceneId: String!){
                     shots(sceneId: $sceneId){
                         id
                         position

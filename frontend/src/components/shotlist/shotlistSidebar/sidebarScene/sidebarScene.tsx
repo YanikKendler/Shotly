@@ -88,7 +88,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>((
         <div
             className={`sidebarScene ${expanded ? 'expanded' : ''} ${editMenuIsOpen && "menuOpen"}`}
             onClick={() => {
-                if(!shotlistContext.elementIsBeingDragged)
+                if(!shotlistContext.elementIsBeingDragged && !expanded)
                     onSelect(scene.id as string, position)
             }}
             data-scene-id={scene.id}

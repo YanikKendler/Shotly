@@ -4,6 +4,7 @@
   border: 1px solid var(--cell-border);
   position: relative;
   background-color: var(--cell-background);
+  min-height: 38px;
 
   &:not(.number){
     width: 100%;
@@ -13,7 +14,6 @@
   &.create{
     display: flex;
     justify-content: space-between;
-    height: 38px;
     align-items: center;
     padding: {
       right: .4rem;

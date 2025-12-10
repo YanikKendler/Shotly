@@ -11,7 +11,7 @@ import {
 } from "@/util/Types"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
-import { ShotlistDto } from "../../../../lib/graphql/generated"
+import {ShotlistDto, UserTier} from "../../../../lib/graphql/generated"
 import {useRouter} from "next/navigation"
 import ExportTab from "@/components/dialogs/shotlistOptionsDialog/exportTab/exportTab"
 import GeneralTab from "@/components/dialogs/shotlistOptionsDialog/generalTab/generalTab"
@@ -141,7 +141,7 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
 
         console.log(result.data)
 
-        if(result.data.shotlist?.owner?.tier == "BASIC" && result.data.shotlist.owner.shotlistCount > 1) {
+        if(result.data.shotlist?.owner?.tier == UserTier.Basic && result.data.shotlist.owner.shotlistCount > 1) {
             setIsReadOnly(true)
         }
 

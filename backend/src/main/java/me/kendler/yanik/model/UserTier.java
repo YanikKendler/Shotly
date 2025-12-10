@@ -2,5 +2,7 @@ package me.kendler.yanik.model;
 
 public enum UserTier {
     BASIC,
-    PRO
+    PRO,
+    PRO_STUDENT,
+    PRO_FREE
 }

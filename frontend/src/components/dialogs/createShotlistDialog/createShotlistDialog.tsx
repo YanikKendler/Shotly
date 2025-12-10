@@ -7,7 +7,7 @@ import {useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import Input from "@/components/inputs/input/input"
 import Loader from "@/components/feedback/loader/loader"
-import {TemplateDto, UserDto} from "../../../../lib/graphql/generated"
+import {TemplateDto, UserDto, UserTier} from "../../../../lib/graphql/generated"
 import SimpleSelect from "@/components/inputs/simpleSelect/simpleSelect"
 import {SelectOption} from "@/util/Types"
 import {useRouter} from "next/navigation"
@@ -100,7 +100,7 @@ export function useCreateShotlistDialog() {
             <Dialog.Title className={"title center"}>Create Shotlist</Dialog.Title>
             <Loader scale={0.75}/>
         </>
-    else if(currentUser.tier == "BASIC" && currentUser?.shotlistCount != 0)
+    else if(currentUser.tier == UserTier.Basic && currentUser?.shotlistCount != 0)
         content = <>
             <Dialog.Title className={"title center"}>Sorry, you have reached the maximum number of Shotlists.</Dialog.Title>
             <p>Your account is on the basic tier, that means you are limited to a single shotlist. Please consider going Pro for 2.99€ / month.</p>

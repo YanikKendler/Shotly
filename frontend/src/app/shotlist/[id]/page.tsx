@@ -7,7 +7,7 @@ import {
     Query,
     SceneDto,
     ShotAttributeDefinitionBase,
-    ShotlistDto
+    ShotlistDto, UserTier
 } from "../../../../lib/graphql/generated"
 import { useParams, useRouter, useSearchParams} from "next/navigation"
 import ShotTable, {ShotTableRef} from "@/components/legacy/shotTable/shotTable"
@@ -217,7 +217,7 @@ export default function Shotlist() {
             if (
                 result.data.shotlist &&
                 result.data.shotlist.owner &&
-                result.data.shotlist.owner.tier == "BASIC" &&
+                result.data.shotlist.owner.tier == UserTier.Basic &&
                 result.data.shotlist.owner.shotlistCount > 1
             ) {
                 setIsReadOnly(true)

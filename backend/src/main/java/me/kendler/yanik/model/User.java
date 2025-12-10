@@ -6,8 +6,10 @@ import me.kendler.yanik.dto.user.UserDTO;
 import me.kendler.yanik.model.template.Template;
 import org.hibernate.annotations.BatchSize;
 
+import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -33,6 +35,8 @@ public class User extends PanacheEntityBase {
     public UserTier tier = UserTier.BASIC;
     public String stripeCustomerId;
     public boolean hasCancelled = false;
+    public boolean isActive = true;
+    public LocalDate revokeProAfter;
 
     public User() {
         this.createdAt = ZonedDateTime.now(ZoneOffset.UTC);

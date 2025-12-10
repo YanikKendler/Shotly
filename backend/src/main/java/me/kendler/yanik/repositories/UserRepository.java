@@ -22,6 +22,8 @@ import me.kendler.yanik.repositories.template.TemplateRepository;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
 
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -46,8 +48,6 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     @Transactional
     @ActivateRequestContext // gpt said to do this because of "RequestScoped context was not active" error
     public User findOrCreateByJWT(JsonWebToken jwt) {
-        long start = System.nanoTime();
-
         String auth0Sub = jwt.getClaim("sub");
         if (auth0Sub == null) {
             LOGGER.errorf("Tried to find user by JWT %s, but JWT does not contain 'sub' claim", jwt.toString());
@@ -66,10 +66,12 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
                 .findFirst()
                 .orElse(null);
 
-        Util.timer(start, "findOrCreateByJWT");
-
         if (user != null) {
-            return user;
+            if(!user.isActive){
+                throw new SecurityException("User account is deactivated");
+            }else{
+                return user;
+            }
         } else {
             User newUser = new User(auth0Sub, jwt.getClaim("name"), jwt.getClaim("email"));
             persist(newUser);
@@ -89,8 +91,13 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         }
     }
 
+    @Transactional
     public UserDTO getCurrentUserDTO(JsonWebToken jwt) {
         User user = findOrCreateByJWT(jwt);
+        if(user.tier != UserTier.BASIC && user.revokeProAfter != null && user.revokeProAfter.isBefore(LocalDate.now())){
+            user.tier = UserTier.BASIC;
+            persist(user);
+        }
         return user.toDto();
     }
 

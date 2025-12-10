@@ -1,13 +1,13 @@
 'use client';
 
 import * as Dialog from '@radix-ui/react-dialog';
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import "./accountDialog.scss"
 import {useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import {Monitor, Moon, Sun, X} from "lucide-react"
 import Auth from "@/Auth"
-import {User} from "../../../../lib/graphql/generated"
+import {User, UserTier} from "../../../../lib/graphql/generated"
 import {RadioGroup, Separator, Switch, VisuallyHidden} from "radix-ui"
 import Input from "@/components/inputs/input/input"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
@@ -15,7 +15,7 @@ import Loader from "@/components/feedback/loader/loader"
 import {NotificationContext} from "@/context/NotificationContext"
 import Link from "next/link"
 import PaymentService from "@/service/PaymentService"
-import Utils, {Config} from "@/util/Utils"
+import {Config} from "@/util/Utils"
 import Skeleton from "react-loading-skeleton"
 
 export interface UserSettings {
@@ -214,7 +214,7 @@ export function useAccountDialog() {
                 <div className="row">
                     <p>Subscription</p>
                     {
-                        user?.tier == "PRO" ?
+                        user?.tier != UserTier.Basic ?
                         <button onClick={PaymentService.manageSubscription}>Manage subscription</button> :
                         user?.hasCancelled === true ?
                         <button onClick={PaymentService.manageSubscription}>Renew subscription</button> :
