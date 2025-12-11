@@ -21,9 +21,50 @@ export type Scalars = {
   DateTime: { input: any; output: any; }
 };
 
+export type Collaboration = {
+  __typename?: 'Collaboration';
+  collaborationState?: Maybe<CollaborationState>;
+  collaboratorRole?: Maybe<CollaboratorRole>;
+  id?: Maybe<Scalars['String']['output']>;
+  shotlist?: Maybe<Shotlist>;
+  user?: Maybe<User>;
+};
+
+export type CollaborationCreateDtoInput = {
+  shotlistId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CollaborationDto = {
+  __typename?: 'CollaborationDTO';
+  collaborationState?: Maybe<CollaborationState>;
+  collaboratorRole?: Maybe<CollaboratorRole>;
+  id?: Maybe<Scalars['String']['output']>;
+  shotlistDTO?: Maybe<ShotlistDto>;
+  user?: Maybe<UserDto>;
+};
+
+export type CollaborationEditDtoInput = {
+  collaborationState?: InputMaybe<CollaborationState>;
+  collaboratorRole?: InputMaybe<CollaboratorRole>;
+  id?: InputMaybe<Scalars['String']['input']>;
+};
+
+export enum CollaborationState {
+  Accepted = 'ACCEPTED',
+  Declined = 'DECLINED',
+  Pending = 'PENDING'
+}
+
+export enum CollaboratorRole {
+  Editor = 'EDITOR',
+  Viewer = 'VIEWER'
+}
+
 /** Mutation root */
 export type Mutation = {
   __typename?: 'Mutation';
+  addCollaboration?: Maybe<CollaborationDto>;
   createScene?: Maybe<SceneDto>;
   createSceneAttributeDefinition?: Maybe<SceneAttributeDefinitionBaseDto>;
   createSceneAttributeTemplate?: Maybe<SceneAttributeTemplateBaseDto>;
@@ -36,6 +77,7 @@ export type Mutation = {
   createShotSelectAttributeOptionTemplate?: Maybe<ShotSelectAttributeOptionTemplate>;
   createShotlist?: Maybe<ShotlistDto>;
   createTemplate?: Maybe<TemplateDto>;
+  deleteCollaboration?: Maybe<CollaborationDto>;
   deleteScene?: Maybe<SceneDto>;
   deleteSceneAttributeDefinition?: Maybe<SceneAttributeDefinitionBaseDto>;
   deleteSceneAttributeTemplate?: Maybe<SceneAttributeTemplateBaseDto>;
@@ -49,6 +91,7 @@ export type Mutation = {
   deleteShotlist?: Maybe<ShotlistDto>;
   deleteTemplate?: Maybe<TemplateDto>;
   deleteUser?: Maybe<User>;
+  editCollaboration?: Maybe<CollaborationDto>;
   triggerPasswordReset?: Maybe<Scalars['String']['output']>;
   updateScene?: Maybe<SceneDto>;
   updateSceneAttribute?: Maybe<SceneAttributeBaseDto>;
@@ -65,6 +108,12 @@ export type Mutation = {
   updateShotlist?: Maybe<ShotlistDto>;
   updateTemplate?: Maybe<TemplateDto>;
   updateUser?: Maybe<User>;
+};
+
+
+/** Mutation root */
+export type MutationAddCollaborationArgs = {
+  createDTO?: InputMaybe<CollaborationCreateDtoInput>;
 };
 
 
@@ -141,6 +190,12 @@ export type MutationCreateTemplateArgs = {
 
 
 /** Mutation root */
+export type MutationDeleteCollaborationArgs = {
+  id?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** Mutation root */
 export type MutationDeleteSceneArgs = {
   id?: InputMaybe<Scalars['String']['input']>;
 };
@@ -209,6 +264,12 @@ export type MutationDeleteShotlistArgs = {
 /** Mutation root */
 export type MutationDeleteTemplateArgs = {
   id?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** Mutation root */
+export type MutationEditCollaborationArgs = {
+  editDTO?: InputMaybe<CollaborationEditDtoInput>;
 };
 
 
@@ -783,6 +844,7 @@ export type ShotTextAttributeTemplateDto = ShotAttributeTemplateBaseDto & {
 
 export type Shotlist = {
   __typename?: 'Shotlist';
+  collaborations?: Maybe<Array<Maybe<Collaboration>>>;
   /** ISO-8601 */
   createdAt?: Maybe<Scalars['DateTime']['output']>;
   /** ISO-8601 */
@@ -802,6 +864,7 @@ export type ShotlistCreateDtoInput = {
 
 export type ShotlistDto = {
   __typename?: 'ShotlistDTO';
+  collaborations?: Maybe<Array<Maybe<CollaborationDto>>>;
   /** ISO-8601 */
   createdAt?: Maybe<Scalars['DateTime']['output']>;
   /** ISO-8601 */

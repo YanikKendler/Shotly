@@ -7,7 +7,7 @@ import {useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import {Monitor, Moon, Sun, X} from "lucide-react"
 import Auth from "@/Auth"
-import {User, UserTier} from "../../../../lib/graphql/generated"
+import {User, UserDto, UserTier} from "../../../../lib/graphql/generated"
 import {RadioGroup, Separator, Switch, VisuallyHidden} from "radix-ui"
 import Input from "@/components/inputs/input/input"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
@@ -17,6 +17,7 @@ import Link from "next/link"
 import PaymentService from "@/service/PaymentService"
 import {Config} from "@/util/Utils"
 import Skeleton from "react-loading-skeleton"
+import {wuConstants} from "@yanikkendler/web-utils/dist"
 
 export interface UserSettings {
     saveExportSettingsInLocalstorage: boolean
@@ -30,7 +31,7 @@ export function useAccountDialog() {
     const notificationContext = useContext(NotificationContext)
 
     const [isOpen, setIsOpen] = useState(false);
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<UserDto | null>(null);
     const [deleting, setDeleting] = useState(false);
     const [passwordResetDisabled, setPasswordResetDisabled] = useState(false);
 
@@ -182,6 +183,29 @@ export function useAccountDialog() {
         Auth.logout();
     }
 
+    const updateUserName = async (name: string) => {
+        if(wuConstants.Regex.empty.test(name)) return
+
+        const {data, errors} = await client.mutate({
+                mutation: gql`
+                    mutation updateUser($name: String!){
+                        updateUser(editDTO: {
+                            name: $name
+                        }) {
+                            id
+                            name
+                        }
+                    }`,
+                variables: {name: name.trim()},
+            },
+        )
+
+        if(errors) {
+            console.error("Error deleting account:", errors);
+            return;
+        }
+    }
+
     let dialogContent
 
     if(deleting)
@@ -201,6 +225,8 @@ export function useAccountDialog() {
                     info={"This a publicly visible name used for collaboration with others. You cannot use it to log in."}
                     maxLength={50}
                     placeholder={"John Doe"}
+                    valueChange={updateUserName}
+                    debounceValueChange={true}
                 />
 
                 { !Auth.getUser()?.isSocial &&

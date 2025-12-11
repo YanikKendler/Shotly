@@ -83,6 +83,7 @@ export default function AttributeTab(
             variables: {shotlistId: shotlistId, attributeType: type},
         });
         if (errors) {
+            //TODO notify user
             console.error(errors);
             return;
         }

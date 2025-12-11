@@ -6,13 +6,10 @@ import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.UnauthorizedAccessException;
-import me.kendler.yanik.Util;
 import me.kendler.yanik.auth0.Auth0Service;
 import me.kendler.yanik.dto.user.UserDTO;
 import me.kendler.yanik.dto.user.UserEditDTO;
-import me.kendler.yanik.model.Shotlist;
-import me.kendler.yanik.model.User;
-import me.kendler.yanik.model.UserTier;
+import me.kendler.yanik.model.*;
 import me.kendler.yanik.model.template.Template;
 import me.kendler.yanik.model.template.sceneAttributes.SceneTextAttributeTemplate;
 import me.kendler.yanik.model.template.shotAttributes.ShotTextAttributeTemplate;
@@ -23,7 +20,6 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
 
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -98,7 +94,7 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
             user.tier = UserTier.BASIC;
             persist(user);
         }
-        return user.toDto();
+        return user.toDTO();
     }
 
     @Transactional
@@ -132,11 +128,6 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         return auth0Service.triggerPasswordReset(user.email);
     }
 
-    public boolean userCanAccessShotlist(Shotlist shotlist, JsonWebToken jwt) {
-        User user = findOrCreateByJWT(jwt);
-        return userCanAccessShotlist(shotlist, user);
-    }
-
     @Transactional
     public boolean shotlistIsEditable(Shotlist shotlist) {
         //refetch owner to prevent lazy loading issues
@@ -153,43 +144,88 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         return true;
     }
 
-    public boolean userCanAccessShotlist(Shotlist shotlist, User user) {
-        // TODO Add collaborator support
-        if (shotlist != null && user.equals(shotlist.owner)) {
+    public boolean userCanEditShotlist(Shotlist shotlist, JsonWebToken jwt) {
+        User user = findOrCreateByJWT(jwt);
+        return userCanEditShotlist(shotlist, user);
+    }
+
+
+    public boolean userCanEditShotlist(Shotlist shotlist, User user) {
+        if (shotlist == null){
+            return false;
+        }
+
+        if (
+            user.equals(shotlist.owner) ||
+            shotlist.collaborations
+                    .stream()
+                    .anyMatch(c ->
+                            c.user.id.equals(user.id) &&
+                            c.collaborationState.equals(CollaborationState.ACCEPTED) &&
+                            c.collaboratorRole.equals(CollaboratorRole.EDITOR)
+                    )
+        ) {
             return true;
         }
+
         return false;
     }
 
-    public void checkShotlistAccessRights(Shotlist shotlist, JsonWebToken jwt) {
+    public void checkShotlistEditRights(Shotlist shotlist, JsonWebToken jwt) {
         if(!shotlistIsEditable(shotlist)) {
             throw new UnauthorizedAccessException("This shotlist is read only");
         }
-        if (!userCanAccessShotlist(shotlist, jwt)) {
+        if (!userCanEditShotlist(shotlist, jwt)) {
             throw new UnauthorizedAccessException("You are not allowed to access this shotlist");
         }
     }
 
-    public void checkShotlistAccessRights(UUID shotlistId, JsonWebToken jwt) {
-        checkShotlistAccessRights(shotlistRepository.findById(shotlistId), jwt);
+    public void checkShotlistEditRights(UUID shotlistId, JsonWebToken jwt) {
+        checkShotlistEditRights(shotlistRepository.findById(shotlistId), jwt);
     }
 
-    public void checkShotlistReadAccessRights(Shotlist shotlist, JsonWebToken jwt) {
-        if (!userCanAccessShotlist(shotlist, jwt)) {
-            throw new UnauthorizedAccessException("You are not allowed to access this shotlist");
-        }
-    }
-
-    public void checkShotlistReadAccessRights(UUID shotlistId, JsonWebToken jwt) {
-        checkShotlistReadAccessRights(shotlistRepository.findById(shotlistId), jwt);
-    }
-
-    public boolean userCanAccessTemplate(Template template, JsonWebToken jwt) {
+    public boolean userCanViewShotlist(Shotlist shotlist, JsonWebToken jwt) {
         User user = findOrCreateByJWT(jwt);
-        return userCanAccessTemplate(template, user);
+        return userCanViewShotlist(shotlist, user);
     }
 
-    public boolean userCanAccessTemplate(Template template, User user) {
+
+    public boolean userCanViewShotlist(Shotlist shotlist, User user) {
+        if (shotlist == null){
+            return false;
+        }
+
+        if (
+            user.equals(shotlist.owner) ||
+            shotlist.collaborations
+                    .stream()
+                    .anyMatch(c ->
+                            c.user.id.equals(user.id) &&
+                            c.collaborationState.equals(CollaborationState.ACCEPTED)
+                    )
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public void checkShotlistViewRights(Shotlist shotlist, JsonWebToken jwt) {
+        if (!userCanViewShotlist(shotlist, jwt)) {
+            throw new UnauthorizedAccessException("You are not allowed to access this shotlist");
+        }
+    }
+
+    public void checkShotlistViewRights(UUID shotlistId, JsonWebToken jwt) {
+        checkShotlistViewRights(shotlistRepository.findById(shotlistId), jwt);
+    }
+
+    public boolean userCanEditTemplate(Template template, JsonWebToken jwt) {
+        User user = findOrCreateByJWT(jwt);
+        return userCanEditTemplate(template, user);
+    }
+
+    public boolean userCanEditTemplate(Template template, User user) {
         // TODO Add collaborator support
         if (template != null && user.equals(template.owner)) {
             return true;
@@ -197,13 +233,13 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         return false;
     }
 
-    public void checkTemplateAccessRights(Template template, JsonWebToken jwt) {
-        if (!userCanAccessTemplate(template, jwt)) {
+    public void checkTemplateEditRights(Template template, JsonWebToken jwt) {
+        if (!userCanEditTemplate(template, jwt)) {
             throw new UnauthorizedAccessException("You are not allowed to access this template");
         }
     }
 
-    public void checkTemplateAccessRights(UUID templateId, JsonWebToken jwt) {
-        checkTemplateAccessRights(templateRepository.findById(templateId), jwt);
+    public void checkTemplateEditRights(UUID templateId, JsonWebToken jwt) {
+        checkTemplateEditRights(templateRepository.findById(templateId), jwt);
     }
 }

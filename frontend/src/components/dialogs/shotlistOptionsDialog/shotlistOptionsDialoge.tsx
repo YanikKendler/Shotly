@@ -11,7 +11,7 @@ import {
 } from "@/util/Types"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
-import {ShotlistDto, UserTier} from "../../../../lib/graphql/generated"
+import {CollaborationDto, ShotlistDto, UserTier} from "../../../../lib/graphql/generated"
 import {useRouter} from "next/navigation"
 import ExportTab from "@/components/dialogs/shotlistOptionsDialog/exportTab/exportTab"
 import GeneralTab from "@/components/dialogs/shotlistOptionsDialog/generalTab/generalTab"
@@ -33,6 +33,7 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
     const [sceneAttributeDefinitions, setSceneAttributeDefinitions] = useState<AnySceneAttributeDefinition[] | null>(null);
     const [shotAttributeDefinitions, setShotAttributeDefinitions] = useState<AnyShotAttributeDefinition[] | null>(null);
     const [shotlist, setShotlist] = useState<ShotlistDto | null>(null);
+    const [collaborations, setCollaborations] = useState<CollaborationDto[] | null>(null)
     // used for refreshing the shotlist on dialog close, only when any data has been edited
     const [stringifiedAttributeData, setStringifiedAttributeData] = useState<string>("");
     const [dataChanged, setDataChanged] = useState(false);
@@ -94,6 +95,16 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
                             tier
                             shotlistCount
                         }
+                        collaborations {
+                            id
+                            user {
+                                id
+                                email
+                                name
+                            }
+                            collaborationState
+                            collaboratorRole
+                        }
                     }
                     shotAttributeDefinitions(shotlistId: $shotlistId){
                         id
@@ -148,6 +159,8 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
         setSceneAttributeDefinitions(result.data.sceneAttributeDefinitions)
         setShotAttributeDefinitions(result.data.shotAttributeDefinitions)
         setShotlist(result.data.shotlist)
+        //is its own state to not influence he refresh check (data stringification)
+        setCollaborations(result.data.shotlist.collaborations)
 
         setStringifiedAttributeData(
             JSON.stringify(result.data.shotAttributeDefinitions) +
@@ -202,10 +215,10 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
                                     <List size={18} strokeWidth={2}/>
                                     Attributes
                                 </Tabs.Trigger>
-                                {/*<Tabs.Trigger value={"collaborators"}>
+                                <Tabs.Trigger value={"collaborators"}>
                                     <Users size={18} strokeWidth={2}/>
                                     Collaborators
-                                </Tabs.Trigger>*/}
+                                </Tabs.Trigger>
                                 <Tabs.Trigger value={"export"}>
                                     <FileDown size={18} strokeWidth={2}/>
                                     Export
@@ -245,7 +258,11 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
                                 {
                                     isReadOnly ?
                                         <p className={"empty"}>Sorry, this shotlist is in read-only Mode.</p> :
-                                        <CollaboratorsTab/>
+                                        <CollaboratorsTab
+                                            shotlistId={shotlistId}
+                                            collaborations={collaborations}
+                                            setCollaborations={setCollaborations}
+                                        />
                                 }
                             </Tabs.Content>
                             {/*keep the tab mounted so that the selected filters don't disappear when switching tabs*/}

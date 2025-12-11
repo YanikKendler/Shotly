@@ -9,7 +9,6 @@ import org.hibernate.annotations.BatchSize;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -64,7 +63,7 @@ public class User extends PanacheEntityBase {
                 '}';
     }
 
-    public UserDTO toDto() {
+    public UserDTO toDTO() {
         return new UserDTO(
                 id,
                 auth0Sub,

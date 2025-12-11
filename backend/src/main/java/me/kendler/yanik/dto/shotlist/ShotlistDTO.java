@@ -1,11 +1,10 @@
 package me.kendler.yanik.dto.shotlist;
 
+import me.kendler.yanik.dto.shotlist.collaboration.CollaborationDTO;
 import me.kendler.yanik.dto.scene.SceneDTO;
 import me.kendler.yanik.dto.scene.attributeDefinitions.SceneAttributeDefinitionBaseDTO;
 import me.kendler.yanik.dto.shot.attributeDefinitions.ShotAttributeDefinitionBaseDTO;
 import me.kendler.yanik.dto.user.UserDTO;
-import me.kendler.yanik.model.User;
-import me.kendler.yanik.model.scene.attributeDefinitions.SceneAttributeDefinitionBase;
 import me.kendler.yanik.model.template.Template;
 
 import java.time.ZonedDateTime;
@@ -21,6 +20,7 @@ public record ShotlistDTO(
     List<ShotAttributeDefinitionBaseDTO> shotAttributeDefinitions,
     Integer sceneCount,
     Integer shotCount,
+    List<CollaborationDTO> collaborations,
     String name,
     ZonedDateTime createdAt,
     ZonedDateTime editedAt

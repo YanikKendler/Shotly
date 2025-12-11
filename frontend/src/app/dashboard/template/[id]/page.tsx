@@ -416,7 +416,7 @@ export default function Template (){
                                 inputClass={"templateName"}
                                 maxLength={80}
                                 maxWidth={"90ch"}
-                                showError={false}
+                                showLengthError={false}
                             />
                             <div className="spacerContainer">
                                 <p className="spacer">{query.data.template?.name}</p>

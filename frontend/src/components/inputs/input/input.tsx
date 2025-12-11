@@ -32,7 +32,7 @@ export default function Input(
         maxLength = 255,
         maxWidth = "40ch",
         inputClass = "",
-        showError = true,
+        showLengthError = true,
         debounceValueChange = false
     }
     :
@@ -47,7 +47,7 @@ export default function Input(
         maxLength?: number;
         maxWidth?: string;
         inputClass?: string;
-        showError?: boolean;
+        showLengthError?: boolean;
         debounceValueChange?: boolean;
     }
 ) {
@@ -75,7 +75,7 @@ export default function Input(
     function validateInput(value: string) {
         setError("")
 
-        if(!showError) return
+        if(!showLengthError) return
 
         if(value.length > maxLength - 10) {
             setError(`${value.length}/${maxLength} characters`);

@@ -53,7 +53,6 @@ public class Scene extends PanacheEntityBase {
     public SceneDTO toDTO() {
         return new SceneDTO(
             this.id,
-            this.shotlist,
             this.attributes.stream()
                     .sorted(Comparator.comparingInt(attr -> attr.definition.position))
                     .map(SceneAttributeBase::toDTO)

@@ -43,7 +43,7 @@ public class Template extends PanacheEntityBase {
     public TemplateDTO toDTO(){
         return new TemplateDTO(
             id,
-            owner.toDto(),
+            owner.toDTO(),
             name,
             sceneAttributes.stream().sorted(Comparator.comparingInt(attr -> attr.position)).map(SceneAttributeTemplateBase::toDTO).toList(),
             shotAttributes.stream().sorted(Comparator.comparingInt(attr -> attr.position)).map(ShotAttributeTemplateBase::toDTO).toList(),

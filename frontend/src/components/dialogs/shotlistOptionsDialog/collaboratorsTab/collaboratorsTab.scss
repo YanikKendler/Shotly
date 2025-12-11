@@ -1,10 +1,28 @@
 div.shotlistOptionsDialogCollaboratorsTab{
   display: flex;
   flex-direction: column;
-  align-items: center;
 
   .empty{
-    margin-top: 5rem;
+    margin-top: 1rem;
+    margin-left: 2rem;
+    font-size: .9rem;
     color: var(--text-40);
+  }
+
+  .new{
+    display: flex;
+    align-items: flex-end;
+    gap: .8rem;
+    margin-top: 2rem;
+
+    button{
+      background-color: var(--accent);
+      margin-bottom: .1rem;
+
+      &:hover{
+        background-color: var(--accent-60);
+        color: var(--text);
+      }
+    }
   }
 }

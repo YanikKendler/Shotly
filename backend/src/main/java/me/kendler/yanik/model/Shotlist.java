@@ -43,6 +43,12 @@ public class Shotlist extends PanacheEntityBase {
     @BatchSize(size = 5)
     public Set<ShotAttributeDefinitionBase> shotAttributeDefinitions = new HashSet<>();
 
+    @OneToMany(mappedBy = "shotlist", fetch = FetchType.LAZY)
+    @BatchSize(size = 5)
+    public Set<Collaboration> collaborations = new TreeSet<>(
+            Comparator.comparing(a -> a.user.id)
+    );
+
     public String name;
     public ZonedDateTime createdAt;
     public ZonedDateTime editedAt;
@@ -86,7 +92,7 @@ public class Shotlist extends PanacheEntityBase {
     public ShotlistDTO toDTO() {
         return new ShotlistDTO(
             this.id,
-            this.owner.toDto(),
+            this.owner.toDTO(),
             this.template,
             this.scenes.stream()
                     .sorted(Comparator.comparingInt(scene -> scene.position))
@@ -102,6 +108,10 @@ public class Shotlist extends PanacheEntityBase {
                     .collect(Collectors.toList()),
             this.scenes.size(),
             this.scenes.stream().map(scene -> scene.shots.size()).reduce(0, Integer::sum),
+            this.collaborations.stream()
+                    .sorted(Comparator.comparing( c -> c.user.name))
+                    .map(Collaboration::toDTO)
+                    .collect(Collectors.toList()),
             this.name,
             this.createdAt,
             this.editedAt
