@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.Util;
+import me.kendler.yanik.dto.shotlist.ShotlistCollection;
 import me.kendler.yanik.dto.shotlist.ShotlistCreateDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistEditDTO;
@@ -48,20 +49,27 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
         return shotlist.toDTO();
     }
 
-    public List<ShotlistDTO> findAllForUser(JsonWebToken jwt) {
-        long start = System.nanoTime();
-
+    public ShotlistCollection findAllForUser(JsonWebToken jwt) {
         User user = userRepository.findOrCreateByJWT(jwt);
 
-        List<ShotlistDTO> dtoList = user
+        List<ShotlistDTO> personalShotlists = user
                 .shotlists
                 .stream()
                 .map(Shotlist::toDTO)
                 .toList();
 
-        Util.timer(start, "findAllForUser");
+        List<ShotlistDTO> sharedShotlists = find(
+                "select distinct s from Shotlist s join s.collaborations c where c.user.id = ?1 AND c.collaborationState = 'ACCEPTED'",
+                user.id
+        )
+            .stream()
+            .map(Shotlist::toDTO)
+            .toList();
 
-        return dtoList;
+        return new ShotlistCollection(
+            personalShotlists,
+            sharedShotlists
+        );
     }
 
     public ShotlistDTO create(ShotlistCreateDTO createDTO, JsonWebToken jwt){

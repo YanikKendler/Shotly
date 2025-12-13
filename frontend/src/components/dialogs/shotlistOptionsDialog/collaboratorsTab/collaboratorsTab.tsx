@@ -3,11 +3,13 @@ import {useApolloClient} from "@apollo/client"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
 import {useRouter} from "next/navigation"
 import "./collaboratorsTab.scss"
-import {CollaborationDto, ShotAttributeType} from "../../../../../lib/graphql/generated"
+import {CollaborationDto, CollaborationType, ShotAttributeType} from "../../../../../lib/graphql/generated"
 import Input from "@/components/inputs/input/input"
 import Skeleton from "react-loading-skeleton"
 import gql from "graphql-tag"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
+import {Trash, User} from "lucide-react"
+import SimpleSelect from "@/components/inputs/simpleSelect/simpleSelect"
 
 export default function CollaboratorsTab(
     {
@@ -41,7 +43,7 @@ export default function CollaboratorsTab(
                             email
                             name
                         }
-                        collaboratorRole
+                        collaborationType
                         collaborationState
                     }
                 }
@@ -58,18 +60,106 @@ export default function CollaboratorsTab(
             ...collaborations || [],
             result.data.addCollaboration
         ])
+
+        setInputValue("")
+    }
+
+    const updateCollaborationType = async (collaborationId: string, newType: CollaborationType) => {
+        const result = await client.mutate({
+            mutation: gql`
+                mutation updateCollaboration($collaborationId: String!, $collaborationType: CollaborationType!) {
+                    editCollaboration(editDTO: {
+                        id: $collaborationId,
+                        collaborationType: $collaborationType
+                    }) {
+                        id
+                        collaborationType
+                    }
+                }
+            `,
+            variables: {collaborationId, collaborationType: newType},
+        })
+        if (result.errors) {
+            //TODO notify user
+            console.error(result.errors);
+            return;
+        }
+
+        let newCollaborations: CollaborationDto[] = (collaborations || []).map((collab) => {
+            if(collab.id == collaborationId) {
+                return {
+                    ...collab,
+                    collaborationType: newType
+                }
+            }
+            return collab
+        })
+
+        setCollaborations(newCollaborations)
+    }
+
+    const deleteCollaboration = async (collaborationId: string) => {
+        let decision = await confirm({
+            title: 'Remove collaborator?',
+            message: `This will revoke all access to this shotlist for "${collaborations?.find(collab => collab.id === collaborationId)?.user?.name}".`,
+            buttons: {
+                confirm: {
+                    text: 'Remove Collaborator',
+                    className: 'bad'
+                }
+            }
+        })
+
+        if(!decision) return
+
+        const result = await client.mutate({
+            mutation: gql`
+                mutation deleteCollaboration($collaborationId: String!) {
+                    deleteCollaboration(id: $collaborationId) {
+                        id
+                    }
+                }
+            `,
+            variables: {collaborationId},
+        })
+        if (result.errors) {
+            //TODO notify user
+            console.error(result.errors);
+            return;
+        }
+
+        setCollaborations(
+            (collaborations || []).filter((collab) => collab.id !== collaborationId)
+        )
     }
 
     return (
         <div className={"shotlistOptionsDialogCollaboratorsTab"}>
+            <h2>Current Collaborators</h2>
             {
                 collaborations == null ?
                     <Skeleton height={"2rem"} width={"80%"} count={2}/> :
                 collaborations.length <= 0 ?
-                    <p className={"empty"}>no Collaborators yet</p> :
+                    <p className={"empty"}>No collaborators yet</p> :
                 collaborations?.map((collab) => (
-                    <div key={collab.id}>
+                    <div className={"collaborator"} key={collab.id}>
+                        <User size={28}/>
                         <p><span className={"bold"}>{collab.user?.name}</span> • {collab.user?.email}</p>
+                        <SimpleSelect
+                            name={"role"}
+                            onChange={(newValue) => updateCollaborationType(collab.id || "", newValue as CollaborationType)}
+                            value={collab.collaborationType as CollaborationType}
+                            options={[
+                                {label: "Viewer", value: CollaborationType.View},
+                                {label: "Editor", value: CollaborationType.Edit},
+                            ]}
+                        />
+                        <button
+                            className="delete bad"
+                            onClick={() => deleteCollaboration(collab.id || "")}
+                        >
+                            <Trash size={18}/>
+                        </button>
                     </div>
                 )
             )}
@@ -79,6 +169,7 @@ export default function CollaboratorsTab(
                     label={"email"}
                     placeholder={"yourfriend@email.com"}
                     valueChange={setInputValue}
+                    value={inputValue}
                 />
                 <button
                     className={"accent"}

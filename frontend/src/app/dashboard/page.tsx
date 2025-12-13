@@ -58,6 +58,7 @@ export default function Overview() {
             setJustBoughtProDialogOpen(true)
         }
 
+        //TODO make this accessible to layout and reload when collaboration is accepted
         loadData()
 
         if(localStorage.getItem(Config.localStorageKey.dashboardTourCompleted) != "true") {
@@ -72,13 +73,25 @@ export default function Overview() {
                 query: gql`
                     query dashboard{
                         shotlists{
-                            id
-                            name
-                            sceneCount
-                            shotCount
-                            editedAt
-                            owner {
+                            personal {
+                                id
                                 name
+                                sceneCount
+                                shotCount
+                                editedAt
+                                owner {
+                                    name
+                                }
+                            }
+                            shared {
+                                id
+                                name
+                                sceneCount
+                                shotCount
+                                editedAt
+                                owner {
+                                    name
+                                }
                             }
                         }
                         templates {
@@ -97,7 +110,7 @@ export default function Overview() {
 
             setQuery(result)
 
-            setShotlists(result.data.shotlists)
+            setShotlists([...result.data.shotlists.personal, ...result.data.shotlists.shared])
             setTemplates(result.data.templates)
         }
         catch (error) {

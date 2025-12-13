@@ -2,6 +2,22 @@ div.shotlistOptionsDialogCollaboratorsTab{
   display: flex;
   flex-direction: column;
 
+  .collaborator{
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+
+    .simpleSelect{
+      margin-left: auto;
+    }
+
+    button{
+      color: var(--text-30);
+      border: 2px solid var(--default-interactable-border);
+      border-radius: .3rem;
+    }
+  }
+
   .empty{
     margin-top: 1rem;
     margin-left: 2rem;
@@ -19,7 +35,7 @@ div.shotlistOptionsDialogCollaboratorsTab{
       background-color: var(--accent);
       margin-bottom: .1rem;
 
-      &:hover{
+      &:not([disabled]):hover{
         background-color: var(--accent-60);
         color: var(--text);
       }

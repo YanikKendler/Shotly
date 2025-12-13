@@ -103,7 +103,7 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
                                 name
                             }
                             collaborationState
-                            collaboratorRole
+                            collaborationType
                         }
                     }
                     shotAttributeDefinitions(shotlistId: $shotlistId){

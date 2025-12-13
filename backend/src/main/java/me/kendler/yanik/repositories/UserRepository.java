@@ -150,26 +150,35 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     }
 
 
+    // Nachher: managed Shotlist verwenden, Zugriff in TX
+    @Transactional
     public boolean userCanEditShotlist(Shotlist shotlist, User user) {
         if (shotlist == null){
             return false;
         }
 
+        //required because lazy loading :3
+        Shotlist managed = shotlistRepository.findById(shotlist.id);
+        if (managed == null) {
+            return false;
+        }
+
         if (
-            user.equals(shotlist.owner) ||
-            shotlist.collaborations
-                    .stream()
-                    .anyMatch(c ->
-                            c.user.id.equals(user.id) &&
-                            c.collaborationState.equals(CollaborationState.ACCEPTED) &&
-                            c.collaboratorRole.equals(CollaboratorRole.EDITOR)
-                    )
+            user.equals(managed.owner) ||
+            managed.collaborations
+                .stream()
+                .anyMatch(c ->
+                    c.user.id.equals(user.id) &&
+                    c.collaborationState.equals(CollaborationState.ACCEPTED) &&
+                    c.collaborationType.equals(CollaborationType.EDIT)
+                )
         ) {
             return true;
         }
 
         return false;
     }
+
 
     public void checkShotlistEditRights(Shotlist shotlist, JsonWebToken jwt) {
         if(!shotlistIsEditable(shotlist)) {
@@ -190,25 +199,33 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     }
 
 
+    @Transactional
     public boolean userCanViewShotlist(Shotlist shotlist, User user) {
         if (shotlist == null){
             return false;
         }
 
+        //required because lazy loading :3
+        Shotlist managed = shotlistRepository.findById(shotlist.id);
+        if (managed == null) {
+            return false;
+        }
+
         if (
-            user.equals(shotlist.owner) ||
-            shotlist.collaborations
-                    .stream()
-                    .anyMatch(c ->
-                            c.user.id.equals(user.id) &&
-                            c.collaborationState.equals(CollaborationState.ACCEPTED)
-                    )
+            user.equals(managed.owner) ||
+            managed.collaborations
+                .stream()
+                .anyMatch(c ->
+                    c.user.id.equals(user.id) &&
+                    c.collaborationState.equals(CollaborationState.ACCEPTED)
+                )
         ) {
             return true;
         }
 
         return false;
     }
+
 
     public void checkShotlistViewRights(Shotlist shotlist, JsonWebToken jwt) {
         if (!userCanViewShotlist(shotlist, jwt)) {

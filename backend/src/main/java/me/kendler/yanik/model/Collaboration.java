@@ -18,9 +18,9 @@ public class Collaboration extends PanacheEntityBase {
     @JsonIgnore
     public Shotlist shotlist;
     @Enumerated(EnumType.STRING)
-    public CollaboratorRole collaboratorRole;
+    public CollaborationType collaborationType = CollaborationType.VIEW;
     @Enumerated(EnumType.STRING)
-    public CollaborationState collaborationState;
+    public CollaborationState collaborationState = CollaborationState.PENDING;
 
     public Collaboration() { }
 
@@ -33,8 +33,9 @@ public class Collaboration extends PanacheEntityBase {
         return new CollaborationDTO(
             id,
             user.toDTO(),
-            collaboratorRole,
-            collaborationState
+                collaborationType,
+            collaborationState,
+            shotlist
         );
     }
 }

@@ -7,9 +7,9 @@ import "./layout.scss"
 import React, {useEffect, useState} from "react"
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
-import {ChevronDown, House, Menu, NotepadText, Blocks, Plus, User} from "lucide-react"
-import {Query, ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
-import {Collapsible, Separator, Tooltip} from "radix-ui"
+import {ChevronDown, House, Menu, NotepadText, Blocks, Plus, User, Info, Inbox, Check, X} from "lucide-react"
+import {CollaborationDto, CollaborationState, Query, ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
+import {Collapsible, Popover, Separator, Tooltip} from "radix-ui"
 import {wuGeneral} from "@yanikkendler/web-utils"
 import auth from "@/Auth"
 import {usePathname, useRouter} from "next/navigation"
@@ -31,8 +31,8 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const { openAccountDialog, AccountDialog } = useAccountDialog()
 
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
-    const [shotlists, setShotlists] = useState<ShotlistDto[] | null>(null)
-    const [templates, setTemplates] = useState<TemplateDto[] | null>(null)
+
+    const [pendingCollaborations, setPendingCollaborations] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false)
 
@@ -45,38 +45,114 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         if(!auth.getUser()) return
 
         loadData()
+        loadPendingCollaborations()
     }, [])
 
     const loadData = async () => {
-        console.log("loading dashboard layout data")
-
         try {
-            const result = await client.query({query: gql`
-                    query home{
-                        shotlists{
-                            id
-                            name
-                            sceneCount
-                            shotCount
-                            editedAt
-                        }
-                        templates {
-                            id
-                            name
-                        }
-                    }`,
+            const result = await client.query({
+                    query: gql`
+                        query home{
+                            shotlists{
+                                personal {
+                                    id
+                                    name
+                                }
+                                shared {
+                                    id
+                                    name
+                                }
+                            }
+                            templates {
+                                id
+                                name
+                            }
+                            pendingCollaborations{
+                                id
+                                user {
+                                    id
+                                    name
+                                }
+                                collaborationState
+                                collaborationType
+                            }
+                        }`,
                     fetchPolicy: "no-cache"
-                }
+                },
             )
 
             setQuery(result)
-
-            setShotlists(result.data.shotlists)
-            setTemplates(result.data.templates)
         }
         catch (error) {
             setQuery({...query, error: error as ApolloError})
         }
+    }
+
+    const loadPendingCollaborations = async () => {
+        try {
+            const result = await client.query({
+                query: gql`
+                    query pendingCollaborations{
+                        pendingCollaborations{
+                            id
+                            user {
+                                id
+                                name
+                            }
+                            collaborationState
+                            collaborationType
+                        }
+                    }`,
+                fetchPolicy: "no-cache"
+            })
+
+            setPendingCollaborations(result)
+        }
+        catch (error) {
+            //todo notify user
+        }
+    }
+
+    const acceptOrDeclineCollaboration = async (collaborationId: string, newState: CollaborationState) => {
+        const result = await client.mutate({
+            mutation: gql`
+                mutation ($collaborationId: String!, $newState: CollaborationState!) {
+                    acceptOrDeclineCollaboration(editDTO: {
+                        id: $collaborationId,
+                        collaborationState: $newState
+                    }) {
+                        id
+                        user {
+                            id
+                            email
+                            name
+                        }
+                        collaborationType
+                        collaborationState
+                    }
+                }
+            `,
+            variables: {collaborationId: collaborationId, newState: newState},
+        })
+        if (result.errors) {
+            //TODO notify user
+            console.error(result.errors);
+            return;
+        }
+
+        if(newState == CollaborationState.Accepted) {
+            loadData()
+        }
+
+        let newCollaborations = query.data.pendingCollaborations?.filter(c => c?.id !== collaborationId) || []
+
+        setPendingCollaborations({
+            ...query,
+            data: {
+                ...query.data,
+                pendingCollaborations: newCollaborations
+            }
+        })
     }
 
     if(query.error) return <ErrorPage
@@ -134,12 +210,12 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                             <Skeleton/>
                                             <Skeleton/>
                                         </> :
-                                        !shotlists || shotlists.length === 0 ? (
+                                        !query.data.shotlists?.personal || query.data.shotlists.personal.length === 0 ? (
                                             <button onClick={openCreateShotlistDialog} className={"create"}>
-                                                create new <Plus size={16}/>
+                                                Create new <Plus size={16}/>
                                             </button>
                                         ) :
-                                        shotlists.sort(Utils.orderShotlistsOrTemplatesByName).map((shotlist) => (
+                                        (query.data.shotlists.personal as ShotlistDto[]).sort(Utils.orderShotlistsOrTemplatesByName).map((shotlist) => (
                                             <Link key={shotlist.id} href={`/shotlist/${shotlist.id}`}>
                                                 <NotepadText size={18}/>
                                                 {shotlist.name ? <span className={"wrap"}>{shotlist.name}</span> : (
@@ -150,14 +226,29 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                 </Collapsible.Content>
                             </Collapsible.Root>
 
-                            <Collapsible.Root className={"CollapsibleRoot dashboardSidebar"} defaultOpen={false}>
+                            <Collapsible.Root className={"CollapsibleRoot dashboardSidebar"} defaultOpen={true}>
                                 <Collapsible.Trigger className={"noClickFx"}>
                                     Shared Shotlists <ChevronDown size={18} className={"chevron"}/>
                                 </Collapsible.Trigger>
                                 <Collapsible.Content
                                     className="CollapsibleContent dashboardSidebar"
                                 >
-                                    <p className={"empty"}>work in progress</p>
+                                    {
+                                        query.loading ? <>
+                                            <Skeleton/>
+                                            <Skeleton/>
+                                        </> :
+                                        !query.data.shotlists?.shared || query.data.shotlists.shared.length <= 0 ? (
+                                            <p className={"empty"}>No shared shotlist yet</p>
+                                        ) :
+                                        (query.data.shotlists.shared as ShotlistDto[]).sort(Utils.orderShotlistsOrTemplatesByName).map((shotlist) => (
+                                            <Link key={shotlist.id} href={`/shotlist/${shotlist.id}`}>
+                                                <NotepadText size={18}/>
+                                                {shotlist.name ? <span className={"wrap"}>{shotlist.name}</span> : (
+                                                    <span className={"italic"}>Unnamed</span>)}
+                                            </Link>
+                                        ))
+                                    }
                                 </Collapsible.Content>
                             </Collapsible.Root>
 
@@ -175,10 +266,10 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                             <Skeleton/>
                                             <Skeleton/>
                                         </> :
-                                        !templates || templates.length === 0 ? (
+                                        !query.data.templates || query.data.templates.length === 0 ? (
                                             <p className="empty">Nothing here yet</p>
                                         ) :
-                                        templates.sort(Utils.orderShotlistsOrTemplatesByName).map((template) => (
+                                        (query.data.templates as TemplateDto[]).sort(Utils.orderShotlistsOrTemplatesByName).map((template) => (
                                             <Link key={template.id} href={`/dashboard/template/${template.id}`}
                                                   className={"template"}>
                                                 <Blocks size={18}/>
@@ -201,12 +292,54 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                             </Collapsible.Root>
 
                             <div className="bottom">
+                                {/*only visible on mobile (via CSS)*/}
                                 <button className="shotlist new accent" onClick={openCreateShotlistDialog}>
                                     New Shotlist <NotepadText size={18}/>
                                 </button>
                                 <button className="template new accent" onClick={openCreateTemplateDialog}>
                                     New Template <Blocks size={18}/>
                                 </button>
+                                {/*always visible*/}
+                                <Popover.Root>
+                                    <Popover.Trigger>
+                                        Collab-Requests
+                                        <Inbox size={18}/>
+                                    </Popover.Trigger>
+                                    <Popover.Portal>
+                                        <Popover.Content className={"PopoverContent CollaborationRequests"} side={"top"}>
+                                            <Popover.Arrow/>
+                                            {
+                                                pendingCollaborations.loading ? <>
+                                                    <Skeleton/>
+                                                    <Skeleton/>
+                                                </> :
+                                                pendingCollaborations.data.pendingCollaborations && pendingCollaborations.data.pendingCollaborations.length <= 0 ?
+                                                <p className={"empty"}>No open collaboration requests</p> :
+                                                (pendingCollaborations.data.pendingCollaborations as CollaborationDto[]).map((collab) => (
+                                                    <div key={collab.id} className={"collaborationRequest"}>
+                                                        <p>
+                                                            <span className={"bold"}>{collab.user?.name}</span> has invited you to the shotlist <span className={"bold"}>{collab.shotlist?.name || "Unnamed"}</span>
+                                                        </p>
+                                                        <button
+                                                            className={"accent"}
+                                                            onClick={() => acceptOrDeclineCollaboration(collab.id || "", CollaborationState.Accepted)}
+                                                        >
+                                                            <Check size={18} strokeWidth={2.5}/>
+                                                        </button>
+                                                        <button
+                                                            className={"accent"}
+                                                            onClick={() => acceptOrDeclineCollaboration(collab.id || "", CollaborationState.Declined)}
+                                                        >
+                                                            <X size={18} strokeWidth={2.5}/>
+                                                        </button>
+                                                    </div>
+                                                ))
+                                            }
+
+                                            {/*TODO reload button with debounce*/}
+                                        </Popover.Content>
+                                    </Popover.Portal>
+                                </Popover.Root>
                                 <button onClick={openAccountDialog}>Account <User size={18}/></button>
                             </div>
                         </div>

@@ -162,3 +162,31 @@ main.home{
     }
   }
 }
+
+.PopoverContent.CollaborationRequests{
+  .collaborationRequest{
+    display: flex;
+    gap: .3rem;
+
+    p{
+      text-align: left;
+      color: var(--text-20);
+    }
+
+    span{
+      color: var(--text);
+    }
+
+    button{
+      border: 2px solid var(--default-interactable-border);
+      padding: .4rem;
+      aspect-ratio: 1;
+      height: fit-content;
+
+      &:hover{
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+    }
+  }
+}

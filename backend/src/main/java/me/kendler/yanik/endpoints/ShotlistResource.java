@@ -1,6 +1,7 @@
 package me.kendler.yanik.endpoints;
 
 import jakarta.inject.Inject;
+import me.kendler.yanik.dto.shotlist.ShotlistCollection;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationCreateDTO;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistCreateDTO;
@@ -33,7 +34,7 @@ public class ShotlistResource {
     UserRepository userRepository;
 
     @Query
-    public List<ShotlistDTO> getShotlists() {
+    public ShotlistCollection getShotlists() {
         return shotlistRepository.findAllForUser(jwt);
     }
 
@@ -67,6 +68,16 @@ public class ShotlistResource {
 
     @Inject
     CollaborationRepository collaborationRepository;
+
+    @Query
+    public List<CollaborationDTO> getPendingCollaborations(){
+        return collaborationRepository.getPendingByJWT(jwt);
+    }
+
+    @Mutation
+    public CollaborationDTO acceptOrDeclineCollaboration(CollaborationEditDTO editDTO){
+        return collaborationRepository.acceptOrDecline(editDTO.id(), editDTO.collaborationState(), jwt);
+    }
 
     @Mutation
     public CollaborationDTO addCollaboration(CollaborationCreateDTO createDTO){

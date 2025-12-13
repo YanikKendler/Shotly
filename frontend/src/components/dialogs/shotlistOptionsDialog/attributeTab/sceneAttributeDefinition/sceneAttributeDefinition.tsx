@@ -66,6 +66,8 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
     const debouncedUpdateDefinition = wuGeneral.debounce(updateDefinition)
 
     const deleteDefinition = async () => {
+
+
         if(!await confirm({
             message: `The attribute definition "${definition.name || 'unnamed'}" will be deleted. All scenes in this shotlist will lose the column "${definition.name || 'unnamed'}" and with that: all the values in that column.`,
             buttons: {confirm: {className: "bad"}}}

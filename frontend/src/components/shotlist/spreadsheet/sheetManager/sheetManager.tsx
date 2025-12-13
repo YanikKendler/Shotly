@@ -1,7 +1,7 @@
 import React, {RefObject, UIEventHandler, useCallback, useContext, useEffect, useRef, useState} from "react"
 import gql from "graphql-tag"
 import {ShotlistContext} from "@/context/ShotlistContext";
-import {ApolloQueryResult, useApolloClient} from "@apollo/client"
+import {ApolloError, ApolloQueryResult, useApolloClient} from "@apollo/client"
 import Loader from "@/components/feedback/loader/loader"
 import ErrorDisplay from "@/components/feedback/errorDisplay/errorDisplay"
 import "./sheetManager.scss"
@@ -174,88 +174,96 @@ export default function SheetManager({
     }
 
     const loadShots = async () => {
-        console.log("started loading shots")
-        const result = await client.query({
-            query : gql`
-                query shots($sceneId: String!){
-                    shots(sceneId: $sceneId){
-                        id
-                        position
-                        attributes{
+        try{
+            const result = await client.query({
+                query : gql`
+                    query shots($sceneId: String!){
+                        shots(sceneId: $sceneId){
                             id
-                            definition{id, name, position}
-
-                            ... on ShotSingleSelectAttributeDTO{
-                                singleSelectValue{id,name}
+                            position
+                            attributes{
+                                id
+                                definition{id, name, position}
+    
+                                ... on ShotSingleSelectAttributeDTO{
+                                    singleSelectValue{id,name}
+                                }
+    
+                                ... on ShotMultiSelectAttributeDTO{
+                                    multiSelectValue{id,name}
+                                }
+                                ... on ShotTextAttributeDTO{
+                                    textValue
+                                }
                             }
-
-                            ... on ShotMultiSelectAttributeDTO{
-                                multiSelectValue{id,name}
+                            scene {
+                                id
                             }
-                            ... on ShotTextAttributeDTO{
-                                textValue
-                            }
-                        }
-                        scene {
-                            id
                         }
                     }
-                }
-            `,
-            variables: { sceneId: selectedScene.id },
-            fetchPolicy: "no-cache",
-        })
+                `,
+                variables: { sceneId: selectedScene.id },
+                fetchPolicy: "no-cache",
+            })
 
-        shotlistContext.setShotCount(result.data.shots.length || 0)
+            shotlistContext.setShotCount(result.data.shots.length || 0)
 
-        setQuery(result)
-
-        console.log(result)
+            setQuery(result)
+        }
+        catch (e) {
+            setQuery({...query, error: e as ApolloError})
+        }
     }
 
     const createShot = async (attributePosition: number) => {
         setCreationLoaderVisibility(true)
         attributePositionToSelect.current = attributePosition
 
-        const { data, errors } = await client.mutate({
-            mutation: gql`
-                mutation createShot($sceneId: String!) {
-                    createShot(sceneId: $sceneId){
-                        id
-                        position
-                        attributes{
+        try{
+            const { data, errors } = await client.mutate({
+                mutation: gql`
+                    mutation createShot($sceneId: String!) {
+                        createShot(sceneId: $sceneId){
                             id
-                            definition{id, name, position}
-
-                            ... on ShotSingleSelectAttributeDTO{
-                                singleSelectValue{id,name}
-                            }
-
-                            ... on ShotMultiSelectAttributeDTO{
-                                multiSelectValue{id,name}
-                            }
-                            ... on ShotTextAttributeDTO{
-                                textValue
+                            position
+                            attributes{
+                                id
+                                definition{id, name, position}
+    
+                                ... on ShotSingleSelectAttributeDTO{
+                                    singleSelectValue{id,name}
+                                }
+    
+                                ... on ShotMultiSelectAttributeDTO{
+                                    multiSelectValue{id,name}
+                                }
+                                ... on ShotTextAttributeDTO{
+                                    textValue
+                                }
                             }
                         }
                     }
-                }
-            `,
-            variables: { sceneId: selectedScene.id },
-        })
+                `,
+                variables: { sceneId: selectedScene.id },
+            })
 
-        if (errors) {
-            console.error(errors);
-            return;
+            if (errors) {
+                //TODO notify user
+                console.error(errors);
+                return;
+            }
+
+            shotlistContext.setShotCount((query.data.shots?.length || 0) + 1)
+
+            const newShots = [...query.data.shots || [], data.createShot]
+
+            setQuery({...query, data: {...query.data, shots: newShots}})
+
+            setCreationLoaderVisibility(false)
         }
-
-        shotlistContext.setShotCount((query.data.shots?.length || 0) + 1)
-
-        const newShots = [...query.data.shots || [], data.createShot]
-
-        setQuery({...query, data: {...query.data, shots: newShots}})
-
-        setCreationLoaderVisibility(false)
+        catch (e) {
+            //TODO notify user
+        }
     }
 
     const deleteShot = useCallback((shotId: string) => {

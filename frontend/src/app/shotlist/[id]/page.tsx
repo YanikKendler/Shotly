@@ -29,6 +29,7 @@ import {SelectOption} from "@/util/Types"
 import SheetManager from "@/components/shotlist/spreadsheet/sheetManager/sheetManager"
 import ShotlistSidebar from "@/components/shotlist/shotlistSidebar/shotlistSidebar"
 import Skeleton from "react-loading-skeleton"
+import SimpleSelect from "@/components/inputs/simpleSelect/simpleSelect"
 
 export interface SelectedScene {
     id: string | null
@@ -223,7 +224,7 @@ export default function Shotlist() {
                 setIsReadOnly(true)
             }
 
-            setSceneCount(result.data.shotlist.scenes.length || 0)
+            setSceneCount(result.data.shotlist?.scenes?.length || 0)
 
             setQuery(result)
         }
