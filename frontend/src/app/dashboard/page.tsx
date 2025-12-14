@@ -5,7 +5,7 @@ import Link from "next/link"
 import {ApolloError, ApolloQueryResult, useApolloClient, useQuery, useSuspenseQuery} from "@apollo/client"
 import "./dashboard.scss"
 import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
-import React, {useEffect, useState} from "react"
+import React, {useContext, useEffect, useState} from "react"
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import {
     Blocks,
@@ -23,15 +23,15 @@ import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
 import Skeleton from "react-loading-skeleton"
 import auth from "@/Auth"
+import {DashboardContext} from "@/context/DashboardContext"
 
 export default function Overview() {
-    const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
+    const client = useApolloClient()
+    const router = useRouter()
+    const dashboardContext = useContext(DashboardContext)
 
     const [shotlists, setShotlists] = useState<ShotlistDto[]>([])
     const [templates, setTemplates] = useState<TemplateDto[]>([])
-
-    const client = useApolloClient()
-    const router = useRouter()
 
     const searchParams = useSearchParams()
     const justBoughtPro = searchParams?.get('jbp') === 'true'
@@ -58,88 +58,43 @@ export default function Overview() {
             setJustBoughtProDialogOpen(true)
         }
 
-        //TODO make this accessible to layout and reload when collaboration is accepted
-        loadData()
-
         if(localStorage.getItem(Config.localStorageKey.dashboardTourCompleted) != "true") {
             localStorage.setItem(Config.localStorageKey.dashboardTourCompleted, "true")
             driverObj.drive()
         }
     }, []);
 
-    const loadData = async () => {
-        try {
-            const result = await client.query({
-                query: gql`
-                    query dashboard{
-                        shotlists{
-                            personal {
-                                id
-                                name
-                                sceneCount
-                                shotCount
-                                editedAt
-                                owner {
-                                    name
-                                }
-                            }
-                            shared {
-                                id
-                                name
-                                sceneCount
-                                shotCount
-                                editedAt
-                                owner {
-                                    name
-                                }
-                            }
-                        }
-                        templates {
-                            id
-                            name
-                            shotAttributeCount
-                            sceneAttributeCount
-                            owner {
-                                name
-                            }
-                        }
-                    }`,
-                fetchPolicy: "no-cache",
-                errorPolicy: "all"
-            })
+    useEffect(() => {
+        if(!dashboardContext.query || !dashboardContext.query.data || !dashboardContext.query.data.shotlists) return;
 
-            setQuery(result)
+        const newShotlists = [...dashboardContext.query.data.shotlists.personal || [], ...dashboardContext.query.data.shotlists.shared || []]
 
-            setShotlists([...result.data.shotlists.personal, ...result.data.shotlists.shared])
-            setTemplates(result.data.templates)
-        }
-        catch (error) {
-            setQuery({...query, error: error as ApolloError})
-        }
-    }
+        setShotlists((newShotlists as ShotlistDto[]).sort(Utils.oderShotlistsByChangeDate))
+        setTemplates(dashboardContext.query.data.templates as TemplateDto[])
+    }, [dashboardContext.query]);
 
-    function handleJustBoughtProDialogOpenChange(newOpen: boolean) {
+    const handleJustBoughtProDialogOpenChange = (newOpen: boolean)=> {
         setJustBoughtProDialogOpen(newOpen)
         router.replace("/dashboard")
     }
 
-    if(query.error) return (
+    if(dashboardContext.query.error) return (
         <ErrorPage
             title='Data could not be loaded'
-            description={query.error.message}
+            description={dashboardContext.query.error.message}
             reload
         />
     )
 
-    if(query.errors) return (
+    if(dashboardContext.query.errors) return (
         <ErrorPage
             title='Data could not be loaded'
-            description={query.errors.map(e => e.message).join(", ")}
+            description={dashboardContext.query.errors.map(e => e.message).join(", ")}
             reload
         />
     )
 
-    if(query.loading) return (
+    if(dashboardContext.query.loading) return (
         <main className="overview dashboardContent">
             <h2>Shotlists</h2>
             <div className="grid">
@@ -158,7 +113,7 @@ export default function Overview() {
         <main className="overview dashboardContent">
             <h2>Shotlists</h2>
             <div className="grid">
-                {shotlists.sort(Utils.oderShotlistsByChangeDate).map((shotlist: ShotlistDto) => (
+                {shotlists.map((shotlist: ShotlistDto) => (
                     <Link href={`/shotlist/${shotlist.id}`} key={shotlist.id} className="gridItem shotlist">
                         <div className="top">
                             <NotepadText size={18}/>

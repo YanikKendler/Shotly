@@ -1,12 +1,12 @@
 import "./globals.scss"
 import 'react-loading-skeleton/dist/skeleton.css'
 import React from "react"
-import {ApolloWrapper} from "@/context/ApolloWrapper"
+import {ApolloWrapper} from "@/wrapper/ApolloWrapper"
 import SelectRefreshProvider from "@/context/SelectRefreshContext"
 import {Inter} from 'next/font/google'
 import {Toast, Tooltip} from "radix-ui"
-import AuthWrapper from "@/context/AuthWrapper"
-import NotificationWrapper from "@/context/NotificationWrapper"
+import AuthWrapper from "@/wrapper/AuthWrapper"
+import NotificationWrapper from "@/wrapper/NotificationWrapper"
 import {Config} from "@/util/Utils"
 import {Metadata, Viewport} from "next"
 import {SkeletonTheme} from "react-loading-skeleton"

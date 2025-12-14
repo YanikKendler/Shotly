@@ -163,7 +163,19 @@ main.home{
   }
 }
 
+[data-theme="dark"] .PopoverContent.CollaborationRequests{
+  --reloadButtonBg: hsl(0, 0%, 8%);
+  --reloadButtonHoverBg: hsl(0, 0%, 5%);
+}
+
 .PopoverContent.CollaborationRequests{
+  --reloadButtonBg: hsl(0, 0%, 95%);
+
+  .empty{
+    padding: .5rem;
+    color: var(--text-50);
+  }
+
   .collaborationRequest{
     display: flex;
     gap: .3rem;
@@ -187,6 +199,18 @@ main.home{
         border-color: var(--accent);
         color: var(--accent);
       }
+    }
+  }
+
+  .reload{
+    justify-content: flex-start;
+    background-color: var(--reloadButtonBg);
+    color: var(--text-30);
+    font-size: .9rem;
+
+    &:not([disabled]):hover{
+      background-color: var(--reloadButtonHoverBg);
+      color: var(--text-10);
     }
   }
 }

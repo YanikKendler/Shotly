@@ -7,7 +7,7 @@ import "./layout.scss"
 import React, {useEffect, useState} from "react"
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
-import {ChevronDown, House, Menu, NotepadText, Blocks, Plus, User, Info, Inbox, Check, X} from "lucide-react"
+import {ChevronDown, House, Menu, NotepadText, Blocks, Plus, User, Info, Inbox, Check, X, RefreshCw} from "lucide-react"
 import {CollaborationDto, CollaborationState, Query, ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
 import {Collapsible, Popover, Separator, Tooltip} from "radix-ui"
 import {wuGeneral} from "@yanikkendler/web-utils"
@@ -20,6 +20,8 @@ import Iconmark from "@/components/iconmark"
 import {useCreateTemplateDialog} from "@/components/dialogs/createTemplateDialog/createTemplateDialog"
 import Skeleton from "react-loading-skeleton"
 import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
+import { DashboardContext } from "@/context/DashboardContext"
+import {wuConstants} from "@yanikkendler/web-utils/dist"
 
 export default function DashboardLayout({children}: { children: React.ReactNode }) {
     const client = useApolloClient()
@@ -35,6 +37,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const [pendingCollaborations, setPendingCollaborations] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false)
+    const [collaborationReloadAllowed, setCollaborationReloadAllowed] = useState<boolean>(true)
 
     useEffect(() => {
         if(!auth.isAuthenticated()){
@@ -46,6 +49,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
         loadData()
         loadPendingCollaborations()
+        setCollaborationReloadAllowed(true)
     }, [])
 
     const loadData = async () => {
@@ -57,15 +61,32 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                 personal {
                                     id
                                     name
+                                    sceneCount
+                                    shotCount
+                                    editedAt
+                                    owner {
+                                        name
+                                    }
                                 }
                                 shared {
                                     id
                                     name
+                                    sceneCount
+                                    shotCount
+                                    editedAt
+                                    owner {
+                                        name
+                                    }
                                 }
                             }
                             templates {
                                 id
                                 name
+                                shotAttributeCount
+                                sceneAttributeCount
+                                owner {
+                                    name
+                                }
                             }
                             pendingCollaborations{
                                 id
@@ -90,6 +111,9 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
     const loadPendingCollaborations = async () => {
         try {
+            setCollaborationReloadAllowed(false)
+            setPendingCollaborations({...query, loading: true})
+
             const result = await client.query({
                 query: gql`
                     query pendingCollaborations{
@@ -105,6 +129,11 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                     }`,
                 fetchPolicy: "no-cache"
             })
+
+
+            setTimeout(()=> {
+                setCollaborationReloadAllowed(true)
+            }, wuConstants.Time.msPerSecond * 5)
 
             setPendingCollaborations(result)
         }
@@ -166,6 +195,12 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     )
 
     return (
+        <DashboardContext.Provider value={{
+            query: query,
+            setQuery: setQuery,
+            pendingCollaborations: pendingCollaborations,
+            setPendingCollaborations: setPendingCollaborations
+        }}>
         <main className="home">
             <PanelGroup autoSaveId={"shotly-dashboard-sidebar-width"} direction="horizontal" className={"PanelGroup"}>
                 <Panel
@@ -310,8 +345,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                             <Popover.Arrow/>
                                             {
                                                 pendingCollaborations.loading ? <>
-                                                    <Skeleton/>
-                                                    <Skeleton/>
+                                                    <Skeleton height={"2rem"}/>
                                                 </> :
                                                 pendingCollaborations.data.pendingCollaborations && pendingCollaborations.data.pendingCollaborations.length <= 0 ?
                                                 <p className={"empty"}>No open collaboration requests</p> :
@@ -337,6 +371,18 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                             }
 
                                             {/*TODO reload button with debounce*/}
+                                            <button
+                                                className={"reload"}
+                                                onClick={loadPendingCollaborations}
+                                                disabled={!collaborationReloadAllowed}
+                                            >
+                                                <RefreshCw size={18}/>
+                                                {
+                                                    collaborationReloadAllowed ?
+                                                    "reload" :
+                                                    "please wait a few seconds..."
+                                                }
+                                            </button>
                                         </Popover.Content>
                                     </Popover.Portal>
                                 </Popover.Root>
@@ -378,5 +424,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             {CreateTemplateDialog}
             {AccountDialog}
         </main>
+        </DashboardContext.Provider>
     );
 }
