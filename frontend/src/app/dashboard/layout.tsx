@@ -342,7 +342,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                     </Popover.Trigger>
                                     <Popover.Portal>
                                         <Popover.Content className={"PopoverContent CollaborationRequests"} side={"top"}>
-                                            <Popover.Arrow/>
                                             {
                                                 pendingCollaborations.loading ? <>
                                                     <Skeleton height={"2rem"}/>
@@ -376,7 +375,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                                 onClick={loadPendingCollaborations}
                                                 disabled={!collaborationReloadAllowed}
                                             >
-                                                <RefreshCw size={18}/>
+                                                <RefreshCw size={16}/>
                                                 {
                                                     collaborationReloadAllowed ?
                                                     "reload" :

@@ -46,10 +46,10 @@ export abstract class ShotAttributeParser {
                 result = attribute.textValue || ""
                 break
             case "ShotSingleSelectAttributeDTO":
-                result = <string>attribute.singleSelectValue?.name
+                result = <string>attribute.singleSelectValue?.name || ""
                 break
             case "ShotMultiSelectAttributeDTO":
-                result = <string>attribute.multiSelectValue?.map((value) => value?.name).join(", ")
+                result = <string>attribute.multiSelectValue?.map((value) => value?.name).join(", ") || ""
                 break
         }
         return truncate ? wuText.truncate(result, 15, "..") : result

@@ -169,10 +169,9 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>((
                                         let newAttributes = [...sceneAttributes]
                                         newAttributes[index] = attribute
                                         setSceneAttributes(newAttributes)
-                                    }
-                                }
-                                readOnly={readOnly}
-                            ></SceneAttribute>
+                                    }}
+                                    readOnly={readOnly}
+                                ></SceneAttribute>
                         ))}
                     </div>
                 </Collapsible.Content>

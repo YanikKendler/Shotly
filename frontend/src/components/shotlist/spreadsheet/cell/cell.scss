@@ -6,6 +6,9 @@
   background-color: var(--cell-background);
   min-height: 38px;
 
+  display: grid;
+  align-items: center;
+
   &:not(.number){
     width: 100%;
     min-width: var(--shotAttribute-width);
@@ -160,6 +163,15 @@
     }
   }
 
+  .readOnlyValue{
+    padding: .3rem;
+
+    &.empty{
+      font-style: italic;
+      color: var(--text-50);
+    }
+  }
+
   &::before{
     content: "";
     position: absolute;
@@ -170,7 +182,7 @@
     pointer-events: none;
   }
 
-  &:not(.number):not(.create) {
+  &:not(.number):not(.create):not(.readOnly) {
     &:not(:focus-within):hover{
       /*--cell-background: var(--cell-hover-bg);*/
       border-color: var(--cell-hover-border);

@@ -5,6 +5,8 @@ import {ShotlistContext} from "@/context/ShotlistContext"
 import CellTextInput from "../input/cellTextInput/cellTextInput"
 import CellSingleSelectInput from "../input/cellSingleSelectInput/cellSingleSelectInput"
 import CellMultiSelectInput from "../input/cellMultiSelectInput/cellMultiSelectInput"
+import {ShotAttributeParser} from "@/util/AttributeParser"
+import {wuConstants} from "@yanikkendler/web-utils/dist"
 
 export interface CellInputRef {
     setFocus: () => void
@@ -23,6 +25,7 @@ interface CellProps {
     row: number
     column: number
     onClick?: () => void
+    isReadOnly?: boolean
 }
 
 /**
@@ -37,7 +40,8 @@ const CellBase = forwardRef<CellRef, CellProps>(({
     children,
     row,
     column,
-    onClick
+    onClick,
+    isReadOnly
 }, ref)=> {
     const inputRef = useRef<CellInputRef>(null)
     const shotlistContext = useContext(ShotlistContext)
@@ -57,6 +61,13 @@ const CellBase = forwardRef<CellRef, CellProps>(({
     const renderInput = () => {
         if(!attribute) return
 
+        if(isReadOnly == true) {
+            const readOnlyValue = ShotAttributeParser.toValueString(attribute, false)
+            if(wuConstants.Regex.empty.test(readOnlyValue))
+                return <p className="readOnlyValue empty">Unset</p>
+            return <p className="readOnlyValue">{ShotAttributeParser.toValueString(attribute, false)}</p>
+        }
+
         switch (attribute.__typename) {
             case "ShotTextAttributeDTO":
                 return <CellTextInput attribute={attribute} ref={inputRef} />
@@ -71,7 +82,7 @@ const CellBase = forwardRef<CellRef, CellProps>(({
 
     return (
         <div
-            className={`sheetCell ${type.join(" ")}`}
+            className={`sheetCell ${type.join(" ")} ${isReadOnly && "readOnly"}`}
             onClick={() => {
                 if(onClick) {
                     onClick()

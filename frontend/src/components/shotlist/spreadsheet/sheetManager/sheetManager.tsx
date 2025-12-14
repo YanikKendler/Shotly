@@ -2,7 +2,6 @@ import React, {RefObject, UIEventHandler, useCallback, useContext, useEffect, us
 import gql from "graphql-tag"
 import {ShotlistContext} from "@/context/ShotlistContext";
 import {ApolloError, ApolloQueryResult, useApolloClient} from "@apollo/client"
-import Loader from "@/components/feedback/loader/loader"
 import ErrorDisplay from "@/components/feedback/errorDisplay/errorDisplay"
 import "./sheetManager.scss"
 import {Query, ShotAttributeDefinitionBase, ShotDto} from "../../../../../lib/graphql/generated"
@@ -367,6 +366,7 @@ export default function SheetManager({
                                         setCellRef(row, column, null)
                                     }
                                 }}
+                                isReadOnly={isReadOnly}
                             />
                         ))}
                     </Row>

@@ -293,8 +293,16 @@ export default function shotlistSidebar({
                             ))
                         }
                     </div>
-                    <button className={"create"} disabled={isReadOnly} onClick={createScene}>Add
-                        scene <Plus/></button>
+                    {
+                        !isReadOnly &&
+                        <button
+                        className={"create"}
+                            disabled={isReadOnly}
+                            onClick={createScene}
+                        >
+                            Add scene <Plus/>
+                        </button>
+                    }
                     <div className="bottom">
                         <button
                             onClick={openShotlistOptionsDialog}

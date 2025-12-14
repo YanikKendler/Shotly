@@ -165,11 +165,15 @@ main.home{
 
 [data-theme="dark"] .PopoverContent.CollaborationRequests{
   --reloadButtonBg: hsl(0, 0%, 8%);
-  --reloadButtonHoverBg: hsl(0, 0%, 5%);
 }
 
 .PopoverContent.CollaborationRequests{
   --reloadButtonBg: hsl(0, 0%, 95%);
+
+  width: var(--radix-popover-trigger-width);
+  max-width: var(--radix-popover-trigger-width);
+  border: 1px solid var(--default-interactable-border);
+  padding: .2rem;
 
   .empty{
     padding: .5rem;
@@ -207,10 +211,11 @@ main.home{
     background-color: var(--reloadButtonBg);
     color: var(--text-30);
     font-size: .9rem;
+    border: 1px solid var(--default-interactable-border);
 
     &:not([disabled]):hover{
-      background-color: var(--reloadButtonHoverBg);
       color: var(--text-10);
+      border: 1px solid var(--default-interactable-hover-border);
     }
   }
 }

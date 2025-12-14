@@ -22,10 +22,15 @@ import {ChevronDown, List, Type} from "lucide-react"
 import AttributeValueSelect, {selectSceneStyles} from "@/components/inputs/attributeValueSelect/attributeValueSelect"
 import {SceneAttributeParser} from "@/util/AttributeParser"
 
-const SceneAttribute = function SceneAttribute(
-    {attribute, attributeUpdated, readOnly}:
-    {attribute: AnySceneAttribute, attributeUpdated: (attribute: AnySceneAttribute) => void, readOnly?: boolean}
-) {
+const SceneAttribute = function SceneAttribute({
+    attribute,
+    attributeUpdated,
+    readOnly
+}:{
+    attribute: AnySceneAttribute,
+    attributeUpdated: (attribute: AnySceneAttribute) => void,
+    readOnly?: boolean
+}) {
     const [singleSelectValue, setSingleSelectValue] = useState<SelectOption>();
     const [multiSelectValue, setMultiSelectValue] = useState<SelectOption[]>();
     const [textValue, setTextValue] = useState<string>("");
@@ -204,8 +209,14 @@ const SceneAttribute = function SceneAttribute(
 
     let content: React.JSX.Element = <></>
 
-    if(readOnly)
-        content = <p className={"readOnlyValue"}>{SceneAttributeParser.toValueString(attribute, false)}</p>
+
+    if(readOnly){
+        const readOnlyValue = SceneAttributeParser.toValueString(attribute, false)
+        if(readOnlyValue == "")
+            content = <p className={"readOnlyValue empty"}>Unset</p>
+        else
+            content = <p className={"readOnlyValue"}>{readOnlyValue}</p>
+    }
     else
     {
         switch (attribute.__typename) {
