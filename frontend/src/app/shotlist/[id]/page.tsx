@@ -11,7 +11,7 @@ import {
     UserTier
 } from "../../../../lib/graphql/generated"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
-import {Menu} from "lucide-react"
+import {Menu, X} from "lucide-react"
 import './shotlist.scss'
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import {ShotlistContext} from "@/context/ShotlistContext"
@@ -61,6 +61,8 @@ export default function Shotlist() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [shotCount, setShotCount] = useState(0)
     const [sceneCount, setSceneCount] = useState(0)
+
+    const [readOnlyBannerVisible, setReadOnlyBannerVisible] = useState(true)
 
     const focusedCell = useRef({row: -1, column:-1})
     const headerRef = useRef<HTMLDivElement>(null)
@@ -315,9 +317,9 @@ export default function Shotlist() {
             addShotSelectOption: addShotSelectOption
         }}>
             {
-                readOnlyState.isReadOnly == true &&
-                <p
-                    className="readonly"
+                readOnlyBannerVisible && readOnlyState.isReadOnly == true &&
+                <div
+                    className="readOnlyBanner"
                 >
                     This Shotlist is in <span className={"bold"}>read-only</span> mode because
                     {
@@ -325,7 +327,8 @@ export default function Shotlist() {
                         " the shotlists owner has exceeded the maximum number of Shotlist available with the basic tier" :
                         ' the shotlists owner set your collaboration type to "viewer"'
                     }.
-                </p>
+                    <button onClick={() => setReadOnlyBannerVisible(false)}><X size={18}/></button>
+                </div>
             }
             <main className="shotlist" key={reloadKey}>
                 <PanelGroup autoSaveId={"shotly-shotlist-sidebar-width"} direction="horizontal"
