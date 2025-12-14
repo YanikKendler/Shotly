@@ -1,16 +1,16 @@
 'use client'
 
 import gql from "graphql-tag"
-import React, {use, useEffect, useRef, useState} from "react"
+import React, {useEffect, useRef, useState} from "react"
 import {ApolloError, ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {
+    CollaborationDto,
+    CollaborationType,
     Query,
-    SceneDto,
     ShotAttributeDefinitionBase,
-    ShotlistDto, UserTier
+    UserTier
 } from "../../../../lib/graphql/generated"
-import { useParams, useRouter, useSearchParams} from "next/navigation"
-import ShotTable, {ShotTableRef} from "@/components/legacy/shotTable/shotTable"
+import {useParams, useRouter, useSearchParams} from "next/navigation"
 import {Menu} from "lucide-react"
 import './shotlist.scss'
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
@@ -29,11 +29,15 @@ import {SelectOption} from "@/util/Types"
 import SheetManager from "@/components/shotlist/spreadsheet/sheetManager/sheetManager"
 import ShotlistSidebar from "@/components/shotlist/shotlistSidebar/shotlistSidebar"
 import Skeleton from "react-loading-skeleton"
-import SimpleSelect from "@/components/inputs/simpleSelect/simpleSelect"
 
 export interface SelectedScene {
     id: string | null
     position: number | null
+}
+
+export interface ReadOnlyState {
+    isReadOnly: boolean
+    reason?: "tooManyShotlists" | "collaborationViewOnly"
 }
 
 export default function Shotlist() {
@@ -51,7 +55,8 @@ export default function Shotlist() {
     const [selectedOptionsDialogPage, setSelectedOptionsDialogPage] = useState<{main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage}>({main: "general", sub: "shot"})
     const [elementIsBeingDragged, setElementIsBeingDragged] = useState(false)
     const [reloadKey, setReloadKey] = useState(0)
-    const [isReadOnly, setIsReadOnly] = useState(false)
+
+    const [readOnlyState, setReadOnlyState] = useState<ReadOnlyState>({isReadOnly: false})
 
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [shotCount, setShotCount] = useState(0)
@@ -207,6 +212,15 @@ export default function Shotlist() {
                                 tier
                                 shotlistCount
                             }
+                            collaborations {
+                                user {
+                                    id
+                                }
+                                collaborationType
+                            }
+                        }
+                        currentUser {
+                            id
                         }
                     }`,
                 variables: {id: id},
@@ -221,8 +235,23 @@ export default function Shotlist() {
                 result.data.shotlist.owner.tier == UserTier.Basic &&
                 result.data.shotlist.owner.shotlistCount > 1
             ) {
-                setIsReadOnly(true)
+                setReadOnlyState({
+                    isReadOnly: true,
+                    reason: "tooManyShotlists"
+                })
             }
+
+            //the current user only has view access to the shotlist
+            result.data.shotlist.collaborations.forEach((collab: CollaborationDto) => {
+                console.log("checking collab", collab)
+                if(collab?.user?.id == result.data.currentUser.id && collab.collaborationType == CollaborationType.View) {
+                    console.log("user is read only")
+                    setReadOnlyState({
+                        isReadOnly: true,
+                        reason: "collaborationViewOnly"
+                    })
+                }
+            })
 
             setSceneCount(result.data.shotlist?.scenes?.length || 0)
 
@@ -286,8 +315,17 @@ export default function Shotlist() {
             addShotSelectOption: addShotSelectOption
         }}>
             {
-                isReadOnly &&
-                <p className="readonly">This Shotlist is in <span className={"bold"}>read-only</span> mode because the shotlists owner has exceeded the maximum number of Shotlist available with the basic tier.</p>
+                readOnlyState.isReadOnly == true &&
+                <p
+                    className="readonly"
+                >
+                    This Shotlist is in <span className={"bold"}>read-only</span> mode because
+                    {
+                        readOnlyState.reason == "tooManyShotlists" ?
+                        " the shotlists owner has exceeded the maximum number of Shotlist available with the basic tier" :
+                        ' the shotlists owner set your collaboration type to "viewer"'
+                    }.
+                </p>
             }
             <main className="shotlist" key={reloadKey}>
                 <PanelGroup autoSaveId={"shotly-shotlist-sidebar-width"} direction="horizontal"
@@ -312,7 +350,7 @@ export default function Shotlist() {
                                 selectedScene={selectedScene}
                                 selectScene={selectScene}
 
-                                isReadOnly={isReadOnly}
+                                isReadOnly={readOnlyState.isReadOnly}
                                 setSidebarOpen={setSidebarOpen}
 
                                 openShotlistOptionsDialog={() => {
@@ -343,7 +381,7 @@ export default function Shotlist() {
                         <SheetManager
                             selectedScene={selectedScene}
                             shotAttributeDefinitions={query.data.shotlist?.shotAttributeDefinitions as ShotAttributeDefinitionBase[] || null}
-                            isReadOnly={isReadOnly}
+                            isReadOnly={readOnlyState.isReadOnly}
                             shotlistHeaderRef={headerRef}
                         />
                     </Panel>
@@ -361,6 +399,7 @@ export default function Shotlist() {
                     })
                     shotSelectOptionsCache.current.clear()
                 }}
+                isReadOnly={readOnlyState.isReadOnly}
             ></ShotlistOptionsDialog>
         </ShotlistContext.Provider>
     )

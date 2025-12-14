@@ -436,6 +436,7 @@ export default function ExportTab(
                 })}
             </div>
 
+            {/*TODO show empty info instead of disabling*/}
             <Popover.Root>
                 <Popover.Trigger className={"addFilter"} disabled={customFilterCandidates?.length == 0}>Add filter<Plus size={20}/></Popover.Trigger>
                 <Popover.Portal>

@@ -10,7 +10,17 @@ import "./generalTab.scss"
 import Input from "@/components/inputs/input/input"
 import Loader from "@/components/feedback/loader/loader"
 
-export default function GeneralTab({shotlist, setShotlist, dataChanged}: { shotlist: ShotlistDto | null, setShotlist: (shotlist: ShotlistDto) => void, dataChanged: () => void }) {
+export default function GeneralTab({
+    shotlist,
+    setShotlist,
+    dataChanged,
+    isReadOnly
+}: {
+    shotlist: ShotlistDto | null,
+    setShotlist: (shotlist: ShotlistDto) => void,
+    dataChanged: () => void,
+    isReadOnly: boolean
+}) {
     const client = useApolloClient()
     const { confirm, ConfirmDialog } = useConfirmDialog();
     const router = useRouter()
@@ -94,6 +104,7 @@ export default function GeneralTab({shotlist, setShotlist, dataChanged}: { shotl
                 value={shotlist.name || ""}
                 placeholder={"My shotlist"}
                 valueChange={debounceUpdateShotlistName}
+                disabled={isReadOnly}
             />
 
             <Separator.Root className={"Separator"}></Separator.Root>
@@ -108,7 +119,13 @@ export default function GeneralTab({shotlist, setShotlist, dataChanged}: { shotl
 
             <div className="row">
                 <p>Permanently delete the shotlist "{shotlist.name}"</p>
-                <button className="deleteShotlist bad" onClick={deleteShotlist}>Delete Shotlist</button>
+                <button
+                    disabled={isReadOnly}
+                    className="deleteShotlist bad"
+                    onClick={deleteShotlist}
+                >
+                    Delete Shotlist
+                </button>
             </div>
             {ConfirmDialog}
         </div>

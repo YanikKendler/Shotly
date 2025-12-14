@@ -22,13 +22,20 @@ export type ShotlistOptionsDialogPage = "general" | "attributes" | "collaborator
 
 export type ShotlistOptionsDialogSubPage = "shot" | "scene"
 
-export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, shotlistId, refreshShotlist}:
-{
+export default function ShotlistOptionsDialog({
+    isOpen,
+    setIsOpen,
+    selectedPage,
+    shotlistId,
+    refreshShotlist,
+    isReadOnly
+}: {
     isOpen: boolean,
     setIsOpen: any,
     selectedPage: { main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage },
     shotlistId: string | null,
-    refreshShotlist: () => void
+    refreshShotlist: () => void,
+    isReadOnly: boolean,
 }) {
     const [sceneAttributeDefinitions, setSceneAttributeDefinitions] = useState<AnySceneAttributeDefinition[] | null>(null);
     const [shotAttributeDefinitions, setShotAttributeDefinitions] = useState<AnyShotAttributeDefinition[] | null>(null);
@@ -37,7 +44,6 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
     // used for refreshing the shotlist on dialog close, only when any data has been edited
     const [stringifiedAttributeData, setStringifiedAttributeData] = useState<string>("");
     const [dataChanged, setDataChanged] = useState(false);
-    const [isReadOnly, setIsReadOnly] = useState(false);
     const [currentTab, setCurrentTab] = useState<ShotlistOptionsDialogPage>(selectedPage.main)
 
     const client = useApolloClient()
@@ -150,12 +156,6 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
             },
         )
 
-        console.log(result.data)
-
-        if(result.data.shotlist?.owner?.tier == UserTier.Basic && result.data.shotlist.owner.shotlistCount > 1) {
-            setIsReadOnly(true)
-        }
-
         setSceneAttributeDefinitions(result.data.sceneAttributeDefinitions)
         setShotAttributeDefinitions(result.data.shotAttributeDefinitions)
         setShotlist(result.data.shotlist)
@@ -237,6 +237,7 @@ export default function ShotlistOptionsDialog({isOpen, setIsOpen, selectedPage, 
                                     shotlist={shotlist}
                                     setShotlist={setShotlist}
                                     dataChanged={() => setDataChanged(true)}
+                                    isReadOnly={isReadOnly}
                                 />
                             </Tabs.Content>
                             <Tabs.Content value={"attributes"} className={"content"}>

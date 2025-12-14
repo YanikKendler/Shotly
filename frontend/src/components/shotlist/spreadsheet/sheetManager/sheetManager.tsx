@@ -332,6 +332,10 @@ export default function SheetManager({
             onScrollEnd={handleScroll}
             ref={shotTableElement}
         >
+            {
+                isReadOnly && query.data.shots && query.data.shots.length <= 0 &&
+                <p className={"empty"}>No Shots here yet ¯\(o_o)/¯</p>
+            }
             <div id="shots">
                 {(query.data.shots as ShotDto[])?.map((shot: ShotDto, row: number) => (
                     <Row
@@ -386,27 +390,30 @@ export default function SheetManager({
                 })}
             </div>
 
-            <div className={"sheetRow"}>
-                <Cell row={-1} column={-1} type={["number", "create"]}><span>#</span></Cell>
+            {
+                !isReadOnly &&
+                <div className={"sheetRow"}>
+                    <Cell row={-1} column={-1} type={["number", "create"]}><span>#</span></Cell>
 
-                {shotAttributeDefinitions.map((shotAttributeDefinition, index) => {
-                    let Icon = ShotAttributeDefinitionParser.toIcon(shotAttributeDefinition as AnyShotAttributeDefinition)
-                    return (
-                        <Cell
-                            row={-1}
-                            column={index}
-                            type={["create"]}
-                            key={shotAttributeDefinition.id}
-                            onClick={() => createShot(index)}
-                        >
-                            <p>{shotAttributeDefinition.name || "Unnamed"}</p>
-                            <div className="icon">
-                                <Icon size={18}/>
-                            </div>
-                        </Cell>
-                    )
-                })}
-            </div>
+                    {shotAttributeDefinitions.map((shotAttributeDefinition, index) => {
+                        let Icon = ShotAttributeDefinitionParser.toIcon(shotAttributeDefinition as AnyShotAttributeDefinition)
+                        return (
+                            <Cell
+                                row={-1}
+                                column={index}
+                                type={["create"]}
+                                key={shotAttributeDefinition.id}
+                                onClick={() => createShot(index)}
+                            >
+                                <p>{shotAttributeDefinition.name || "Unnamed"}</p>
+                                <div className="icon">
+                                    <Icon size={18}/>
+                                </div>
+                            </Cell>
+                        )
+                    })}
+                </div>
+            }
         </div>
     )
 }

@@ -92,6 +92,8 @@ export default function Input(
     }
 
     function handleInput(value: string){
+        if(disabled) return
+
         validateInput(value)
         setCurrentValue(value)
 
