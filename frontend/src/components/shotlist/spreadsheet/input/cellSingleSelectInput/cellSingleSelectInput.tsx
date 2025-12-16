@@ -11,7 +11,7 @@ import {ChevronDown} from "lucide-react"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {useSelectRefresh} from "@/context/SelectRefreshContext"
-import {CellInputRef} from "@/components/spreadsheet/cell/cell"
+import {CellInputRef} from "@/components/shotlist/spreadsheet/cell/cell"
 
 interface CellSingleSelectInputProps {
     attribute: ShotSingleSelectAttributeDto
@@ -38,7 +38,11 @@ const CellSingleSelectInput = forwardRef<CellInputRef, CellSingleSelectInputProp
     }, [])
 
     useImperativeHandle(ref, () => ({
-        setFocus: setFocus
+        setFocus: setFocus,
+        setValue: value => {
+            const option = value as SelectOption
+            setSingleSelectValue(option)
+        }
     }))
 
     const setFocus = () => {

@@ -5,6 +5,7 @@ import jakarta.ws.rs.*;
 import me.kendler.yanik.dto.shot.*;
 import me.kendler.yanik.dto.shot.attributeDefinitions.ShotAttributeDefinitionBaseDTO;
 import me.kendler.yanik.dto.shot.attributes.ShotAttributeBaseDTO;
+import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotAttributeDefinitionBase;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotSelectAttributeOptionDefinition;
 import me.kendler.yanik.repositories.UserRepository;
@@ -13,6 +14,10 @@ import me.kendler.yanik.repositories.shot.ShotAttributeDefinitionRepository;
 import me.kendler.yanik.repositories.shot.ShotAttributeRepository;
 import me.kendler.yanik.repositories.shot.ShotRepository;
 import me.kendler.yanik.repositories.shot.ShotSelectAttributeOptionDefinitionRepository;
+import me.kendler.yanik.socket.ShotlistUpdateDTO;
+import me.kendler.yanik.socket.ShotlistUpdateType;
+import me.kendler.yanik.socket.ShotlistWebsocketService;
+import me.kendler.yanik.socket.payload.ShotAttributePayload;
 import org.eclipse.microprofile.graphql.GraphQLApi;
 import org.eclipse.microprofile.graphql.Mutation;
 import org.eclipse.microprofile.graphql.Query;
@@ -35,6 +40,9 @@ public class ShotResource {
 
     @Inject
     UserRepository userRepository;
+
+    @Inject
+    ShotlistWebsocketService shotlistWebsocketService;
 
     private static final Logger LOGGER = Logger.getLogger(ShotResource.class);
 
@@ -61,7 +69,8 @@ public class ShotResource {
 
     @Mutation
     public ShotDTO updateShot(ShotEditDTO editDTO) {
-        userRepository.checkShotlistEditRights(shotRepository.findById(editDTO.id()).scene.shotlist, jwt);
+        Shotlist affectedShotlist = shotRepository.findById(editDTO.id()).scene.shotlist;
+        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
 
         return shotRepository.update(editDTO);
     }
@@ -111,9 +120,24 @@ public class ShotResource {
     @Mutation
     public ShotAttributeBaseDTO updateShotAttribute(ShotAttributeEditDTO editDTO) {
         ShotAttributeDefinitionBase shotAttributeDefinitionBase = shotAttributeRepository.findById(editDTO.id()).definition;
-        userRepository.checkShotlistEditRights(shotAttributeDefinitionRepository.getShotlistByDefinitionId(shotAttributeDefinitionBase.id), jwt);
+        Shotlist affectedShotlist = shotAttributeDefinitionRepository.getShotlistByDefinitionId(shotAttributeDefinitionBase.id);
+        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
 
-        return shotAttributeRepository.update(editDTO);
+        ShotAttributeBaseDTO result = shotAttributeRepository.update(editDTO);
+
+        shotlistWebsocketService.broadcast(
+                affectedShotlist.id,
+                new ShotlistUpdateDTO(
+                        ShotlistUpdateType.SHOT_ATTRIBUTE_UPDATED,
+                        userRepository.findOrCreateByJWT(jwt).id,
+                        new ShotAttributePayload(
+                            result,
+                            result.getClass().getSimpleName()
+                        )
+                )
+        );
+
+        return result;
     }
 
     /*

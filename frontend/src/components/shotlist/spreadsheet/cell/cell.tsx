@@ -1,19 +1,24 @@
-import {forwardRef, memo, ReactNode, useContext, useImperativeHandle, useRef} from "react"
+import {forwardRef, memo, ReactNode, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
 import "./cell.scss"
-import {AnyShotAttribute} from "@/util/Types"
+import {AnyShotAttribute, SelectOption} from "@/util/Types"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import CellTextInput from "../input/cellTextInput/cellTextInput"
 import CellSingleSelectInput from "../input/cellSingleSelectInput/cellSingleSelectInput"
 import CellMultiSelectInput from "../input/cellMultiSelectInput/cellMultiSelectInput"
 import {ShotAttributeParser} from "@/util/AttributeParser"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
+import {ShotAttributeValueMultiType} from "@/service/ShotlistSyncService"
 
 export interface CellInputRef {
     setFocus: () => void
+    setValue: (value: ShotAttributeValueMultiType) => void
 }
 
 export interface CellRef {
     setFocus: () => void
+    setValue: (value: ShotAttributeValueMultiType) => void
+    setReadOnlyValue: (value: string) => void
+    id: number
     row: number
     column: number
 }
@@ -46,26 +51,40 @@ const CellBase = forwardRef<CellRef, CellProps>(({
     const inputRef = useRef<CellInputRef>(null)
     const shotlistContext = useContext(ShotlistContext)
 
-    const setFocus = () => {
-        inputRef.current?.setFocus()
-    }
+    const [readOnlyValue, setReadOnlyValue] = useState<string>("")
 
-    const localRef = useRef<CellRef>({
-        setFocus: setFocus,
+    useEffect(() => {
+        console.log("Cell inputRef:", inputRef.current)
+    }, [])
+
+    useEffect(() => {
+        if(isReadOnly == true && attribute){
+            setReadOnlyValue(ShotAttributeParser.toValueString(attribute, false))
+        }
+    }, [isReadOnly, attribute]);
+
+    useImperativeHandle(ref, () => ({
+        id: attribute?.id ?? -1,
         row,
-        column
-    })
-
-    useImperativeHandle(ref, () => localRef.current)
+        column,
+        setFocus() {
+            inputRef.current?.setFocus()
+        },
+        setValue(value) {
+            inputRef.current?.setValue(value)
+        },
+        setReadOnlyValue(value: string) {
+            setReadOnlyValue(value)
+        }
+    }))
 
     const renderInput = () => {
         if(!attribute) return
 
         if(isReadOnly == true) {
-            const readOnlyValue = ShotAttributeParser.toValueString(attribute, false)
             if(wuConstants.Regex.empty.test(readOnlyValue))
                 return <p className="readOnlyValue empty">Unset</p>
-            return <p className="readOnlyValue">{ShotAttributeParser.toValueString(attribute, false)}</p>
+            return <p className="readOnlyValue">{readOnlyValue}</p>
         }
 
         switch (attribute.__typename) {

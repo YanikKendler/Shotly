@@ -7,8 +7,6 @@ import me.kendler.yanik.dto.shot.attributes.ShotAttributeBaseDTO;
 import me.kendler.yanik.dto.shot.ShotAttributeEditDTO;
 import me.kendler.yanik.model.shot.Shot;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotAttributeDefinitionBase;
-import me.kendler.yanik.repositories.shot.ShotAttributeRepository;
-import org.hibernate.annotations.Cascade;
 
 @Entity
 @Table(name = "shotattribute")

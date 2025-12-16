@@ -2,11 +2,12 @@ import {
     AnySceneAttribute,
     AnySceneAttributeDefinition, AnySceneAttributeTemplate,
     AnyShotAttribute,
-    AnyShotAttributeDefinition, AnyShotAttributeTemplate
+    AnyShotAttributeDefinition, AnyShotAttributeTemplate, SelectOption
 } from "@/util/Types"
 import {ChevronDown, List, Type, Loader} from "lucide-react"
 import {JSX} from "react"
 import {wuText} from "@yanikkendler/web-utils/dist"
+import {SceneSelectAttributeOptionDefinition, ShotSelectAttributeOptionDefinition} from "../../lib/graphql/generated"
 
 export abstract class SceneAttributeParser {
     static toValueString(attribute: AnySceneAttribute, truncate = true): string{

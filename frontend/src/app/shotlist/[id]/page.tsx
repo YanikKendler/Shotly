@@ -2,12 +2,12 @@
 
 import gql from "graphql-tag"
 import React, {useEffect, useRef, useState} from "react"
-import {ApolloError, ApolloQueryResult, useApolloClient} from "@apollo/client"
+import {ApolloError, ApolloQueryResult, InteropApolloQueryResult, useApolloClient} from "@apollo/client"
 import {
     CollaborationDto,
     CollaborationType,
     Query,
-    ShotAttributeDefinitionBase,
+    ShotAttributeDefinitionBase, UserDto,
     UserTier
 } from "../../../../lib/graphql/generated"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
@@ -25,10 +25,11 @@ import auth from "@/Auth"
 import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
 import Utils, {Config} from "@/util/Utils"
-import {SelectOption} from "@/util/Types"
-import SheetManager from "@/components/shotlist/spreadsheet/sheetManager/sheetManager"
+import {AnyShotAttribute, SelectOption} from "@/util/Types"
+import SheetManager, {SheetManagerRef} from "@/components/shotlist/spreadsheet/sheetManager/sheetManager"
 import ShotlistSidebar from "@/components/shotlist/shotlistSidebar/shotlistSidebar"
 import Skeleton from "react-loading-skeleton"
+import {ShotlistSyncService} from "@/service/ShotlistSyncService"
 
 export interface SelectedScene {
     id: string | null
@@ -38,6 +39,44 @@ export interface SelectedScene {
 export interface ReadOnlyState {
     isReadOnly: boolean
     reason?: "tooManyShotlists" | "collaborationViewOnly"
+}
+
+export enum ShotlistUpdateType {
+    USER_JOINED = "USER_JOINED",
+    USER_LEFT = "USER_LEFT",
+    SHOT_ATTRIBUTE_UPDATED = "SHOT_ATTRIBUTE_UPDATED"
+}
+
+/**
+ * Object that gets broadcasted to the websocket when a collaborator makes an update to the shotlist
+ */
+export interface ShotlistUpdateDTO {
+    type: ShotlistUpdateType,
+    userId: string,
+    timestamp: Date,
+    payload: ShotlistUpdatePayload
+}
+
+export interface UserPayload {
+    kind: "user"
+    user: UserMinimalDTO
+}
+
+export interface ShotAttributePayload {
+    kind: "shotAttribute"
+    attribute: AnyShotAttribute
+    type: string
+}
+
+export type ShotlistUpdatePayload = UserPayload | ShotAttributePayload
+
+export interface UserMinimalDTO {
+    id: string,
+    email: string,
+    auth0Sub: string,
+    name: string,
+    tier: UserTier,
+    createdAt: Date
 }
 
 export default function Shotlist() {
@@ -66,8 +105,12 @@ export default function Shotlist() {
 
     const focusedCell = useRef({row: -1, column:-1})
     const headerRef = useRef<HTMLDivElement>(null)
+    const sheetManagerRef = useRef<SheetManagerRef>(null)
 
     const shotSelectOptionsCache = useRef(new Map<number, SelectOption[]>())
+    const websocketRef = useRef<WebSocket | null>(null)
+
+    const syncService = useRef<ShotlistSyncService | null>(null)
 
     const driverObj = driver({
         showProgress: true,
@@ -104,8 +147,23 @@ export default function Shotlist() {
 
         if(!auth.getUser()) return
 
-        loadData(true)
+        loadData(true).then((query: InteropApolloQueryResult<Query> | undefined) => {
+            //use user from the promise as to not run into react state race conditions
+            joinShotlistWebsocket(query?.data.currentUser?.id || "unknown")
+        })
+
+        syncService.current = new ShotlistSyncService(id)
+
+        return () => {
+            websocketRef.current?.close()
+            websocketRef.current = null
+        }
     }, [id])
+
+    useEffect(() => {
+        if(syncService.current)
+            syncService.current.isReadOnly = readOnlyState.isReadOnly
+    }, [readOnlyState]);
 
     useEffect(() => {
         if(!query.loading && !query.error && query.data && query.data.shotlist && query.data.shotlist.id) {
@@ -114,8 +172,6 @@ export default function Shotlist() {
                 driverObj.drive()
             }
         }
-
-        console.log(query)
 
         if(
             (
@@ -130,6 +186,35 @@ export default function Shotlist() {
             selectScene(query.data.shotlist.scenes[0].id, query.data.shotlist.scenes[0].position)
         }
     }, [query])
+
+    const joinShotlistWebsocket = (currentUserId: string) => {
+        const websocket = new WebSocket(`ws://localhost:8080/shotlist/${id}/${currentUserId}`)
+
+        websocket.onopen = () => console.log('Connected to WebSocket server')
+        websocket.onmessage = (message) => {
+            let updateDTO = JSON.parse(message.data) as ShotlistUpdateDTO
+
+            if(!updateDTO) return
+
+            if(!syncService.current) {
+                console.error("syncService not initialized")
+                return
+            }
+
+            switch (updateDTO.payload.kind) {
+                case "shotAttribute":
+                    syncService.current.updateShotAttribute(updateDTO.payload, sheetManagerRef.current)
+                    break
+            }
+
+            if(updateDTO.type == ShotlistUpdateType.USER_JOINED) {
+                console.log(`User joined the shotlist`)
+            }
+        }
+        websocket.onclose = () => console.log('Disconnected from WebSocket server')
+
+        websocketRef.current = websocket
+    }
 
     const getShotSelectOptions = async (shotAttributeDefinitionId: number): Promise<SelectOption[]> => {
         //requested options are not in the cache
@@ -245,9 +330,7 @@ export default function Shotlist() {
 
             //the current user only has view access to the shotlist
             result.data.shotlist.collaborations.forEach((collab: CollaborationDto) => {
-                console.log("checking collab", collab)
                 if(collab?.user?.id == result.data.currentUser.id && collab.collaborationType == CollaborationType.View) {
-                    console.log("user is read only")
                     setReadOnlyState({
                         isReadOnly: true,
                         reason: "collaborationViewOnly"
@@ -258,6 +341,8 @@ export default function Shotlist() {
             setSceneCount(result.data.shotlist?.scenes?.length || 0)
 
             setQuery(result)
+
+            return result
         }
         catch (e){
             setQuery({...query, error: e as ApolloError})
@@ -386,6 +471,7 @@ export default function Shotlist() {
                             shotAttributeDefinitions={query.data.shotlist?.shotAttributeDefinitions as ShotAttributeDefinitionBase[] || null}
                             isReadOnly={readOnlyState.isReadOnly}
                             shotlistHeaderRef={headerRef}
+                            ref={sheetManagerRef}
                         />
                     </Panel>
                 </PanelGroup>

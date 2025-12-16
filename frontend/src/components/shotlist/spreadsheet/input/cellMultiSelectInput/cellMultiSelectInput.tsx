@@ -11,7 +11,7 @@ import {ChevronDown, List} from "lucide-react"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {useSelectRefresh} from "@/context/SelectRefreshContext"
-import {CellInputRef} from "@/components/spreadsheet/cell/cell"
+import {CellInputRef} from "@/components/shotlist/spreadsheet/cell/cell"
 
 
 interface CellMultiSelectInputProps {
@@ -44,7 +44,11 @@ const CellMultiSelectInput = forwardRef<CellInputRef, CellMultiSelectInputProps>
     }, [])
 
     useImperativeHandle(ref, () => ({
-        setFocus: setFocus
+        setFocus: setFocus,
+        setValue: value => {
+            const options = value as SelectOption[]
+            setMultiSelectValue(options)
+        }
     }))
 
     const setFocus = () => {

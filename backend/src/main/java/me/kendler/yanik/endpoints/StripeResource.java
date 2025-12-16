@@ -13,9 +13,9 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import me.kendler.yanik.Stripe.StripeCheckoutRequest;
-import me.kendler.yanik.Stripe.StripeService;
-import me.kendler.yanik.Stripe.StripeSessionResponse;
+import me.kendler.yanik.stripe.StripeCheckoutRequest;
+import me.kendler.yanik.stripe.StripeService;
+import me.kendler.yanik.stripe.StripeSessionResponse;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 

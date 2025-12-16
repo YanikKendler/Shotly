@@ -21,7 +21,7 @@ import {ChevronDown, List, Plus, Type} from "lucide-react"
 import SceneAttributeDefinition from "@/components/dialogs/shotlistOptionsDialog/attributeTab/sceneAttributeDefinition/sceneAttributeDefinition"
 import {ShotlistOptionsDialogSubPage} from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {AnySceneAttributeDefinition, AnyShotAttributeDefinition} from "@/util/Types"
-import {apolloClient} from "@/wrapper/ApolloWrapper"
+import {apolloClient} from "@/components/wrapper/ApolloWrapper"
 import Loader from "@/components/feedback/loader/loader"
 
 export default function AttributeTab(

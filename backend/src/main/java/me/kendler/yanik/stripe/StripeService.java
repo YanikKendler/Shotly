@@ -1,4 +1,4 @@
-package me.kendler.yanik.Stripe;
+package me.kendler.yanik.stripe;
 
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;

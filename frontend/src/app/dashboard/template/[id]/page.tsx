@@ -31,7 +31,7 @@ import {
 import {arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy} from "@dnd-kit/sortable"
 import ShotAttributeDefinition from "@/components/dialogs/shotlistOptionsDialog/attributeTab/shotAttributeDefinition/shotAttributeDefinition"
 import {Collapsible, Popover} from "radix-ui"
-import {apolloClient} from "@/wrapper/ApolloWrapper"
+import {apolloClient} from "@/components/wrapper/ApolloWrapper"
 import ShotAttributeTemplate from "@/components/template/shotAttributeTemplate/shotAttributeTemplate"
 import {AnySceneAttributeDefinition, AnyShotAttributeTemplate} from "@/util/Types"
 import Utils, {Config} from "@/util/Utils"

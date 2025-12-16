@@ -32,7 +32,11 @@ const CellTextInput = forwardRef<CellInputRef, CellTextInputProps>(
     }, [textValue])
 
     useImperativeHandle(ref, () => ({
-        setFocus: setFocus
+        setFocus: setFocus,
+        setValue: value => {
+            const strValue = value as string
+            setTextValue(strValue)
+        }
     }))
 
     const setFocus = () => {

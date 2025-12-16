@@ -16,13 +16,10 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     }, [pathname]);
 
     const runAuth = async () => {
-        console.time("silent-auth")
         if (pathname === '/callback') return;
 
         try {
             await auth.silentAuth();
-            console.log("silent auth result", auth.isAuthenticated())
-            console.timeEnd("silent-auth")
 
             if(pathname !== "/" && pathname !== "")
                 forceUpdate()

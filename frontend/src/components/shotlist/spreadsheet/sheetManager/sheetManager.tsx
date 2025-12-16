@@ -1,4 +1,7 @@
-import React, {RefObject, UIEventHandler, useCallback, useContext, useEffect, useRef, useState} from "react"
+import React, {
+    forwardRef, RefObject, UIEventHandler, useCallback, useContext, useEffect,
+    useImperativeHandle, useRef, useState
+} from "react"
 import gql from "graphql-tag"
 import {ShotlistContext} from "@/context/ShotlistContext";
 import {ApolloError, ApolloQueryResult, useApolloClient} from "@apollo/client"
@@ -18,21 +21,28 @@ import {Cell, CellRef} from "@/components/shotlist/spreadsheet/cell/cell"
 import {Row, RowRef} from "../row/row";
 import {SelectedScene} from "@/app/shotlist/[id]/page"
 
-/**
- * Query's shots based on the passed sceneId and displays them in a spreadsheet, handles all spreadsheet actions
- * @constructor
- */
-export default function SheetManager({
-    selectedScene,
-    shotAttributeDefinitions,
-    isReadOnly,
-    shotlistHeaderRef
-}:{
+export interface SheetManagerRef {
+    getCellRef: (row: number, column: number) => CellRef | null
+    findCellRef: (id: number) => CellRef | null
+}
+
+export interface SheetManagerProps {
     selectedScene: SelectedScene
     shotAttributeDefinitions: ShotAttributeDefinitionBase[] | null
     isReadOnly: boolean
     shotlistHeaderRef: RefObject<HTMLDivElement | null>
-}){
+}
+
+/**
+ * Query's shots based on the passed sceneId and displays them in a spreadsheet, handles all spreadsheet actions
+ * @constructor
+ */
+const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
+    selectedScene,
+    shotAttributeDefinitions,
+    isReadOnly,
+    shotlistHeaderRef
+}, ref) => {
     const shotlistContext = useContext(ShotlistContext)
     const selectRefreshContext = useSelectRefresh()
     const client = useApolloClient()
@@ -48,6 +58,11 @@ export default function SheetManager({
     const creationLoaderRef = useRef<HTMLDivElement>(null)
     const attributePositionToSelect = useRef<number>(-1) //position of attribute to select on next re-render
 
+    useImperativeHandle(ref, () => ({
+        getCellRef: getCellRef,
+        findCellRef: findCellRef
+    }))
+
     useEffect(() => {
         let unsubscribe = tinykeys(window, {
             "ArrowLeft": (e) => moveFocusedCell(e, 0, -1),
@@ -61,8 +76,6 @@ export default function SheetManager({
     }, [])
 
     useEffect(() => {
-        console.log(selectedScene)
-
         if(selectedScene.id && selectedScene.id !== null && selectedScene.id != query.data.shots?.at(0)?.scene?.id){
             setQuery({
                 ...query,
@@ -169,7 +182,19 @@ export default function SheetManager({
     },[cellRefs.current])
 
     const getCellRef = (row: number, column: number) => {
-        return cellRefs.current.get(row)?.get(column);
+        return cellRefs.current.get(row)?.get(column) || null;
+    }
+
+    const findCellRef = (id: number) => {
+        for (let [row, columns] of cellRefs.current) {
+            for (let [column, cellRef] of columns) {
+                if (cellRef && cellRef.id === id) {
+                    return cellRef;
+                }
+            }
+        }
+
+        return null
     }
 
     const loadShots = async () => {
@@ -416,4 +441,6 @@ export default function SheetManager({
             }
         </div>
     )
-}
+})
+
+export default SheetManager

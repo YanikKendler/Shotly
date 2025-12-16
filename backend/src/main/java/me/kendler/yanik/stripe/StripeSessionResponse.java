@@ -1,4 +1,4 @@
-package me.kendler.yanik.Stripe;
+package me.kendler.yanik.stripe;
 
 public class StripeSessionResponse {
     public String url;

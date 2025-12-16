@@ -7,8 +7,6 @@ import jakarta.transaction.Transactional;
 import me.kendler.yanik.dto.shot.ShotAttributeEditDTO;
 import me.kendler.yanik.dto.shot.attributes.ShotAttributeBaseDTO;
 import me.kendler.yanik.model.Shotlist;
-import me.kendler.yanik.model.scene.attributes.SceneMultiSelectAttribute;
-import me.kendler.yanik.model.shot.attributeDefinitions.ShotSelectAttributeOptionDefinition;
 import me.kendler.yanik.model.shot.attributes.ShotAttributeBase;
 import me.kendler.yanik.model.shot.attributes.ShotMultiSelectAttribute;
 import me.kendler.yanik.model.shot.attributes.ShotSingleSelectAttribute;
@@ -23,12 +21,6 @@ public class ShotAttributeRepository implements PanacheRepository<ShotAttributeB
 
     public ShotAttributeBaseDTO update(ShotAttributeEditDTO editDTO) {
         ShotAttributeBase attribute = findById(editDTO.id());
-
-        getEntityManager().createQuery("select s from Shotlist s join s.shotAttributeDefinitions sad where sad = :definition"
-                , Shotlist.class)
-                .setParameter("definition", attribute.definition)
-                .getSingleResult()
-        .registerEdit();
 
         switch (attribute) {
             case null -> {
@@ -50,6 +42,12 @@ public class ShotAttributeRepository implements PanacheRepository<ShotAttributeB
                 throw new IllegalArgumentException("Attribute update failed");
             }
         }
+
+        getEntityManager().createQuery("select s from Shotlist s join s.shotAttributeDefinitions sad where sad = :definition"
+                , Shotlist.class)
+                .setParameter("definition", attribute.definition)
+                .getSingleResult()
+                .registerEdit();
 
         return attribute.toDTO();
     }

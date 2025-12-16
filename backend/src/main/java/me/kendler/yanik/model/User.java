@@ -3,6 +3,7 @@ package me.kendler.yanik.model;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import me.kendler.yanik.dto.user.UserDTO;
+import me.kendler.yanik.dto.user.UserMinimalDTO;
 import me.kendler.yanik.model.template.Template;
 import org.hibernate.annotations.BatchSize;
 
@@ -77,6 +78,17 @@ public class User extends PanacheEntityBase {
                 tier,
                 stripeCustomerId,
                 hasCancelled
+        );
+    }
+
+    public UserMinimalDTO toMinimalDTO() {
+        return new UserMinimalDTO(
+                id,
+                email,
+                auth0Sub,
+                name,
+                tier,
+                createdAt
         );
     }
 }
