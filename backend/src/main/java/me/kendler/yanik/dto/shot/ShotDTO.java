@@ -1,5 +1,6 @@
 package me.kendler.yanik.dto.shot;
 
+import me.kendler.yanik.dto.scene.SceneDTO;
 import me.kendler.yanik.dto.shot.attributes.ShotAttributeBaseDTO;
 import me.kendler.yanik.model.scene.Scene;
 
@@ -9,7 +10,7 @@ import java.util.UUID;
 
 public record ShotDTO (
     UUID id,
-    Scene scene,
+    UUID sceneId,
     List<ShotAttributeBaseDTO> attributes,
     int position,
     boolean isSubshot,

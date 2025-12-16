@@ -18,6 +18,7 @@ import me.kendler.yanik.socket.ShotlistUpdateDTO;
 import me.kendler.yanik.socket.ShotlistUpdateType;
 import me.kendler.yanik.socket.ShotlistWebsocketService;
 import me.kendler.yanik.socket.payload.ShotAttributePayload;
+import me.kendler.yanik.socket.payload.ShotPayload;
 import org.eclipse.microprofile.graphql.GraphQLApi;
 import org.eclipse.microprofile.graphql.Mutation;
 import org.eclipse.microprofile.graphql.Query;
@@ -72,7 +73,20 @@ public class ShotResource {
         Shotlist affectedShotlist = shotRepository.findById(editDTO.id()).scene.shotlist;
         userRepository.checkShotlistEditRights(affectedShotlist, jwt);
 
-        return shotRepository.update(editDTO);
+        ShotDTO result = shotRepository.update(editDTO);
+
+        shotlistWebsocketService.broadcast(
+                affectedShotlist.id,
+                new ShotlistUpdateDTO(
+                        ShotlistUpdateType.SHOT_UPDATED,
+                        userRepository.findOrCreateByJWT(jwt).id,
+                        new ShotPayload(
+                                result
+                        )
+                )
+        );
+
+        return result;
     }
 
     /*

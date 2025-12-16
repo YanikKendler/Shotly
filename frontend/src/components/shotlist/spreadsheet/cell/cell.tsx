@@ -54,10 +54,6 @@ const CellBase = forwardRef<CellRef, CellProps>(({
     const [readOnlyValue, setReadOnlyValue] = useState<string>("")
 
     useEffect(() => {
-        console.log("Cell inputRef:", inputRef.current)
-    }, [])
-
-    useEffect(() => {
         if(isReadOnly == true && attribute){
             setReadOnlyValue(ShotAttributeParser.toValueString(attribute, false))
         }

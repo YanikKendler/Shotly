@@ -24,6 +24,7 @@ import {SelectedScene} from "@/app/shotlist/[id]/page"
 export interface SheetManagerRef {
     getCellRef: (row: number, column: number) => CellRef | null
     findCellRef: (id: number) => CellRef | null
+    onMoveShot: (shotId: string, to: number) => void
 }
 
 export interface SheetManagerProps {
@@ -60,7 +61,8 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
     useImperativeHandle(ref, () => ({
         getCellRef: getCellRef,
-        findCellRef: findCellRef
+        findCellRef: findCellRef,
+        onMoveShot: onMoveShot
     }))
 
     useEffect(() => {
@@ -76,7 +78,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     }, [])
 
     useEffect(() => {
-        if(selectedScene.id && selectedScene.id !== null && selectedScene.id != query.data.shots?.at(0)?.scene?.id){
+        if(selectedScene.id && selectedScene.id !== null && selectedScene.id != query.data.shots?.at(0)?.sceneId){
             setQuery({
                 ...query,
                 loading: true
@@ -130,7 +132,6 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
                         moveShot(
                             event.item.dataset.shotId as string,
-                            event.oldIndex,
                             event.newIndex
                         )
 
@@ -220,9 +221,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                                     textValue
                                 }
                             }
-                            scene {
-                                id
-                            }
+                            sceneId
                         }
                     }
                 `,
@@ -290,7 +289,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         }
     }
 
-    const deleteShot = useCallback((shotId: string) => {
+    const onDelete = useCallback((shotId: string) => {
         if(!query || !query.data.shots) return
 
         let currentShots = query.data.shots as ShotDto[]
@@ -307,10 +306,22 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         shotlistContext.setShotCount(newShots.length)
     }, [query])
 
-    const moveShot = useCallback((shotId: string, from: number, to: number) => {
+    const moveShot = useCallback((shotId: string, to: number) => {
         ShotService.updateShot(shotId, to).then(response => {
             if(response.errors) console.error(response.errors) //TODO notify
         })
+
+        onMoveShot(shotId, to)
+    }, [query])
+
+    const onMoveShot = useCallback((shotId: string, to: number) => {
+        console.log("moving with shotid", shotId, "shots", query.data.shots)
+
+        const from = query.data.shots?.findIndex((shot) => shot?.id == shotId)
+
+        console.log("moving from", from)
+
+        if(from == undefined) return
 
         setQuery({
             ...query,
@@ -367,7 +378,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                         shot={shot}
                         position={row}
                         scenePosition={selectedScene.position || 0}
-                        onDelete={deleteShot}
+                        onDelete={onDelete}
                         moveShot={moveShot}
                         isReadOnly={isReadOnly}
                         ref={(node) => {

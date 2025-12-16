@@ -41,11 +41,21 @@
         flex-direction: column;
         padding-top: 2rem;
         gap: .5rem;
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+
+        &::-webkit-scrollbar {
+          display: none; /*Chrome, Safari and Opera */
+        }
 
         @media screen and (max-width: 600px){
           flex-direction: row;
           overflow-x: auto;
           height: fit-content;
+
+          svg{
+            display: none;
+          }
         }
 
         button {

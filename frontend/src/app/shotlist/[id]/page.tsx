@@ -29,7 +29,7 @@ import {AnyShotAttribute, SelectOption} from "@/util/Types"
 import SheetManager, {SheetManagerRef} from "@/components/shotlist/spreadsheet/sheetManager/sheetManager"
 import ShotlistSidebar from "@/components/shotlist/shotlistSidebar/shotlistSidebar"
 import Skeleton from "react-loading-skeleton"
-import {ShotlistSyncService} from "@/service/ShotlistSyncService"
+import {ShotlistSyncService, ShotlistUpdateDTO, ShotlistUpdateType} from "@/service/ShotlistSyncService"
 
 export interface SelectedScene {
     id: string | null
@@ -39,44 +39,6 @@ export interface SelectedScene {
 export interface ReadOnlyState {
     isReadOnly: boolean
     reason?: "tooManyShotlists" | "collaborationViewOnly"
-}
-
-export enum ShotlistUpdateType {
-    USER_JOINED = "USER_JOINED",
-    USER_LEFT = "USER_LEFT",
-    SHOT_ATTRIBUTE_UPDATED = "SHOT_ATTRIBUTE_UPDATED"
-}
-
-/**
- * Object that gets broadcasted to the websocket when a collaborator makes an update to the shotlist
- */
-export interface ShotlistUpdateDTO {
-    type: ShotlistUpdateType,
-    userId: string,
-    timestamp: Date,
-    payload: ShotlistUpdatePayload
-}
-
-export interface UserPayload {
-    kind: "user"
-    user: UserMinimalDTO
-}
-
-export interface ShotAttributePayload {
-    kind: "shotAttribute"
-    attribute: AnyShotAttribute
-    type: string
-}
-
-export type ShotlistUpdatePayload = UserPayload | ShotAttributePayload
-
-export interface UserMinimalDTO {
-    id: string,
-    email: string,
-    auth0Sub: string,
-    name: string,
-    tier: UserTier,
-    createdAt: Date
 }
 
 export default function Shotlist() {
@@ -204,6 +166,9 @@ export default function Shotlist() {
             switch (updateDTO.payload.kind) {
                 case "shotAttribute":
                     syncService.current.updateShotAttribute(updateDTO.payload, sheetManagerRef.current)
+                    break
+                case "shot":
+                    syncService.current.updateShot(updateDTO.payload, sheetManagerRef.current)
                     break
             }
 

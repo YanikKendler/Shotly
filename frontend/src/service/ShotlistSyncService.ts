@@ -1,15 +1,60 @@
-import {AnySceneAttribute, AnyShotAttribute, SelectOption} from "@/util/Types"
+import {AnyShotAttribute, SelectOption} from "@/util/Types"
 import {SheetManagerRef} from "@/components/shotlist/spreadsheet/sheetManager/sheetManager"
-import {ShotAttributeParser} from "@/util/AttributeParser"
-import {ShotAttributePayload, ShotlistUpdatePayload} from "@/app/shotlist/[id]/page"
 import {
+    ShotDto,
     ShotMultiSelectAttributeDto,
-    ShotSelectAttributeOptionDefinition,
     ShotSingleSelectAttributeDto,
-    ShotTextAttributeDto
+    ShotTextAttributeDto, UserTier
 } from "../../lib/graphql/generated"
 
 export type ShotAttributeValueMultiType = string | SelectOption | SelectOption[]
+
+export enum ShotlistUpdateType {
+    USER_JOINED = "USER_JOINED",
+    USER_LEFT = "USER_LEFT",
+    SHOT_ATTRIBUTE_UPDATED = "SHOT_ATTRIBUTE_UPDATED",
+    SHOT_UPDATED = "SHOT_UPDATED"
+}
+
+/**
+ * Object that gets broadcasted to the websocket when a collaborator makes an update to the shotlist
+ */
+export interface ShotlistUpdateDTO {
+    type: ShotlistUpdateType,
+    userId: string,
+    timestamp: Date,
+    payload: ShotlistUpdatePayload
+}
+
+/* Payloads */
+export interface UserPayload {
+    kind: "user"
+    user: UserMinimalDTO
+}
+
+export interface ShotAttributePayload {
+    kind: "shotAttribute"
+    attribute: AnyShotAttribute
+    type: string
+}
+
+export interface ShotPayload {
+    kind: "shot"
+    shot: ShotDto
+}
+
+export type ShotlistUpdatePayload = UserPayload | ShotAttributePayload | ShotPayload
+
+/* other stuff */
+
+export interface UserMinimalDTO {
+    id: string,
+    email: string,
+    auth0Sub: string,
+    name: string,
+    tier: UserTier,
+    createdAt: Date
+}
 
 export class ShotlistSyncService {
     shotlistId: string
@@ -61,5 +106,11 @@ export class ShotlistSyncService {
         else if(multiTypeValue){
             sheetCellRef?.setValue(multiTypeValue)
         }
+    }
+
+    updateShot(payload: ShotPayload, sheetManager: SheetManagerRef | null){
+        if(!payload.shot || !payload.shot.id) return
+
+        sheetManager?.onMoveShot(payload.shot.id, payload.shot.position)
     }
 }

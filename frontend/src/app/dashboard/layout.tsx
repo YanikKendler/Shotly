@@ -145,7 +145,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const acceptOrDeclineCollaboration = async (collaborationId: string, newState: CollaborationState) => {
         const result = await client.mutate({
             mutation: gql`
-                mutation ($collaborationId: String!, $newState: CollaborationState!) {
+                mutation acceptOrDeclineCollaboration($collaborationId: String!, $newState: CollaborationState!) {
                     acceptOrDeclineCollaboration(editDTO: {
                         id: $collaborationId,
                         collaborationState: $newState

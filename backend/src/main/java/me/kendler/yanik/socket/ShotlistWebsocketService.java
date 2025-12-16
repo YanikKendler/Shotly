@@ -66,6 +66,7 @@ public class ShotlistWebsocketService {
         );
     }
 
+    @Transactional
     public void broadcast(UUID shotlistId, ShotlistUpdateDTO update) {
         Set<String> room = rooms.get(shotlistId);
         if (room == null) return;

@@ -18,7 +18,7 @@ export interface RowProps {
     position: number
     scenePosition: number
     onDelete: (shotId: string) => void
-    moveShot: (shotId: string, oldPos: number, newPos: number) => void
+    moveShot: (shotId: string, newPos: number) => void
     isReadOnly: boolean
     children: ReactNode
 }
@@ -106,13 +106,13 @@ const RowBase = forwardRef<RowRef, RowProps>(({
                             <Separator.Root className="Separator"/>
                             <button
                                 disabled={position == 0}
-                                onClick={() => moveShot(shot.id as string, position, position-1)}
+                                onClick={() => moveShot(shot.id as string, position-1)}
                             >
                                 <ArrowBigUp size={18}/>Move up
                             </button>
                             <button
                                 disabled={position >= shotlistContext.shotCount - 1}
-                                onClick={() => moveShot(shot.id as string, position, position+1)}
+                                onClick={() => moveShot(shot.id as string, position+1)}
                             >
                                 <ArrowBigDown size={18}/>Move down
                             </button>

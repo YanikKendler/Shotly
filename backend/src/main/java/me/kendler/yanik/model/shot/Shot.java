@@ -49,7 +49,7 @@ public class Shot extends PanacheEntityBase {
     public ShotDTO toDTO() {
         return new ShotDTO(
             this.id,
-            this.scene,
+            this.scene.id,
             this.attributes.stream()
                     .sorted(Comparator.comparingInt(attr -> attr.definition.position))
                     .map(ShotAttributeBase::toDTO)
