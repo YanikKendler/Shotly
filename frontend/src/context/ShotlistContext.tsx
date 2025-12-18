@@ -8,7 +8,7 @@ import {
 import {SelectOption} from "@/util/Types"
 import {newAnchorRef} from "yaml-ast-parser"
 
-export const ShotlistContext = createContext<{
+export interface ShotlistContextProps {
     openShotlistOptionsDialog: (page: { main: ShotlistOptionsDialogPage, sub?: ShotlistOptionsDialogSubPage }) => void
     elementIsBeingDragged: boolean
     setElementIsBeingDragged: (isBeingDragged: boolean) => void
@@ -23,7 +23,9 @@ export const ShotlistContext = createContext<{
     sceneSelectOptions: Map<number, SelectOption[]>
     loadSceneSelectOptions: (sceneAttributeDefinitionId: number) => Promise<void>
     addSceneSelectOption: (sceneAttributeDefinitionId: number, option: SelectOption) => void
-}>({
+}
+
+export const ShotlistContext = createContext<ShotlistContextProps>({
     //open the edit dialog from anywhere: like the shot attribute value selector
     openShotlistOptionsDialog: (page) => {},
     //to disable tooltips when dragging

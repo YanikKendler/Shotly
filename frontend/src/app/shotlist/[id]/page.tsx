@@ -1,7 +1,7 @@
 'use client'
 
 import gql from "graphql-tag"
-import React, {useEffect, useRef, useState} from "react"
+import React, {useContext, useEffect, useRef, useState} from "react"
 import {ApolloError, ApolloQueryResult, InteropApolloQueryResult, useApolloClient} from "@apollo/client"
 import {
     CollaborationDto,
@@ -57,7 +57,7 @@ export default function Shotlist() {
     const searchParams = useSearchParams()
     /* TODO
     * should handle this better because currently the scene positon is null so the scene nums in the rows would be displayed wrong
-    * should probably just shfit the selected scene to shotcontext
+    * should probably just shift the selected scene to shotcontext
     */
     const sceneId = searchParams?.get('sid')
 
@@ -86,6 +86,7 @@ export default function Shotlist() {
     const [shotSelectOptionsCache, setShotSelectOptionsCache] = useState(new Map<number, SelectOption[]>())
     const [sceneSelectOptionsCache, setSceneSelectOptionsCache] = useState(new Map<number, SelectOption[]>())
     const websocketRef = useRef<WebSocket | null>(null)
+    const websocketRetriesRef = useRef<number>(0)
 
     const syncService = useRef<ShotlistSyncService | null>(null)
 
@@ -114,6 +115,11 @@ export default function Shotlist() {
                 sub: currentOptionsSubPage as ShotlistOptionsDialogSubPage
             })
         }
+
+        window.addEventListener("online", reconnectWebsocket);
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") reconnectWebsocket();
+        });
     }, [])
 
     useEffect(() => {
@@ -132,7 +138,7 @@ export default function Shotlist() {
         syncService.current = new ShotlistSyncService(id)
 
         return () => {
-            websocketRef.current?.close()
+            websocketRef.current?.close(1000, "client logout")
             websocketRef.current = null
         }
     }, [id])
@@ -173,6 +179,13 @@ export default function Shotlist() {
     useEffect(() => {
         selectedSceneRef.current = selectedScene
     }, [selectedScene]);
+
+    useEffect(() => {
+        shotlistContextFunctionsRef.current = {
+            addShotSelectOption,
+            addSceneSelectOption
+        }
+    }, [shotSelectOptionsCache, sceneSelectOptionsCache]);
 
     const joinShotlistWebsocket = (currentUserId: string) => {
         websocketRef.current?.close()
@@ -280,11 +293,27 @@ export default function Shotlist() {
                             break
                     }
                     break
+                case "sceneAttributeOption":
+                    syncService.current.sceneAttributeOptionCreated(updateDTO.payload, shotlistContextFunctionsRef.current.addSceneSelectOption)
+                    break
+                case "shotAttributeOption":
+                    syncService.current.shotAttributeOptionCreated(updateDTO.payload, shotlistContextFunctionsRef.current.addShotSelectOption)
+                    break
             }
         }
-        websocket.onclose = () => console.log('Disconnected from WebSocket server')
+        websocket.onclose = () => {
+            console.log('Disconnected from WebSocket server')
+        }
 
         websocketRef.current = websocket
+    }
+
+    const reconnectWebsocket = () => {
+        const delay = Math.min(1000 * 2 ** websocketRetriesRef.current, 30000);
+        setTimeout(() => {
+            websocketRetriesRef.current++;
+            joinShotlistWebsocket(query.data.currentUser?.id || "unknown");
+        }, delay);
     }
 
     const loadShotSelectOptions = async (shotAttributeDefinitionId: number) => {
@@ -487,6 +516,11 @@ export default function Shotlist() {
         setSelectedOptionsDialogPage({main: page.main, sub: page.sub || "shot"})
         setOptionsDialogOpen(true)
     }
+
+    const shotlistContextFunctionsRef = useRef({
+        addShotSelectOption,
+        addSceneSelectOption
+    });
 
     if(query.error) return <ErrorPage
         title='Data could not be loaded'

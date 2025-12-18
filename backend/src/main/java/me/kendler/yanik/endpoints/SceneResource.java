@@ -15,6 +15,7 @@ import me.kendler.yanik.repositories.scene.SceneSelectAttributeOptionDefinitionR
 import me.kendler.yanik.socket.ShotlistUpdateDTO;
 import me.kendler.yanik.socket.ShotlistUpdateType;
 import me.kendler.yanik.socket.ShotlistWebsocketService;
+import me.kendler.yanik.socket.payload.SceneSelectOptionPayload;
 import me.kendler.yanik.socket.payload.SceneAttributePayload;
 import me.kendler.yanik.socket.payload.ScenePayload;
 import org.eclipse.microprofile.graphql.GraphQLApi;
@@ -195,9 +196,23 @@ public class SceneResource {
 
     @Mutation
     public SceneSelectAttributeOptionDefinition createSceneSelectAttributeOption(SceneSelectAttributeOptionCreateDTO createDTO){
-        userRepository.checkShotlistEditRights(sceneAttributeDefinitionRepository.getShotlistByDefinitionId(createDTO.attributeDefinitionId()), jwt);
+        Shotlist affectedShotlist = sceneAttributeDefinitionRepository.getShotlistByDefinitionId(createDTO.attributeDefinitionId());
+        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
 
-        return sceneSelectAttributeOptionDefinitionRepository.create(createDTO);
+        SceneSelectAttributeOptionDefinition result = sceneSelectAttributeOptionDefinitionRepository.create(createDTO);
+
+        shotlistWebsocketService.broadcast(
+            affectedShotlist.id,
+            new ShotlistUpdateDTO(
+                ShotlistUpdateType.SCENE_SELECT_OPTION_CREATED,
+                userRepository.findOrCreateByJWT(jwt).id,
+                new SceneSelectOptionPayload(
+                    result
+                )
+            )
+        );
+
+        return result;
     }
 
     @Mutation

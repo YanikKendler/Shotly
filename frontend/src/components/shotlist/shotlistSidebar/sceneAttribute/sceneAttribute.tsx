@@ -198,8 +198,8 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
         });
 
         const newOption = {
-            label: data.createShotSelectAttributeOption.name,
-            value: data.createShotSelectAttributeOption.id
+            label: data.createSceneSelectAttributeOption.name,
+            value: data.createSceneSelectAttributeOption.id
         }
 
         if (attribute.type == "SceneSingleSelectAttributeDTO")

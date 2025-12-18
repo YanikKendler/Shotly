@@ -17,6 +17,7 @@ import me.kendler.yanik.repositories.shot.ShotSelectAttributeOptionDefinitionRep
 import me.kendler.yanik.socket.ShotlistUpdateDTO;
 import me.kendler.yanik.socket.ShotlistUpdateType;
 import me.kendler.yanik.socket.ShotlistWebsocketService;
+import me.kendler.yanik.socket.payload.ShotSelectOptionPayload;
 import me.kendler.yanik.socket.payload.ShotAttributePayload;
 import me.kendler.yanik.socket.payload.ShotPayload;
 import org.eclipse.microprofile.graphql.GraphQLApi;
@@ -205,9 +206,23 @@ public class ShotResource {
 
     @Mutation
     public ShotSelectAttributeOptionDefinition createShotSelectAttributeOption(ShotSelectAttributeOptionCreateDTO createDTO) {
-        userRepository.checkShotlistEditRights(shotAttributeDefinitionRepository.getShotlistByDefinitionId(createDTO.attributeDefinitionId()), jwt);
+        Shotlist affectedShotlist = shotAttributeDefinitionRepository.getShotlistByDefinitionId(createDTO.attributeDefinitionId());
+        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
 
-        return shotSelectAttributeOptionDefinitionRepository.create(createDTO);
+        ShotSelectAttributeOptionDefinition result = shotSelectAttributeOptionDefinitionRepository.create(createDTO);
+
+        shotlistWebsocketService.broadcast(
+            affectedShotlist.id,
+            new ShotlistUpdateDTO(
+                ShotlistUpdateType.SHOT_SELECT_OPTION_CREATED,
+                userRepository.findOrCreateByJWT(jwt).id,
+                new ShotSelectOptionPayload(
+                    result
+                )
+            )
+        );
+
+        return result;
     }
 
     @Mutation

@@ -2,13 +2,15 @@ import {AnyShotAttribute, SelectOption} from "@/util/Types"
 import {SheetManagerRef} from "@/components/shotlist/spreadsheet/sheetManager/sheetManager"
 import {
     CollaborationDto, CollaborationType, SceneAttributeBase, SceneAttributeBaseDto, SceneDto,
+    SceneSelectAttributeOptionDefinition,
     ShotDto,
-    ShotMultiSelectAttributeDto,
+    ShotMultiSelectAttributeDto, ShotSelectAttributeOptionDefinition,
     ShotSingleSelectAttributeDto,
     ShotTextAttributeDto, UserTier
 } from "../../lib/graphql/generated"
 import {SceneAttributeParser, ShotAttributeParser} from "@/util/AttributeParser"
 import {ShotlistSidebarRef} from "@/components/shotlist/shotlistSidebar/shotlistSidebar"
+import {ShotlistContextProps} from "@/context/ShotlistContext"
 
 export enum ShotlistUpdateType {
     USER_JOINED = "USER_JOINED",
@@ -20,7 +22,10 @@ export enum ShotlistUpdateType {
     SCENE_ADDED = "SCENE_ADDED",
     SCENE_UPDATED = "SCENE_UPDATED",
     SCENE_DELETED = "SCENE_DELETED",
-    SCENE_ATTRIBUTE_UPDATED = "SCENE_ATTRIBUTE_UPDATED"
+    SCENE_ATTRIBUTE_UPDATED = "SCENE_ATTRIBUTE_UPDATED",
+    SCENE_SELECT_OPTION_CREATED = "SCENE_SELECT_OPTION_CREATED",
+    SHOT_SELECT_OPTION_CREATED = "SHOT_SELECT_OPTION_CREATED",
+    SHOTLIST_OPTIONS_UPDATED = "SHOTLIST_OPTIONS_UPDATED"
 }
 
 /**
@@ -70,7 +75,17 @@ export interface SceneAttributePayload {
     attribute: SceneAttributeBaseDto
 }
 
-export type ShotlistUpdatePayload = UserPayload | ShotAttributePayload | ShotPayload | CollaborationPayload | PresentCollaboratorsPayload | ScenePayload | SceneAttributePayload
+export interface SceneAttributeOptionPayload {
+    kind: "sceneAttributeOption"
+    optionDefinition: SceneSelectAttributeOptionDefinition
+}
+
+export interface ShotAttributeOptionPayload {
+    kind: "shotAttributeOption"
+    optionDefinition: ShotSelectAttributeOptionDefinition
+}
+
+export type ShotlistUpdatePayload = UserPayload | ShotAttributePayload | ShotPayload | CollaborationPayload | PresentCollaboratorsPayload | ScenePayload | SceneAttributePayload | SceneAttributeOptionPayload | ShotAttributeOptionPayload
 
 /* other stuff */
 
@@ -147,5 +162,25 @@ export class ShotlistSyncService {
         if(!payload.scene || !payload.scene.id || !sidebar) return
 
         sidebar.onDeleteScene(payload.scene.id)
+    }
+
+    shotAttributeOptionCreated(payload: ShotAttributeOptionPayload, addShotSelectOption: Function){
+        addShotSelectOption(
+            payload.optionDefinition.shotAttributeDefinition?.id,
+            {
+                label: payload.optionDefinition.name || "Unnamed",
+                value: payload.optionDefinition.id
+            }
+        )
+    }
+
+    sceneAttributeOptionCreated(payload: SceneAttributeOptionPayload, addSceneSelectOption: Function){
+        addSceneSelectOption(
+            payload.optionDefinition.sceneAttributeDefinition?.id,
+            {
+                label: payload.optionDefinition.name || "Unnamed",
+                value: payload.optionDefinition.id
+            }
+        )
     }
 }
