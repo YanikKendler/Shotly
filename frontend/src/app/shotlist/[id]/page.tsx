@@ -83,7 +83,8 @@ export default function Shotlist() {
     const sheetManagerRef = useRef<SheetManagerRef>(null)
     const sidebarRef = useRef<ShotlistSidebarRef>(null);
 
-    const shotSelectOptionsCache = useRef(new Map<number, SelectOption[]>())
+    const [shotSelectOptionsCache, setShotSelectOptionsCache] = useState(new Map<number, SelectOption[]>())
+    const [sceneSelectOptionsCache, setSceneSelectOptionsCache] = useState(new Map<number, SelectOption[]>())
     const websocketRef = useRef<WebSocket | null>(null)
 
     const syncService = useRef<ShotlistSyncService | null>(null)
@@ -181,6 +182,8 @@ export default function Shotlist() {
         websocket.onopen = () => console.log('Connected to WebSocket server')
         websocket.onmessage = (message) => {
             let updateDTO = JSON.parse(message.data) as ShotlistUpdateDTO
+
+            console.log(updateDTO)
 
             if(!updateDTO) {
                 //TODO notify user
@@ -284,45 +287,86 @@ export default function Shotlist() {
         websocketRef.current = websocket
     }
 
-    const getShotSelectOptions = async (shotAttributeDefinitionId: number): Promise<SelectOption[]> => {
-        //requested options are not in the cache
-        if(!shotSelectOptionsCache.current.has(shotAttributeDefinitionId)) {
-            const {data} = await client.query({
-                query: gql`
-                    query getShotSelectAttributeOptions($definitionId: BigInteger!) {
-                        shotSelectAttributeOptions(
-                            attributeDefinitionId: $definitionId
-                        ) {
-                            id
-                            name
-                        }
+    const loadShotSelectOptions = async (shotAttributeDefinitionId: number) => {
+        //options are already in the cache
+        if(shotSelectOptionsCache.has(shotAttributeDefinitionId)) return
+
+        const {data} = await client.query({
+            query: gql`
+                query getShotSelectAttributeOptions($definitionId: BigInteger!) {
+                    shotSelectAttributeOptions(
+                        attributeDefinitionId: $definitionId
+                    ) {
+                        id
+                        name
                     }
-                `,
-                variables: {definitionId: shotAttributeDefinitionId},
-                fetchPolicy: 'no-cache'
-            })
+                }
+            `,
+            variables: {definitionId: shotAttributeDefinitionId},
+            fetchPolicy: 'no-cache'
+        })
 
-            shotSelectOptionsCache.current.set(
-                shotAttributeDefinitionId,
-                data.shotSelectAttributeOptions.map((option: any): SelectOption => ({
-                    value: option.id,
-                    label: option.name,
-                }))
-            )
-        }
+        let newCache = new Map(shotSelectOptionsCache)
 
+        newCache.set(
+            shotAttributeDefinitionId,
+            data.shotSelectAttributeOptions.map((option: any): SelectOption => ({
+                value: option.id,
+                label: option.name,
+            }))
+        )
 
-        return shotSelectOptionsCache.current.get(shotAttributeDefinitionId) || []
-    }
+        setShotSelectOptionsCache(newCache)
 
-    const searchShotSelectOptions = async (shotAttributeDefinitionId: number, search: string): Promise<SelectOption[]> => {
-        const allOptions = await getShotSelectOptions(shotAttributeDefinitionId)
-        return allOptions.filter(option => option.label.toLowerCase().includes(search.toLowerCase()))
+        return Promise.resolve()
     }
 
     const addShotSelectOption = async (shotAttributeDefinitionId: number, option: SelectOption) => {
-        const allOptions = await getShotSelectOptions(shotAttributeDefinitionId)
-        shotSelectOptionsCache.current.set(shotAttributeDefinitionId, [...allOptions, option])
+        const currentOptions = shotSelectOptionsCache.get(shotAttributeDefinitionId) || []
+        const newCache = new Map(shotSelectOptionsCache)
+        newCache.set(shotAttributeDefinitionId, [...currentOptions, option])
+        setShotSelectOptionsCache(newCache)
+    }
+
+    const loadSceneSelectOptions = async (sceneAttributeDefinitionId: number) => {
+        //options are already in the cache
+        if(sceneSelectOptionsCache.has(sceneAttributeDefinitionId)) return
+
+        const {data} = await client.query({
+            query: gql`
+                query getSceneSelectAttributeOptions($definitionId: BigInteger!) {
+                    sceneSelectAttributeOptions(
+                        attributeDefinitionId: $definitionId
+                    ) {
+                        id
+                        name
+                    }
+                }
+            `,
+            variables: {definitionId: sceneAttributeDefinitionId},
+            fetchPolicy: 'no-cache'
+        })
+
+        let newCache = new Map(sceneSelectOptionsCache)
+
+        newCache.set(
+            sceneAttributeDefinitionId,
+            data.sceneSelectAttributeOptions.map((option: any): SelectOption => ({
+                value: option.id,
+                label: option.name,
+            }))
+        )
+
+        setSceneSelectOptionsCache(newCache)
+
+        return Promise.resolve()
+    }
+
+    const addSceneSelectOption = async (sceneAttributeDefinitionId: number, option: SelectOption) => {
+        const currentOptions = sceneSelectOptionsCache.get(sceneAttributeDefinitionId) || []
+        const newCache = new Map(sceneSelectOptionsCache)
+        newCache.set(sceneAttributeDefinitionId, [...currentOptions, option])
+        setSceneSelectOptionsCache(newCache)
     }
 
     const loadData = async (noCache: boolean = false) => {
@@ -474,9 +518,12 @@ export default function Shotlist() {
             sceneCount: sceneCount,
             setSceneCount: setSceneCount,
             focusedCell: focusedCell,
-            getShotSelectOptions: getShotSelectOptions,
-            searchShotSelectOptions: searchShotSelectOptions,
-            addShotSelectOption: addShotSelectOption
+            shotSelectOptions: shotSelectOptionsCache,
+            loadShotSelectOptions: loadShotSelectOptions,
+            addShotSelectOption: addShotSelectOption,
+            sceneSelectOptions: sceneSelectOptionsCache,
+            loadSceneSelectOptions: loadSceneSelectOptions,
+            addSceneSelectOption: addSceneSelectOption,
         }}>
             {
                 readOnlyBannerVisible && readOnlyState.isReadOnly == true &&
@@ -567,7 +614,7 @@ export default function Shotlist() {
                     loadData(true).then(() => {
                         setReloadKey(reloadKey + 1)
                     })
-                    shotSelectOptionsCache.current.clear()
+                    setShotSelectOptionsCache(new Map())
                 }}
                 isReadOnly={readOnlyState.isReadOnly}
             ></ShotlistOptionsDialog>

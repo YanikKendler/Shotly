@@ -13,7 +13,6 @@ import Utils from "@/util/Utils"
 import { tinykeys } from "@/../node_modules/tinykeys/dist/tinykeys"/*package has incorrectly configured type exports*/
 import {wuText} from "@yanikkendler/web-utils"
 import {ShotAttributeDefinitionParser} from "@/util/AttributeParser"
-import {useSelectRefresh} from "@/context/SelectRefreshContext"
 import Skeleton from "react-loading-skeleton"
 import ShotService from "@/service/ShotService"
 import Sortable from 'sortablejs';
@@ -47,7 +46,6 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     shotlistHeaderRef
 }, ref) => {
     const shotlistContext = useContext(ShotlistContext)
-    const selectRefreshContext = useSelectRefresh()
     const client = useApolloClient()
 
     const shotTableElement = useRef<HTMLDivElement | null>(null)
@@ -91,12 +89,13 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         }
     }, [selectedScene])
 
-    //the selectRefreshContext causes the current cell to lose focus after creating a new option since the component is re-rendered
+    //probably not needed because new options cache
+    /*//the selectRefreshContext causes the current cell to lose focus after creating a new option since the component is re-rendered
     useEffect(() => {
         if(selectRefreshContext.lastRefresh.includes("shot")){
             refocusCell()
         }
-    }, [selectRefreshContext.lastRefresh]);
+    }, [selectRefreshContext.lastRefresh]);*/
 
     useEffect(() => {
         // select a attribute (in a newly created shot)

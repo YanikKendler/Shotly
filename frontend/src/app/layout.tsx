@@ -2,7 +2,6 @@ import "./globals.scss"
 import 'react-loading-skeleton/dist/skeleton.css'
 import React from "react"
 import {ApolloWrapper} from "@/components/wrapper/ApolloWrapper"
-import SelectRefreshProvider from "@/context/SelectRefreshContext"
 import {Inter} from 'next/font/google'
 import {Toast, Tooltip} from "radix-ui"
 import AuthWrapper from "@/components/wrapper/AuthWrapper"
@@ -118,11 +117,9 @@ export default function RootLayout({
                         <ApolloWrapper> {/*should also be out*/}
                             <NotificationWrapper>
                                 <Tooltip.Provider>
-                                    <SelectRefreshProvider>
-                                        <SkeletonTheme baseColor="var(--skelleton-base-color)" highlightColor="var(--skelleton-highlight-color)">
-                                            {children}
-                                        </SkeletonTheme>
-                                    </SelectRefreshProvider>
+                                    <SkeletonTheme baseColor="var(--skelleton-base-color)" highlightColor="var(--skelleton-highlight-color)">
+                                        {children}
+                                    </SkeletonTheme>
                                 </Tooltip.Provider>
                             </NotificationWrapper>
                         </ApolloWrapper>

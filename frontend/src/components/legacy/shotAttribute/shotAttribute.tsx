@@ -12,7 +12,6 @@ import React, {
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import './shotAttribute.scss'
-import {useSelectRefresh} from "@/context/SelectRefreshContext"
 import {wuConstants, wuGeneral, wuText} from "@yanikkendler/web-utils/dist"
 import ShotService from "@/service/ShotService"
 import {ShotlistContext} from "@/context/ShotlistContext"

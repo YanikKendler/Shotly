@@ -183,7 +183,7 @@ public class SceneResource {
     public List<SceneSelectAttributeOptionDefinition> getSceneSelectAttributeOptions(Long attributeDefinitionId) {
         userRepository.checkShotlistViewRights(sceneAttributeDefinitionRepository.getShotlistByDefinitionId(attributeDefinitionId), jwt);
 
-        return sceneSelectAttributeOptionDefinitionRepository.list("sceneSelectAttributeDefinition.id order by name", attributeDefinitionId);
+        return sceneSelectAttributeOptionDefinitionRepository.list("sceneAttributeDefinition.id = ?1 order by name", attributeDefinitionId);
     }
 
     @Query

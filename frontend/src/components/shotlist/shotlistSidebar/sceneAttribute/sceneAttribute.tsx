@@ -16,7 +16,6 @@ import React, {
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import './sceneAttribute.scss'
-import {useSelectRefresh} from "@/context/SelectRefreshContext"
 import {wuConstants, wuGeneral, wuText} from "@yanikkendler/web-utils/dist"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import {ChevronDown, List, Type} from "lucide-react"
@@ -50,8 +49,6 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
     const [textValue, setTextValue] = useState<string>("");
 
     const textInputRef = useRef<HTMLParagraphElement>(null);
-
-    const { refreshMap, triggerRefresh } = useSelectRefresh();
 
     const client = useApolloClient()
 
@@ -185,7 +182,7 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
     }
 
     const createOption = async (inputValue: string) => {
-        const { data } = await client.mutate({
+        const {data} = await client.mutate({
             mutation: gql`
                 mutation createSceneOption($definitionId: BigInteger!, $name: String!) {
                     createSceneSelectAttributeOption(createDTO:{
@@ -197,24 +194,24 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
                     }
                 }
             `,
-            variables: { definitionId: attribute.definition?.id, name: inputValue },
+            variables: {definitionId: attribute.definition?.id, name: inputValue},
         });
 
-        if(attribute.type == "SceneSingleSelectAttributeDTO")
-            updateSingleSelectValue({
-                label: data.createSceneSelectAttributeOption.name,
-                value: data.createSceneSelectAttributeOption.id
-            })
-        if(attribute.type == "SceneMultiSelectAttributeDTO")
+        const newOption = {
+            label: data.createShotSelectAttributeOption.name,
+            value: data.createShotSelectAttributeOption.id
+        }
+
+        if (attribute.type == "SceneSingleSelectAttributeDTO")
+            updateSingleSelectValue(newOption)
+        if (attribute.type == "SceneMultiSelectAttributeDTO")
             updateMultiSelectValue([
                 ...multiSelectValue || [],
-                {
-                    label: data.createSceneSelectAttributeOption.name,
-                    value: data.createSceneSelectAttributeOption.id
-                }
+                newOption
             ])
 
-        triggerRefresh("shot", attribute.definition?.id);
+
+        shotlistContext.addSceneSelectOption(attribute.definition?.id, newOption)
     }
 
     //AI
@@ -304,7 +301,8 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
                         <AttributeValueSelect
                             definitionId={attribute.definition?.id}
                             isMulti={false}
-                            loadOptions={loadOptions}
+                            options={shotlistContext.sceneSelectOptions.get(attribute.definition?.id) || []}
+                            loadOptions={shotlistContext.loadSceneSelectOptions}
                             onChange={(newValue) => updateSingleSelectValue(newValue as SelectOption)}
                             onCreate={createOption}
                             placeholder={attribute.definition?.name || "Unnamed"}
@@ -328,7 +326,8 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
                         <AttributeValueSelect
                             definitionId={attribute.definition?.id}
                             isMulti={true}
-                            loadOptions={loadOptions}
+                            options={shotlistContext.sceneSelectOptions.get(attribute.definition?.id) || []}
+                            loadOptions={shotlistContext.loadSceneSelectOptions}
                             onChange={(newValue) => updateMultiSelectValue(newValue as SelectOption[])}
                             onCreate={createOption}
                             placeholder={attribute.definition?.name || "Unnamed"}

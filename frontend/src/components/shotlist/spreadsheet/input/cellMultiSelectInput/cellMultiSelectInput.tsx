@@ -10,7 +10,6 @@ import AttributeValueSelect, {
 import {ChevronDown, List} from "lucide-react"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
-import {useSelectRefresh} from "@/context/SelectRefreshContext"
 import {CellInputRef} from "@/components/shotlist/spreadsheet/cell/cell"
 
 
@@ -28,7 +27,6 @@ const CellMultiSelectInput = forwardRef<CellInputRef, CellMultiSelectInputProps>
 
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
-    const selectRefresh = useSelectRefresh();
 
     useEffect(() => {
         if(!attribute.multiSelectValue || attribute.multiSelectValue?.length == 0) return
@@ -87,15 +85,14 @@ const CellMultiSelectInput = forwardRef<CellInputRef, CellMultiSelectInputProps>
         ])
 
         shotlistContext.addShotSelectOption(attribute.definition?.id, newOption)
-
-        selectRefresh.triggerRefresh("shot", attribute.definition?.id)
     }
 
     return <div className="cellInput">
         <AttributeValueSelect
             definitionId={attribute.definition?.id}
             isMulti={true}
-            loadOptions={(searchTerm) => shotlistContext.searchShotSelectOptions(attribute.definition?.id, searchTerm)}
+            options={shotlistContext.shotSelectOptions.get(attribute.definition?.id) || []}
+            loadOptions={shotlistContext.loadShotSelectOptions}
             onChange={(newValue) => updateMultiSelectValue(newValue as SelectOption[])}
             onCreate={createOption}
             placeholder={attribute.definition?.name || "Unnamed"}

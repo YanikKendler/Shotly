@@ -6,6 +6,7 @@ import {
     ShotlistOptionsDialogSubPage
 } from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {SelectOption} from "@/util/Types"
+import {newAnchorRef} from "yaml-ast-parser"
 
 export const ShotlistContext = createContext<{
     openShotlistOptionsDialog: (page: { main: ShotlistOptionsDialogPage, sub?: ShotlistOptionsDialogSubPage }) => void
@@ -16,9 +17,12 @@ export const ShotlistContext = createContext<{
     sceneCount: number
     setSceneCount: (count: number) => void
     focusedCell: RefObject<{row: number, column: number}>
-    getShotSelectOptions: (shotAttributeDefinitionId: number) => Promise<SelectOption[]>
-    searchShotSelectOptions: (shotAttributeDefinitionId: number, search: string) => Promise<SelectOption[]>
+    shotSelectOptions: Map<number, SelectOption[]>
+    loadShotSelectOptions: (shotAttributeDefinitionId: number) => Promise<void>
     addShotSelectOption: (shotAttributeDefinitionId: number, option: SelectOption) => void
+    sceneSelectOptions: Map<number, SelectOption[]>
+    loadSceneSelectOptions: (sceneAttributeDefinitionId: number) => Promise<void>
+    addSceneSelectOption: (sceneAttributeDefinitionId: number, option: SelectOption) => void
 }>({
     //open the edit dialog from anywhere: like the shot attribute value selector
     openShotlistOptionsDialog: (page) => {},
@@ -33,7 +37,10 @@ export const ShotlistContext = createContext<{
     //for navigation using arrow keys
     focusedCell: { current: { row: -1, column: -1 } },
     //to get options for shot single/multi select attributes - handles caching and refetching
-    getShotSelectOptions: () => Promise.resolve([]),
-    searchShotSelectOptions: () => Promise.resolve([]),
+    shotSelectOptions: new Map(),
+    loadShotSelectOptions: () => Promise.resolve(),
     addShotSelectOption: () => {},
+    sceneSelectOptions: new Map(),
+    loadSceneSelectOptions: () => Promise.resolve(),
+    addSceneSelectOption: () => {},
 })

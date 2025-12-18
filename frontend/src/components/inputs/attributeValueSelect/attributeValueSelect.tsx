@@ -3,8 +3,7 @@
 import "./attributeValueSelect.scss"
 import {SelectOption} from "@/util/Types"
 import AsyncCreatableSelect from "react-select/async-creatable"
-import React, {forwardRef, useCallback, useEffect, useImperativeHandle, useRef} from "react"
-import {useSelectRefresh} from "@/context/SelectRefreshContext"
+import React, {forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState} from "react"
 import {
     components,
     GroupBase,
@@ -15,6 +14,7 @@ import {
 } from "react-select"
 import {Pen} from "lucide-react"
 import {reactSelectTheme} from "@/util/Utils"
+import CreatableSelect from "react-select/creatable"
 
 export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBase<SelectOption>> = {
     option: (baseStyles, state) => ({
@@ -120,7 +120,8 @@ interface AttributeValueSelectProps {
     value: SelectOption | SelectOption[] | undefined,
     onChange: (newValue: any) => void,
     onCreate: (newValue: any) => void,
-    loadOptions: (inputValue: string) => Promise<SelectOption[]>,
+    options: SelectOption[],
+    loadOptions: (definitionId: number) => Promise<void>,
     placeholder: string,
     isMulti: boolean
     shotOrScene: "shot" | "scene"
@@ -134,19 +135,34 @@ export interface AttributeValueSelectRef {
 }
 
 export default forwardRef<AttributeValueSelectRef, AttributeValueSelectProps>(
-function AttributeValueSelect(
-    {definitionId, value, onChange, onCreate, loadOptions, placeholder, isMulti, shotOrScene, editAction, styles = reactSelectBaseStyles},
-    ref
-) {
-    const { refreshMap } = useSelectRefresh();
-
+function AttributeValueSelect({
+    definitionId,
+    value,
+    onChange,
+    onCreate,
+    options,
+    loadOptions,
+    placeholder,
+    isMulti,
+    shotOrScene,
+    editAction,
+    styles = reactSelectBaseStyles
+}, ref) {
     const selectRef = useRef<SelectInstance<any, boolean, any> | null>(null);
     const menuIsOpen = useRef(false);
+    const [isLoading, setIsLoading] = useState(true)
 
     useImperativeHandle(ref, () => ({
         setFocus,
         openMenu
     }))
+
+    useEffect(() => {
+        setIsLoading(true)
+        loadOptions(definitionId).then(() => {
+            setIsLoading(false)
+        })
+    }, [definitionId]);
 
     const setFocus = () => {
         selectRef.current?.focus()
@@ -233,8 +249,8 @@ function AttributeValueSelect(
     }
 
     return (
-        <AsyncCreatableSelect
-            key={`${definitionId}-${refreshMap[`${shotOrScene}-${definitionId}`] || 0}`}
+        <CreatableSelect
+            /*key={`${definitionId}-${refreshMap[`${shotOrScene}-${definitionId}`] || 0}`}*/
             value={value}
             onChange={onChange}
             onMenuOpen={() => menuIsOpen.current = true}
@@ -242,8 +258,8 @@ function AttributeValueSelect(
             isMulti={isMulti}
             isClearable={false}
             onCreateOption={onCreate}
-            loadOptions={loadOptions}
-            defaultOptions
+            options={options}
+            isLoading={isLoading}
             placeholder={placeholder || ""}
             openMenuOnFocus={false}
             blurInputOnSelect={false}
@@ -253,7 +269,6 @@ function AttributeValueSelect(
             styles={styles}
             menuPlacement="auto"
             ref={selectRef}
-            cacheOptions={null}
             onKeyDown={e => {
                 if(menuIsOpen.current == true) {
                     if(e.key == "ArrowUp" || e.key == "ArrowDown"){
