@@ -1,13 +1,17 @@
 import {forwardRef, memo, ReactNode, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
 import "./cell.scss"
-import {AnyShotAttribute, SelectOption} from "@/util/Types"
+import {AnyShotAttribute, SelectOption, ShotAttributeValueMultiType} from "@/util/Types"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import CellTextInput from "../input/cellTextInput/cellTextInput"
 import CellSingleSelectInput from "../input/cellSingleSelectInput/cellSingleSelectInput"
 import CellMultiSelectInput from "../input/cellMultiSelectInput/cellMultiSelectInput"
 import {ShotAttributeParser} from "@/util/AttributeParser"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
-import {ShotAttributeValueMultiType} from "@/service/ShotlistSyncService"
+import {
+    ShotMultiSelectAttributeDto,
+    ShotSingleSelectAttributeDto,
+    ShotTextAttributeDto
+} from "../../../../../lib/graphql/generated"
 
 export interface CellInputRef {
     setFocus: () => void
@@ -78,18 +82,18 @@ const CellBase = forwardRef<CellRef, CellProps>(({
         if(!attribute) return
 
         if(isReadOnly == true) {
-            if(wuConstants.Regex.empty.test(readOnlyValue))
+            if(!readOnlyValue || wuConstants.Regex.empty.test(readOnlyValue))
                 return <p className="readOnlyValue empty">Unset</p>
             return <p className="readOnlyValue">{readOnlyValue}</p>
         }
 
-        switch (attribute.__typename) {
+        switch (attribute.type) {
             case "ShotTextAttributeDTO":
-                return <CellTextInput attribute={attribute} ref={inputRef} />
+                return <CellTextInput attribute={attribute as ShotTextAttributeDto} ref={inputRef} />
             case "ShotSingleSelectAttributeDTO":
-                return <CellSingleSelectInput attribute={attribute} ref={inputRef} />
+                return <CellSingleSelectInput attribute={attribute as ShotSingleSelectAttributeDto} ref={inputRef} />
             case "ShotMultiSelectAttributeDTO":
-                return <CellMultiSelectInput attribute={attribute} ref={inputRef} />
+                return <CellMultiSelectInput attribute={attribute as ShotMultiSelectAttributeDto} ref={inputRef} />
             default:
                 return <p>unknown attribute - please report this as a bug</p>
         }

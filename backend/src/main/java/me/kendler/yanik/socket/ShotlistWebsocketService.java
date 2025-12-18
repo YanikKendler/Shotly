@@ -5,8 +5,10 @@ import io.quarkus.websockets.next.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import me.kendler.yanik.dto.user.UserMinimalDTO;
 import me.kendler.yanik.model.User;
 import me.kendler.yanik.repositories.UserRepository;
+import me.kendler.yanik.socket.payload.PresentCollaboratorsPayload;
 import me.kendler.yanik.socket.payload.UserPayload;
 import org.jboss.logging.Logger;
 
@@ -51,8 +53,7 @@ public class ShotlistWebsocketService {
 
     @Transactional
     public void removeFromRoom(UUID shotlistId, UUID userId, String connectionId) {
-        Set<String> set = rooms.get(shotlistId);
-        if (set != null) set.remove(connectionId);
+        rooms.get(shotlistId).remove(connectionId);
 
         User user = userRepository.findById(userId);
 
@@ -78,8 +79,45 @@ public class ShotlistWebsocketService {
                 if (!room.contains(conn.id())) continue;
                 if (update.userId().equals(UUID.fromString(conn.pathParam("userId")))) continue;
 
+                System.out.println("sending to connection with userId " + conn.pathParam("userId"));
+
                 conn.sendTextAndAwait(json);
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Transactional
+    public void sendPresentUsers(UUID shotlistId, WebSocketConnection connection) {
+        Set<String> room = rooms.get(shotlistId);
+        if (room == null) return;
+
+        List<String> presentUserIds = connections
+                .listAll()
+                .stream()
+                .map(conn -> conn.pathParam("userId"))
+                .toList();
+
+        //without the current users
+        List<String> filteredUserIds = presentUserIds.stream().filter(id -> !id.equals(connection.pathParam("userId"))).toList();
+
+        List<UserMinimalDTO> presentUsers = userRepository.find("id IN ?1", filteredUserIds).list()
+                .stream()
+                .map(User::toMinimalDTO)
+                .toList();
+
+        try {
+            String json = objectMapper.writeValueAsString(new ShotlistUpdateDTO(
+                    ShotlistUpdateType.PRESENT_COLLABORATORS,
+                    shotlistId,
+                    new PresentCollaboratorsPayload(
+                        presentUsers
+                    )
+                )
+            );
+
+            connection.sendTextAndAwait(json);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

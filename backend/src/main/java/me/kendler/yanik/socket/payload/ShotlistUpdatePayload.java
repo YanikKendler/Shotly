@@ -12,9 +12,17 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = ShotAttributePayload.class, name = "shotAttribute"),
         @JsonSubTypes.Type(value = UserPayload.class, name = "user"),
         @JsonSubTypes.Type(value = ShotPayload.class, name = "shot"),
+        @JsonSubTypes.Type(value = CollaborationPayload.class, name = "collaboration"),
+        @JsonSubTypes.Type(value = PresentCollaboratorsPayload.class, name = "presentCollaborators"),
+        @JsonSubTypes.Type(value = ScenePayload.class, name = "scene"),
+        @JsonSubTypes.Type(value = SceneAttributePayload.class, name = "sceneAttribute"),
 })
 public sealed interface ShotlistUpdatePayload permits
-        ShotAttributePayload,
         UserPayload,
-        ShotPayload
+        PresentCollaboratorsPayload,
+        CollaborationPayload,
+        ShotAttributePayload,
+        ShotPayload,
+        ScenePayload,
+        SceneAttributePayload
 { }

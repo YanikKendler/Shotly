@@ -19,4 +19,9 @@ public record SceneTextAttributeTemplateDTO(
     public int getPosition() {
         return position;
     }
+
+    @Override
+    public String getType() {
+        return "SceneTextAttributeTemplateDTO";
+    }
 }

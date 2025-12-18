@@ -22,6 +22,11 @@ import AttributeValueSelect, {
     selectShotStyles
 } from "@/components/inputs/attributeValueSelect/attributeValueSelect"
 import {SceneAttributeParser, ShotAttributeParser} from "@/util/AttributeParser"
+import {
+    ShotMultiSelectAttributeDto,
+    ShotSingleSelectAttributeDto,
+    ShotTextAttributeDto
+} from "../../../../lib/graphql/generated"
 
 export interface ShotAttributeProps {
     attribute: AnyShotAttribute
@@ -66,17 +71,19 @@ const ShotAttribute = forwardRef<ShotAttributeRef, ShotAttributeProps>(
     useEffect(() => {
         if (!attribute) return;
 
-        switch (attribute.__typename) {
+        switch (attribute.type) {
             case "ShotSingleSelectAttributeDTO":
-                if(attribute.singleSelectValue === null) return
+                const single = attribute as ShotSingleSelectAttributeDto
+                if(single.singleSelectValue === null) return
                 setSingleSelectValue({
-                    label: attribute.singleSelectValue?.name || "",
-                    value: attribute.singleSelectValue?.id || "",
+                    label: single.singleSelectValue?.name || "",
+                    value: single.singleSelectValue?.id || "",
                 })
                 break
             case "ShotMultiSelectAttributeDTO":
-                if(attribute.multiSelectValue === null || attribute.multiSelectValue?.length == 0) return
-                setMultiSelectValue(attribute.multiSelectValue?.map(
+                const multi = attribute as ShotMultiSelectAttributeDto
+                if(multi.multiSelectValue === null || multi.multiSelectValue?.length == 0) return
+                setMultiSelectValue(multi.multiSelectValue?.map(
                     (option) => {
                         return {
                             label: option?.name || "",
@@ -86,7 +93,8 @@ const ShotAttribute = forwardRef<ShotAttributeRef, ShotAttributeProps>(
                 ))
                 break
             case "ShotTextAttributeDTO":
-                if(textValue == "") setTextValue(attribute.textValue || "")
+                const text = attribute as ShotTextAttributeDto
+                if(textValue == "") setTextValue(text.textValue || "")
                 break
         }
     }, []);
@@ -98,7 +106,7 @@ const ShotAttribute = forwardRef<ShotAttributeRef, ShotAttributeProps>(
     }, [textValue]);
 
     const setFocus = () =>{
-        if(attribute.__typename == "ShotTextAttributeDTO"){
+        if(attribute.type == "ShotTextAttributeDTO"){
             textInputRef.current?.focus()
         }
         else{
@@ -146,7 +154,7 @@ const ShotAttribute = forwardRef<ShotAttributeRef, ShotAttributeProps>(
             variables: { definitionId: attribute.definition?.id, name: inputValue },
         });
 
-        if(attribute.__typename == "ShotMultiSelectAttributeDTO")
+        if(attribute.type == "ShotMultiSelectAttributeDTO")
             updateMultiSelectValue([
                 ...multiSelectValue || [],
                 {
@@ -155,7 +163,7 @@ const ShotAttribute = forwardRef<ShotAttributeRef, ShotAttributeProps>(
                 }
             ])
 
-        if(attribute.__typename == "ShotSingleSelectAttributeDTO")
+        if(attribute.type == "ShotSingleSelectAttributeDTO")
             updateSingleSelectValue({
                 label: data.createShotSelectAttributeOption.name,
                 value: data.createShotSelectAttributeOption.id
@@ -215,7 +223,7 @@ const ShotAttribute = forwardRef<ShotAttributeRef, ShotAttributeProps>(
     if(readOnly)
         content = <p className={"readOnlyValue"}>{ShotAttributeParser.toValueString(attribute, false)}</p>
     else {
-        switch (attribute.__typename) {
+        switch (attribute.type) {
             case "ShotSingleSelectAttributeDTO":
                 content = (
                     <>

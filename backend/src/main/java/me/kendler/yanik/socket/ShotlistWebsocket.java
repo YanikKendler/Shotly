@@ -41,6 +41,7 @@ public class ShotlistWebsocket {
         UUID userId = UUID.fromString(connection.pathParam("userId"));
 
         websocketService.addToRoom(shotlistId, userId, connection.id());
+        websocketService.sendPresentUsers(shotlistId, connection);
     }
 
     @OnClose

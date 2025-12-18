@@ -151,6 +151,7 @@ const ShotTable = forwardRef((
                         attributes{
                             id
                             definition{id, name, position}
+                            type
 
                             ... on ShotSingleSelectAttributeDTO{
                                 singleSelectValue{id,name}
@@ -188,6 +189,7 @@ const ShotTable = forwardRef((
                         attributes{
                             id
                             definition{id, name, position}
+                            type
 
                             ... on ShotSingleSelectAttributeDTO{
                                 singleSelectValue{id,name}

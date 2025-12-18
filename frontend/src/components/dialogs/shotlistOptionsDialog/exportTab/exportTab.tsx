@@ -9,8 +9,8 @@ import {
     SceneAttributeType,
     SceneDto,
     ShotDto,
-    ShotlistDto,
-    ShotSelectAttributeOptionDefinition
+    ShotlistDto, ShotMultiSelectAttributeDto,
+    ShotSelectAttributeOptionDefinition, ShotSingleSelectAttributeDto
 } from "../../../../../lib/graphql/generated"
 import "./exportTab.scss"
 import SimpleSelect from "@/components/inputs/simpleSelect/simpleSelect"
@@ -112,6 +112,7 @@ export default function ExportTab(
                                 attributes{
                                     id
                                     definition{id, name, position}
+                                    type
 
                                     ... on SceneSingleSelectAttributeDTO{
                                         singleSelectValue{id,name}
@@ -130,6 +131,7 @@ export default function ExportTab(
                                     attributes{
                                         id
                                         definition{id, name, position}
+                                        type
 
                                         ... on ShotSingleSelectAttributeDTO{
                                             singleSelectValue{id,name}
@@ -195,15 +197,15 @@ export default function ExportTab(
                     const filter = customFilters.get(attribute.definition?.id)?.map(f => Number(f.value))
                     if(!filter || filter.length == 0) return true //a filter was defined but no options were selected
 
-                    switch (attribute.__typename){
+                    switch (attribute.type){
                         case "ShotSingleSelectAttributeDTO":
-                            const singleValueId = attribute.singleSelectValue?.id
+                            const singleValueId = (attribute as ShotSingleSelectAttributeDto).singleSelectValue?.id
                             if(filter.includes(singleValueId)) {
                                 return true
                             }
                             break
                         case "ShotMultiSelectAttributeDTO":
-                            const multiValue = attribute.multiSelectValue
+                            const multiValue = (attribute as ShotMultiSelectAttributeDto).multiSelectValue
                             if(multiValue?.some(value =>
                                 filter.includes(value?.id))
                             ) {
@@ -343,7 +345,7 @@ export default function ExportTab(
         ?.filter(attributeDefinition => {
             if(
                 customFilters.has(attributeDefinition?.id) ||
-                (attributeDefinition as AnyShotAttributeDefinition).__typename === "ShotTextAttributeDefinitionDTO"
+                (attributeDefinition as AnyShotAttributeDefinition).type === "ShotTextAttributeDefinitionDTO"
             ) return false
             return true
         })

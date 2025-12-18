@@ -14,7 +14,11 @@ import {ShotAttributeDefinitionParser} from "@/util/AttributeParser"
 import gql from "graphql-tag"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
 import {useApolloClient} from "@apollo/client"
-import {SceneDto, ShotSelectAttributeOptionDefinition} from "../../../../../../lib/graphql/generated"
+import {
+    SceneDto,
+    ShotSelectAttributeOptionDefinition, ShotSingleSelectAttributeDefinitionDto,
+    ShotSingleSelectAttributeDto
+} from "../../../../../../lib/graphql/generated"
 import { Popover } from "radix-ui"
 import {useEffect, useState} from "react"
 import {wuGeneral} from "@yanikkendler/web-utils/dist"
@@ -206,12 +210,12 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
                 placeholder={"Attribute name"}
                 onInput={(e) => debouncedUpdateDefinition(e.currentTarget.value)}
             />
-            {(definition.__typename == "ShotMultiSelectAttributeDefinitionDTO" || definition.__typename == "ShotSingleSelectAttributeDefinitionDTO") && (
+            {(definition.type == "ShotMultiSelectAttributeDefinitionDTO" || definition.type == "ShotSingleSelectAttributeDefinitionDTO") && (
                 <Popover.Root>
                     <Popover.Trigger><span>Edit options</span> <ListCollapse size={18}/></Popover.Trigger>
                     <Popover.Portal>
                         <Popover.Content className="PopoverContent editShotAttributeOptionsPopup" sideOffset={5} align={"start"}>
-                            {(definition.options as ShotSelectAttributeOptionDefinition[])?.map((option, index) => (
+                            {((definition as ShotSingleSelectAttributeDefinitionDto).options as ShotSelectAttributeOptionDefinition[])?.map((option, index) => (
                                 <div className="option" key={option.id}>
                                     <p>{index + 1}</p>
                                     <input

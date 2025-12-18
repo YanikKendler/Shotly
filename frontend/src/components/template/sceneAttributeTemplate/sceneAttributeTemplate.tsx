@@ -6,7 +6,7 @@ import {Grip, GripVertical, Pencil, Plus, Trash} from "lucide-react"
 import {useEffect, useState} from "react"
 import {
     AnySceneAttributeTemplate,
-    SceneSingleOrMultiSelectAttributeTemplate
+    SceneSingleOrMultiSelectAttributeTemplate, ShotSingleOrMultiSelectAttributeTemplate
 } from "@/util/Types"
 import {useSortable} from "@dnd-kit/sortable"
 import {CSS} from "@dnd-kit/utilities"
@@ -197,13 +197,13 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
                 placeholder={"Attribute name"}
                 inputClass={"nameInput"}
             />
-            {(attribute.__typename == "SceneMultiSelectAttributeTemplateDTO" || attribute.__typename == "SceneSingleSelectAttributeTemplateDTO") && (
+            {(attribute.type == "SceneMultiSelectAttributeTemplateDTO" || attribute.type == "SceneSingleSelectAttributeTemplateDTO") && (
                 <Popover.Root>
                     <Popover.Trigger className={"editOptions"}>Edit options <Pencil size={16}/></Popover.Trigger>
                     <Popover.Portal>
                         <Popover.Content className="PopoverContent editAttributeOptionTemplatesPopup" sideOffset={5}
                                          align={"start"}>
-                            {(attribute.options as SceneSelectAttributeOptionTemplate[])?.map((option, index) => (
+                            {((attribute as SceneSingleOrMultiSelectAttributeTemplate).options as SceneSelectAttributeOptionTemplate[])?.map((option, index) => (
                                 <div className="option" key={option?.id}>
                                     <p>{index + 1}</p>
                                     <input

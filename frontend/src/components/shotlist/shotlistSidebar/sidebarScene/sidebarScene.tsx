@@ -3,7 +3,7 @@
 import {SceneAttributeParser} from "@/util/AttributeParser"
 import {SceneDto} from "../../../../../lib/graphql/generated"
 import "./sidebarScene.scss"
-import React, {forwardRef, useContext, useEffect, useState} from "react"
+import React, {forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
 import {Collapsible, Popover, Separator, Tooltip} from "radix-ui"
 import {AnySceneAttribute, AnyShotAttribute} from "@/util/Types"
 import {ArrowBigDown, ArrowBigUp, CornerDownRight, GripVertical, List, NotepadText, Trash} from "lucide-react"
@@ -11,10 +11,14 @@ import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
 import {ShotlistContext} from "@/context/ShotlistContext"
-import SceneAttribute from "../sceneAttribute/sceneAttribute"
+import SceneAttribute, {SceneAttributeRef} from "../sceneAttribute/sceneAttribute"
 
 export interface SidebarSceneRef {
     closePopover: () => void
+    getAttribute: (position: number) => SceneAttributeRef | null,
+    findAttribute: (attributeId: number) => SceneAttributeRef | null,
+    id: string,
+    position: number
 }
 
 export interface SidebarSceneProps {
@@ -23,13 +27,12 @@ export interface SidebarSceneProps {
     expanded: boolean,
     onSelect: ( id: string | null, position: number | null) => void,
     onDelete: ( id: string) => void,
-    moveScene: (sceneId: string, from: number, to: number) => void,
+    moveScene: (sceneId: string, to: number) => void,
     readOnly: boolean
 }
 
 //TODO first open is laggy
-const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>((
-    {
+const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
         scene,
         position,
         expanded,
@@ -37,8 +40,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>((
         onDelete,
         moveScene,
         readOnly
-    }, ref
-) => {
+}, ref) => {
     const [overflowVisible, setOverflowVisible] = useState(false);
     const [sceneAttributes, setSceneAttributes] = useState<AnySceneAttribute[]>(scene.attributes as AnySceneAttribute[]);
     const [editMenuIsOpen, setEditMenuIsOpen] = useState(false);
@@ -48,6 +50,23 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>((
     const shotlistContext = useContext(ShotlistContext)
 
     const client = useApolloClient()
+
+    const attributeRefs = useRef<Map<number, SceneAttributeRef | null>>(new Map())
+
+    useImperativeHandle(ref, () => ({
+        closePopover: () => setEditMenuIsOpen(false),
+        position: position,
+        id: scene.id || "unknown",
+        getAttribute: (position: number) => attributeRefs.current.get(position) || null,
+        findAttribute: (attributeId: number) => {
+            for (let attributeRef of Array.from(attributeRefs.current.values())) {
+                if(!attributeRef) continue
+
+                if(attributeRef.id == attributeId) return attributeRef
+            }
+            return null
+        }
+    }))
 
     useEffect(() => {
         if (!expanded) {
@@ -75,10 +94,12 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>((
         });
 
         if(errors) {
+            //TODO notify user
             console.error(errors)
         }
         else{
             onDelete(scene.id as string)
+            onSelect(null, null)
         }
     }
 
@@ -132,13 +153,13 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>((
                                 <Separator.Root className="Separator"/>
                                 <button
                                     disabled={position == 0}
-                                    onClick={() => moveScene(scene.id as string, position, position - 1)}
+                                    onClick={() => moveScene(scene.id as string, position - 1)}
                                 >
                                     <ArrowBigUp size={18}/>Move up
                                 </button>
                                 <button
                                     disabled={position >= shotlistContext.sceneCount - 1}
-                                    onClick={() => moveScene(scene.id as string, position, position + 1)}
+                                    onClick={() => moveScene(scene.id as string, position + 1)}
                                 >
                                     <ArrowBigDown size={18}/>Move down
                                 </button>
@@ -170,7 +191,14 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>((
                                         newAttributes[index] = attribute
                                         setSceneAttributes(newAttributes)
                                     }}
-                                    readOnly={readOnly}
+                                    isReadOnly={readOnly}
+                                    ref={(node) => {
+                                        attributeRefs.current.set(index, node)
+
+                                        return () => {
+                                            attributeRefs.current.delete(index)
+                                        }
+                                    }}
                                 ></SceneAttribute>
                         ))}
                     </div>

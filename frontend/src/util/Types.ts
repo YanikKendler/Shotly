@@ -29,6 +29,10 @@ export type SceneSingleOrMultiSelectAttributeTemplate = SceneSingleSelectAttribu
 
 export type AnyAttributeDefinition = AnyShotAttributeDefinition | AnySceneAttributeDefinition
 
+export type ShotAttributeValueMultiType = string | SelectOption | SelectOption[] | null
+
+export type SceneAttributeValueMultiType = string | SelectOption | SelectOption[] | null
+
 export type ShotlistOrTemplate = ShotlistDto | TemplateDto
 
 export interface SelectOption {

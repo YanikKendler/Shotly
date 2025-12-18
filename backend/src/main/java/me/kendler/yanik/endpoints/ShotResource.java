@@ -56,16 +56,45 @@ public class ShotResource {
 
     @Mutation
     public ShotDTO createShot(@PathParam("sceneId") UUID sceneId){
-        userRepository.checkShotlistEditRights(sceneRepository.findById(sceneId).shotlist, jwt);
+        Shotlist affectedShotlist = sceneRepository.findById(sceneId).shotlist;
+        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
 
-        return shotRepository.create(sceneId);
+        ShotDTO result = shotRepository.create(sceneId);
+
+        shotlistWebsocketService.broadcast(
+                affectedShotlist.id,
+                new ShotlistUpdateDTO(
+                    ShotlistUpdateType.SHOT_ADDED,
+                    userRepository.findOrCreateByJWT(jwt).id,
+                    new ShotPayload(
+                        result
+                    )
+                )
+        );
+
+        return result;
     }
 
     @Mutation
     public ShotDTO deleteShot(@PathParam("id") UUID id) {
-        userRepository.checkShotlistEditRights(shotRepository.findById(id).scene.shotlist, jwt);
+        Shotlist affectedShotlist = shotRepository.findById(id).scene.shotlist;
 
-        return shotRepository.delete(id);
+        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
+
+        ShotDTO result = shotRepository.delete(id);
+
+        shotlistWebsocketService.broadcast(
+                affectedShotlist.id,
+                new ShotlistUpdateDTO(
+                    ShotlistUpdateType.SHOT_DELETED,
+                    userRepository.findOrCreateByJWT(jwt).id,
+                    new ShotPayload(
+                        result
+                    )
+                )
+        );
+
+        return result;
     }
 
     @Mutation
@@ -78,11 +107,11 @@ public class ShotResource {
         shotlistWebsocketService.broadcast(
                 affectedShotlist.id,
                 new ShotlistUpdateDTO(
-                        ShotlistUpdateType.SHOT_UPDATED,
-                        userRepository.findOrCreateByJWT(jwt).id,
-                        new ShotPayload(
-                                result
-                        )
+                    ShotlistUpdateType.SHOT_UPDATED,
+                    userRepository.findOrCreateByJWT(jwt).id,
+                    new ShotPayload(
+                        result
+                    )
                 )
         );
 
@@ -145,8 +174,7 @@ public class ShotResource {
                         ShotlistUpdateType.SHOT_ATTRIBUTE_UPDATED,
                         userRepository.findOrCreateByJWT(jwt).id,
                         new ShotAttributePayload(
-                            result,
-                            result.getClass().getSimpleName()
+                            result
                         )
                 )
         );

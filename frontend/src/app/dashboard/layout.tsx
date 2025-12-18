@@ -394,7 +394,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                     </div>
                     <button className="closearea" onClick={() => setSidebarOpen(false)}/>
                 </Panel>
-                <PanelResizeHandle className="PanelResizeHandle"/>
+                <PanelResizeHandle className="PanelResizeHandle sidebarResize"/>
                 <Panel className={`headerContainer ${pathname?.includes("template") ? "template" : ""}`}>
                     <div className="header">
                         {

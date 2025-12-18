@@ -16,6 +16,7 @@
   border-radius: .3rem;
   border: 2px solid transparent;
   transition: border .2s, color .2s;
+  background-color: var(--sidebar-bg);
 
   &:not(.expanded) {
     .name {

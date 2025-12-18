@@ -15,6 +15,8 @@
   --accent-95: hsl(19, 81%, 95%);
   --accent-98: hsl(19, 81%, 98%);
 
+  --collaborator: hsl(48, 100%, 47%);
+
   --bad-20: hsl(0, 80%, 20%);
   --bad-40: hsl(0, 70%, 50%);
   --bad: hsl(0, 70%, 60%);
@@ -97,6 +99,8 @@
   --accent-92: hsl(19, 70%, 13%);
   --accent-95: hsl(19, 70%, 7%);
   --accent-98: hsl(19, 70%, 5%);
+
+  --collaborator: hsl(48, 90%, 65%);
 
   --text: hsl(0, 0%, 90%);
   --text-10: hsl(0, 0%, 85%);
@@ -330,6 +334,7 @@ span.wrap{
   flex-grow: 1;
   width: var(--sidebar-width);
   max-width: var(--sidebar-width);
+  min-width: 180px;
 
   .closearea{
     display: none;
@@ -338,6 +343,9 @@ span.wrap{
   &.collapse{
     @media screen and (max-width: 600px){
       position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
       z-index: 100;
       background-color: var(--hover-bg-10);
       backdrop-filter: blur(10px);
@@ -492,6 +500,12 @@ span.wrap{
   }
 }
 
+@media screen and (max-width: 600px){
+  .PanelResizeHandle.sidebarResize{
+    display: none;
+  }
+}
+
 // Style radix collapsible
 
 .CollapsibleContent {
@@ -623,6 +637,11 @@ span.wrap{
 
   :where(svg){
     color: var(--text-20);
+  }
+
+  /* Arrow */
+  > span > svg {
+    fill: var(--popup-border);
   }
 }
 

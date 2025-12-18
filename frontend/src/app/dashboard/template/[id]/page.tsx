@@ -95,7 +95,7 @@ export default function Template (){
                             id
                             name
                             position
-                            __typename
+                            type
 
 
                             ... on ShotSingleSelectAttributeTemplateDTO {
@@ -116,7 +116,7 @@ export default function Template (){
                             id
                             name
                             position
-                            __typename
+                            type
                             
                             ... on SceneSingleSelectAttributeTemplateDTO {
                                 options {

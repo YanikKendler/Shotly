@@ -1,19 +1,26 @@
 import {AnyShotAttribute, SelectOption} from "@/util/Types"
 import {SheetManagerRef} from "@/components/shotlist/spreadsheet/sheetManager/sheetManager"
 import {
+    CollaborationDto, CollaborationType, SceneAttributeBase, SceneAttributeBaseDto, SceneDto,
     ShotDto,
     ShotMultiSelectAttributeDto,
     ShotSingleSelectAttributeDto,
     ShotTextAttributeDto, UserTier
 } from "../../lib/graphql/generated"
-
-export type ShotAttributeValueMultiType = string | SelectOption | SelectOption[]
+import {SceneAttributeParser, ShotAttributeParser} from "@/util/AttributeParser"
+import {ShotlistSidebarRef} from "@/components/shotlist/shotlistSidebar/shotlistSidebar"
 
 export enum ShotlistUpdateType {
     USER_JOINED = "USER_JOINED",
     USER_LEFT = "USER_LEFT",
     SHOT_ATTRIBUTE_UPDATED = "SHOT_ATTRIBUTE_UPDATED",
-    SHOT_UPDATED = "SHOT_UPDATED"
+    SHOT_ADDED = "SHOT_ADDED",
+    SHOT_UPDATED = "SHOT_UPDATED",
+    SHOT_DELETED = "SHOT_DELETED",
+    SCENE_ADDED = "SCENE_ADDED",
+    SCENE_UPDATED = "SCENE_UPDATED",
+    SCENE_DELETED = "SCENE_DELETED",
+    SCENE_ATTRIBUTE_UPDATED = "SCENE_ATTRIBUTE_UPDATED"
 }
 
 /**
@@ -35,7 +42,6 @@ export interface UserPayload {
 export interface ShotAttributePayload {
     kind: "shotAttribute"
     attribute: AnyShotAttribute
-    type: string
 }
 
 export interface ShotPayload {
@@ -43,7 +49,28 @@ export interface ShotPayload {
     shot: ShotDto
 }
 
-export type ShotlistUpdatePayload = UserPayload | ShotAttributePayload | ShotPayload
+export interface CollaborationPayload {
+    kind: "collaboration"
+    userId: string
+    type: CollaborationType
+}
+
+export interface PresentCollaboratorsPayload {
+    kind: "presentCollaborators"
+    collaborators: UserMinimalDTO[]
+}
+
+export interface ScenePayload {
+    kind: "scene"
+    scene: SceneDto
+}
+
+export interface SceneAttributePayload {
+    kind: "sceneAttribute"
+    attribute: SceneAttributeBaseDto
+}
+
+export type ShotlistUpdatePayload = UserPayload | ShotAttributePayload | ShotPayload | CollaborationPayload | PresentCollaboratorsPayload | ScenePayload | SceneAttributePayload
 
 /* other stuff */
 
@@ -67,50 +94,58 @@ export class ShotlistSyncService {
     updateShotAttribute(payload: ShotAttributePayload, sheetManager: SheetManagerRef | null){
         const sheetCellRef = sheetManager?.findCellRef(payload.attribute.id)
 
-        let multiTypeValue: ShotAttributeValueMultiType | null = null
-        let textValue: string | null = null
-
-        switch (payload.type) {
-            case "ShotTextAttributeDTO":
-                const textAttribute = payload.attribute as ShotTextAttributeDto
-                multiTypeValue = textAttribute.textValue || "Unknown"
-                textValue = textAttribute.textValue || "Unknown"
-                break
-            case "ShotSingleSelectAttributeDTO":
-                const singleAttribute = payload.attribute as ShotSingleSelectAttributeDto
-                const option: SelectOption = {
-                    label: singleAttribute.singleSelectValue?.name || "",
-                    value: singleAttribute.singleSelectValue?.id
-                }
-                textValue = singleAttribute.singleSelectValue?.name || ""
-                multiTypeValue = option
-                break
-            case "ShotMultiSelectAttributeDTO":
-                const multiAttribute = payload.attribute as ShotMultiSelectAttributeDto
-                const options: SelectOption[] = multiAttribute.multiSelectValue?.map(
-                    (option) => {
-                        return {
-                            label: option?.name || "",
-                            value: option?.id
-                        }
-                    }
-                ) || []
-                textValue = <string>options?.map((option) => option?.label).join(", ")
-                multiTypeValue = options
-                break
-        }
-
         if(this.isReadOnly){
-            sheetCellRef?.setReadOnlyValue(textValue || "")
+            sheetCellRef?.setReadOnlyValue(ShotAttributeParser.toValueString(payload.attribute))
         }
-        else if(multiTypeValue){
-            sheetCellRef?.setValue(multiTypeValue)
+        else {
+            sheetCellRef?.setValue(ShotAttributeParser.toMultiTypeValue(payload.attribute))
         }
     }
 
-    updateShot(payload: ShotPayload, sheetManager: SheetManagerRef | null){
-        if(!payload.shot || !payload.shot.id) return
+    createShot(payload: ShotPayload, sheetManager: SheetManagerRef | null){
+        if(!payload.shot || !payload.shot.id || !sheetManager) return
 
-        sheetManager?.onMoveShot(payload.shot.id, payload.shot.position)
+        sheetManager.onCreateShot(payload.shot)
+    }
+
+    updateShot(payload: ShotPayload, sheetManager: SheetManagerRef | null){
+        if(!payload.shot || !payload.shot.id || !sheetManager) return
+
+        sheetManager.onMoveShot(payload.shot.id, payload.shot.position)
+    }
+
+    deleteShot(payload: ShotPayload, sheetManager: SheetManagerRef | null){
+        if(!payload.shot || !payload.shot.id || !sheetManager) return
+
+        sheetManager.onDeleteShot(payload.shot.id)
+    }
+
+    updateSceneAttribute(payload: SceneAttributePayload, sidebar: ShotlistSidebarRef | null){
+        const attributeRef = sidebar?.findAttribute(payload.attribute.id)
+
+        if(this.isReadOnly){
+            attributeRef?.setReadOnlyValue(SceneAttributeParser.toValueString(payload.attribute))
+        }
+        else {
+            attributeRef?.setValue(SceneAttributeParser.toMultiTypeValue(payload.attribute))
+        }
+    }
+
+    createScene(payload: ScenePayload, sidebar: ShotlistSidebarRef | null){
+        if(!payload.scene || !payload.scene.id || !sidebar) return
+
+        sidebar.onCreateScene(payload.scene)
+    }
+
+    updateScene(payload: ScenePayload, sidebar: ShotlistSidebarRef | null){
+        if(!payload.scene || !payload.scene.id || !sidebar) return
+
+        sidebar.onMoveScene(payload.scene.id, payload.scene.position)
+    }
+
+    deleteScene(payload: ScenePayload, sidebar: ShotlistSidebarRef | null){
+        if(!payload.scene || !payload.scene.id || !sidebar) return
+
+        sidebar.onDeleteScene(payload.scene.id)
     }
 }

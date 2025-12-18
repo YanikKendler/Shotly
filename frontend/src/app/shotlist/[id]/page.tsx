@@ -7,7 +7,7 @@ import {
     CollaborationDto,
     CollaborationType,
     Query,
-    ShotAttributeDefinitionBase, UserDto,
+    ShotAttributeDefinitionBase,
     UserTier
 } from "../../../../lib/graphql/generated"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
@@ -25,11 +25,18 @@ import auth from "@/Auth"
 import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
 import Utils, {Config} from "@/util/Utils"
-import {AnyShotAttribute, SelectOption} from "@/util/Types"
+import {SelectOption} from "@/util/Types"
 import SheetManager, {SheetManagerRef} from "@/components/shotlist/spreadsheet/sheetManager/sheetManager"
-import ShotlistSidebar from "@/components/shotlist/shotlistSidebar/shotlistSidebar"
+import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/shotlist/shotlistSidebar/shotlistSidebar"
 import Skeleton from "react-loading-skeleton"
-import {ShotlistSyncService, ShotlistUpdateDTO, ShotlistUpdateType} from "@/service/ShotlistSyncService"
+import {
+    CollaborationPayload,
+    ShotlistSyncService,
+    ShotlistUpdateDTO,
+    ShotlistUpdateType,
+    UserMinimalDTO,
+    UserPayload
+} from "@/service/ShotlistSyncService"
 
 export interface SelectedScene {
     id: string | null
@@ -48,10 +55,15 @@ export default function Shotlist() {
     const params = useParams<{ id: string }>()
     const id = params?.id || ""
     const searchParams = useSearchParams()
+    /* TODO
+    * should handle this better because currently the scene positon is null so the scene nums in the rows would be displayed wrong
+    * should probably just shfit the selected scene to shotcontext
+    */
     const sceneId = searchParams?.get('sid')
 
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
-    const [selectedScene, setSelectedScene] = useState<SelectedScene>({ id: null, position: null })
+    const [selectedScene, setSelectedScene] = useState<SelectedScene>({ id: sceneId, position: null })
+    const selectedSceneRef = useRef<SelectedScene>(selectedScene)
     const [optionsDialogOpen, setOptionsDialogOpen] = useState(false)
     const [selectedOptionsDialogPage, setSelectedOptionsDialogPage] = useState<{main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage}>({main: "general", sub: "shot"})
     const [elementIsBeingDragged, setElementIsBeingDragged] = useState(false)
@@ -64,10 +76,12 @@ export default function Shotlist() {
     const [sceneCount, setSceneCount] = useState(0)
 
     const [readOnlyBannerVisible, setReadOnlyBannerVisible] = useState(true)
+    const [presentCollaborators, setPresentCollaborators] = useState<Set<UserMinimalDTO>>()
 
     const focusedCell = useRef({row: -1, column:-1})
     const headerRef = useRef<HTMLDivElement>(null)
     const sheetManagerRef = useRef<SheetManagerRef>(null)
+    const sidebarRef = useRef<ShotlistSidebarRef>(null);
 
     const shotSelectOptionsCache = useRef(new Map<number, SelectOption[]>())
     const websocketRef = useRef<WebSocket | null>(null)
@@ -128,6 +142,7 @@ export default function Shotlist() {
     }, [readOnlyState]);
 
     useEffect(() => {
+        //intro tour
         if(!query.loading && !query.error && query.data && query.data.shotlist && query.data.shotlist.id) {
             if(localStorage.getItem(Config.localStorageKey.shotlistTourCompleted) != "true") {
                 localStorage.setItem(Config.localStorageKey.shotlistTourCompleted, "true")
@@ -135,6 +150,7 @@ export default function Shotlist() {
             }
         }
 
+        //select first scene if none is selected
         if(
             (
                 selectedScene?.id == "" ||
@@ -147,16 +163,29 @@ export default function Shotlist() {
         ) {
             selectScene(query.data.shotlist.scenes[0].id, query.data.shotlist.scenes[0].position)
         }
+
+        //read only state
+        if(query.data.shotlist?.collaborations)
+            calculateReadOnlyState()
     }, [query])
 
+    useEffect(() => {
+        selectedSceneRef.current = selectedScene
+    }, [selectedScene]);
+
     const joinShotlistWebsocket = (currentUserId: string) => {
+        websocketRef.current?.close()
+
         const websocket = new WebSocket(`ws://localhost:8080/shotlist/${id}/${currentUserId}`)
 
         websocket.onopen = () => console.log('Connected to WebSocket server')
         websocket.onmessage = (message) => {
             let updateDTO = JSON.parse(message.data) as ShotlistUpdateDTO
 
-            if(!updateDTO) return
+            if(!updateDTO) {
+                //TODO notify user
+                return
+            }
 
             if(!syncService.current) {
                 console.error("syncService not initialized")
@@ -168,12 +197,85 @@ export default function Shotlist() {
                     syncService.current.updateShotAttribute(updateDTO.payload, sheetManagerRef.current)
                     break
                 case "shot":
-                    syncService.current.updateShot(updateDTO.payload, sheetManagerRef.current)
-                    break
-            }
+                    if(updateDTO.payload.shot.sceneId != selectedSceneRef.current.id) return
 
-            if(updateDTO.type == ShotlistUpdateType.USER_JOINED) {
-                console.log(`User joined the shotlist`)
+                    switch (updateDTO.type) {
+                        case ShotlistUpdateType.SHOT_ADDED:
+                            syncService.current.createShot(updateDTO.payload, sheetManagerRef.current)
+                            break
+                        case ShotlistUpdateType.SHOT_UPDATED:
+                            syncService.current.updateShot(updateDTO.payload, sheetManagerRef.current)
+                            break
+                        case ShotlistUpdateType.SHOT_DELETED:
+                            syncService.current.deleteShot(updateDTO.payload, sheetManagerRef.current)
+                            break
+                    }
+                    break
+                case "user":
+                    const userPayload = updateDTO.payload as UserPayload
+                    if(updateDTO.type == ShotlistUpdateType.USER_JOINED){
+                        setPresentCollaborators(prev => {
+                            const newSet = new Set(prev)
+                            newSet.add(userPayload.user)
+                            return newSet
+                        })
+                    }
+                    else if(updateDTO.type == ShotlistUpdateType.USER_LEFT){
+                        setPresentCollaborators(prev => {
+                            const newSet = new Set(prev)
+                            newSet.forEach(user => {
+                                if(user.id == userPayload.user.id)
+                                    newSet.delete(user)
+                            })
+                            return newSet
+                        })
+                    }
+
+                    break
+                case "collaboration":
+                    const collabPayload = updateDTO.payload as CollaborationPayload
+
+                    setQuery(prev => {
+                        if (!prev.data?.shotlist) return prev
+
+                        return {
+                            ...prev,
+                            data: {
+                                ...prev.data,
+                                shotlist: {
+                                    ...prev.data.shotlist,
+                                    collaborations: prev.data.shotlist.collaborations?.map(collab => {
+                                            if(collab?.user?.id === collabPayload.userId)
+                                                return {...collab, collaborationType: collabPayload.type}
+                                            else
+                                                return collab
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    })
+                    break
+                case "presentCollaborators":
+                    console.log("present collaborators", updateDTO.payload.collaborators)
+                    setPresentCollaborators(new Set(updateDTO.payload.collaborators))
+                    break
+                case "sceneAttribute":
+                    syncService.current.updateSceneAttribute(updateDTO.payload, sidebarRef.current)
+                    break
+                case "scene":
+                    switch (updateDTO.type) {
+                        case ShotlistUpdateType.SCENE_ADDED:
+                            syncService.current.createScene(updateDTO.payload, sidebarRef.current)
+                            break
+                        case ShotlistUpdateType.SCENE_DELETED:
+                            syncService.current.deleteScene(updateDTO.payload, sidebarRef.current)
+                            break
+                        case ShotlistUpdateType.SCENE_UPDATED:
+                            syncService.current.updateScene(updateDTO.payload, sidebarRef.current)
+                            break
+                    }
+                    break
             }
         }
         websocket.onclose = () => console.log('Disconnected from WebSocket server')
@@ -236,6 +338,7 @@ export default function Shotlist() {
                                 attributes{
                                     id
                                     definition{id, name, position}
+                                    type
 
                                     ... on SceneSingleSelectAttributeDTO{
                                         singleSelectValue{id,name}
@@ -280,29 +383,6 @@ export default function Shotlist() {
                 errorPolicy: "all",
             })
 
-            //users in basic mode are only allowed to have one single shotlist
-            if (
-                result.data.shotlist &&
-                result.data.shotlist.owner &&
-                result.data.shotlist.owner.tier == UserTier.Basic &&
-                result.data.shotlist.owner.shotlistCount > 1
-            ) {
-                setReadOnlyState({
-                    isReadOnly: true,
-                    reason: "tooManyShotlists"
-                })
-            }
-
-            //the current user only has view access to the shotlist
-            result.data.shotlist.collaborations.forEach((collab: CollaborationDto) => {
-                if(collab?.user?.id == result.data.currentUser.id && collab.collaborationType == CollaborationType.View) {
-                    setReadOnlyState({
-                        isReadOnly: true,
-                        reason: "collaborationViewOnly"
-                    })
-                }
-            })
-
             setSceneCount(result.data.shotlist?.scenes?.length || 0)
 
             setQuery(result)
@@ -311,6 +391,37 @@ export default function Shotlist() {
         }
         catch (e){
             setQuery({...query, error: e as ApolloError})
+        }
+    }
+
+    const calculateReadOnlyState = () => {
+        let newState: ReadOnlyState = {isReadOnly: false}
+
+        //users in basic mode are only allowed to have one single shotlist
+        if (
+            query.data.shotlist &&
+            query.data.shotlist.owner &&
+            query.data.shotlist.owner.tier == UserTier.Basic &&
+            query.data.shotlist.owner.shotlistCount > 1
+        ) {
+            newState = {
+                isReadOnly: true,
+                reason: "tooManyShotlists"
+            }
+        }
+
+        //the current user only has view access to the shotlist
+        (query.data.shotlist?.collaborations as CollaborationDto[]).forEach((collab: CollaborationDto) => {
+            if(collab?.user?.id == query.data.currentUser?.id && collab.collaborationType == CollaborationType.View) {
+                newState = {
+                    isReadOnly: true,
+                    reason: "collaborationViewOnly"
+                }
+            }
+        })
+
+        if(newState.isReadOnly != readOnlyState.isReadOnly) {
+            setReadOnlyState(newState)
         }
     }
 
@@ -410,10 +521,14 @@ export default function Shotlist() {
                                     setOptionsDialogOpen(true)
                                     driverObj.destroy()
                                 }}
+
+                                presentCollaborators={presentCollaborators}
+
+                                ref={sidebarRef}
                             />
                         }
                     </Panel>
-                    <PanelResizeHandle className="PanelResizeHandle" hitAreaMargins={{fine: 5, coarse: 10}}/>
+                    <PanelResizeHandle className="PanelResizeHandle sidebarResize" hitAreaMargins={{fine: 5, coarse: 10}}/>
                     <Panel className="content" id={"shotTable"}>
                         <div className="header" ref={headerRef}>
                             <div className="number"><p>#</p></div>

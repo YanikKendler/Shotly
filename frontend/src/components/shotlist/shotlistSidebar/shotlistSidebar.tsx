@@ -1,32 +1,33 @@
 import Iconmark from "@/components/iconmark"
 import {FileSliders, House, Plus, User } from "lucide-react"
 import Link from "next/link"
-import { Tooltip } from "radix-ui"
+import {Popover, Tooltip } from "radix-ui"
 import {Query, SceneDto, ShotlistDto} from "../../../../lib/graphql/generated"
 import gql from "graphql-tag"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {wuGeneral} from "@yanikkendler/web-utils"
 import ErrorDisplay from "@/components/feedback/errorDisplay/errorDisplay"
 import SidebarScene, {SidebarSceneRef} from "@/components/shotlist/shotlistSidebar/sidebarScene/sidebarScene"
-import React, {useContext, useEffect, useRef} from "react"
+import React, {forwardRef, useContext, useEffect, useImperativeHandle, useRef} from "react"
 import Utils from "@/util/Utils"
 import {useAccountDialog} from "@/components/dialogs/accountDialog/accountDialog"
 import Sortable from "sortablejs"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import "./shotlistSidebar.scss"
 import {SelectedScene} from "@/app/shotlist/[id]/page"
+import {UserMinimalDTO} from "@/service/ShotlistSyncService"
+import {SceneAttributeRef} from "@/components/shotlist/shotlistSidebar/sceneAttribute/sceneAttribute"
 
-export default function shotlistSidebar({
-    query,
-    selectScene,
-    setQuery,
-    selectedScene,
-    sceneCount,
-    setSceneCount,
-    isReadOnly,
-    setSidebarOpen,
-    openShotlistOptionsDialog
-}: {
+export interface ShotlistSidebarRef {
+    getScene: (position: number) => SceneDto | null
+    findScene: (sceneId: string) => SidebarSceneRef | null
+    findAttribute: (attributeId: number) => SceneAttributeRef | null
+    onCreateScene: (scene: SceneDto) => void,
+    onDeleteScene: (sceneId: string) => void
+    onMoveScene: (sceneId: string, to: number) => void
+}
+
+export interface ShotlistSidebarProps {
     query: ApolloQueryResult<Query>
     selectScene: (id: string | null, position: number | null) => void
     setQuery: (query: ApolloQueryResult<Query>) => void
@@ -36,7 +37,21 @@ export default function shotlistSidebar({
     isReadOnly: boolean
     setSidebarOpen: (open: boolean) => void
     openShotlistOptionsDialog: () => void
-}){
+    presentCollaborators?: Set<UserMinimalDTO>
+}
+
+const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
+    query,
+    selectScene,
+    setQuery,
+    selectedScene,
+    sceneCount,
+    setSceneCount,
+    isReadOnly,
+    setSidebarOpen,
+    openShotlistOptionsDialog,
+    presentCollaborators
+}, ref) =>{
     const client = useApolloClient()
     const {openAccountDialog, AccountDialog} = useAccountDialog()
     const shotlistContext = useContext(ShotlistContext)
@@ -44,6 +59,26 @@ export default function shotlistSidebar({
     const sortableRef = useRef<Sortable|null>(null)
 
     const sceneRefs = useRef<Map<number, SidebarSceneRef | null>>(new Map())
+
+    useImperativeHandle(ref, () => ({
+        getScene: (position: number) => sceneRefs.current.get(position) || null,
+        findScene: (sceneId: string): SidebarSceneRef | null =>
+            Array.from(sceneRefs.current.values())
+                .find(scene => scene?.id == sceneId) ?? null,
+        findAttribute: attributeId => {
+            for (let sceneRef of Array.from(sceneRefs.current.values())) {
+                if(!sceneRef) continue
+
+                const attributeRef = sceneRef.findAttribute(attributeId)
+                if(attributeRef) return attributeRef
+            }
+
+            return null
+        },
+        onCreateScene: onCreateScene,
+        onDeleteScene: onDeleteScene,
+        onMoveScene: onMoveScene,
+    }))
 
     useEffect(() => {
         if (sortableRef.current?.el) {
@@ -81,7 +116,6 @@ export default function shotlistSidebar({
 
                         moveScene(
                             event.item.dataset.sceneId as string,
-                            event.oldIndex,
                             event.newIndex
                         )
 
@@ -129,7 +163,7 @@ export default function shotlistSidebar({
 
     const debounceUpdateShotlistName = wuGeneral.debounce(updateShotlistName)
 
-    const moveScene = (sceneId: string, from: number, to: number) => {
+    const moveScene = (sceneId: string, to: number) => {
         if(!query.data.shotlist || !query.data.shotlist.scenes) return
 
         client.mutate({
@@ -147,6 +181,20 @@ export default function shotlistSidebar({
             variables: {id: sceneId, position: to},
         })
 
+        onMoveScene(sceneId, to)
+
+        // updates the position of the currently selected scene so that the scene number
+        // next to the shots is displayed correctly - this is accomplished via a re-render which is why
+        // its avoided if scene nums are turned off
+        if(Utils.getUserSettingsFromLocalStorage().displaySceneNumbersNextToShotNumbers)
+            selectScene(sceneId, to)
+    }
+
+    const onMoveScene = (sceneId: string, to: number) => {
+        const from = query.data.shotlist?.scenes?.findIndex((scene) => scene?.id == sceneId)
+
+        if(from == undefined || !query.data.shotlist?.scenes) return
+
         const newScenes = Utils.reorderArray(query.data.shotlist.scenes || [], from, to)
 
         setQuery({
@@ -159,15 +207,9 @@ export default function shotlistSidebar({
                 }
             }
         })
-
-        // updates the position of the currently selected scene so that the scene number
-        // next to the shots is displayed correctly - this causes a re-render which is why its avoided
-        // if scene nums are turned off
-        if(Utils.getUserSettingsFromLocalStorage().displaySceneNumbersNextToShotNumbers)
-            selectScene(sceneId, to)
     }
 
-    const removeScene = (sceneId: string) => {
+    const onDeleteScene = (sceneId: string) => {
         if(!query.data.shotlist || !query.data.shotlist.scenes) return
 
         let currentScenes = query.data.shotlist.scenes as SceneDto[]
@@ -181,11 +223,7 @@ export default function shotlistSidebar({
             }
         })
 
-        console.log(newScenes)
-
         setSceneCount(newScenes.length)
-
-        selectScene(null, null)
     }
 
     const createScene = async () => {
@@ -198,6 +236,7 @@ export default function shotlistSidebar({
                         attributes{
                             id
                             definition{id, name, position}
+                            type
 
                             ... on SceneSingleSelectAttributeDTO{
                                 singleSelectValue{id,name}
@@ -221,7 +260,13 @@ export default function shotlistSidebar({
             return;
         }
 
-        const newScenes = [...query.data.shotlist?.scenes as SceneDto[] || [], data.createScene]
+        onCreateScene(data.createScene)
+
+        selectScene(data.createScene.id || null, query.data.shotlist?.scenes?.length ?? null)
+    }
+
+    const onCreateScene = (scene: SceneDto) => {
+        const newScenes = [...query.data.shotlist?.scenes as SceneDto[] || [], scene]
 
         setQuery({
             ...query,
@@ -232,8 +277,6 @@ export default function shotlistSidebar({
         })
 
         setSceneCount(newScenes.length)
-
-        selectScene(data.createScene.id, newScenes.length-1)
     }
 
     if(!query.data.shotlist?.scenes) return (
@@ -279,7 +322,7 @@ export default function shotlistSidebar({
                                     position={index}
                                     expanded={selectedScene.id == scene.id}
                                     onSelect={selectScene}
-                                    onDelete={removeScene}
+                                    onDelete={onDeleteScene}
                                     moveScene={moveScene}
                                     readOnly={isReadOnly}
                                     ref={(node) => {
@@ -304,6 +347,35 @@ export default function shotlistSidebar({
                         </button>
                     }
                     <div className="bottom">
+                        {
+                            presentCollaborators && (
+                                <Popover.Root>
+                                    <Popover.Trigger
+                                        className="collaborators"
+                                    >
+                                        {
+                                            Array.from(presentCollaborators).map(user => (
+                                                <div key={user.id} className={"collaborator"}>
+                                                <span>
+                                                    {user.name.at(0)?.toUpperCase() || "?"}
+                                                </span>
+                                                </div>
+                                            ))
+                                        }
+                                    </Popover.Trigger>
+                                    <Popover.Portal>
+                                        <Popover.Content className={"PopoverContent"} side={"top"}>
+                                            <Popover.Arrow/>
+                                            {
+                                                Array.from(presentCollaborators).map(user => (
+                                                    <p key={user.id}>{user.name}</p>
+                                                ))
+                                            }
+                                        </Popover.Content>
+                                    </Popover.Portal>
+                                </Popover.Root>
+                            )
+                        }
                         <button
                             onClick={openShotlistOptionsDialog}
                             id={"shotlistOptions"}
@@ -321,4 +393,6 @@ export default function shotlistSidebar({
             {AccountDialog}
         </>
     )
-}
+})
+
+export default ShotlistSidebar

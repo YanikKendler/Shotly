@@ -197,13 +197,13 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
                 placeholder={"Attribute name"}
                 inputClass={"nameInput"}
             />
-            {(attribute.__typename == "ShotMultiSelectAttributeTemplateDTO" || attribute.__typename == "ShotSingleSelectAttributeTemplateDTO") && (
+            {(attribute.type == "ShotMultiSelectAttributeTemplateDTO" || attribute.type == "ShotSingleSelectAttributeTemplateDTO") && (
                 <Popover.Root>
                     <Popover.Trigger className={"editOptions"}>Edit options <Pencil size={16}/></Popover.Trigger>
                     <Popover.Portal>
                         <Popover.Content className="PopoverContent editAttributeOptionTemplatesPopup" sideOffset={5}
                                          align={"start"}>
-                            {(attribute.options as ShotSelectAttributeOptionTemplate[])?.map((option, index) => (
+                            {((attribute as ShotSingleOrMultiSelectAttributeTemplate).options as ShotSelectAttributeOptionTemplate[])?.map((option, index) => (
                                 <div className="option" key={option?.id}>
                                     <p>{index + 1}</p>
                                     <Input

@@ -20,10 +20,37 @@
     padding-top: .5rem;
   }
 
-  .list >.empty{
-    text-align: center;
-    color: var(--text-40);
-    font-size: .9rem;
-    margin-block: 1rem;
+  .list {
+    > .empty {
+      text-align: center;
+      color: var(--text-40);
+      font-size: .9rem;
+      margin-block: 1rem;
+    }
+
+    > .bottom {
+      .collaborators {
+        display: flex;
+        border: none;
+        background-color: transparent;
+        padding: .3rem;
+
+        &:hover, &[data-state=open]{
+          background-color: var(--hover-bg-10);
+        }
+
+        .collaborator {
+          border-radius: 50%;
+          aspect-ratio: 1;
+          background-color: var(--collaborator);
+          display: grid;
+          height: 1.75rem;
+          place-items: center;
+          color: var(--contrast);
+          font-weight: bold;
+        }
+      }
+    }
   }
+
 }

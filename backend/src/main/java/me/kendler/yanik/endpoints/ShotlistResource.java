@@ -8,9 +8,16 @@ import me.kendler.yanik.dto.shotlist.ShotlistCreateDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistEditDTO;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationEditDTO;
+import me.kendler.yanik.model.Shotlist;
+import me.kendler.yanik.model.User;
 import me.kendler.yanik.repositories.CollaborationRepository;
 import me.kendler.yanik.repositories.ShotlistRepository;
 import me.kendler.yanik.repositories.UserRepository;
+import me.kendler.yanik.socket.ShotlistUpdateDTO;
+import me.kendler.yanik.socket.ShotlistUpdateType;
+import me.kendler.yanik.socket.ShotlistWebsocketService;
+import me.kendler.yanik.socket.payload.CollaborationPayload;
+import me.kendler.yanik.socket.payload.ShotPayload;
 import org.eclipse.microprofile.graphql.GraphQLApi;
 import org.eclipse.microprofile.graphql.Mutation;
 import org.eclipse.microprofile.graphql.Query;
@@ -32,6 +39,9 @@ public class ShotlistResource {
 
     @Inject
     UserRepository userRepository;
+
+    @Inject
+    ShotlistWebsocketService shotlistWebsocketService;
 
     @Query
     public ShotlistCollection getShotlists() {
@@ -88,9 +98,24 @@ public class ShotlistResource {
 
     @Mutation
     public CollaborationDTO editCollaboration(CollaborationEditDTO editDTO) {
-        userRepository.checkShotlistEditRights(collaborationRepository.findById(editDTO.id()).shotlist, jwt);
+        Shotlist affectedShotlist = collaborationRepository.findById(editDTO.id()).shotlist;
+        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
 
-        return collaborationRepository.update(editDTO);
+        CollaborationDTO result = collaborationRepository.update(editDTO);
+
+        shotlistWebsocketService.broadcast(
+                affectedShotlist.id,
+                new ShotlistUpdateDTO(
+                        ShotlistUpdateType.COLLABORATION_TYPE_UPDATED,
+                        userRepository.findOrCreateByJWT(jwt).id,
+                        new CollaborationPayload(
+                            result.user().id(),
+                            result.collaborationType()
+                        )
+                )
+        );
+
+        return result;
     }
 
     @Mutation

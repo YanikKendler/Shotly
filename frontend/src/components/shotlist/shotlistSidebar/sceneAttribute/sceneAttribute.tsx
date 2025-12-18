@@ -3,11 +3,12 @@
 import {
     AnySceneAttribute,
     SelectOption,
-    SceneAttributeValueCollection
+    SceneAttributeValueCollection, SceneAttributeValueMultiType
 } from "@/util/Types"
 import React, {
+    forwardRef,
     useCallback, useContext,
-    useEffect,
+    useEffect, useImperativeHandle,
     useMemo,
     useRef,
     useState
@@ -20,17 +21,30 @@ import {wuConstants, wuGeneral, wuText} from "@yanikkendler/web-utils/dist"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import {ChevronDown, List, Type} from "lucide-react"
 import AttributeValueSelect, {selectSceneStyles} from "@/components/inputs/attributeValueSelect/attributeValueSelect"
-import {SceneAttributeParser} from "@/util/AttributeParser"
+import {SceneAttributeParser, ShotAttributeParser} from "@/util/AttributeParser"
+import {
+    SceneMultiSelectAttributeDto,
+    SceneSingleSelectAttributeDto,
+    SceneTextAttributeDto
+} from "../../../../../lib/graphql/generated"
 
-const SceneAttribute = function SceneAttribute({
-    attribute,
-    attributeUpdated,
-    readOnly
-}:{
+export interface SceneAttributeRef {
+    setValue: (value: SceneAttributeValueMultiType) => void
+    setReadOnlyValue: (value: string) => void
+    id: number
+}
+
+export interface SceneAttributeProps {
     attribute: AnySceneAttribute,
     attributeUpdated: (attribute: AnySceneAttribute) => void,
-    readOnly?: boolean
-}) {
+    isReadOnly?: boolean
+}
+
+const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
+    attribute,
+    attributeUpdated,
+    isReadOnly
+}, ref) => {
     const [singleSelectValue, setSingleSelectValue] = useState<SelectOption>();
     const [multiSelectValue, setMultiSelectValue] = useState<SelectOption[]>();
     const [textValue, setTextValue] = useState<string>("");
@@ -43,20 +57,48 @@ const SceneAttribute = function SceneAttribute({
 
     const shotlistContext = useContext(ShotlistContext)
 
+    const [readOnlyValue, setReadOnlyValue] = useState<string>("")
+
+    useImperativeHandle(ref, () => ({
+        setValue: (value: SceneAttributeValueMultiType) => {
+            switch (attribute.type) {
+                case "SceneTextAttributeDTO":
+                    setTextValue(value as string)
+                    break
+                case "SceneSingleSelectAttributeDTO":
+                    setSingleSelectValue(value as SelectOption)
+                    break
+                case "SceneMultiSelectAttributeDTO":
+                    setMultiSelectValue(value as SelectOption[])
+                    break
+            }
+        },
+        setReadOnlyValue: setReadOnlyValue,
+        id: attribute.id
+    }))
+
+    useEffect(() => {
+        if(isReadOnly == true && attribute){
+            setReadOnlyValue(SceneAttributeParser.toValueString(attribute, false))
+        }
+    }, [isReadOnly, attribute]);
+
     useEffect(() => {
         if (!attribute) return;
 
-        switch (attribute.__typename) {
+        switch (attribute.type) {
             case "SceneSingleSelectAttributeDTO":
-                if(attribute.singleSelectValue === null) return
+                const single = attribute as SceneSingleSelectAttributeDto
+                if(single.singleSelectValue === null) return
                 setSingleSelectValue({
-                    label: attribute.singleSelectValue?.name || "",
-                    value: attribute.singleSelectValue?.id || "",
+                    label: single.singleSelectValue?.name || "",
+                    value: single.singleSelectValue?.id || "",
                 })
                 break
             case "SceneMultiSelectAttributeDTO":
-                if(attribute.multiSelectValue === null || attribute.multiSelectValue?.length == 0) return
-                setMultiSelectValue(attribute.multiSelectValue?.map(
+                const multi = attribute as SceneMultiSelectAttributeDto
+                if(multi.multiSelectValue === null || multi.multiSelectValue?.length == 0) return
+                setMultiSelectValue(multi.multiSelectValue?.map(
                     (option) => {
                         return {
                             label: option?.name || "",
@@ -66,16 +108,38 @@ const SceneAttribute = function SceneAttribute({
                 ))
                 break
             case "SceneTextAttributeDTO":
-                if(textValue == "") setTextValue(attribute.textValue || "")
+                const text = attribute as SceneTextAttributeDto
+                if(textValue == "") setTextValue(text.textValue || "")
                 break
         }
     }, [attribute]);
 
     useEffect(() => {
         if (textInputRef.current && textInputRef.current.textContent !== textValue) {
-            textInputRef.current.textContent = textValue;
+            textInputRef.current.textContent = textValue
         }
+
+        let newValue = { ...attribute, textValue: textValue }
+        attributeUpdated(newValue)
     }, [textValue]);
+
+    useEffect(() => {
+        let newValue = {
+            ...attribute,
+            singleSelectValue: {id: singleSelectValue?.value, name: singleSelectValue?.label}
+        }
+        attributeUpdated(newValue)
+    }, [singleSelectValue])
+
+    useEffect(() => {
+        let newValue = {
+            ...attribute,
+            multiSelectValue: multiSelectValue?.map((option) => (
+                {id: option.value, name: option.label}
+            ))
+        }
+        attributeUpdated(newValue)
+    }, [multiSelectValue])
 
     const loadOptions = async (inputValue: string) => {
         const { data } = await client.query({
@@ -115,12 +179,12 @@ const SceneAttribute = function SceneAttribute({
             variables: { definitionId: attribute.definition?.id, name: inputValue },
         });
 
-        if(attribute.__typename == "SceneSingleSelectAttributeDTO")
+        if(attribute.type == "SceneSingleSelectAttributeDTO")
             updateSingleSelectValue({
                 label: data.createSceneSelectAttributeOption.name,
                 value: data.createSceneSelectAttributeOption.id
             })
-        if(attribute.__typename == "SceneMultiSelectAttributeDTO")
+        if(attribute.type == "SceneMultiSelectAttributeDTO")
             updateMultiSelectValue([
                 ...multiSelectValue || [],
                 {
@@ -132,6 +196,7 @@ const SceneAttribute = function SceneAttribute({
         triggerRefresh("shot", attribute.definition?.id);
     }
 
+    //AI
     const updateTextValue = () => {
         if (!textInputRef.current) return;
 
@@ -164,24 +229,17 @@ const SceneAttribute = function SceneAttribute({
 
         setTextValue(cleaned);
         debouncedUpdateAttributeValue({ textValue: cleaned });
-
-        let newValue = { ...attribute, textValue: cleaned };
-        attributeUpdated(newValue);
-    };
+    }
 
 
     const updateSingleSelectValue = (value: SelectOption | null) => {
         setSingleSelectValue(value || undefined)
         updateAttributeValue({singleSelectValue: Number(value?.value)})
-        let newValue = {...attribute, singleSelectValue: {id: value?.value, name: value?.label}}
-        attributeUpdated(newValue)
     }
 
     const updateMultiSelectValue = (value: SelectOption[] | null) => {
         setMultiSelectValue(value || [])
         updateAttributeValue({multiSelectValue: value?.map((option) => Number(option.value))})
-        let newValue = {...attribute, multiSelectValue: value?.map((option) => ({id: option.value, name: option.label}))}
-        attributeUpdated(newValue)
     }
 
     const updateAttributeValue = async (value: SceneAttributeValueCollection) => {
@@ -210,16 +268,15 @@ const SceneAttribute = function SceneAttribute({
     let content: React.JSX.Element = <></>
 
 
-    if(readOnly){
-        const readOnlyValue = SceneAttributeParser.toValueString(attribute, false)
-        if(readOnlyValue == "")
-            content = <p className={"readOnlyValue empty"}>Unset</p>
+    if(isReadOnly == true) {
+        if(!readOnlyValue || wuConstants.Regex.empty.test(readOnlyValue))
+            content = <p className="readOnlyValue empty">Unset</p>
         else
-            content = <p className={"readOnlyValue"}>{readOnlyValue}</p>
+            content = <p className="readOnlyValue">{readOnlyValue}</p>
     }
     else
     {
-        switch (attribute.__typename) {
+        switch (attribute.type) {
             case "SceneSingleSelectAttributeDTO":
                 content = (
                     <>
@@ -301,6 +358,6 @@ const SceneAttribute = function SceneAttribute({
     }
 
     return <div className="sceneAttribute">{content}</div>
-}
+})
 
 export default SceneAttribute
