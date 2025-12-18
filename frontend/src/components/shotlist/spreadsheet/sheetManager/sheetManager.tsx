@@ -361,7 +361,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         })
     }
 
-    if(!selectedScene.id || selectedScene.position == null)
+    if(selectedScene.id == null)
         return <div className="sheetManager">
             <p className="empty">Please select a scene from the sidebar</p>
         </div>

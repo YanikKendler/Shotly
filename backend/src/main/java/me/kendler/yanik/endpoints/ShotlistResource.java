@@ -91,7 +91,7 @@ public class ShotlistResource {
 
     @Mutation
     public CollaborationDTO addCollaboration(CollaborationCreateDTO createDTO){
-        userRepository.checkShotlistEditRights(shotlistRepository.findById(createDTO.shotlistId()), jwt);
+        userRepository.checkShotlistOwner(shotlistRepository.findById(createDTO.shotlistId()), jwt);
 
         return collaborationRepository.create(createDTO);
     }
@@ -99,7 +99,7 @@ public class ShotlistResource {
     @Mutation
     public CollaborationDTO editCollaboration(CollaborationEditDTO editDTO) {
         Shotlist affectedShotlist = collaborationRepository.findById(editDTO.id()).shotlist;
-        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
+        userRepository.checkShotlistOwner(affectedShotlist, jwt);
 
         CollaborationDTO result = collaborationRepository.update(editDTO);
 
@@ -120,7 +120,7 @@ public class ShotlistResource {
 
     @Mutation
     public CollaborationDTO deleteCollaboration(UUID id){
-        userRepository.checkShotlistEditRights(collaborationRepository.findById(id).shotlist, jwt);
+        userRepository.checkShotlistOwner(collaborationRepository.findById(id).shotlist, jwt);
 
         return collaborationRepository.delete(id);
     }

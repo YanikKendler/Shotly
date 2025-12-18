@@ -60,6 +60,7 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
     const [readOnlyValue, setReadOnlyValue] = useState<string>("")
 
     useImperativeHandle(ref, () => ({
+        //instead of multiype, i should really pass a AnySceneAttribute and then use the setValueFromAttribute
         setValue: (value: SceneAttributeValueMultiType) => {
             switch (attribute.type) {
                 case "SceneTextAttributeDTO":
@@ -78,7 +79,15 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
     }))
 
     useEffect(() => {
-        if(isReadOnly == true && attribute){
+        if(isReadOnly == false) {
+            setValueFromAttribute(attribute)
+        }
+    }, [isReadOnly]);
+
+    useEffect(() => {
+        if(!attribute) return;
+
+        if(isReadOnly == true){
             setReadOnlyValue(SceneAttributeParser.toValueString(attribute, false))
         }
     }, [isReadOnly, attribute]);
@@ -86,33 +95,8 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
     useEffect(() => {
         if (!attribute) return;
 
-        switch (attribute.type) {
-            case "SceneSingleSelectAttributeDTO":
-                const single = attribute as SceneSingleSelectAttributeDto
-                if(single.singleSelectValue === null) return
-                setSingleSelectValue({
-                    label: single.singleSelectValue?.name || "",
-                    value: single.singleSelectValue?.id || "",
-                })
-                break
-            case "SceneMultiSelectAttributeDTO":
-                const multi = attribute as SceneMultiSelectAttributeDto
-                if(multi.multiSelectValue === null || multi.multiSelectValue?.length == 0) return
-                setMultiSelectValue(multi.multiSelectValue?.map(
-                    (option) => {
-                        return {
-                            label: option?.name || "",
-                            value: option?.id || "",
-                        }
-                    }
-                ))
-                break
-            case "SceneTextAttributeDTO":
-                const text = attribute as SceneTextAttributeDto
-                if(textValue == "") setTextValue(text.textValue || "")
-                break
-        }
-    }, [attribute]);
+        setValueFromAttribute(attribute)
+    }, []);
 
     useEffect(() => {
         if (textInputRef.current && textInputRef.current.textContent !== textValue) {
@@ -140,6 +124,43 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
         }
         attributeUpdated(newValue)
     }, [multiSelectValue])
+
+    const setValueFromAttribute = (attribute: AnySceneAttribute) => {
+        switch (attribute.type) {
+            case "SceneSingleSelectAttributeDTO":
+                const single = attribute as SceneSingleSelectAttributeDto
+                if(single.singleSelectValue === null) return
+                setSingleSelectValue({
+                    label: single.singleSelectValue?.name || "",
+                    value: single.singleSelectValue?.id || "",
+                })
+                break
+            case "SceneMultiSelectAttributeDTO":
+                const multi = attribute as SceneMultiSelectAttributeDto
+                if(multi.multiSelectValue === null || multi.multiSelectValue?.length == 0) return
+                setMultiSelectValue(multi.multiSelectValue?.map(
+                    (option) => {
+                        return {
+                            label: option?.name || "",
+                            value: option?.id || "",
+                        }
+                    }
+                ))
+                break
+            case "SceneTextAttributeDTO":
+                //specifically setting text value because the p tag does not have a value prop
+
+                const textAttribute = attribute as SceneTextAttributeDto
+                if(textValue == "") {
+                    setTextValue(textAttribute.textValue || "")
+                    textInputRef.current!.innerText = textAttribute.textValue || ""
+                }
+                else if(textInputRef.current) {
+                    textInputRef.current.innerText = textValue
+                }
+                break
+        }
+    }
 
     const loadOptions = async (inputValue: string) => {
         const { data } = await client.query({
@@ -343,8 +364,10 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
                                 }}
                             />
 
-                            {wuConstants.Regex.empty.test(textValue) &&
-                                <p className="placeholder">{attribute.definition?.name || "Unnamed"}</p>}
+                            {
+                                wuConstants.Regex.empty.test(textValue) &&
+                                <p className="placeholder">{attribute.definition?.name || "Unnamed"}</p>
+                            }
                         </div>
                         {wuConstants.Regex.empty.test(textValue) && (
                             <div className="icon">

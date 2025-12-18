@@ -11,7 +11,7 @@ import {
 } from "@/util/Types"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
-import {CollaborationDto, ShotlistDto, UserTier} from "../../../../lib/graphql/generated"
+import {CollaborationDto, ShotlistDto, UserDto} from "../../../../lib/graphql/generated"
 import {useRouter} from "next/navigation"
 import ExportTab from "@/components/dialogs/shotlistOptionsDialog/exportTab/exportTab"
 import GeneralTab from "@/components/dialogs/shotlistOptionsDialog/generalTab/generalTab"
@@ -41,6 +41,7 @@ export default function ShotlistOptionsDialog({
     const [shotAttributeDefinitions, setShotAttributeDefinitions] = useState<AnyShotAttributeDefinition[] | null>(null);
     const [shotlist, setShotlist] = useState<ShotlistDto | null>(null);
     const [collaborations, setCollaborations] = useState<CollaborationDto[] | null>(null)
+    const [currentUser, setCurrentUser] = useState<UserDto | null>(null)
     // used for refreshing the shotlist on dialog close, only when any data has been edited
     const [stringifiedAttributeData, setStringifiedAttributeData] = useState<string>("");
     const [dataChanged, setDataChanged] = useState(false);
@@ -97,6 +98,7 @@ export default function ShotlistOptionsDialog({
                         editedAt
                         createdAt
                         owner {
+                            id
                             name
                             tier
                             shotlistCount
@@ -150,6 +152,9 @@ export default function ShotlistOptionsDialog({
                             }
                         }
                     }
+                    currentUser {
+                        id
+                    }
                 }`,
             variables: {shotlistId: shotlistId},
             fetchPolicy: "no-cache",
@@ -161,6 +166,7 @@ export default function ShotlistOptionsDialog({
         setShotlist(result.data.shotlist)
         //is its own state to not influence he refresh check (data stringification)
         setCollaborations(result.data.shotlist.collaborations)
+        setCurrentUser(result.data.currentUser)
 
         setStringifiedAttributeData(
             JSON.stringify(result.data.shotAttributeDefinitions) +
@@ -258,12 +264,15 @@ export default function ShotlistOptionsDialog({
                             <Tabs.Content value={"collaborators"} className={"content"}>
                                 {
                                     isReadOnly ?
-                                        <p className={"empty"}>Sorry, this shotlist is in read-only Mode.</p> :
-                                        <CollaboratorsTab
-                                            shotlistId={shotlistId}
-                                            collaborations={collaborations}
-                                            setCollaborations={setCollaborations}
-                                        />
+                                    <p className={"empty"}>Sorry, this shotlist is in read-only Mode.</p> :
+                                    shotlist?.owner?.id != currentUser?.id ?
+                                    <p className={"empty"}>Sorry, as a collaborator, you don’t have permission to edit collaborators.</p> :
+
+                                    <CollaboratorsTab
+                                        shotlistId={shotlistId}
+                                        collaborations={collaborations}
+                                        setCollaborations={setCollaborations}
+                                    />
                                 }
                             </Tabs.Content>
                             {/*keep the tab mounted so that the selected filters don't disappear when switching tabs*/}

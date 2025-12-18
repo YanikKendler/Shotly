@@ -238,6 +238,7 @@ export default function Shotlist() {
                     setQuery(prev => {
                         if (!prev.data?.shotlist) return prev
 
+                        //possible change to the current users collaboration type - causes reload of read only state
                         return {
                             ...prev,
                             data: {
