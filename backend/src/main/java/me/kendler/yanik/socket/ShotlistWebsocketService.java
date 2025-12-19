@@ -67,17 +67,25 @@ public class ShotlistWebsocketService {
         );
     }
 
-    @Transactional
     public void broadcast(UUID shotlistId, ShotlistUpdateDTO update) {
+        try {
+            String json = objectMapper.writeValueAsString(update);
+
+            broadcast(shotlistId, update.userId(), json);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Transactional
+    public void broadcast(UUID shotlistId, UUID userId, String json){
         Set<String> room = rooms.get(shotlistId);
         if (room == null) return;
 
         try {
-            String json = objectMapper.writeValueAsString(update);
-
             for (WebSocketConnection conn : connections.listAll()) {
                 if (!room.contains(conn.id())) continue;
-                if (update.userId().equals(UUID.fromString(conn.pathParam("userId")))) continue;
+                if (userId.equals(UUID.fromString(conn.pathParam("userId")))) continue;
 
                 System.out.println("sending to connection with userId " + conn.pathParam("userId"));
 
@@ -89,7 +97,7 @@ public class ShotlistWebsocketService {
     }
 
     @Transactional
-    public void sendPresentUsers(UUID shotlistId, WebSocketConnection connection) {
+    public void sendPresentCollaborators(UUID shotlistId, WebSocketConnection connection) {
         Set<String> room = rooms.get(shotlistId);
         if (room == null) return;
 
@@ -99,7 +107,7 @@ public class ShotlistWebsocketService {
                 .map(conn -> conn.pathParam("userId"))
                 .toList();
 
-        //without the current users
+        //without the current user
         List<String> filteredUserIds = presentUserIds.stream().filter(id -> !id.equals(connection.pathParam("userId"))).toList();
 
         List<UserMinimalDTO> presentUsers = userRepository.find("id IN ?1", filteredUserIds).list()

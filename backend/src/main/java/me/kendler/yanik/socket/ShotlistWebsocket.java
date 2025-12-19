@@ -1,18 +1,9 @@
 package me.kendler.yanik.socket;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.quarkus.websockets.next.OnClose;
-import io.quarkus.websockets.next.OnOpen;
-import io.quarkus.websockets.next.WebSocket;
-import io.quarkus.websockets.next.WebSocketConnection;
+import io.quarkus.websockets.next.*;
 import jakarta.inject.Inject;
-import me.kendler.yanik.stripe.StripeService;
-import org.jboss.logging.Logger;
 
-import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /*
  * about web sockets..
@@ -41,7 +32,7 @@ public class ShotlistWebsocket {
         UUID userId = UUID.fromString(connection.pathParam("userId"));
 
         websocketService.addToRoom(shotlistId, userId, connection.id());
-        websocketService.sendPresentUsers(shotlistId, connection);
+        websocketService.sendPresentCollaborators(shotlistId, connection);
     }
 
     @OnClose
@@ -50,5 +41,13 @@ public class ShotlistWebsocket {
         UUID userId = UUID.fromString(connection.pathParam("userId"));
 
         websocketService.removeFromRoom(shotlistId, userId, connection.id());
+    }
+
+    @OnTextMessage
+    public void onMessage(String messageJson) {
+        UUID shotlistId = UUID.fromString(connection.pathParam("shotlistId"));
+        UUID userId = UUID.fromString(connection.pathParam("userId"));
+
+        websocketService.broadcast(shotlistId, userId, messageJson);
     }
 }

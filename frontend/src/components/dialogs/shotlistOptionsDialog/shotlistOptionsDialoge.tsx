@@ -118,6 +118,7 @@ export default function ShotlistOptionsDialog({
                         id
                         name
                         position
+                        type
 
                         ... on ShotSingleSelectAttributeDefinitionDTO{
                             options{
@@ -137,6 +138,7 @@ export default function ShotlistOptionsDialog({
                         id
                         name
                         position
+                        type
 
                         ... on SceneSingleSelectAttributeDefinitionDTO{
                             options{

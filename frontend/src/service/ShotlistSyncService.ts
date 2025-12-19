@@ -85,7 +85,21 @@ export interface ShotAttributeOptionPayload {
     optionDefinition: ShotSelectAttributeOptionDefinition
 }
 
-export type ShotlistUpdatePayload = UserPayload | ShotAttributePayload | ShotPayload | CollaborationPayload | PresentCollaboratorsPayload | ScenePayload | SceneAttributePayload | SceneAttributeOptionPayload | ShotAttributeOptionPayload
+export interface EmptyPayload {
+    kind: "empty"
+}
+
+export type ShotlistUpdatePayload =
+    UserPayload |
+    ShotAttributePayload |
+    ShotPayload |
+    CollaborationPayload |
+    PresentCollaboratorsPayload |
+    ScenePayload |
+    SceneAttributePayload |
+    SceneAttributeOptionPayload |
+    ShotAttributeOptionPayload |
+    EmptyPayload
 
 /* other stuff */
 

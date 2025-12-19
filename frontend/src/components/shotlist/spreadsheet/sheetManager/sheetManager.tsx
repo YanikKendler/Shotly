@@ -211,7 +211,12 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                             position
                             attributes{
                                 id
-                                definition{id, name, position}
+                                definition{
+                                    id, 
+                                    name, 
+                                    position
+                                    type
+                                }
                                 type
     
                                 ... on ShotSingleSelectAttributeDTO{
@@ -257,7 +262,12 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                             position
                             attributes{
                                 id
-                                definition{id, name, position}
+                                definition{
+                                    id, 
+                                    name, 
+                                    position,
+                                    type
+                                }
                                 type
     
                                 ... on ShotSingleSelectAttributeDTO{

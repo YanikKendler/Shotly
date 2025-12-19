@@ -23,6 +23,7 @@ export interface ShotlistContextProps {
     sceneSelectOptions: Map<number, SelectOption[]>
     loadSceneSelectOptions: (sceneAttributeDefinitionId: number) => Promise<void>
     addSceneSelectOption: (sceneAttributeDefinitionId: number, option: SelectOption) => void
+    websocketRef: RefObject<WebSocket | null>
 }
 
 export const ShotlistContext = createContext<ShotlistContextProps>({
@@ -45,4 +46,5 @@ export const ShotlistContext = createContext<ShotlistContextProps>({
     sceneSelectOptions: new Map(),
     loadSceneSelectOptions: () => Promise.resolve(),
     addSceneSelectOption: () => {},
+    websocketRef: { current: null }
 })

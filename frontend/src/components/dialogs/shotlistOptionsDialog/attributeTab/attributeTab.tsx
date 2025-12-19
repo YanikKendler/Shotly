@@ -77,6 +77,7 @@ export default function AttributeTab(
                         id
                         name
                         position
+                        type
                     }
                 }
             `,
@@ -139,6 +140,7 @@ export default function AttributeTab(
                         id
                         name
                         position
+                        type
                     }
                 }
             `,

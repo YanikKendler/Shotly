@@ -1,7 +1,7 @@
 'use client'
 
 import gql from "graphql-tag"
-import React, {useContext, useEffect, useRef, useState} from "react"
+import React, {useEffect, useRef, useState} from "react"
 import {ApolloError, ApolloQueryResult, InteropApolloQueryResult, useApolloClient} from "@apollo/client"
 import {
     CollaborationDto,
@@ -299,6 +299,13 @@ export default function Shotlist() {
                 case "shotAttributeOption":
                     syncService.current.shotAttributeOptionCreated(updateDTO.payload, shotlistContextFunctionsRef.current.addShotSelectOption)
                     break
+                case "empty":
+                    switch (updateDTO.type) {
+                        case ShotlistUpdateType.SHOTLIST_OPTIONS_UPDATED:
+                            refreshShotlist()
+                            break
+                    }
+                    break
             }
         }
         websocket.onclose = () => {
@@ -411,7 +418,12 @@ export default function Shotlist() {
                                 position
                                 attributes{
                                     id
-                                    definition{id, name, position}
+                                    definition{
+                                        id,
+                                        name,
+                                        position,
+                                        type
+                                    }
                                     type
 
                                     ... on SceneSingleSelectAttributeDTO{
@@ -430,11 +442,13 @@ export default function Shotlist() {
                                 id
                                 name
                                 position
+                                type
                             }
                             shotAttributeDefinitions{
                                 id
                                 name
                                 position
+                                type
                             }
                             owner {
                                 id
@@ -512,6 +526,13 @@ export default function Shotlist() {
         router.push(url.toString())
     }
 
+    const refreshShotlist = () => {
+        loadData(true).then(() => {
+            setReloadKey(reloadKey + 1)
+        })
+        setShotSelectOptionsCache(new Map())
+    }
+
     const openShotlistOptionsDialog = (page: { main: ShotlistOptionsDialogPage, sub?: ShotlistOptionsDialogSubPage }) => {
         setSelectedOptionsDialogPage({main: page.main, sub: page.sub || "shot"})
         setOptionsDialogOpen(true)
@@ -558,6 +579,7 @@ export default function Shotlist() {
             sceneSelectOptions: sceneSelectOptionsCache,
             loadSceneSelectOptions: loadSceneSelectOptions,
             addSceneSelectOption: addSceneSelectOption,
+            websocketRef: websocketRef
         }}>
             {
                 readOnlyBannerVisible && readOnlyState.isReadOnly == true &&
@@ -645,10 +667,16 @@ export default function Shotlist() {
                 selectedPage={selectedOptionsDialogPage}
                 shotlistId={query.data.shotlist?.id || null}
                 refreshShotlist={() => {
-                    loadData(true).then(() => {
-                        setReloadKey(reloadKey + 1)
-                    })
-                    setShotSelectOptionsCache(new Map())
+                    refreshShotlist()
+
+                    const updateDTO: ShotlistUpdateDTO = {
+                        type: ShotlistUpdateType.SHOTLIST_OPTIONS_UPDATED,
+                        userId: query.data.currentUser?.id || "unknown",
+                        timestamp: new Date(),
+                        payload: {kind: "empty"}
+                    }
+
+                    websocketRef.current?.send(JSON.stringify(updateDTO))
                 }}
                 isReadOnly={readOnlyState.isReadOnly}
             ></ShotlistOptionsDialog>
