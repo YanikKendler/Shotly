@@ -80,7 +80,6 @@ export default function Shotlist() {
     const [sceneCount, setSceneCount] = useState(0)
 
     const [presentCollaborators, setPresentCollaborators] = useState<Map<string, UserMinimalDTO>>()
-    const collaboratorSelectedCell = useRef<Map<string, SelectedCellPayload>>(new Map());
 
     const selectedSceneRef = useRef<SelectedScene>(selectedScene)
     const focusedCell = useRef({row: -1, column:-1})
@@ -240,9 +239,7 @@ export default function Shotlist() {
         }
         websocket.onmessage = (message) => {
             let updateDTO = JSON.parse(message.data) as ShotlistUpdateDTO
-
-            console.log(updateDTO)
-
+            
             if(!updateDTO) {
                 //TODO notify user
                 return
@@ -294,29 +291,11 @@ export default function Shotlist() {
 
                     break
                 case "collaboration":
-                    const collabPayload = updateDTO.payload as CollaborationPayload
-
-                    setQuery(prev => {
-                        if (!prev.data?.shotlist) return prev
-
-                        //possible change to the current users collaboration type - causes reload of read only state
-                        return {
-                            ...prev,
-                            data: {
-                                ...prev.data,
-                                shotlist: {
-                                    ...prev.data.shotlist,
-                                    collaborations: prev.data.shotlist.collaborations?.map(collab => {
-                                            if(collab?.user?.id === collabPayload.userId)
-                                                return {...collab, collaborationType: collabPayload.type}
-                                            else
-                                                return collab
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    })
+                    //the collaborators changed (we are only interested in possible changes to our own collaboration types)
+                    syncService.current.collaboratorsChanged(
+                        updateDTO.payload as CollaborationPayload,
+                        setQuery
+                    )
                     break
                 case "presentCollaborators":
                     console.log("present collaborators", updateDTO.payload.collaborators)
@@ -347,29 +326,7 @@ export default function Shotlist() {
                     syncService.current.shotAttributeOptionCreated(updateDTO.payload, shotlistContextFunctionsRef.current.addShotSelectOption)
                     break
                 case "selectedCell":
-                    if(updateDTO.payload.sceneId == selectedSceneRef.current.id) { //the new highlight is in the currently selected scene
-
-                        //remove the highlight from the previously selected cell
-                        if (collaboratorSelectedCell.current.has(updateDTO.userId)) {
-                            const currentlySelected = collaboratorSelectedCell.current.get(updateDTO.userId)
-
-                            if (currentlySelected != updateDTO.payload) {
-                                sheetManagerRef.current
-                                    ?.getCellRef(
-                                        currentlySelected?.row ?? -1,
-                                        currentlySelected?.column ?? -1
-                                    )
-                                    ?.removeCollaboratorHighlight(updateDTO.userId)
-                            }
-                        }
-
-                        sheetManagerRef.current?.getCellRef(
-                            updateDTO.payload?.row ?? -1,
-                            updateDTO.payload?.column ?? -1
-                        )
-                            ?.setCollaboratorHighlight(updateDTO.userId)
-                    }
-                    collaboratorSelectedCell.current.set(updateDTO.userId, updateDTO.payload)
+                    syncService.current.setCollaboratorHighlight(updateDTO, selectedSceneRef.current, sheetManagerRef.current)
                     break
                 case "empty":
                     switch (updateDTO.type) {

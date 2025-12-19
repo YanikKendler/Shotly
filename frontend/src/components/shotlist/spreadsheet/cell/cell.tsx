@@ -82,7 +82,8 @@ const CellBase = forwardRef<CellRef, CellProps>(({
             setReadOnlyValue(value)
         },
         setCollaboratorHighlight(userId: string){
-            setIsBlockedByCollaborator(true)
+            if(attribute)
+                setIsBlockedByCollaborator(true)
         },
         removeCollaboratorHighlight(userId: string){
             setIsBlockedByCollaborator(false)
@@ -91,12 +92,6 @@ const CellBase = forwardRef<CellRef, CellProps>(({
 
     const renderInput = () => {
         if(!attribute) return
-
-        if(isReadOnly == true) {
-            if(!readOnlyValue || wuConstants.Regex.empty.test(readOnlyValue))
-                return <p className="readOnlyValue empty">Unset</p>
-            return <p className="readOnlyValue">{readOnlyValue}</p>
-        }
 
         switch (attribute.type) {
             case "ShotTextAttributeDTO":
@@ -109,6 +104,8 @@ const CellBase = forwardRef<CellRef, CellProps>(({
                 return <p>unknown attribute - please report this as a bug</p>
         }
     }
+
+    const readOnlyValueIsEmpty = !readOnlyValue || wuConstants.Regex.empty.test(readOnlyValue)
 
     return (
         <div
@@ -130,7 +127,22 @@ const CellBase = forwardRef<CellRef, CellProps>(({
             }}
             ref={internalRef}
         >
-            {renderInput()}
+            { attribute &&
+                <>
+                    <p
+                        className={`readOnlyValue ${readOnlyValueIsEmpty && "empty"}`}
+                        style={{display: isReadOnly || isBlockedByCollaborator ? "block" : "none"}}
+                    >
+                        {readOnlyValueIsEmpty ? "Unset" : readOnlyValue}
+                    </p>
+                    <div
+                        className={"inputWrapper"}
+                        style={{display: isReadOnly || isBlockedByCollaborator ? "none" : "block"}}
+                    >
+                        {renderInput()}
+                    </div>
+                </>
+            }
             {children}
         </div>
     )

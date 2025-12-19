@@ -1,16 +1,20 @@
 import {AnyShotAttribute, SelectOption} from "@/util/Types"
 import {SheetManagerRef} from "@/components/shotlist/spreadsheet/sheetManager/sheetManager"
 import {
-    CollaborationDto, CollaborationType, SceneAttributeBase, SceneAttributeBaseDto, SceneDto,
+    CollaborationType,
+    SceneAttributeBaseDto,
+    SceneDto,
     SceneSelectAttributeOptionDefinition,
     ShotDto,
-    ShotMultiSelectAttributeDto, ShotSelectAttributeOptionDefinition,
-    ShotSingleSelectAttributeDto,
-    ShotTextAttributeDto, UserTier
+    ShotSelectAttributeOptionDefinition,
+    UserTier,
+    Query
 } from "../../lib/graphql/generated"
 import {SceneAttributeParser, ShotAttributeParser} from "@/util/AttributeParser"
 import {ShotlistSidebarRef} from "@/components/shotlist/shotlistSidebar/shotlistSidebar"
-import {ShotlistContextProps} from "@/context/ShotlistContext"
+import {useRef} from "react"
+import {SelectedScene} from "@/app/shotlist/[id]/page"
+import {ApolloQueryResult} from "@apollo/client"
 
 export enum ShotlistUpdateType {
     USER_JOINED = "USER_JOINED",
@@ -124,6 +128,7 @@ export interface UserMinimalDTO {
 export class ShotlistSyncService {
     shotlistId: string
     isReadOnly: boolean = false
+    collaboratorSelectedCell: Map<string, SelectedCellPayload> = new Map();
 
     constructor(shotlistId: string) {
         this.shotlistId = shotlistId
@@ -132,7 +137,7 @@ export class ShotlistSyncService {
     updateShotAttribute(payload: ShotAttributePayload, sheetManager: SheetManagerRef | null){
         const sheetCellRef = sheetManager?.findCellRef(payload.attribute.id)
 
-        sheetCellRef?.setReadOnlyValue(ShotAttributeParser.toValueString(payload.attribute))
+        sheetCellRef?.setReadOnlyValue(ShotAttributeParser.toValueString(payload.attribute, false))
         sheetCellRef?.setValue(ShotAttributeParser.toMultiTypeValue(payload.attribute))
     }
 
@@ -157,7 +162,7 @@ export class ShotlistSyncService {
     updateSceneAttribute(payload: SceneAttributePayload, sidebar: ShotlistSidebarRef | null){
         const attributeRef = sidebar?.findAttribute(payload.attribute.id)
 
-        attributeRef?.setReadOnlyValue(SceneAttributeParser.toValueString(payload.attribute))
+        attributeRef?.setReadOnlyValue(SceneAttributeParser.toValueString(payload.attribute, false))
         attributeRef?.setValue(SceneAttributeParser.toMultiTypeValue(payload.attribute))
     }
 
@@ -197,5 +202,57 @@ export class ShotlistSyncService {
                 value: payload.optionDefinition.id
             }
         )
+    }
+
+    collaboratorsChanged(payload: CollaborationPayload, setQuery: (value: (((prevState: ApolloQueryResult<Query>) => ApolloQueryResult<Query>) | ApolloQueryResult<Query>)) => void){
+        setQuery(prev => {
+            if (!prev.data?.shotlist) return prev
+
+            //possible change to the current users collaboration type - causes reload of read only state
+            return {
+                ...prev,
+                data: {
+                    ...prev.data,
+                    shotlist: {
+                        ...prev.data.shotlist,
+                        collaborations: prev.data.shotlist.collaborations?.map(collab => {
+                                if(collab?.user?.id === payload.userId)
+                                    return {...collab, collaborationType: payload.type}
+                                else
+                                    return collab
+                            }
+                        )
+                    }
+                }
+            }
+        })
+    }
+
+    setCollaboratorHighlight(updateDTO: ShotlistUpdateDTO, selectedScene: SelectedScene, sheetManagerRef: SheetManagerRef | null){
+        if(updateDTO.payload.kind != "selectedCell") return
+
+        if(updateDTO.payload.sceneId == selectedScene.id) { //the new highlight is in the currently selected scene
+            //remove the highlight from the previously selected cell
+            if (this.collaboratorSelectedCell.has(updateDTO.userId)) {
+                const currentlySelected = this.collaboratorSelectedCell.get(updateDTO.userId)
+
+                if (currentlySelected != updateDTO.payload) {
+                    sheetManagerRef
+                        ?.getCellRef(
+                            currentlySelected?.row ?? -1,
+                            currentlySelected?.column ?? -1
+                        )
+                        ?.removeCollaboratorHighlight(updateDTO.userId)
+                }
+            }
+
+            sheetManagerRef
+                ?.getCellRef(
+                    updateDTO.payload?.row ?? -1,
+                    updateDTO.payload?.column ?? -1
+                )
+                ?.setCollaboratorHighlight(updateDTO.userId)
+        }
+        this.collaboratorSelectedCell.set(updateDTO.userId, updateDTO.payload)
     }
 }

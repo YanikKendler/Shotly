@@ -4,7 +4,7 @@
   border: 1px solid var(--cell-border);
   position: relative;
   background-color: var(--cell-background);
-  min-height: 38px;
+  min-height: 40px;
   
   transition: border-color .1s;
 
@@ -166,7 +166,7 @@
   }
 
   .readOnlyValue{
-    padding: .3rem;
+    padding: .2rem;
 
     &.empty{
       font-style: italic;
@@ -204,7 +204,10 @@
 
   &.collaboratorHighlight{
     color: var(--collaborator-text);
-    pointer-events: none;
+
+    *{
+      pointer-events: none;
+    }
 
     &::before{
       border-color: var(--collaborator);
