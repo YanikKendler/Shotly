@@ -239,7 +239,7 @@ export default function Shotlist() {
         }
         websocket.onmessage = (message) => {
             let updateDTO = JSON.parse(message.data) as ShotlistUpdateDTO
-            
+
             if(!updateDTO) {
                 //TODO notify user
                 return

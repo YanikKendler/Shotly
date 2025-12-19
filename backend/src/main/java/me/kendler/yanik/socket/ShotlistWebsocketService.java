@@ -15,6 +15,9 @@ import org.jboss.logging.Logger;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Manages the room for the websocket connections and broadcasts updates to all connections in the room
+ */
 @ApplicationScoped
 public class ShotlistWebsocketService {
 
@@ -34,6 +37,9 @@ public class ShotlistWebsocketService {
     // When a shotlist is updated, we can use this to broadcast the update to all users currently viewing the shotlist
     private final Map<UUID, Set<String>> rooms = new ConcurrentHashMap<>();
 
+    /**
+     * Each shotlist has its own room so that updates are only broadcasted to users viewing that shotlist
+     */
     @Transactional
     public void addToRoom(UUID shotlistId, UUID userId, String connectionId) {
         rooms.computeIfAbsent(shotlistId, k -> ConcurrentHashMap.newKeySet())
@@ -41,6 +47,7 @@ public class ShotlistWebsocketService {
 
         User user = userRepository.findById(userId);
 
+        //broadcast join to all other users so that they can update their UI
         broadcast(
                 shotlistId,
                 new ShotlistUpdateDTO(
@@ -57,6 +64,7 @@ public class ShotlistWebsocketService {
 
         User user = userRepository.findById(userId);
 
+        //broadcast leave to all other users so that they can update their UI
         broadcast(
                 shotlistId,
                 new ShotlistUpdateDTO(
@@ -77,6 +85,11 @@ public class ShotlistWebsocketService {
         }
     }
 
+    /**
+     * Broadcasts a message to all connections in the room except the sender
+     * used for all interactions with the data in the shotlist
+     * is called from graphql mutation endpoints
+     */
     @Transactional
     public void broadcast(UUID shotlistId, UUID userId, String json){
         Set<String> room = rooms.get(shotlistId);
@@ -101,6 +114,7 @@ public class ShotlistWebsocketService {
         Set<String> room = rooms.get(shotlistId);
         if (room == null) return;
 
+        //all users that are currently in this room (viewing the same shotlist)
         List<String> presentUserIds = connections
                 .listAll()
                 .stream()
@@ -110,6 +124,7 @@ public class ShotlistWebsocketService {
         //without the current user
         List<String> filteredUserIds = presentUserIds.stream().filter(id -> !id.equals(connection.pathParam("userId"))).toList();
 
+        //as userMinimalDTOs
         List<UserMinimalDTO> presentUsers = userRepository.find("id IN ?1", filteredUserIds).list()
                 .stream()
                 .map(User::toMinimalDTO)
@@ -125,6 +140,7 @@ public class ShotlistWebsocketService {
                 )
             );
 
+            //is sent to the connection that was passed along (the newly connected user)
             connection.sendTextAndAwait(json);
         } catch (Exception e) {
             throw new RuntimeException(e);

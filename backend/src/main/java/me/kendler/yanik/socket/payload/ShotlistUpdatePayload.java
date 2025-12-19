@@ -3,6 +3,12 @@ package me.kendler.yanik.socket.payload;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+/**
+ * The payload of the ShotlistUpdateDTO that is sent on every update to the shotlist
+ * The payload contains the actual data that was changed (and additional stuff for properly updating the client state)
+ *
+ * The kind property is used to determine kind of payload in the frontend to make serialisation easier
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
