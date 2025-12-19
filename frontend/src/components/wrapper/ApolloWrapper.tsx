@@ -9,7 +9,7 @@ import {
 import auth from "@/Auth"
 import {setContext} from "@apollo/client/link/context"
 import {onError} from "@apollo/client/link/error"
-import {Config} from "@/util/Utils"
+import Config from "@/util/Config"
 
 export function makeClient() {
     const httpLink = new HttpLink({

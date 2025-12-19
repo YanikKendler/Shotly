@@ -89,14 +89,6 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         }
     }, [selectedScene])
 
-    //probably not needed because new options cache
-    /*//the selectRefreshContext causes the current cell to lose focus after creating a new option since the component is re-rendered
-    useEffect(() => {
-        if(selectRefreshContext.lastRefresh.includes("shot")){
-            refocusCell()
-        }
-    }, [selectRefreshContext.lastRefresh]);*/
-
     useEffect(() => {
         // select a attribute (in a newly created shot)
         // specified by attributePositionToSelect.current after the shots are re rendered
@@ -173,7 +165,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
             (cellRefs.current.get(newRow)?.size || 1) - 1
         )
 
-        shotlistContext.focusedCell.current = {row: newRow, column: newColumn}
+        shotlistContext.setFocusedCell(newRow, newColumn)
 
         getCellRef(newRow, newColumn)?.setFocus()
     }, [shotlistContext.focusedCell])

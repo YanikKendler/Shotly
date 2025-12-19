@@ -25,6 +25,8 @@ export interface CellRef {
     id: number
     row: number
     column: number
+    setCollaboratorHighlight: (userId: string) => void
+    removeCollaboratorHighlight: (userId: string) => void
 }
 
 interface CellProps {
@@ -53,15 +55,18 @@ const CellBase = forwardRef<CellRef, CellProps>(({
     isReadOnly
 }, ref)=> {
     const inputRef = useRef<CellInputRef>(null)
+    const internalRef = useRef<HTMLDivElement>(null)
     const shotlistContext = useContext(ShotlistContext)
 
     const [readOnlyValue, setReadOnlyValue] = useState<string>("")
 
+    const [isBlockedByCollaborator, setIsBlockedByCollaborator] = useState(false)
+
     useEffect(() => {
-        if(isReadOnly == true && attribute){
+        if(attribute){
             setReadOnlyValue(ShotAttributeParser.toValueString(attribute, false))
         }
-    }, [isReadOnly, attribute]);
+    }, [attribute]);
 
     useImperativeHandle(ref, () => ({
         id: attribute?.id ?? -1,
@@ -75,6 +80,12 @@ const CellBase = forwardRef<CellRef, CellProps>(({
         },
         setReadOnlyValue(value: string) {
             setReadOnlyValue(value)
+        },
+        setCollaboratorHighlight(userId: string){
+            setIsBlockedByCollaborator(true)
+        },
+        removeCollaboratorHighlight(userId: string){
+            setIsBlockedByCollaborator(false)
         }
     }))
 
@@ -101,7 +112,7 @@ const CellBase = forwardRef<CellRef, CellProps>(({
 
     return (
         <div
-            className={`sheetCell ${type.join(" ")} ${isReadOnly && "readOnly"}`}
+            className={`sheetCell ${type.join(" ")} ${isReadOnly && "readOnly"} ${isBlockedByCollaborator && "readOnly collaboratorHighlight"}`}
             onClick={() => {
                 if(onClick) {
                     onClick()
@@ -109,9 +120,15 @@ const CellBase = forwardRef<CellRef, CellProps>(({
             }}
             onFocus={() => {
                 if(type.includes("default")) {
-                    shotlistContext.focusedCell.current = {row: row, column: column}
+                    shotlistContext.setFocusedCell(row, column)
                 }
             }}
+            onBlur={() => {
+                if(type.includes("default")) {
+                    shotlistContext.setFocusedCell(-1, -1)
+                }
+            }}
+            ref={internalRef}
         >
             {renderInput()}
             {children}

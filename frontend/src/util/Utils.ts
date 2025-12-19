@@ -4,6 +4,7 @@ import {ShotlistOrTemplate} from "@/util/Types"
 import {ShotlistDto} from "../../lib/graphql/generated"
 import {NetworkStatus} from "@apollo/client"
 import {UserSettings} from "@/components/dialogs/accountDialog/accountDialog"
+import Config from "@/util/Config"
 
 export interface fontSizeBreakpoint {
     length: number
@@ -11,39 +12,6 @@ export interface fontSizeBreakpoint {
 }
 
 export type BuildMode = "dev" | "prod-deployment" | "dev-deployment"
-
-export class Config {
-    static readonly mode: BuildMode =
-        process.env.NODE_ENV == "development" ?
-            "dev" :
-        process.env.NEXT_PUBLIC_BUILD_FOR_PROD == "true" ?
-            "prod-deployment" :
-            "dev-deployment"
-
-        static readonly backendURL =
-            Config.mode == "dev" ?
-                "http://localhost:8080" :
-            Config.mode == "prod-deployment" ?
-                "https://api.shotly.at" :
-                "https://shotly-backend-development-566625943723.europe-west1.run.app";
-
-        static readonly frontendURL =
-            Config.mode == "dev" ?
-                "http://localhost:3000" :
-            Config.mode == "prod-deployment" ?
-                "https://shotly.at" :
-                "https://shotly-frontend-development-566625943723.europe-west1.run.app";
-
-    static readonly localStorageKey = {
-        theme: "shotly-theme",
-        exportSettings: "shotly-export-settings",
-        userSettings: "shotly-user-settings",
-        dashboardTourCompleted: "shotly-dashboard-tour-completed",
-        shotlistTourCompleted: "shotly-shotlist-tour-completed",
-        templateTourCompleted: "shotly-template-tour-completed",
-        isLoggedIn: "shotly-is-logged-in"
-    }
-}
 
 export default class Utils {
     static orderShotlistsOrTemplatesByName(a: ShotlistOrTemplate, b: ShotlistOrTemplate) {

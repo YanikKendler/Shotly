@@ -7,7 +7,7 @@ import {
     CollaborationDto,
     CollaborationType,
     Query,
-    ShotAttributeDefinitionBase,
+    ShotAttributeDefinitionBase, UserDto,
     UserTier
 } from "../../../../lib/graphql/generated"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
@@ -24,13 +24,14 @@ import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
 import auth from "@/Auth"
 import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
-import Utils, {Config} from "@/util/Utils"
+import Utils from "@/util/Utils"
+import Config from "@/util/Config"
 import {SelectOption} from "@/util/Types"
 import SheetManager, {SheetManagerRef} from "@/components/shotlist/spreadsheet/sheetManager/sheetManager"
 import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/shotlist/shotlistSidebar/shotlistSidebar"
 import Skeleton from "react-loading-skeleton"
 import {
-    CollaborationPayload,
+    CollaborationPayload, SelectedCellPayload,
     ShotlistSyncService,
     ShotlistUpdateDTO,
     ShotlistUpdateType,
@@ -51,10 +52,11 @@ export interface ReadOnlyState {
 export default function Shotlist() {
     const client = useApolloClient()
     const router = useRouter()
-
-    const params = useParams<{ id: string }>()
-    const id = params?.id || ""
+    const syncService = useRef<ShotlistSyncService | null>(null)
     const searchParams = useSearchParams()
+    const params = useParams<{ id: string }>()
+
+    const id = params?.id || ""
     /* TODO
     * should handle this better because currently the scene positon is null so the scene nums in the rows would be displayed wrong
     * should probably just shift the selected scene to shotcontext
@@ -62,22 +64,25 @@ export default function Shotlist() {
     const sceneId = searchParams?.get('sid')
 
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
+
     const [selectedScene, setSelectedScene] = useState<SelectedScene>({ id: sceneId, position: null })
-    const selectedSceneRef = useRef<SelectedScene>(selectedScene)
     const [optionsDialogOpen, setOptionsDialogOpen] = useState(false)
     const [selectedOptionsDialogPage, setSelectedOptionsDialogPage] = useState<{main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage}>({main: "general", sub: "shot"})
     const [elementIsBeingDragged, setElementIsBeingDragged] = useState(false)
+    const [sidebarOpen, setSidebarOpen] = useState(false)
+    const [readOnlyBannerVisible, setReadOnlyBannerVisible] = useState(true)
+
     const [reloadKey, setReloadKey] = useState(0)
 
     const [readOnlyState, setReadOnlyState] = useState<ReadOnlyState>({isReadOnly: false})
 
-    const [sidebarOpen, setSidebarOpen] = useState(false)
     const [shotCount, setShotCount] = useState(0)
     const [sceneCount, setSceneCount] = useState(0)
 
-    const [readOnlyBannerVisible, setReadOnlyBannerVisible] = useState(true)
-    const [presentCollaborators, setPresentCollaborators] = useState<Set<UserMinimalDTO>>()
+    const [presentCollaborators, setPresentCollaborators] = useState<Map<string, UserMinimalDTO>>()
+    const collaboratorSelectedCell = useRef<Map<string, SelectedCellPayload>>(new Map());
 
+    const selectedSceneRef = useRef<SelectedScene>(selectedScene)
     const focusedCell = useRef({row: -1, column:-1})
     const headerRef = useRef<HTMLDivElement>(null)
     const sheetManagerRef = useRef<SheetManagerRef>(null)
@@ -88,7 +93,7 @@ export default function Shotlist() {
     const websocketRef = useRef<WebSocket | null>(null)
     const websocketRetriesRef = useRef<number>(0)
 
-    const syncService = useRef<ShotlistSyncService | null>(null)
+    const currentUserRef = useRef<UserDto | null>(null)
 
     const driverObj = driver({
         showProgress: true,
@@ -116,10 +121,19 @@ export default function Shotlist() {
             })
         }
 
-        window.addEventListener("online", reconnectWebsocket);
-        document.addEventListener("visibilitychange", () => {
+        const handleOnline = () => reconnectWebsocket();
+        const handleVisibilityChange = () => {
             if (document.visibilityState === "visible") reconnectWebsocket();
-        });
+        };
+
+        window.addEventListener("online", handleOnline);
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        // Cleanup
+        return () => {
+            window.removeEventListener("online", handleOnline);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+        };
     }, [])
 
     useEffect(() => {
@@ -132,7 +146,8 @@ export default function Shotlist() {
 
         loadData(true).then((query: InteropApolloQueryResult<Query> | undefined) => {
             //use user from the promise as to not run into react state race conditions
-            joinShotlistWebsocket(query?.data.currentUser?.id || "unknown")
+            if(id != "")
+                joinShotlistWebsocket(query?.data.currentUser?.id || "unknown")
         })
 
         syncService.current = new ShotlistSyncService(id)
@@ -174,6 +189,10 @@ export default function Shotlist() {
         //read only state
         if(query.data.shotlist?.collaborations)
             calculateReadOnlyState()
+
+        //current user ref
+        if(query.data.currentUser)
+            currentUserRef.current = query.data.currentUser
     }, [query])
 
     useEffect(() => {
@@ -187,12 +206,38 @@ export default function Shotlist() {
         }
     }, [shotSelectOptionsCache, sceneSelectOptionsCache]);
 
+    const setFocusedCell= (row: number, column: number) => {
+        focusedCell.current = {row, column}
+
+        const updateDTO: ShotlistUpdateDTO = {
+            type: ShotlistUpdateType.COLLABORATOR_CELL_SELECTED,
+            userId: query.data.currentUser?.id || "unknown",
+            timestamp: new Date(),
+            payload: {
+                kind: "selectedCell",
+                row: row,
+                column: column,
+                sceneId: selectedScene.id || "unknown"
+            }
+        }
+
+        websocketRef.current?.send(JSON.stringify(updateDTO))
+    }
+
     const joinShotlistWebsocket = (currentUserId: string) => {
-        websocketRef.current?.close()
+        if (websocketRef.current) {
+            websocketRef.current.onclose = null
+            websocketRef.current.onerror = null
+            websocketRef.current.close(1000, "client relog")
+        }
 
-        const websocket = new WebSocket(`ws://localhost:8080/shotlist/${id}/${currentUserId}`)
+        const websocket = new WebSocket(`${Config.websocketURL}/shotlist/${id}/${currentUserId}`)
+        websocketRef.current = websocket
 
-        websocket.onopen = () => console.log('Connected to WebSocket server')
+        websocket.onopen = () => {
+            console.log('Connected to WebSocket server')
+            websocketRetriesRef.current = 0
+        }
         websocket.onmessage = (message) => {
             let updateDTO = JSON.parse(message.data) as ShotlistUpdateDTO
 
@@ -231,19 +276,19 @@ export default function Shotlist() {
                     const userPayload = updateDTO.payload as UserPayload
                     if(updateDTO.type == ShotlistUpdateType.USER_JOINED){
                         setPresentCollaborators(prev => {
-                            const newSet = new Set(prev)
-                            newSet.add(userPayload.user)
-                            return newSet
+                            const newMap = new Map(prev)
+                            newMap.set(userPayload.user.id, userPayload.user)
+                            return newMap
                         })
                     }
                     else if(updateDTO.type == ShotlistUpdateType.USER_LEFT){
                         setPresentCollaborators(prev => {
-                            const newSet = new Set(prev)
-                            newSet.forEach(user => {
+                            const newMap = new Map(prev)
+                            newMap.forEach(user => {
                                 if(user.id == userPayload.user.id)
-                                    newSet.delete(user)
+                                    newMap.delete(user.id)
                             })
-                            return newSet
+                            return newMap
                         })
                     }
 
@@ -275,7 +320,9 @@ export default function Shotlist() {
                     break
                 case "presentCollaborators":
                     console.log("present collaborators", updateDTO.payload.collaborators)
-                    setPresentCollaborators(new Set(updateDTO.payload.collaborators))
+                    const collabMap = new Map<string, UserMinimalDTO>()
+                    updateDTO.payload.collaborators.forEach(user => collabMap.set(user.id, user))
+                    setPresentCollaborators(collabMap)
                     break
                 case "sceneAttribute":
                     syncService.current.updateSceneAttribute(updateDTO.payload, sidebarRef.current)
@@ -299,6 +346,31 @@ export default function Shotlist() {
                 case "shotAttributeOption":
                     syncService.current.shotAttributeOptionCreated(updateDTO.payload, shotlistContextFunctionsRef.current.addShotSelectOption)
                     break
+                case "selectedCell":
+                    if(updateDTO.payload.sceneId == selectedSceneRef.current.id) { //the new highlight is in the currently selected scene
+
+                        //remove the highlight from the previously selected cell
+                        if (collaboratorSelectedCell.current.has(updateDTO.userId)) {
+                            const currentlySelected = collaboratorSelectedCell.current.get(updateDTO.userId)
+
+                            if (currentlySelected != updateDTO.payload) {
+                                sheetManagerRef.current
+                                    ?.getCellRef(
+                                        currentlySelected?.row ?? -1,
+                                        currentlySelected?.column ?? -1
+                                    )
+                                    ?.removeCollaboratorHighlight(updateDTO.userId)
+                            }
+                        }
+
+                        sheetManagerRef.current?.getCellRef(
+                            updateDTO.payload?.row ?? -1,
+                            updateDTO.payload?.column ?? -1
+                        )
+                            ?.setCollaboratorHighlight(updateDTO.userId)
+                    }
+                    collaboratorSelectedCell.current.set(updateDTO.userId, updateDTO.payload)
+                    break
                 case "empty":
                     switch (updateDTO.type) {
                         case ShotlistUpdateType.SHOTLIST_OPTIONS_UPDATED:
@@ -308,18 +380,48 @@ export default function Shotlist() {
                     break
             }
         }
-        websocket.onclose = () => {
+
+        websocket.onclose = (event) => {
             console.log('Disconnected from WebSocket server')
+
+            if (event.code !== 1000) {
+                reconnectWebsocket()
+            }
         }
 
-        websocketRef.current = websocket
+        websocket.onerror = (error) => {
+            console.error('WebSocket error:', error)
+        }
     }
 
     const reconnectWebsocket = () => {
+        // Don't reconnect if we don't have a user yet
+        if (!currentUserRef.current?.id) {
+            console.log("Skipping reconnect - user not loaded yet");
+            return;
+        }
+
+        // Don't reconnect if already connected
+        if (websocketRef.current?.readyState === WebSocket.OPEN) {
+            console.log("Skipping reconnect - already connected");
+            return;
+        }
+
+        // Don't reconnect if already connecting
+        if (websocketRef.current?.readyState === WebSocket.CONNECTING) {
+            console.log("Skipping reconnect - already connecting");
+            return;
+        }
+
         const delay = Math.min(1000 * 2 ** websocketRetriesRef.current, 30000);
+
+        console.log(`Scheduling reconnect attempt ${websocketRetriesRef.current + 1} in ${delay}ms`);
+
         setTimeout(() => {
             websocketRetriesRef.current++;
-            joinShotlistWebsocket(query.data.currentUser?.id || "unknown");
+            console.log("Attempting reconnect, attempt", websocketRetriesRef.current, "with user id", currentUserRef.current?.id);
+            if(currentUserRef.current?.id)
+                joinShotlistWebsocket(currentUserRef.current?.id);
         }, delay);
     }
 
@@ -573,6 +675,7 @@ export default function Shotlist() {
             sceneCount: sceneCount,
             setSceneCount: setSceneCount,
             focusedCell: focusedCell,
+            setFocusedCell: setFocusedCell,
             shotSelectOptions: shotSelectOptionsCache,
             loadShotSelectOptions: loadShotSelectOptions,
             addShotSelectOption: addShotSelectOption,
@@ -626,7 +729,7 @@ export default function Shotlist() {
                                     driverObj.destroy()
                                 }}
 
-                                presentCollaborators={presentCollaborators}
+                                presentCollaborators={Array.from(presentCollaborators?.values() || [])}
 
                                 ref={sidebarRef}
                             />

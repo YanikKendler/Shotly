@@ -6,7 +6,7 @@ import {Inter} from 'next/font/google'
 import {Toast, Tooltip} from "radix-ui"
 import AuthWrapper from "@/components/wrapper/AuthWrapper"
 import NotificationWrapper from "@/components/wrapper/NotificationWrapper"
-import {Config} from "@/util/Utils"
+import Config from "@/util/Config"
 import {Metadata, Viewport} from "next"
 import {SkeletonTheme} from "react-loading-skeleton"
 

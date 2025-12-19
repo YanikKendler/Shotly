@@ -22,7 +22,7 @@ import {Popover, Separator, Tooltip} from "radix-ui"
 import AuthSwitcher from "@/components/utility/authSwitcher/authSwitcher"
 import ThemeSwitcher from "@/components/utility/themeSwitcher/themeSwitcher"
 import Skeleton from "react-loading-skeleton"
-import {Config} from "@/util/Utils"
+import Config from "@/util/Config"
 
 export default function Landing() {
     const pageRef = useRef<HTMLDivElement>(null);

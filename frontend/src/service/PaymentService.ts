@@ -1,4 +1,4 @@
-import {Config} from "@/util/Utils"
+import Config from "@/util/Config"
 import Auth from "@/Auth"
 
 export default class PaymentService {

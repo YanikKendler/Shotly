@@ -25,7 +25,8 @@ export enum ShotlistUpdateType {
     SCENE_ATTRIBUTE_UPDATED = "SCENE_ATTRIBUTE_UPDATED",
     SCENE_SELECT_OPTION_CREATED = "SCENE_SELECT_OPTION_CREATED",
     SHOT_SELECT_OPTION_CREATED = "SHOT_SELECT_OPTION_CREATED",
-    SHOTLIST_OPTIONS_UPDATED = "SHOTLIST_OPTIONS_UPDATED"
+    SHOTLIST_OPTIONS_UPDATED = "SHOTLIST_OPTIONS_UPDATED",
+    COLLABORATOR_CELL_SELECTED = "COLLABORATOR_CELL_SELECTED",
 }
 
 /**
@@ -85,6 +86,13 @@ export interface ShotAttributeOptionPayload {
     optionDefinition: ShotSelectAttributeOptionDefinition
 }
 
+export interface SelectedCellPayload {
+    kind: "selectedCell"
+    row: number
+    column: number
+    sceneId: string
+}
+
 export interface EmptyPayload {
     kind: "empty"
 }
@@ -99,6 +107,7 @@ export type ShotlistUpdatePayload =
     SceneAttributePayload |
     SceneAttributeOptionPayload |
     ShotAttributeOptionPayload |
+    SelectedCellPayload |
     EmptyPayload
 
 /* other stuff */
@@ -123,12 +132,8 @@ export class ShotlistSyncService {
     updateShotAttribute(payload: ShotAttributePayload, sheetManager: SheetManagerRef | null){
         const sheetCellRef = sheetManager?.findCellRef(payload.attribute.id)
 
-        if(this.isReadOnly){
-            sheetCellRef?.setReadOnlyValue(ShotAttributeParser.toValueString(payload.attribute))
-        }
-        else {
-            sheetCellRef?.setValue(ShotAttributeParser.toMultiTypeValue(payload.attribute))
-        }
+        sheetCellRef?.setReadOnlyValue(ShotAttributeParser.toValueString(payload.attribute))
+        sheetCellRef?.setValue(ShotAttributeParser.toMultiTypeValue(payload.attribute))
     }
 
     createShot(payload: ShotPayload, sheetManager: SheetManagerRef | null){
@@ -152,12 +157,8 @@ export class ShotlistSyncService {
     updateSceneAttribute(payload: SceneAttributePayload, sidebar: ShotlistSidebarRef | null){
         const attributeRef = sidebar?.findAttribute(payload.attribute.id)
 
-        if(this.isReadOnly){
-            attributeRef?.setReadOnlyValue(SceneAttributeParser.toValueString(payload.attribute))
-        }
-        else {
-            attributeRef?.setValue(SceneAttributeParser.toMultiTypeValue(payload.attribute))
-        }
+        attributeRef?.setReadOnlyValue(SceneAttributeParser.toValueString(payload.attribute))
+        attributeRef?.setValue(SceneAttributeParser.toMultiTypeValue(payload.attribute))
     }
 
     createScene(payload: ScenePayload, sidebar: ShotlistSidebarRef | null){

@@ -17,6 +17,7 @@ export interface ShotlistContextProps {
     sceneCount: number
     setSceneCount: (count: number) => void
     focusedCell: RefObject<{row: number, column: number}>
+    setFocusedCell: (row: number, column: number) => void
     shotSelectOptions: Map<number, SelectOption[]>
     loadShotSelectOptions: (shotAttributeDefinitionId: number) => Promise<void>
     addShotSelectOption: (shotAttributeDefinitionId: number, option: SelectOption) => void
@@ -39,6 +40,7 @@ export const ShotlistContext = createContext<ShotlistContextProps>({
     setSceneCount: () => {},
     //for navigation using arrow keys
     focusedCell: { current: { row: -1, column: -1 } },
+    setFocusedCell: () => {},
     //to get options for shot single/multi select attributes - handles caching and refetching
     shotSelectOptions: new Map(),
     loadShotSelectOptions: () => Promise.resolve(),

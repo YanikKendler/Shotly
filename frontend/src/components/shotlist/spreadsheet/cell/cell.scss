@@ -201,4 +201,13 @@
       }
     }
   }
+
+  &.collaboratorHighlight{
+    color: var(--collaborator-text);
+    pointer-events: none;
+
+    &::before{
+      border-color: var(--collaborator);
+    }
+  }
 }

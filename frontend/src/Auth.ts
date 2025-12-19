@@ -1,5 +1,5 @@
 import auth0, {Auth0DecodedHash, Auth0ParseHashError, WebAuth} from 'auth0-js';
-import {Config} from "@/util/Utils"
+import Config from "@/util/Config"
 
 export interface AuthUser {
     email: string;

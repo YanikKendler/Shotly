@@ -15,7 +15,7 @@ import Loader from "@/components/feedback/loader/loader"
 import {NotificationContext} from "@/context/NotificationContext"
 import Link from "next/link"
 import PaymentService from "@/service/PaymentService"
-import {Config} from "@/util/Utils"
+import Config from "@/util/Config"
 import Skeleton from "react-loading-skeleton"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
 

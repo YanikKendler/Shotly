@@ -37,7 +37,7 @@ export interface ShotlistSidebarProps {
     isReadOnly: boolean
     setSidebarOpen: (open: boolean) => void
     openShotlistOptionsDialog: () => void
-    presentCollaborators?: Set<UserMinimalDTO>
+    presentCollaborators: UserMinimalDTO[]
 }
 
 const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
@@ -354,7 +354,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                                         className="collaborators"
                                     >
                                         {
-                                            Array.from(presentCollaborators).map(user => (
+                                            presentCollaborators.map(user => (
                                                 <div key={user.id} className={"collaborator"}>
                                                 <span>
                                                     {user.name.at(0)?.toUpperCase() || "?"}

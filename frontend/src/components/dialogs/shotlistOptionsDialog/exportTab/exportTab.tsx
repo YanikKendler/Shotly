@@ -21,7 +21,8 @@ import {
     AnyShotAttributeDefinition,
     SelectOption, ShotSingleOrMultiSelectAttribute, ShotSingleOrMultiSelectAttributeDefinition
 } from "@/util/Types"
-import Utils, {Config} from "@/util/Utils"
+import Utils from "@/util/Utils"
+import Config from "@/util/Config"
 import MultiSelect from "@/components/inputs/multiSelect/multiSelect"
 import {SceneAttributeParser, ShotAttributeDefinitionParser, ShotAttributeParser} from "@/util/AttributeParser"
 //@ts-ignore
