@@ -320,10 +320,10 @@ export function useAccountDialog() {
                                 }}
                             >
                                 <RadioGroup.Item className="RadioGroupItem" value="different">
-                                    AA, AB, AC
+                                    AA, AB
                                 </RadioGroup.Item>
                                 <RadioGroup.Item className="RadioGroupItem" value="repeating">
-                                    AA, BB, CC
+                                    AA, BB
                                 </RadioGroup.Item>
                             </RadioGroup.Root>
                         </div>

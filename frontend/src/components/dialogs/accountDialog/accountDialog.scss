@@ -52,10 +52,14 @@
     }
 
     &.legal{
+      flex-wrap: wrap;
+      padding-inline: .5rem;
+
       a{
         font-size: .9rem;
         color: var(--text-60);
         border: none;
+        padding: 0;
 
         &:hover{
           color: var(--text);

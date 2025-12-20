@@ -167,8 +167,11 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                                 <button onClick={() => shotlistContext.openShotlistOptionsDialog({
                                     main: "attributes",
                                     sub: "scene"
-                                })}><List size={18}/> Edit scene attributes
+                                })}>
+                                    <List size={18}/> Edit scene attributes
                                 </button>
+                                <Separator.Root className="Separator"/>
+                                <p className={"instructions"}><span className="bold">Click</span> to edit, <span className="bold">Drag</span> to reorder</p>
                             </Popover.Content>
                         </Popover.Portal>
                     </Popover.Root>

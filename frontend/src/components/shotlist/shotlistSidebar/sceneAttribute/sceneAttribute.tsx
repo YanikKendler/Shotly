@@ -150,7 +150,9 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
                 const textAttribute = attribute as SceneTextAttributeDto
                 if(textValue == "") {
                     setTextValue(textAttribute.textValue || "")
-                    textInputRef.current!.innerText = textAttribute.textValue || ""
+
+                    if(textInputRef.current)
+                        textInputRef.current.innerText = textAttribute.textValue || ""
                 }
                 else if(textInputRef.current) {
                     textInputRef.current.innerText = textValue

@@ -112,7 +112,7 @@ export default function RootLayout({
         <body>
             <Toast.Provider>
                 <div className="root">
-                    {Config.mode === "dev-deployment" && <div className="infoBanner">You are currently viewing a dev deployment</div>}
+                    {(Config.mode === "dev-deployment" || true) && <div className="infoBanner">You are currently viewing a dev deployment</div>}
                     <AuthWrapper> {/*should be the outermost*/}
                         <ApolloWrapper> {/*should also be out*/}
                             <NotificationWrapper>

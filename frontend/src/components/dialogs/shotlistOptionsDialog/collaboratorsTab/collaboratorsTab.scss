@@ -7,8 +7,31 @@ div.shotlistOptionsDialogCollaboratorsTab{
     align-items: center;
     gap: .5rem;
 
+    p{
+      @media screen and (max-width: 600px){
+        font-size: .9rem;
+      }
+    }
+
     .simpleSelect{
       margin-left: auto;
+    }
+
+    .inlineButtons{
+      display: flex;
+
+      @media screen and (max-width: 600px){
+        display: none;
+      }
+    }
+
+    .optionsTrigger{
+      display: none;
+      margin-left: auto;
+
+      @media screen and (max-width: 600px){
+        display: flex;
+      }
     }
 
     button{
@@ -25,11 +48,14 @@ div.shotlistOptionsDialogCollaboratorsTab{
     color: var(--text-40);
   }
 
+  .Separator{
+    margin-top: 2rem;
+  }
+
   .new{
     display: flex;
     align-items: flex-end;
     gap: .8rem;
-    margin-top: 2rem;
 
     button{
       background-color: var(--accent);
@@ -40,5 +66,15 @@ div.shotlistOptionsDialogCollaboratorsTab{
         color: var(--text);
       }
     }
+  }
+}
+
+.collaboratorOptionsPopup{
+  .simpleSelect button{
+    border: none;
+  }
+
+  button{
+    padding: .3rem;
   }
 }

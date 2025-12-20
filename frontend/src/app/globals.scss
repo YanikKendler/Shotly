@@ -217,7 +217,7 @@ img{
 
   .infoBanner{
     width: 100%;
-    background-color: var(--good);
+    background-color: var(--accent);
     padding: .5rem;
     text-align: center;
     color: var(--contrast);
@@ -430,7 +430,7 @@ span.wrap{
       display: flex;
       flex-direction: column;
       gap: .2rem;
-      padding-bottom: 5rem;
+      padding-bottom: 10rem;
       overflow-y: auto;
       -ms-overflow-style: none;  /* IE and Edge */
       scrollbar-width: none;  /* Firefox */
@@ -472,6 +472,10 @@ span.wrap{
 
           &:hover{
             border-color: var(--text-20);
+          }
+
+          @media screen and (max-width: 600px){
+            padding-block: .75rem;
           }
         }
       }
@@ -554,13 +558,16 @@ span.wrap{
   border-radius: .5rem;
   padding: 1rem;
   width: 95%;
+  height: fit-content;
   max-width: 450px;
+  max-height: 90vh;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   /*z-index: 1001;*/
   animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
 }
 
 @keyframes overlayShow {
@@ -587,6 +594,7 @@ span.wrap{
 
 .Separator {
   background-color: var(--text-90);
+  flex-shrink: 0;
 
   &[data-orientation="horizontal"] {
     --offset: 0rem;

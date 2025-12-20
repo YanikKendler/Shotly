@@ -4,6 +4,7 @@ main.shotlist{
   background-color: var(--sidebar-bg);
   display: flex;
   flex-direction: column;
+  position: relative;
 
   .content{
     display: flex;

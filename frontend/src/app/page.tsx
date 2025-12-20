@@ -190,6 +190,13 @@ export default function Landing() {
                         </div>
                         <div className="feature">
                             <div className="icon">
+                                <Users size={40}/>
+                            </div>
+                            <h2>Live Collaboration</h2>
+                            <p>Share your shotlist with friends or colleagues and create together.</p>
+                        </div>
+                        <div className="feature">
+                            <div className="icon">
                                 <Blocks size={40}/>
                             </div>
                             <h2>Templates</h2>
@@ -201,26 +208,6 @@ export default function Landing() {
                             </div>
                             <h2>Open Source</h2>
                             <p>Self host your shotlists or add your own features and improve Shotly.</p>
-                        </div>
-                        <div className="feature unavailable">
-                            <div className="icon">
-                                <Users size={40}/>
-                            </div>
-                            <h2>Live Collaboration</h2>
-                            <p>Share your shotlist with friends or colleagues and create together.</p>
-                            <Popover.Root>
-                                <Popover.Trigger className={"noPadding info"}>
-                                    <ClockAlert/>
-                                </Popover.Trigger>
-                                <Popover.Portal>
-                                    <Popover.Content className={"PopoverContent left"} side={"top"}>
-                                        <Popover.Arrow/>
-                                        <p>
-                                            Since Shotly is currently in beta, live collaboration is not yet available.
-                                        </p>
-                                    </Popover.Content>
-                                </Popover.Portal>
-                            </Popover.Root>
                         </div>
                     </div>
                 </section>

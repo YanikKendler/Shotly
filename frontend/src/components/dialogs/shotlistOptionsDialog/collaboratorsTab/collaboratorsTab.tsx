@@ -1,15 +1,20 @@
 import React, {useState} from "react"
 import {useApolloClient} from "@apollo/client"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
-import {useRouter} from "next/navigation"
 import "./collaboratorsTab.scss"
-import {CollaborationDto, CollaborationType, ShotAttributeType} from "../../../../../lib/graphql/generated"
+import {
+    CollaborationDto,
+    CollaborationType,
+    SceneAttributeType,
+    ShotAttributeType
+} from "../../../../../lib/graphql/generated"
 import Input from "@/components/inputs/input/input"
 import Skeleton from "react-loading-skeleton"
 import gql from "graphql-tag"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
-import {Trash, User} from "lucide-react"
+import {ChevronDown, Ellipsis, EllipsisVertical, List, Plus, Trash, Type, User} from "lucide-react"
 import SimpleSelect from "@/components/inputs/simpleSelect/simpleSelect"
+import {Popover, Separator} from "radix-ui"
 
 export default function CollaboratorsTab(
     {
@@ -143,26 +148,52 @@ export default function CollaboratorsTab(
                     <p className={"empty"}>No collaborators yet</p> :
                 collaborations?.map((collab) => (
                     <div className={"collaborator"} key={collab.id}>
-                        <User size={28}/>
+                        <User size={30}/>
                         <p><span className={"bold"}>{collab.user?.name}</span> • {collab.user?.email}</p>
-                        <SimpleSelect
-                            name={"role"}
-                            onChange={(newValue) => updateCollaborationType(collab.id || "", newValue as CollaborationType)}
-                            value={collab.collaborationType as CollaborationType}
-                            options={[
-                                {label: "Viewer", value: CollaborationType.View},
-                                {label: "Editor", value: CollaborationType.Edit},
-                            ]}
-                        />
-                        <button
-                            className="delete bad"
-                            onClick={() => deleteCollaboration(collab.id || "")}
-                        >
-                            <Trash size={18}/>
-                        </button>
+                        <div className="inlineButtons">
+                            <SimpleSelect
+                                name={"role"}
+                                onChange={(newValue) => updateCollaborationType(collab.id || "", newValue as CollaborationType)}
+                                value={collab.collaborationType as CollaborationType}
+                                options={[
+                                    {label: "Viewer", value: CollaborationType.View},
+                                    {label: "Editor", value: CollaborationType.Edit},
+                                ]}
+                            />
+                            <button
+                                className="delete bad"
+                                onClick={() => deleteCollaboration(collab.id || "")}
+                            >
+                                <Trash size={18}/>
+                            </button>
+                        </div>
+                        <Popover.Root>
+                            <Popover.Trigger className={"optionsTrigger"}><Ellipsis size={18}/></Popover.Trigger>
+                            <Popover.Portal>
+                                <Popover.Content className="PopoverContent collaboratorOptionsPopup" sideOffset={5} align={"start"}>
+                                    <SimpleSelect
+                                        name={"role"}
+                                        onChange={(newValue) => updateCollaborationType(collab.id || "", newValue as CollaborationType)}
+                                        value={collab.collaborationType as CollaborationType}
+                                        options={[
+                                            {label: "Viewer", value: CollaborationType.View},
+                                            {label: "Editor", value: CollaborationType.Edit},
+                                        ]}
+                                    />
+                                    <button
+                                        className="delet"
+                                        onClick={() => deleteCollaboration(collab.id || "")}
+                                    >
+                                        Remove <Trash size={18}/>
+                                    </button>
+                                </Popover.Content>
+                            </Popover.Portal>
+                        </Popover.Root>
                     </div>
                 )
             )}
+
+            <Separator.Root className="Separator horizontal" orientation="horizontal"/>
 
             <div className="new">
                 <Input
