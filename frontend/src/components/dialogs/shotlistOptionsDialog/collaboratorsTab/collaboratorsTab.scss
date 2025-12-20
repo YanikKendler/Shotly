@@ -42,10 +42,10 @@ div.shotlistOptionsDialogCollaboratorsTab{
   }
 
   .empty{
-    margin-top: 1rem;
-    margin-left: 2rem;
-    font-size: .9rem;
-    color: var(--text-40);
+    margin-left: .5rem;
+    margin-top: .5rem;
+    font-size: 1rem;
+    color: var(--text-50);
   }
 
   .Separator{
@@ -66,6 +66,12 @@ div.shotlistOptionsDialogCollaboratorsTab{
         color: var(--text);
       }
     }
+  }
+
+  .invalid{
+    font-size: .9rem;
+    color: var(--bad);
+    margin-top: .2rem;
   }
 }
 

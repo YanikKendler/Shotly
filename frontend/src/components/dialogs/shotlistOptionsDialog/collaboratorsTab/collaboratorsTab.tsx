@@ -31,42 +31,49 @@ export default function CollaboratorsTab(
     const { confirm, ConfirmDialog } = useConfirmDialog()
 
     const [inputValue, setInputValue] = useState("")
+    const [emailInvalid, setEmailInvalid] = useState<boolean>(false)
 
     const addCollaborator = async () => {
         if(!wuConstants.Regex.email.test(inputValue)) return
 
-        const result = await client.mutate({
-            mutation: gql`
-                mutation addCollaboration($shotlistId: String!, $email: String!) {
-                    addCollaboration(createDTO: {
-                        shotlistId: $shotlistId,
-                        email: $email
-                    }) {
-                        id
-                        user {
+        try{
+            const result = await client.mutate({
+                mutation: gql`
+                    mutation addCollaboration($shotlistId: String!, $email: String!) {
+                        addCollaboration(createDTO: {
+                            shotlistId: $shotlistId,
+                            email: $email
+                        }) {
                             id
-                            email
-                            name
+                            user {
+                                id
+                                email
+                                name
+                            }
+                            collaborationType
+                            collaborationState
                         }
-                        collaborationType
-                        collaborationState
                     }
-                }
-            `,
-            variables: {shotlistId: shotlistId, email: inputValue},
-        })
-        if (result.errors) {
-            //TODO notify user
-            console.error(result.errors);
-            return;
+                `,
+                variables: {shotlistId: shotlistId, email: inputValue},
+            })
+            if (result.errors) {
+                setEmailInvalid(true)
+                console.error(result.errors);
+                return;
+            }
+
+            setCollaborations([
+                ...collaborations || [],
+                result.data.addCollaboration
+            ])
+
+            setInputValue("")
         }
-
-        setCollaborations([
-            ...collaborations || [],
-            result.data.addCollaboration
-        ])
-
-        setInputValue("")
+        catch (e) {
+            setEmailInvalid(true)
+            console.error(e);
+        }
     }
 
     const updateCollaborationType = async (collaborationId: string, newType: CollaborationType) => {
@@ -199,7 +206,10 @@ export default function CollaboratorsTab(
                 <Input
                     label={"email"}
                     placeholder={"yourfriend@email.com"}
-                    valueChange={setInputValue}
+                    valueChange={value => {
+                        setInputValue(value)
+                        setEmailInvalid(false)
+                    }}
                     value={inputValue}
                 />
                 <button
@@ -210,6 +220,10 @@ export default function CollaboratorsTab(
                     Invite
                 </button>
             </div>
+            {
+                emailInvalid &&
+                <p className={"invalid"}>No Shotly account is associated with that email.</p>
+            }
 
             {ConfirmDialog}
         </div>
