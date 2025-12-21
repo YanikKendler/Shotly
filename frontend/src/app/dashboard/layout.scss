@@ -170,10 +170,10 @@ main.home{
 .PopoverContent.CollaborationRequests{
   --reloadButtonBg: hsl(0, 0%, 95%);
 
-  width: var(--radix-popover-trigger-width);
-  max-width: var(--radix-popover-trigger-width);
+  min-width: var(--radix-popover-trigger-width);
+  max-width: 90vw;
   border: 1px solid var(--default-interactable-border);
-  padding: .2rem;
+  padding: .3rem;
 
   .empty{
     padding: .5rem;
@@ -195,7 +195,7 @@ main.home{
 
     button{
       border: 2px solid var(--default-interactable-border);
-      padding: .4rem;
+      padding: .3rem;
       aspect-ratio: 1;
       height: fit-content;
 

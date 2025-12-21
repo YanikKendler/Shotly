@@ -1,0 +1,16 @@
+.simpleTooltipTrigger{
+  position: relative;
+  height: fit-content;
+  display: flex;
+
+  .expansion {
+    position: absolute;
+    pointer-events: auto;
+    background-color: transparent;
+    border-radius: .5rem;
+  }
+
+  &:hover .expansion {
+    background-color: var(--hover-bg-10);
+  }
+}

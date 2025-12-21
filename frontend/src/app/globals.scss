@@ -82,6 +82,10 @@
   --switch-knob-bg: hsl(0, 0%, 30%);
   --switch-knob-focused-bg: hsl(0, 0%, 30%);
   --switch-knob-hover-bg: hsl(0, 0%, 10%);
+
+  --slider-track-bg: hsl(0, 0%, 80%);
+
+  --shotlist-scale: 1;
 }
 
 [data-theme="dark"] {
@@ -153,6 +157,8 @@
   --switch-knob-bg: hsl(0, 0%, 80%);
   --switch-knob-focused-bg: hsl(0, 0%, 100%);
   --switch-knob-hover-bg: hsl(0, 0%, 100%);
+
+  --slider-track-bg: hsl(0, 0%, 20%);
 
   color-scheme: dark;
 }
@@ -475,7 +481,7 @@ span.wrap{
           }
 
           @media screen and (max-width: 600px){
-            padding-block: .75rem;
+            padding-block: .6rem;
           }
         }
       }
@@ -926,3 +932,45 @@ body button.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot {
   }
 }
 
+//Style radix slider
+
+.SliderRoot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  touch-action: none;
+  width: 200px;
+  height: 20px;
+}
+
+.SliderTrack {
+  background-color: var(--slider-track-bg);
+  position: relative;
+  flex-grow: 1;
+  border-radius: 9999px;
+  height: 3px;
+}
+
+.SliderRange {
+  position: absolute;
+  background-color: var(--accent-20);
+  border-radius: 9999px;
+  height: 100%;
+}
+
+.SliderThumb {
+  display: block;
+  width: 20px;
+  height: 20px;
+  background-color: var(--accent);
+  box-shadow: 0 2px 10px hsl(0, 0%, 20%);
+  border-radius: 10px;
+}
+.SliderThumb:hover {
+  background-color: var(--accent-60);
+}
+.SliderThumb:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 5px var(--hover-bg-accent-10);
+}

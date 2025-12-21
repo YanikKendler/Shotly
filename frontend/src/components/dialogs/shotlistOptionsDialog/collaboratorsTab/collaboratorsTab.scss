@@ -1,15 +1,25 @@
 div.shotlistOptionsDialogCollaboratorsTab{
   display: flex;
   flex-direction: column;
+  gap: .3rem;
 
   .collaborator{
     display: flex;
     align-items: center;
-    gap: .5rem;
 
     p{
+      margin-left: .5rem;
       @media screen and (max-width: 600px){
         font-size: .9rem;
+      }
+    }
+
+    .simpleTooltipTrigger{
+      color: var(--text-20);
+      margin-left: .3rem;
+
+      svg{
+        height: .9rem;
       }
     }
 
@@ -19,6 +29,8 @@ div.shotlistOptionsDialogCollaboratorsTab{
 
     .inlineButtons{
       display: flex;
+      gap: .3rem;
+      margin-left: auto;
 
       @media screen and (max-width: 600px){
         display: none;
@@ -58,10 +70,15 @@ div.shotlistOptionsDialogCollaboratorsTab{
     gap: .8rem;
 
     button{
+      font-weight: 500;
+      font-size: .95rem;
+      padding-block: .55rem;
+      padding-inline: 1rem;
+
       background-color: var(--accent);
       margin-bottom: .1rem;
 
-      &:not([disabled]):hover{
+      &:not([disabled]):hover {
         background-color: var(--accent-60);
         color: var(--text);
       }

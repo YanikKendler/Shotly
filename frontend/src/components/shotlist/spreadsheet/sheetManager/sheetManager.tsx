@@ -362,14 +362,15 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         })
     }
 
-    if(selectedScene.id == null)
-        return <div className="sheetManager">
-            <p className="empty">Please select a scene from the sidebar</p>
-        </div>
 
     if(query.loading || !shotAttributeDefinitions)
         return <div className="sheetManager">
             <Skeleton count={5} height="38px"/>
+        </div>
+
+    if(selectedScene.id == null)
+        return <div className="sheetManager">
+            <p className="empty">Please select a scene from the sidebar</p>
         </div>
 
     if(query.error)

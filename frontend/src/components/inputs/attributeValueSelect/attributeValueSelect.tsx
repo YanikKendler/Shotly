@@ -22,7 +22,6 @@ export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBas
         cursor: 'pointer',
         borderRadius: ".3rem",
         paddingInline: ".5rem",
-        fontSize: ".9rem",
         backgroundColor: state.isFocused ? 'var(--hover-bg-accent-10)' : 'transparent',
         color: "var(--text)",
     }),

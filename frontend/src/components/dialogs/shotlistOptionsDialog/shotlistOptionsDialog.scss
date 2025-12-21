@@ -52,6 +52,7 @@
           flex-direction: row;
           overflow-x: auto;
           height: fit-content;
+          gap: 0;
 
           svg{
             display: none;
@@ -72,7 +73,7 @@
         }
       }
 
-      >.Separator{
+      > .Separator{
         margin-inline: 1rem;
 
         &.horizontal{
@@ -80,6 +81,9 @@
         }
 
         @media screen and (max-width: 600px){
+          margin-block: 1rem;
+          margin-inline: 0;
+
           &.horizontal{
             display: block;
           }

@@ -71,13 +71,13 @@
 }
 
 .shotContextOptionsPopup{
-  padding: .3rem;
+  padding: calc(.3rem * var(--shotlist-scale));
 
   button{
-    font-size: .95rem;
+    font-size: calc(.85rem * var(--shotlist-scale));
     width: 100%;
     justify-content: left;
-    padding: .4rem;
+    padding: calc(.3rem * var(--shotlist-scale));
     color: var(--text-20);
     font-weight: 500;
 
@@ -108,7 +108,7 @@
 
   .instructions{
     color: var(--text-50);
-    font-size: .8rem;
+    font-size: calc(.7rem * var(--shotlist-scale));
   }
 
   .bold{

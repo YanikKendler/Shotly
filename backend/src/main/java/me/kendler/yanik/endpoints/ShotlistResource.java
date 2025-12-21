@@ -90,10 +90,10 @@ public class ShotlistResource {
     }
 
     @Mutation
-    public CollaborationDTO addCollaboration(CollaborationCreateDTO createDTO){
+    public List<CollaborationDTO> addCollaboration(CollaborationCreateDTO createDTO){
         userRepository.checkShotlistOwner(shotlistRepository.findById(createDTO.shotlistId()), jwt);
 
-        return collaborationRepository.create(createDTO);
+        return collaborationRepository.create(createDTO, jwt);
     }
 
     @Mutation

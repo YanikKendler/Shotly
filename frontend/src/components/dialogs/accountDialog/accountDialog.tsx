@@ -8,7 +8,7 @@ import gql from "graphql-tag"
 import {Monitor, Moon, Sun, X} from "lucide-react"
 import Auth from "@/Auth"
 import {User, UserDto, UserTier} from "../../../../lib/graphql/generated"
-import {RadioGroup, Separator, Switch, VisuallyHidden} from "radix-ui"
+import {RadioGroup, Separator, Slider, Switch, VisuallyHidden} from "radix-ui"
 import Input from "@/components/inputs/input/input"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
 import Loader from "@/components/feedback/loader/loader"
@@ -23,6 +23,7 @@ export interface UserSettings {
     saveExportSettingsInLocalstorage: boolean
     displaySceneNumbersNextToShotNumbers: boolean
     shotNumberingAfterZ: "different" | "repeating"
+    shotlistScale: number
 }
 
 export function useAccountDialog() {
@@ -39,7 +40,8 @@ export function useAccountDialog() {
     const [userSettings, setUserSettings] = useState<UserSettings>({
         saveExportSettingsInLocalstorage: true,
         displaySceneNumbersNextToShotNumbers: false,
-        shotNumberingAfterZ: "repeating"
+        shotNumberingAfterZ: "repeating",
+        shotlistScale: 1,
     })
 
     const [settingsLoaded, setSettingsLoaded] = useState(false)
@@ -49,7 +51,9 @@ export function useAccountDialog() {
 
         const userSettingsString = localStorage.getItem(Config.localStorageKey.userSettings)
         if(userSettingsString != null) {
-            setUserSettings(JSON.parse(userSettingsString))
+            const newSettings = JSON.parse(userSettingsString) as UserSettings
+            setUserSettings(newSettings)
+            document.documentElement.style.setProperty("--shotlist-scale", newSettings.shotlistScale);
         }
         else{
             //nothing in localstorage currently, so write the default settings
@@ -326,6 +330,29 @@ export function useAccountDialog() {
                                     AA, BB
                                 </RadioGroup.Item>
                             </RadioGroup.Root>
+                        </div>
+
+                        <div className="row">
+                            <p>Shotlist Scale</p>
+                            <Slider.Root
+                                className="SliderRoot"
+                                defaultValue={[userSettings.shotlistScale]}
+                                min={0.8}
+                                max={1.2}
+                                step={0.01}
+                                onValueChange={(value) => {
+                                    setUserSettings({
+                                        ...userSettings,
+                                        shotlistScale: value[0]
+                                    })
+                                    document.documentElement.style.setProperty("--shotlist-scale", value[0].toString());
+                                }}
+                            >
+                                <Slider.Track className="SliderTrack">
+                                    <Slider.Range className="SliderRange" />
+                                </Slider.Track>
+                                <Slider.Thumb className="SliderThumb" aria-label="Volume" />
+                            </Slider.Root>
                         </div>
                     </>
                 }

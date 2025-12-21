@@ -15,6 +15,9 @@ import {wuConstants} from "@yanikkendler/web-utils/dist"
 import {ChevronDown, Ellipsis, EllipsisVertical, List, Plus, Trash, Type, User} from "lucide-react"
 import SimpleSelect from "@/components/inputs/simpleSelect/simpleSelect"
 import {Popover, Separator} from "radix-ui"
+import auth from "@/Auth"
+import GoogleLogo from "@/components/googleLogo"
+import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 
 export default function CollaboratorsTab(
     {
@@ -49,6 +52,7 @@ export default function CollaboratorsTab(
                                 id
                                 email
                                 name
+                                auth0Sub
                             }
                             collaborationType
                             collaborationState
@@ -65,7 +69,7 @@ export default function CollaboratorsTab(
 
             setCollaborations([
                 ...collaborations || [],
-                result.data.addCollaboration
+                ...result.data.addCollaboration
             ])
 
             setInputValue("")
@@ -155,8 +159,9 @@ export default function CollaboratorsTab(
                     <p className={"empty"}>No collaborators yet</p> :
                 collaborations?.map((collab) => (
                     <div className={"collaborator"} key={collab.id}>
-                        <User size={30}/>
+                        <User size={28}/>
                         <p><span className={"bold"}>{collab.user?.name}</span> • {collab.user?.email}</p>
+                        {collab.user?.auth0Sub?.startsWith("google-oauth2|") && <SimpleTooltip text="Signed up using Google"><GoogleLogo/></SimpleTooltip>}
                         <div className="inlineButtons">
                             <SimpleSelect
                                 name={"role"}
@@ -214,7 +219,7 @@ export default function CollaboratorsTab(
                 />
                 <button
                     className={"accent"}
-                    disabled={!wuConstants.Regex.email.test(inputValue)}
+                    disabled={!wuConstants.Regex.email.test(inputValue) || auth.getUser()?.email == inputValue}
                     onClick={addCollaborator}
                 >
                     Invite

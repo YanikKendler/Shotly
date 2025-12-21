@@ -341,7 +341,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                         <Inbox size={18}/>
                                     </Popover.Trigger>
                                     <Popover.Portal>
-                                        <Popover.Content className={"PopoverContent CollaborationRequests"} side={"top"}>
+                                        <Popover.Content className={"PopoverContent CollaborationRequests"} side={"top"} align={"start"}>
                                             {
                                                 pendingCollaborations.loading ? <>
                                                     <Skeleton height={"2rem"}/>
@@ -357,13 +357,13 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                                             className={"accent"}
                                                             onClick={() => acceptOrDeclineCollaboration(collab.id || "", CollaborationState.Accepted)}
                                                         >
-                                                            <Check size={18} strokeWidth={2.5}/>
+                                                            <Check size={16} strokeWidth={2.5}/>
                                                         </button>
                                                         <button
                                                             className={"accent"}
                                                             onClick={() => acceptOrDeclineCollaboration(collab.id || "", CollaborationState.Declined)}
                                                         >
-                                                            <X size={18} strokeWidth={2.5}/>
+                                                            <X size={16} strokeWidth={2.5}/>
                                                         </button>
                                                     </div>
                                                 ))

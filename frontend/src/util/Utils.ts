@@ -119,7 +119,8 @@ export default class Utils {
         return {
             displaySceneNumbersNextToShotNumbers: false,
             saveExportSettingsInLocalstorage: false,
-            shotNumberingAfterZ: "repeating"
+            shotNumberingAfterZ: "repeating",
+            shotlistScale: 1
         }
     }
 }

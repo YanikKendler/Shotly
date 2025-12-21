@@ -14,6 +14,7 @@ import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.User;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
@@ -61,13 +62,20 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
         return collaboration.toDTO();
     }
 
-    // INFO: possible issue here because a user could add himself as a collaborator
-    // but access checks prioritize owners so it shouldnt matter
-    public CollaborationDTO create(CollaborationCreateDTO createDTO){
-        User user = userRepository.find("email", createDTO.email()).firstResult();
+    /**
+     * Creates a new Collaboration with all users found with the given email
+     * Its possible to have multiple users with the same email because Auth0 does not provide a clean way of
+     * preventing signup via a social login if the email is already used in a email/password login.
+     * <a href="https://community.auth0.com/t/block-social-sign-up-if-user-with-email-already-exists/65639/5">relevant post</a>
+     *
+     * That means that the same user could have multiple accounts with the same email,
+     * the easiest way of handling this is to create collaborations for all users with the given email.
+     */
+    public List<CollaborationDTO> create(CollaborationCreateDTO createDTO, JsonWebToken jwt){
+        User currentUser = userRepository.findOrCreateByJWT(jwt);
 
-        if(user == null){
-            throw new IllegalArgumentException("User with email " + createDTO.email() + " not found.");
+        if(createDTO.email().equals(currentUser.email)){
+            throw new IllegalArgumentException("Cannot create collaboration with yourself.");
         }
 
         Shotlist shotlist = shotlistRepository.findById(createDTO.shotlistId());
@@ -76,14 +84,32 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
             throw new IllegalArgumentException("Shotlist with ID " + createDTO.shotlistId() + " not found.");
         }
 
-        Collaboration collaboration = new Collaboration(
-            user,
-            shotlist
-        );
+        List<UUID> existingCollaboratorIds = shotlist.collaborations.stream().map(c -> c.user.id).toList();
 
-        persist(collaboration);
+        List<User> users = userRepository.find(
+                "email = ?1 and id not in ?2",
+                createDTO.email(),
+                existingCollaboratorIds
+        ).list();
 
-        return collaboration.toDTO();
+        if(users == null || users.isEmpty()){
+            throw new IllegalArgumentException("User with email " + createDTO.email() + " not found.");
+
+        }
+
+
+        List<CollaborationDTO> result = new LinkedList<>();
+
+        for (User user : users) {
+            Collaboration collaboration = new Collaboration(
+                user,
+                shotlist
+            );
+            persist(collaboration);
+            result.add(collaboration.toDTO());
+        }
+
+        return result;
     }
 
     public CollaborationDTO update(CollaborationEditDTO editDTO){

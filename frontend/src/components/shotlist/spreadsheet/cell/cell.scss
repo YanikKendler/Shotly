@@ -4,12 +4,14 @@
   border: 1px solid var(--cell-border);
   position: relative;
   background-color: var(--cell-background);
-  min-height: 40px;
+  min-height: calc(40px * var(--shotlist-scale));
   
   transition: border-color .1s;
 
   display: grid;
   align-items: center;
+
+  font-size: calc(.9rem * var(--shotlist-scale));
 
   &:not(.number){
     width: 100%;
@@ -21,8 +23,8 @@
     justify-content: space-between;
     align-items: center;
     padding: {
-      right: .4rem;
-      left: .2rem;
+      right: calc(.4rem * var(--shotlist-scale));
+      left: calc(.2rem * var(--shotlist-scale));
     }
 
     &:hover{
@@ -137,7 +139,6 @@
       height: fit-content;
       color: var(--text);
       padding: .2rem;
-      font-size: 1rem;
       vertical-align: middle;
       border: none;
       outline: none;
@@ -212,5 +213,9 @@
     &::before{
       border-color: var(--collaborator);
     }
+  }
+
+  svg{
+    scale: var(--shotlist-scale);
   }
 }

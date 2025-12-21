@@ -109,6 +109,7 @@ export default function ShotlistOptionsDialog({
                                 id
                                 email
                                 name
+                                auth0Sub
                             }
                             collaborationState
                             collaborationType
