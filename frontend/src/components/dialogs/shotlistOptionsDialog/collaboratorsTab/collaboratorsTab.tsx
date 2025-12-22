@@ -8,7 +8,7 @@ import {
     SceneAttributeType,
     ShotAttributeType
 } from "../../../../../lib/graphql/generated"
-import Input from "@/components/inputs/input/input"
+import TextField from "@/components//inputs/textField/textField"
 import Skeleton from "react-loading-skeleton"
 import gql from "graphql-tag"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
@@ -208,7 +208,7 @@ export default function CollaboratorsTab(
             <Separator.Root className="Separator horizontal" orientation="horizontal"/>
 
             <div className="new">
-                <Input
+                <TextField
                     label={"email"}
                     placeholder={"yourfriend@email.com"}
                     valueChange={value => {

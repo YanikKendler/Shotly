@@ -32,7 +32,7 @@
       .collaborators {
         display: flex;
         border: none;
-        background-color: transparent;
+        background-color: var(--sidebar-bg);
         padding: .3rem;
 
         &:hover, &[data-state=open]{

@@ -8,8 +8,8 @@ import gql from "graphql-tag"
 import {Monitor, Moon, Sun, X} from "lucide-react"
 import Auth from "@/Auth"
 import {User, UserDto, UserTier} from "../../../../lib/graphql/generated"
-import {RadioGroup, Separator, Slider, Switch, VisuallyHidden} from "radix-ui"
-import Input from "@/components/inputs/input/input"
+import {RadioGroup, Separator, Switch, VisuallyHidden} from "radix-ui"
+import TextField from "@/components/inputs/textField/textField"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
 import Loader from "@/components/feedback/loader/loader"
 import {NotificationContext} from "@/context/NotificationContext"
@@ -18,6 +18,7 @@ import PaymentService from "@/service/PaymentService"
 import Config from "@/util/Config"
 import Skeleton from "react-loading-skeleton"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
+import Slider from "@/components/inputs/slider/slider"
 
 export interface UserSettings {
     saveExportSettingsInLocalstorage: boolean
@@ -53,11 +54,12 @@ export function useAccountDialog() {
         if(userSettingsString != null) {
             const newSettings = JSON.parse(userSettingsString) as UserSettings
             setUserSettings(newSettings)
-            document.documentElement.style.setProperty("--shotlist-scale", newSettings.shotlistScale);
+            document.documentElement.style.setProperty("--shotlist-scale", newSettings.shotlistScale?.toString() || "1");
         }
         else{
             //nothing in localstorage currently, so write the default settings
             writeSettingsToLocalStorage()
+            document.documentElement.style.setProperty("--shotlist-scale", "1");
         }
 
         setSettingsLoaded(true)
@@ -217,13 +219,13 @@ export function useAccountDialog() {
     else
         dialogContent = (
             <>
-                <Input
+                <TextField
                     label={"email"}
                     value={user?.email || "unknown"}
                     disabled={true}
                 />
 
-                <Input
+                <TextField
                     label={"display name"}
                     value={user?.name || "unknown"}
                     info={"This a publicly visible name used for collaboration with others. You cannot use it to log in."}
@@ -334,25 +336,21 @@ export function useAccountDialog() {
 
                         <div className="row">
                             <p>Shotlist Scale</p>
-                            <Slider.Root
-                                className="SliderRoot"
-                                defaultValue={[userSettings.shotlistScale]}
+                            <Slider
+                                name={"Shotlist Scale"}
+                                value={userSettings.shotlistScale}
                                 min={0.8}
                                 max={1.2}
                                 step={0.01}
-                                onValueChange={(value) => {
+                                markerCount={5}
+                                onChange={(value) => {
                                     setUserSettings({
                                         ...userSettings,
-                                        shotlistScale: value[0]
+                                        shotlistScale: value
                                     })
-                                    document.documentElement.style.setProperty("--shotlist-scale", value[0].toString());
+                                    document.documentElement.style.setProperty("--shotlist-scale", value.toString());
                                 }}
-                            >
-                                <Slider.Track className="SliderTrack">
-                                    <Slider.Range className="SliderRange" />
-                                </Slider.Track>
-                                <Slider.Thumb className="SliderThumb" aria-label="Volume" />
-                            </Slider.Root>
+                            />
                         </div>
                     </>
                 }

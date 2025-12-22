@@ -17,7 +17,7 @@ import gql from "graphql-tag"
 import {wuGeneral} from "@yanikkendler/web-utils/dist"
 import {Popover} from "radix-ui"
 import "./shotAttributeTemplate.scss"
-import Input from "@/components/inputs/input/input"
+import TextField from "@/components//inputs/textField/textField"
 
 export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { attributeTemplate: ShotAttributeTemplateBaseDto, onDelete: (id: number) => void }) {
     const [attribute, setAttribute] = useState<AnyShotAttributeTemplate>({} as AnyShotAttributeTemplate)
@@ -191,7 +191,7 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
                 <GripVertical/>
             </div>
             <Icon size={20} strokeWidth={3}/>
-            <Input
+            <TextField
                 defaultValue={attribute.name || ""}
                 valueChange={debouncedUpdateDefinition}
                 placeholder={"Attribute name"}
@@ -206,7 +206,7 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
                             {((attribute as ShotSingleOrMultiSelectAttributeTemplate).options as ShotSelectAttributeOptionTemplate[])?.map((option, index) => (
                                 <div className="option" key={option?.id}>
                                     <p>{index + 1}</p>
-                                    <Input
+                                    <TextField
                                         defaultValue={option?.name || ""}
                                         placeholder="Option name"
                                         valueChange={(value) => updateOptionName(option.id, value)}

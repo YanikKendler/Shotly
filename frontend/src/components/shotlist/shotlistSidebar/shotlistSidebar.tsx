@@ -348,7 +348,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                     }
                     <div className="bottom">
                         {
-                            presentCollaborators && (
+                            presentCollaborators && presentCollaborators.length > 0 && (
                                 <Popover.Root>
                                     <Popover.Trigger
                                         className="collaborators"

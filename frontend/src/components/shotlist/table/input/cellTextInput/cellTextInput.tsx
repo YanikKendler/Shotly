@@ -3,7 +3,7 @@ import {Type} from "lucide-react"
 import React, {forwardRef, useEffect, useImperativeHandle, useMemo, useRef} from "react"
 import {ShotTextAttributeDto} from "../../../../../../lib/graphql/generated"
 import ShotService from "@/service/ShotService"
-import {CellInputRef} from "@/components/shotlist/spreadsheet/cell/cell"
+import {CellInputRef} from "@/components/shotlist/table/cell/cell"
 
 interface CellTextInputProps {
     attribute: ShotTextAttributeDto

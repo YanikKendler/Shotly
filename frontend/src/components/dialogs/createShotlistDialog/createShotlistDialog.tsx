@@ -5,7 +5,7 @@ import React, {useState} from 'react';
 import "./createShotlistDialog.scss"
 import {useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
-import Input from "@/components/inputs/input/input"
+import TextField from "@/components//inputs/textField/textField"
 import Loader from "@/components/feedback/loader/loader"
 import {TemplateDto, UserDto, UserTier} from "../../../../lib/graphql/generated"
 import SimpleSelect from "@/components/inputs/simpleSelect/simpleSelect"
@@ -127,7 +127,7 @@ export function useCreateShotlistDialog() {
     else
         content = <>
             <Dialog.Title className={"title"}>Create Shotlist</Dialog.Title>
-            <Input
+            <TextField
                 label={"Name"}
                 valueChange={setName}
                 placeholder={"Interstellar"}

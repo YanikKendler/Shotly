@@ -35,7 +35,7 @@ main.shotlist{
         width: 100%;
         padding: .5rem .3rem;
         font-weight: bold;
-        font-size: .95rem;
+        font-size: calc(.95rem * var(--shotlist-scale));
 
         &.number{
           width: 4ch;

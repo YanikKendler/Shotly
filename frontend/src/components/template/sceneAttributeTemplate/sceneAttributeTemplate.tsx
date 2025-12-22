@@ -17,7 +17,7 @@ import gql from "graphql-tag"
 import {wuGeneral} from "@yanikkendler/web-utils/dist"
 import {Popover} from "radix-ui"
 import "./sceneAttributeTemplate.scss"
-import Input from "@/components/inputs/input/input"
+import TextField from "@/components//inputs/textField/textField"
 
 export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { attributeTemplate: SceneAttributeTemplateBaseDto, onDelete: (id: number) => void }) {
     const [attribute, setAttribute] = useState<AnySceneAttributeTemplate>({} as AnySceneAttributeTemplate)
@@ -191,7 +191,7 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
                 <GripVertical/>
             </div>
             <Icon size={20} strokeWidth={3}/>
-            <Input
+            <TextField
                 defaultValue={attribute.name || ""}
                 valueChange={debouncedUpdateDefinition}
                 placeholder={"Attribute name"}

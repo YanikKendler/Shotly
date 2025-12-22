@@ -123,28 +123,15 @@ public class ShotlistWebsocketService {
                     if(!room.contains(conn.id()))
                         return false;
                     //connection is the current connection
-                    if(conn.id().equals(connection.id()))
+                    if(conn.id().equals(connection.id()) || conn.pathParam("userId").equals(connection.pathParam("userId")))
                         return false;
                     return true;
                 })
                 .map(conn -> conn.pathParam("userId"))
                 .toList();
 
-        //without the current user
-        List<String> filteredUserIds = presentUserIds
-                .stream()
-                .filter(id -> {
-                    String connectionUserId = connection.pathParam("userId");
-                    if(room.contains(connection.id())) //connection is in the current room
-                        return true;
-                    if(id.equals(connectionUserId))
-                        return false;
-                    return true;
-                })
-                .toList();
-
         //as userMinimalDTOs
-        List<UserMinimalDTO> presentUsers = userRepository.find("id IN ?1", filteredUserIds).list()
+        List<UserMinimalDTO> presentUsers = userRepository.find("id IN ?1", presentUserIds).list()
                 .stream()
                 .map(User::toMinimalDTO)
                 .toList();

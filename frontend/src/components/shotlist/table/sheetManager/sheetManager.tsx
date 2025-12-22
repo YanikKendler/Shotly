@@ -16,7 +16,7 @@ import {ShotAttributeDefinitionParser} from "@/util/AttributeParser"
 import Skeleton from "react-loading-skeleton"
 import ShotService from "@/service/ShotService"
 import Sortable from 'sortablejs';
-import {Cell, CellRef} from "@/components/shotlist/spreadsheet/cell/cell"
+import {Cell, CellRef} from "@/components/shotlist/table/cell/cell"
 import {Row, RowRef} from "../row/row";
 import {SelectedScene} from "@/app/shotlist/[id]/page"
 

@@ -10,7 +10,7 @@ import AttributeValueSelect, {
 import {ChevronDown} from "lucide-react"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
-import {CellInputRef} from "@/components/shotlist/spreadsheet/cell/cell"
+import {CellInputRef} from "@/components/shotlist/table/cell/cell"
 
 interface CellSingleSelectInputProps {
     attribute: ShotSingleSelectAttributeDto

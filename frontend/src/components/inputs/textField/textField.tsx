@@ -1,7 +1,7 @@
 import {Popover, Tooltip} from "radix-ui"
 import {Info} from "lucide-react"
 import React, {useCallback, useEffect, useRef, useState} from "react"
-import "./input.scss"
+import "./textField.scss"
 import {wuGeneral} from "@yanikkendler/web-utils/dist"
 
 /**
@@ -20,7 +20,7 @@ import {wuGeneral} from "@yanikkendler/web-utils/dist"
  * @param debounceValueChange
  * @constructor
  */
-export default function Input(
+export default function TextField(
     {
         label,
         value,
@@ -104,7 +104,7 @@ export default function Input(
     }
 
     return (
-        <div className="customInput">
+        <div className="textField">
             {
                 label &&
                 <label htmlFor={label}>{label}</label>

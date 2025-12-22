@@ -7,7 +7,7 @@ import {useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import auth from "@/Auth"
 import {useRouter} from "next/navigation"
-import Input from "@/components/inputs/input/input"
+import TextField from "@/components//inputs/textField/textField"
 import Loader from "@/components/feedback/loader/loader"
 
 export function useCreateTemplateDialog() {
@@ -77,7 +77,7 @@ export function useCreateTemplateDialog() {
                         :
                         <>
                             <Dialog.Title className={"title"}>Create Template</Dialog.Title>
-                            <Input
+                            <TextField
                                 label={"Name"}
                                 valueChange={setName}
                                 placeholder={"Personal Projects"}

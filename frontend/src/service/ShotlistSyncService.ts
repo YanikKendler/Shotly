@@ -1,5 +1,5 @@
 import {AnyShotAttribute, SelectOption} from "@/util/Types"
-import {SheetManagerRef} from "@/components/shotlist/spreadsheet/sheetManager/sheetManager"
+import {SheetManagerRef} from "@/components/shotlist/table/sheetManager/sheetManager"
 import {
     CollaborationType,
     SceneAttributeBaseDto,

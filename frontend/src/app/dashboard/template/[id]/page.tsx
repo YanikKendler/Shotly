@@ -18,7 +18,7 @@ import {
 import gql from "graphql-tag"
 import {wuGeneral} from "@yanikkendler/web-utils"
 import {ChevronDown, Info, List, Menu, NotepadText, Pen, Pencil, Plus, Trash, Type} from "lucide-react"
-import Input from "@/components/inputs/input/input"
+import TextField from "@/components//inputs/textField/textField"
 import {
     closestCenter,
     DndContext,
@@ -410,7 +410,7 @@ export default function Template (){
                         query.loading ?
                         <Skeleton height="2rem"/> :
                         <>
-                            <Input
+                            <TextField
                                 value={query.data.template?.name || ""}
                                 placeholder={"template name"}
                                 valueChange={handleTemplateNameChange}

@@ -7,7 +7,7 @@ import {useApolloClient} from "@apollo/client"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
 import {useRouter} from "next/navigation"
 import "./generalTab.scss"
-import Input from "@/components/inputs/input/input"
+import TextField from "@/components//inputs/textField/textField"
 import Loader from "@/components/feedback/loader/loader"
 
 export default function GeneralTab({
@@ -99,7 +99,7 @@ export default function GeneralTab({
     return (
         <div className={"shotlistOptionsDialogGeneralTab"}>
             <h2>Shotlist settings</h2>
-            <Input
+            <TextField
                 label={"Name"}
                 value={shotlist.name || ""}
                 placeholder={"My shotlist"}

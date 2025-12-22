@@ -25,7 +25,7 @@ export abstract class SceneAttributeParser {
                 result = <string>(attribute as SceneSingleSelectAttributeDto).singleSelectValue?.name || ""
                 break
             case "SceneMultiSelectAttributeDTO":
-                result = <string>(attribute as SceneMultiSelectAttributeDto).multiSelectValue?.map((value) => value?.name).join(", ")
+                result = <string>(attribute as SceneMultiSelectAttributeDto).multiSelectValue?.map((value) => value?.name).join(", ") || ""
                 break
         }
         return truncate ? wuText.truncate(result, 15, "..") : result

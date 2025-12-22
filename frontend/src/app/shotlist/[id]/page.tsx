@@ -27,7 +27,7 @@ import "driver.js/dist/driver.css";
 import Utils from "@/util/Utils"
 import Config from "@/util/Config"
 import {SelectOption} from "@/util/Types"
-import SheetManager, {SheetManagerRef} from "@/components/shotlist/spreadsheet/sheetManager/sheetManager"
+import SheetManager, {SheetManagerRef} from "@/components/shotlist/table/sheetManager/sheetManager"
 import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/shotlist/shotlistSidebar/shotlistSidebar"
 import Skeleton from "react-loading-skeleton"
 import {
@@ -245,6 +245,8 @@ export default function Shotlist() {
                 return
             }
 
+            console.log(updateDTO)
+
             if(!syncService.current) {
                 console.error("syncService not initialized")
                 return
@@ -331,6 +333,7 @@ export default function Shotlist() {
                 case "empty":
                     switch (updateDTO.type) {
                         case ShotlistUpdateType.SHOTLIST_OPTIONS_UPDATED:
+                            console.log("refreshing")
                             refreshShotlist()
                             break
                     }
@@ -736,7 +739,13 @@ export default function Shotlist() {
                         payload: {kind: "empty"}
                     }
 
-                    websocketRef.current?.send(JSON.stringify(updateDTO))
+                    //this is a super ugly fix for the race condition that happens when a collaborator recieves
+                    //the websocket message and queries its own shotlist before the update from the first user has
+                    //been processed, causing the shotlist to not be updated properly
+                    setTimeout(() => {
+                        console.log("sending update to collaborator")
+                        websocketRef.current?.send(JSON.stringify(updateDTO))
+                    },500)
                 }}
                 isReadOnly={readOnlyState.isReadOnly}
             ></ShotlistOptionsDialog>
