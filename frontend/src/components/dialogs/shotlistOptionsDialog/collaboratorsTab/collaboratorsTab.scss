@@ -9,7 +9,7 @@ div.shotlistOptionsDialogCollaboratorsTab{
 
     p{
       margin-left: .5rem;
-      @media screen and (max-width: 600px){
+      @media screen and (max-width: 700px){
         font-size: .9rem;
       }
     }
@@ -32,7 +32,7 @@ div.shotlistOptionsDialogCollaboratorsTab{
       gap: .3rem;
       margin-left: auto;
 
-      @media screen and (max-width: 600px){
+      @media screen and (max-width: 700px){
         display: none;
       }
     }
@@ -41,7 +41,7 @@ div.shotlistOptionsDialogCollaboratorsTab{
       display: none;
       margin-left: auto;
 
-      @media screen and (max-width: 600px){
+      @media screen and (max-width: 700px){
         display: flex;
       }
     }

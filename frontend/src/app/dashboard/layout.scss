@@ -182,19 +182,21 @@ main.home{
 
   .collaborationRequest{
     display: flex;
+    align-items: center;
     gap: .3rem;
 
     p{
       text-align: left;
       color: var(--text-20);
-    }
+      margin-right: .2rem;
 
-    span{
-      color: var(--text);
+      span{
+        color: var(--text);
+      }
     }
 
     button{
-      border: 2px solid var(--default-interactable-border);
+      border: 1px solid var(--default-interactable-border);
       padding: .3rem;
       aspect-ratio: 1;
       height: fit-content;

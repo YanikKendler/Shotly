@@ -33,9 +33,10 @@ public class Collaboration extends PanacheEntityBase {
         return new CollaborationDTO(
             id,
             user.toDTO(),
-                collaborationType,
+            collaborationType,
             collaborationState,
-            shotlist
+            shotlist,
+            shotlist.owner.toMinimalDTO()
         );
     }
 }

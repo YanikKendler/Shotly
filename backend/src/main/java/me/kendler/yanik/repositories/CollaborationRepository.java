@@ -28,7 +28,7 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
         User user = userRepository.findOrCreateByJWT(jwt);
 
         return find(
-                "user.id = ?1 and collaborationState = ?2",
+                "user.id = ?1 and collaborationState = ?2 order by user.name asc, user.id asc",
                 user.id,
                 CollaborationState.PENDING
         ).stream()
@@ -138,6 +138,19 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
         }
 
         deleteById(id);
+
+        return collaboration.toDTO();
+    }
+
+    public CollaborationDTO refresh(UUID id){
+        Collaboration collaboration = findById(id);
+
+        if(collaboration == null){
+            throw new IllegalArgumentException("Collaboration with ID " + id + " not found.");
+        }
+
+        collaboration.collaborationState = CollaborationState.PENDING;
+        persist(collaboration);
 
         return collaboration.toDTO();
     }

@@ -39,6 +39,7 @@ export type CollaborationDto = {
   collaborationState?: Maybe<CollaborationState>;
   collaborationType?: Maybe<CollaborationType>;
   id?: Maybe<Scalars['String']['output']>;
+  owner?: Maybe<UserMinimalDto>;
   shotlist?: Maybe<Shotlist>;
   user?: Maybe<UserDto>;
 };
@@ -92,6 +93,7 @@ export type Mutation = {
   deleteTemplate?: Maybe<TemplateDto>;
   deleteUser?: Maybe<User>;
   editCollaboration?: Maybe<CollaborationDto>;
+  refreshCollaboration?: Maybe<CollaborationDto>;
   triggerPasswordReset?: Maybe<Scalars['String']['output']>;
   updateScene?: Maybe<SceneDto>;
   updateSceneAttribute?: Maybe<SceneAttributeBaseDto>;
@@ -276,6 +278,12 @@ export type MutationDeleteTemplateArgs = {
 /** Mutation root */
 export type MutationEditCollaborationArgs = {
   editDTO?: InputMaybe<CollaborationEditDtoInput>;
+};
+
+
+/** Mutation root */
+export type MutationRefreshCollaborationArgs = {
+  id?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -996,6 +1004,17 @@ export type UserEditDtoInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UserMinimalDto = {
+  __typename?: 'UserMinimalDTO';
+  auth0Sub?: Maybe<Scalars['String']['output']>;
+  /** ISO-8601 */
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  email?: Maybe<Scalars['String']['output']>;
+  id?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  tier?: Maybe<UserTier>;
+};
+
 export enum UserTier {
   Basic = 'BASIC',
   Pro = 'PRO',
@@ -1011,7 +1030,7 @@ export type HomeQuery = { __typename?: 'Query', shotlists?: { __typename?: 'Shot
 export type PendingCollaborationsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PendingCollaborationsQuery = { __typename?: 'Query', pendingCollaborations?: Array<{ __typename?: 'CollaborationDTO', id?: string | null, collaborationState?: CollaborationState | null, collaborationType?: CollaborationType | null, user?: { __typename?: 'UserDTO', id?: string | null, name?: string | null } | null } | null> | null };
+export type PendingCollaborationsQuery = { __typename?: 'Query', pendingCollaborations?: Array<{ __typename?: 'CollaborationDTO', id?: string | null, collaborationState?: CollaborationState | null, collaborationType?: CollaborationType | null, owner?: { __typename?: 'UserMinimalDTO', name?: string | null } | null } | null> | null };
 
 export type AcceptOrDeclineCollaborationMutationVariables = Exact<{
   collaborationId: Scalars['String']['input'];
@@ -1255,7 +1274,7 @@ export type AddCollaborationMutationVariables = Exact<{
 }>;
 
 
-export type AddCollaborationMutation = { __typename?: 'Mutation', addCollaboration?: Array<{ __typename?: 'CollaborationDTO', id?: string | null, collaborationType?: CollaborationType | null, collaborationState?: CollaborationState | null, user?: { __typename?: 'UserDTO', id?: string | null, email?: string | null, name?: string | null } | null } | null> | null };
+export type AddCollaborationMutation = { __typename?: 'Mutation', addCollaboration?: Array<{ __typename?: 'CollaborationDTO', id?: string | null, collaborationType?: CollaborationType | null, collaborationState?: CollaborationState | null, user?: { __typename?: 'UserDTO', id?: string | null, email?: string | null, name?: string | null, auth0Sub?: string | null } | null } | null> | null };
 
 export type UpdateCollaborationMutationVariables = Exact<{
   collaborationId: Scalars['String']['input'];
@@ -1299,7 +1318,7 @@ export type DataQueryVariables = Exact<{
 }>;
 
 
-export type DataQuery = { __typename?: 'Query', shotlist?: { __typename?: 'ShotlistDTO', id?: string | null, name?: string | null, sceneCount?: number | null, shotCount?: number | null, editedAt?: any | null, createdAt?: any | null, owner?: { __typename?: 'UserDTO', id?: string | null, name?: string | null, tier?: UserTier | null, shotlistCount: number } | null, collaborations?: Array<{ __typename?: 'CollaborationDTO', id?: string | null, collaborationState?: CollaborationState | null, collaborationType?: CollaborationType | null, user?: { __typename?: 'UserDTO', id?: string | null, email?: string | null, name?: string | null } | null } | null> | null } | null, shotAttributeDefinitions?: Array<{ __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null, options?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null } | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null, options?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null } | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null } | null> | null, sceneAttributeDefinitions?: Array<{ __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null, options?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null } | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null, options?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null } | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null } | null> | null, currentUser?: { __typename?: 'UserDTO', id?: string | null } | null };
+export type DataQuery = { __typename?: 'Query', shotlist?: { __typename?: 'ShotlistDTO', id?: string | null, name?: string | null, sceneCount?: number | null, shotCount?: number | null, editedAt?: any | null, createdAt?: any | null, owner?: { __typename?: 'UserDTO', id?: string | null, name?: string | null, tier?: UserTier | null, shotlistCount: number } | null, collaborations?: Array<{ __typename?: 'CollaborationDTO', id?: string | null, collaborationState?: CollaborationState | null, collaborationType?: CollaborationType | null, user?: { __typename?: 'UserDTO', id?: string | null, email?: string | null, name?: string | null, auth0Sub?: string | null } | null } | null> | null } | null, shotAttributeDefinitions?: Array<{ __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null, options?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null } | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null, options?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null } | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null } | null> | null, sceneAttributeDefinitions?: Array<{ __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null, options?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null } | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null, options?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null } | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null } | null> | null, currentUser?: { __typename?: 'UserDTO', id?: string | null } | null };
 
 export type SearchSceneSelectAttributeOptionsQueryVariables = Exact<{
   definitionId: Scalars['BigInteger']['input'];
@@ -1541,8 +1560,7 @@ export const PendingCollaborationsDocument = gql`
     query pendingCollaborations {
   pendingCollaborations {
     id
-    user {
-      id
+    owner {
       name
     }
     collaborationState
@@ -2885,6 +2903,7 @@ export const AddCollaborationDocument = gql`
       id
       email
       name
+      auth0Sub
     }
     collaborationType
     collaborationState
@@ -3182,6 +3201,7 @@ export const DataDocument = gql`
         id
         email
         name
+        auth0Sub
       }
       collaborationState
       collaborationType

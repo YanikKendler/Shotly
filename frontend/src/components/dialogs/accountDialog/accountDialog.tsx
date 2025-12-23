@@ -19,6 +19,7 @@ import Config from "@/util/Config"
 import Skeleton from "react-loading-skeleton"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
 import Slider from "@/components/inputs/slider/slider"
+import {BUILD_INFO} from "../../../../buildinfo"
 
 export interface UserSettings {
     saveExportSettingsInLocalstorage: boolean
@@ -381,6 +382,10 @@ export function useAccountDialog() {
                     <Link href={"./legal/legalNotice"} target={"_blank"}>legal notice</Link>
                     <Link href={"./legal/termsOfUse"} target={"_blank"}>terms of use</Link>
                 </div>
+
+                <small>
+                    shotly v{BUILD_INFO.version} - {BUILD_INFO.buildTime} - {Config.mode}
+                </small>
             </>
         )
 

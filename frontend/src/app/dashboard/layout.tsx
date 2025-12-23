@@ -94,6 +94,9 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                     id
                                     name
                                 }
+                                shotlist {
+                                    name
+                                }
                                 collaborationState
                                 collaborationType
                             }
@@ -119,8 +122,10 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                     query pendingCollaborations{
                         pendingCollaborations{
                             id
-                            user {
-                                id
+                            owner {
+                                name
+                            }
+                            shotlist {
                                 name
                             }
                             collaborationState
@@ -130,6 +135,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                 fetchPolicy: "no-cache"
             })
 
+            console.log(result)
 
             setTimeout(()=> {
                 setCollaborationReloadAllowed(true)
@@ -212,7 +218,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                     <div className="content">
                         <div className="top">
                             <Tooltip.Root>
-                                <Tooltip.Trigger className={"noPadding gripTooltipTrigger"} asChild>
+                                <Tooltip.Trigger className={"noPadding"} asChild>
                                     <Link href={`/dashboard`} onClick={e => {
                                         wuGeneral.onNthClick(() => {
                                             window.open("https://orteil.dashnet.org/cookieclicker", '_blank')?.focus()
@@ -351,7 +357,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                                 (pendingCollaborations.data.pendingCollaborations as CollaborationDto[]).map((collab) => (
                                                     <div key={collab.id} className={"collaborationRequest"}>
                                                         <p>
-                                                            <span className={"bold"}>{collab.user?.name}</span> has invited you to the shotlist <span className={"bold"}>{collab.shotlist?.name || "Unnamed"}</span>
+                                                            <span className={"bold"}>{collab.owner?.name}</span> has invited you to the shotlist <span className={"bold"}>{collab.shotlist?.name || "Unnamed"}</span>
                                                         </p>
                                                         <button
                                                             className={"accent"}
@@ -369,7 +375,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                                 ))
                                             }
 
-                                            {/*TODO reload button with debounce*/}
                                             <button
                                                 className={"reload"}
                                                 onClick={loadPendingCollaborations}

@@ -2,17 +2,12 @@ import React, {useState} from "react"
 import {useApolloClient} from "@apollo/client"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
 import "./collaboratorsTab.scss"
-import {
-    CollaborationDto,
-    CollaborationType,
-    SceneAttributeType,
-    ShotAttributeType
-} from "../../../../../lib/graphql/generated"
+import {CollaborationDto, CollaborationState, CollaborationType} from "../../../../../lib/graphql/generated"
 import TextField from "@/components//inputs/textField/textField"
 import Skeleton from "react-loading-skeleton"
 import gql from "graphql-tag"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
-import {ChevronDown, Ellipsis, EllipsisVertical, List, Plus, Trash, Type, User} from "lucide-react"
+import {Ellipsis, RefreshCw, Send, Trash, User} from "lucide-react"
 import SimpleSelect from "@/components/inputs/simpleSelect/simpleSelect"
 import {Popover, Separator} from "radix-ui"
 import auth from "@/Auth"
@@ -149,6 +144,36 @@ export default function CollaboratorsTab(
         )
     }
 
+    const refreshCollaboration = async (collaborationId: string) => {
+        const result = await client.mutate({
+            mutation: gql`
+                mutation refreshCollaboration($collaborationId: String!) {
+                    refreshCollaboration(id: $collaborationId) {
+                        id
+                    }
+                }
+            `,
+            variables: {collaborationId},
+        })
+        if (result.errors) {
+            //TODO notify user
+            console.error(result.errors);
+            return;
+        }
+
+        let newCollaborations: CollaborationDto[] = (collaborations || []).map((collab) => {
+            if(collab.id == collaborationId) {
+                return {
+                    ...collab,
+                    collaborationState: CollaborationState.Pending
+                }
+            }
+            return collab
+        })
+
+        setCollaborations(newCollaborations)
+    }
+
     return (
         <div className={"shotlistOptionsDialogCollaboratorsTab"}>
             <h2>Current Collaborators</h2>
@@ -161,8 +186,22 @@ export default function CollaboratorsTab(
                     <div className={"collaborator"} key={collab.id}>
                         <User size={28}/>
                         <p><span className={"bold"}>{collab.user?.name}</span> • {collab.user?.email}</p>
-                        {collab.user?.auth0Sub?.startsWith("google-oauth2|") && <SimpleTooltip text="Signed up using Google"><GoogleLogo/></SimpleTooltip>}
+                        {collab.user?.auth0Sub?.startsWith("google-oauth2|") && <SimpleTooltip asButton={true} text="Signed up using Google"><GoogleLogo/></SimpleTooltip>}
                         <div className="inlineButtons">
+                            {collab.collaborationState == CollaborationState.Declined && (
+                                <SimpleTooltip
+                                    text="This invitation was declined. Click to resend."
+                                    showHoverArea={false}
+                                    delay={100}
+                                >
+                                    <button
+                                        className={"default"}
+                                        onClick={() => refreshCollaboration(collab.id || "")}
+                                    >
+                                        <Send size={18}/>
+                                    </button>
+                                </SimpleTooltip>
+                            )}
                             <SimpleSelect
                                 name={"role"}
                                 onChange={(newValue) => updateCollaborationType(collab.id || "", newValue as CollaborationType)}
@@ -193,11 +232,17 @@ export default function CollaboratorsTab(
                                         ]}
                                     />
                                     <button
-                                        className="delet"
                                         onClick={() => deleteCollaboration(collab.id || "")}
                                     >
                                         Remove <Trash size={18}/>
                                     </button>
+                                    {collab.collaborationState == CollaborationState.Declined && (
+                                        <button
+                                            onClick={() => refreshCollaboration(collab.id || "")}
+                                        >
+                                            Resend invitation <Send size={18}/>
+                                        </button>
+                                    )}
                                 </Popover.Content>
                             </Popover.Portal>
                         </Popover.Root>

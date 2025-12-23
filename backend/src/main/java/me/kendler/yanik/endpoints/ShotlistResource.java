@@ -124,4 +124,11 @@ public class ShotlistResource {
 
         return collaborationRepository.delete(id);
     }
+
+    @Mutation
+    public CollaborationDTO refreshCollaboration(UUID id){
+        userRepository.checkShotlistOwner(collaborationRepository.findById(id).shotlist, jwt);
+
+        return collaborationRepository.refresh(id);
+    }
 }
