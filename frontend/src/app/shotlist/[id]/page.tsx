@@ -92,6 +92,9 @@ export default function Shotlist() {
     const websocketRef = useRef<WebSocket | null>(null)
     const websocketRetriesRef = useRef<number>(0)
 
+    //this needs to be a ref to avoid captures by the websocket (should probably just have made the whole websocket logic a ref..)
+    const refreshShotlistFunction = useRef<() => void>(() => {});
+
     const currentUserRef = useRef<UserDto | null>(null)
 
     const driverObj = driver({
@@ -118,6 +121,14 @@ export default function Shotlist() {
                 main: currentOptionsMainPage as ShotlistOptionsDialogPage,
                 sub: currentOptionsSubPage as ShotlistOptionsDialogSubPage
             })
+        }
+
+        refreshShotlistFunction.current = () => {
+            loadData(true).then(() => {
+                setReloadKey(k => k + 1)
+            })
+            setShotSelectOptionsCache(new Map())
+            setSceneSelectOptionsCache(new Map())
         }
 
         const handleOnline = () => reconnectWebsocket();
@@ -334,7 +345,7 @@ export default function Shotlist() {
                     switch (updateDTO.type) {
                         case ShotlistUpdateType.SHOTLIST_OPTIONS_UPDATED:
                             console.log("refreshing")
-                            refreshShotlist()
+                            refreshShotlistFunction.current()
                             break
                     }
                     break
@@ -588,13 +599,6 @@ export default function Shotlist() {
         router.push(url.toString())
     }
 
-    const refreshShotlist = () => {
-        loadData(true).then(() => {
-            setReloadKey(reloadKey + 1)
-        })
-        setShotSelectOptionsCache(new Map())
-    }
-
     const openShotlistOptionsDialog = (page: { main: ShotlistOptionsDialogPage, sub?: ShotlistOptionsDialogSubPage }) => {
         setSelectedOptionsDialogPage({main: page.main, sub: page.sub || "shot"})
         setOptionsDialogOpen(true)
@@ -730,7 +734,7 @@ export default function Shotlist() {
                 selectedPage={selectedOptionsDialogPage}
                 shotlistId={query.data.shotlist?.id || null}
                 refreshShotlist={() => {
-                    refreshShotlist()
+                    refreshShotlistFunction.current()
 
                     const updateDTO: ShotlistUpdateDTO = {
                         type: ShotlistUpdateType.SHOTLIST_OPTIONS_UPDATED,
@@ -739,11 +743,10 @@ export default function Shotlist() {
                         payload: {kind: "empty"}
                     }
 
-                    //this is a super ugly fix for the race condition that happens when a collaborator recieves
+                    //this is a super ugly fix for the potential race condition that happens when a collaborator recieves
                     //the websocket message and queries its own shotlist before the update from the first user has
                     //been processed, causing the shotlist to not be updated properly
                     setTimeout(() => {
-                        console.log("sending update to collaborator")
                         websocketRef.current?.send(JSON.stringify(updateDTO))
                     },500)
                 }}
