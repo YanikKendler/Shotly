@@ -287,11 +287,12 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
             onCreateShot(data.createShot)
 
-            setCreationLoaderVisibility(false)
         }
         catch (e) {
             //TODO notify user
         }
+
+        setCreationLoaderVisibility(false)
     }
 
     const onCreateShot = useCallback((newShot: ShotDto) => {

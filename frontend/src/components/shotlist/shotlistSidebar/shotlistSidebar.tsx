@@ -17,6 +17,8 @@ import "./shotlistSidebar.scss"
 import {SelectedScene} from "@/app/shotlist/[id]/page"
 import {UserMinimalDTO} from "@/service/ShotlistSyncService"
 import {SceneAttributeRef} from "@/components/shotlist/shotlistSidebar/sceneAttribute/sceneAttribute"
+import {Cell} from "@/components/shotlist/table/cell/cell"
+import Skeleton from "react-loading-skeleton"
 
 export interface ShotlistSidebarRef {
     getScene: (position: number) => SceneDto | null
@@ -59,6 +61,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
     const sortableRef = useRef<Sortable|null>(null)
 
     const sceneRefs = useRef<Map<number, SidebarSceneRef | null>>(new Map())
+    const creationLoaderRef = useRef<HTMLDivElement>(null)
 
     useImperativeHandle(ref, () => ({
         getScene: (position: number) => sceneRefs.current.get(position) || null,
@@ -125,6 +128,12 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
             })
         }
     }, [query]);
+
+    const setCreationLoaderVisibility = (visible:boolean) => {
+        if(!creationLoaderRef.current) return
+
+        creationLoaderRef.current.style.display = visible ? "flex" : "none"
+    }
 
     const updateShotlistName = async (name: string) => {
         const { data, errors } = await client.mutate({
@@ -227,42 +236,51 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
     }
 
     const createScene = async () => {
-        const { data, errors } = await client.mutate({
-            mutation: gql`
-                mutation createScene($shotlistId: String!) {
-                    createScene(shotlistId: $shotlistId){
-                        id
-                        position
-                        attributes{
+        setCreationLoaderVisibility(true)
+
+        try {
+            const {data, errors} = await client.mutate({
+                mutation: gql`
+                    mutation createScene($shotlistId: String!) {
+                        createScene(shotlistId: $shotlistId){
                             id
-                            definition{id, name, position}
-                            type
+                            position
+                            attributes{
+                                id
+                                definition{id, name, position}
+                                type
 
-                            ... on SceneSingleSelectAttributeDTO{
-                                singleSelectValue{id,name}
-                            }
+                                ... on SceneSingleSelectAttributeDTO{
+                                    singleSelectValue{id,name}
+                                }
 
-                            ... on SceneMultiSelectAttributeDTO{
-                                multiSelectValue{id,name}
-                            }
-                            ... on SceneTextAttributeDTO{
-                                textValue
+                                ... on SceneMultiSelectAttributeDTO{
+                                    multiSelectValue{id,name}
+                                }
+                                ... on SceneTextAttributeDTO{
+                                    textValue
+                                }
                             }
                         }
                     }
-                }
-            `,
-            variables: { shotlistId: query.data.shotlist?.id },
-        });
+                `,
+                variables: {shotlistId: query.data.shotlist?.id},
+            });
 
-        if (errors) {
-            console.error(errors);
-            return;
+            if (errors) {
+                console.error(errors);
+                return;
+            }
+
+            onCreateScene(data.createScene)
+
+            selectScene(data.createScene.id || null, query.data.shotlist?.scenes?.length ?? null)
+        }
+        catch (e){
+            //TODO: show error to user
         }
 
-        onCreateScene(data.createScene)
-
-        selectScene(data.createScene.id || null, query.data.shotlist?.scenes?.length ?? null)
+        setCreationLoaderVisibility(false)
     }
 
     const onCreateScene = (scene: SceneDto) => {
@@ -335,6 +353,11 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                                 />
                             ))
                         }
+                        <div ref={creationLoaderRef} style={{display: "none", gap: ".5rem"}} className={"sidebarScene"}>
+                            <p className="number">{sceneCount} New Scene</p>
+                            <Skeleton height={"1.5rem"}/>
+                            <Skeleton height={"1.5rem"}/>
+                        </div>
                     </div>
                     {
                         !isReadOnly &&
