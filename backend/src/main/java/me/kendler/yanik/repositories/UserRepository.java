@@ -5,10 +5,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import me.kendler.yanik.UnauthorizedAccessException;
 import me.kendler.yanik.auth0.Auth0Service;
 import me.kendler.yanik.dto.user.UserDTO;
 import me.kendler.yanik.dto.user.UserEditDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.*;
 import me.kendler.yanik.model.template.Template;
 import me.kendler.yanik.model.template.sceneAttributes.SceneTextAttributeTemplate;
@@ -47,7 +48,7 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         String auth0Sub = jwt.getClaim("sub");
         if (auth0Sub == null) {
             LOGGER.errorf("Tried to find user by JWT %s, but JWT does not contain 'sub' claim", jwt.toString());
-            throw new IllegalArgumentException("JWT does not contain 'sub' claim");
+            throw new ShotlyException("JWT does not contain 'sub' claim", ShotlyErrorCode.INVALID_INPUT);
         }
 
         //required because lazy loading :3
@@ -64,7 +65,7 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
 
         if (user != null) {
             if(!user.isActive){
-                throw new SecurityException("User account is deactivated");
+                throw new ShotlyException("User account is deactivated", ShotlyErrorCode.ACCOUNT_DEACTIVATED);
             }else{
                 return user;
             }
@@ -144,8 +145,8 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         return true;
     }
 
-    /* EDITOR */
-    //shotlist
+    // SHOTLIST
+    // editor
 
     @Transactional
     public boolean userCanEditShotlist(Shotlist shotlist, User user) {
@@ -182,10 +183,10 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
 
     public void checkShotlistEditRights(Shotlist shotlist, JsonWebToken jwt) {
         if(!shotlistIsEditable(shotlist)) {
-            throw new UnauthorizedAccessException("This shotlist is read only");
+            throw new ShotlyException("This shotlist is read only", ShotlyErrorCode.SHOTLIST_LIMIT_REACHED);
         }
         if (!userCanEditShotlist(shotlist, jwt)) {
-            throw new UnauthorizedAccessException("You are not allowed to access this shotlist");
+            throw new ShotlyException("You are not allowed to access this shotlist", ShotlyErrorCode.WRITE_NOT_ALLOWED);
         }
     }
 
@@ -193,32 +194,11 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         checkShotlistEditRights(shotlistRepository.findById(shotlistId), jwt);
     }
 
-    // template
-
-    public boolean userCanEditTemplate(Template template, User user) {
-        // TODO Add collaborator support
-        if (template != null && user.equals(template.owner)) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean userCanEditTemplate(Template template, JsonWebToken jwt) {
-        User user = findOrCreateByJWT(jwt);
-        return userCanEditTemplate(template, user);
-    }
-
-    public void checkTemplateEditRights(Template template, JsonWebToken jwt) {
-        if (!userCanEditTemplate(template, jwt)) {
-            throw new UnauthorizedAccessException("You are not allowed to access this template");
-        }
-    }
-
     public void checkTemplateEditRights(UUID templateId, JsonWebToken jwt) {
         checkTemplateEditRights(templateRepository.findById(templateId), jwt);
     }
 
-    /* VIEWER */
+    // viewer
 
     @Transactional
     public boolean userCanViewShotlist(Shotlist shotlist, User user) {
@@ -254,7 +234,7 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
 
     public void checkShotlistViewRights(Shotlist shotlist, JsonWebToken jwt) {
         if (!userCanViewShotlist(shotlist, jwt)) {
-            throw new UnauthorizedAccessException("You are not allowed to access this shotlist");
+            throw new ShotlyException("You are not allowed to access this shotlist", ShotlyErrorCode.READ_NOT_ALLOWED);
         }
     }
 
@@ -262,7 +242,7 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         checkShotlistViewRights(shotlistRepository.findById(shotlistId), jwt);
     }
 
-    /* OWNER */
+    // owner
 
     @Transactional
     public boolean userIsShotlistOwner(Shotlist shotlist, User user) {
@@ -280,11 +260,32 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
 
     public void checkShotlistOwner(Shotlist shotlist, JsonWebToken jwt) {
         if (!userIsShotlistOwner(shotlist, jwt)) {
-            throw new UnauthorizedAccessException("You are not allowed to access this shotlist");
+            throw new ShotlyException("You are not allowed to access this shotlist", ShotlyErrorCode.WRITE_NOT_ALLOWED);
         }
     }
 
     public void checkShotlistOwner(UUID shotlistId, JsonWebToken jwt) {
         checkShotlistOwner(shotlistRepository.findById(shotlistId), jwt);
+    }
+
+    // TEMPLATE
+
+    public boolean userCanEditTemplate(Template template, User user) {
+        // TODO Add collaborator support
+        if (template != null && user.equals(template.owner)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean userCanEditTemplate(Template template, JsonWebToken jwt) {
+        User user = findOrCreateByJWT(jwt);
+        return userCanEditTemplate(template, user);
+    }
+
+    public void checkTemplateEditRights(Template template, JsonWebToken jwt) {
+        if (!userCanEditTemplate(template, jwt)) {
+            throw new ShotlyException("You are not allowed to access this template", ShotlyErrorCode.WRITE_NOT_ALLOWED);
+        }
     }
 }

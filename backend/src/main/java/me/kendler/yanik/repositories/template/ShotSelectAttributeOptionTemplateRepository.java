@@ -8,6 +8,8 @@ import me.kendler.yanik.dto.shot.ShotSelectAttributeOptionCreateDTO;
 import me.kendler.yanik.dto.shot.ShotSelectAttributeOptionEditDTO;
 import me.kendler.yanik.dto.shot.ShotSelectAttributeOptionSearchDTO;
 import me.kendler.yanik.dto.template.shotAttributes.ShotSelectAttributeOptionTemplateEditDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.Shotlist;
 
 import me.kendler.yanik.model.shot.attributes.ShotMultiSelectAttribute;
@@ -29,7 +31,7 @@ public class ShotSelectAttributeOptionTemplateRepository implements PanacheRepos
         ShotAttributeTemplateBase shotAttributeTemplate = shotAttributeTemplateRepository.findById(attributeTemplateId);
 
         if (shotAttributeTemplate == null) {
-            throw new IllegalArgumentException("ShotAttributeTemplate not found with ID: " + attributeTemplateId);
+            throw new ShotlyException("ShotAttributeTemplate not found with ID: " + attributeTemplateId, ShotlyErrorCode.NOT_FOUND);
         }
 
         ShotSelectAttributeOptionTemplate shotSelectAttributeOptionTemplate = new ShotSelectAttributeOptionTemplate(shotAttributeTemplate);
@@ -42,7 +44,7 @@ public class ShotSelectAttributeOptionTemplateRepository implements PanacheRepos
     public ShotSelectAttributeOptionTemplate update(ShotSelectAttributeOptionTemplateEditDTO editDTO) {
         ShotSelectAttributeOptionTemplate option = findById(editDTO.id());
         if (option == null) {
-            throw new IllegalArgumentException("ShotSelectAttributeOptionTemplate not found");
+            throw new ShotlyException("ShotSelectAttributeOptionTemplate not found", ShotlyErrorCode.NOT_FOUND);
         }
         option.name = editDTO.name();
 
@@ -59,7 +61,7 @@ public class ShotSelectAttributeOptionTemplateRepository implements PanacheRepos
                 case ShotMultiSelectAttributeTemplate multiSelectTemplate -> {
                     multiSelectTemplate.options.remove(shotSelectAttributeOptionTemplate);
                 }
-                default -> throw new IllegalArgumentException("Invalid attribute template type");
+                default -> throw new ShotlyException("Invalid attribute template type", ShotlyErrorCode.IMPOSSIBLE_INPUT);
             }
 
             delete(shotSelectAttributeOptionTemplate);

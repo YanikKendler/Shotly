@@ -7,7 +7,8 @@ import {
     CollaborationDto,
     CollaborationType,
     Query,
-    ShotAttributeDefinitionBase, UserDto,
+    ShotAttributeDefinitionBase,
+    UserDto,
     UserTier
 } from "../../../../lib/graphql/generated"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
@@ -24,14 +25,14 @@ import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
 import auth from "@/Auth"
 import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
-import Utils from "@/util/Utils"
+import Utils, {uuidRegex} from "@/util/Utils"
 import Config from "@/util/Config"
-import {SelectOption} from "@/util/Types"
+import {SelectOption, ShotlyErrorCode} from "@/util/Types"
 import SheetManager, {SheetManagerRef} from "@/components/shotlist/table/sheetManager/sheetManager"
 import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/shotlist/shotlistSidebar/shotlistSidebar"
 import Skeleton from "react-loading-skeleton"
 import {
-    CollaborationPayload, SelectedCellPayload,
+    CollaborationPayload,
     ShotlistSyncService,
     ShotlistUpdateDTO,
     ShotlistUpdateType,
@@ -152,11 +153,22 @@ export default function Shotlist() {
             return
         }
 
+        if(!uuidRegex.test(id)){
+            setQuery({
+                ...query,
+                errors: [{
+                    message: "Invalid shotlist id",
+                    extensions: { code: ShotlyErrorCode.NOT_FOUND }
+                }]
+            })
+            return
+        }
+
         if(!auth.getUser()) return
 
         loadData(true).then((query: InteropApolloQueryResult<Query> | undefined) => {
             //use user from the promise as to not run into react state race conditions
-            if(id != "")
+            if(id != "" && query?.data.shotlist && query.data.shotlist.id)
                 joinShotlistWebsocket(query?.data.currentUser?.id || "unknown")
         })
 
@@ -304,11 +316,20 @@ export default function Shotlist() {
 
                     break
                 case "collaboration":
-                    //the collaborators changed (we are only interested in possible changes to our own collaboration types)
-                    syncService.current.collaboratorsChanged(
-                        updateDTO.payload as CollaborationPayload,
-                        setQuery
-                    )
+                    switch (updateDTO.type){
+                        case ShotlistUpdateType.COLLABORATION_TYPE_UPDATED:
+                            //a collaboration type changed (we are only interested in possible changes to our own collaboration types)
+                            syncService.current.collaboratorTypeChanged(
+                                updateDTO.payload as CollaborationPayload,
+                                setQuery
+                            )
+                            break
+                        case ShotlistUpdateType.COLLABORATION_DELETED:
+                            if(currentUserRef.current?.id == updateDTO.payload.userId){
+                                window.location.reload()
+                            }
+                            break
+                    }
                     break
                 case "presentCollaborators":
                     console.log("present collaborators", updateDTO.payload.collaborators)
@@ -548,9 +569,12 @@ export default function Shotlist() {
 
             setQuery(result)
 
+            console.log(result)
+
             return result
         }
         catch (e){
+            console.log(e)
             setQuery({...query, error: e as ApolloError})
         }
     }
@@ -609,25 +633,23 @@ export default function Shotlist() {
         addSceneSelectOption
     });
 
-    if(query.error) return <ErrorPage
-        title='Data could not be loaded'
-        description={query.error.message}
-        link={{
-            text: 'Dashboard',
-            href: '/dashboard'
-        }}
-    />
+    if(!auth.getUser()) return <LoadingPage title={"logging you in..."}/>
 
-    if(!auth.getUser()) return <LoadingPage title={"loading shotlist..."}/>
+    if(query.errors && query.errors.length > 0) {
+        switch (query.errors[0]?.extensions?.code as ShotlyErrorCode) {
+            case ShotlyErrorCode.NOT_FOUND:
+                return <ErrorPage
+                    title='404'
+                    description='Sorry, we could not find the Shotlist you were looking for. Please check the URL or return to the Dashboard.'
+                />
+            case ShotlyErrorCode.READ_NOT_ALLOWED:
+                return <ErrorPage
+                    title='405'
+                    description='Sorry, you are not allowed to access this Shotlist. Please check the URL or return to the Dashboard.'
+                />
 
-    if(!query.loading && !query.data.shotlist) return <ErrorPage
-        title='404'
-        description='Sorry, we could not find the shotlist you were looking for. Please check the URL or return to the dashboard.'
-        link={{
-            text: 'Dashboard',
-            href: '/dashboard'
-        }}
-    />
+        }
+    }
 
     return (
         <ShotlistContext.Provider value={{
@@ -706,9 +728,9 @@ export default function Shotlist() {
                             {
                                 query.loading ?
                                 <>
-                                    <Skeleton width="18vw" height="1rem"/>
-                                    <Skeleton width="18vw" height="1rem"/>
-                                    <Skeleton width="18vw" height="1rem"/>
+                                    <Skeleton width="18vw" height="1rem" style={{marginRight: ".5rem"}}/>
+                                    <Skeleton width="18vw" height="1rem" style={{marginRight: ".5rem"}}/>
+                                    <Skeleton width="18vw" height="1rem" style={{marginRight: ".5rem"}}/>
                                 </> :
                                 !query.data.shotlist?.shotAttributeDefinitions || query.data.shotlist.shotAttributeDefinitions.length == 0 ?
                                 <p className={"empty"}>No shot attributes defined</p> :

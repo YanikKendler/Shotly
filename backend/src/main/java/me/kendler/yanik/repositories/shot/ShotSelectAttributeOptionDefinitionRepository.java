@@ -7,6 +7,8 @@ import jakarta.transaction.Transactional;
 import me.kendler.yanik.dto.shot.ShotSelectAttributeOptionCreateDTO;
 import me.kendler.yanik.dto.shot.ShotSelectAttributeOptionEditDTO;
 import me.kendler.yanik.dto.shot.ShotSelectAttributeOptionSearchDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.scene.attributes.SceneMultiSelectAttribute;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotAttributeDefinitionBase;
@@ -60,7 +62,7 @@ public class ShotSelectAttributeOptionDefinitionRepository implements PanacheRep
     public ShotSelectAttributeOptionDefinition update(ShotSelectAttributeOptionEditDTO editDTO) {
         ShotSelectAttributeOptionDefinition option = findById(editDTO.id());
         if (option == null) {
-            throw new IllegalArgumentException("ShotSelectAttributeOptionDefinition not found");
+            throw new ShotlyException("ShotSelectAttributeOptionDefinition not found", ShotlyErrorCode.NOT_FOUND);
         }
         option.name = editDTO.name();
 
@@ -95,7 +97,7 @@ public class ShotSelectAttributeOptionDefinitionRepository implements PanacheRep
                     break;
                 }
                 default:
-                    throw new IllegalStateException("Unexpected value: " + shotSelectAttributeOptionDefinition.shotAttributeDefinition);
+                    throw new ShotlyException("Unexpected value: " + shotSelectAttributeOptionDefinition.shotAttributeDefinition, ShotlyErrorCode.IMPOSSIBLE_INPUT);
             }
 
             delete(shotSelectAttributeOptionDefinition);

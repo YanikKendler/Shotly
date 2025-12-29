@@ -8,6 +8,8 @@ import me.kendler.yanik.dto.template.sceneAttributes.SceneAttributeTemplateCreat
 import me.kendler.yanik.dto.template.shotAttributes.ShotAttributeTemplateBaseDTO;
 import me.kendler.yanik.dto.template.shotAttributes.ShotAttributeTemplateCreateDTO;
 import me.kendler.yanik.dto.template.shotAttributes.ShotAttributeTemplateEditDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotAttributeDefinitionBase;
 import me.kendler.yanik.model.template.Template;
@@ -31,13 +33,13 @@ public class ShotAttributeTemplateRepository implements PanacheRepository<ShotAt
 
     public ShotAttributeTemplateBaseDTO create(ShotAttributeTemplateCreateDTO createDTO) {
         if(createDTO == null) {
-            throw new IllegalArgumentException("ShotAttributeDefinitionCreateDTO cannot be null");
+            throw new ShotlyException("ShotAttributeDefinitionCreateDTO cannot be null", ShotlyErrorCode.INVALID_INPUT);
         }
         if(createDTO.templateId() == null) {
-            throw new IllegalArgumentException("Template ID cannot be null");
+            throw new ShotlyException("Template ID cannot be null", ShotlyErrorCode.NOT_FOUND);
         }
         if(createDTO.type() == null) {
-            throw new IllegalArgumentException("Attribute Type cannot be null");
+            throw new ShotlyException("Attribute Type cannot be null", ShotlyErrorCode.NOT_FOUND);
         }
 
         ShotAttributeTemplateBase attributeTemplate = null;
@@ -57,7 +59,7 @@ public class ShotAttributeTemplateRepository implements PanacheRepository<ShotAt
         }
 
         if(attributeTemplate == null) {
-            throw new IllegalArgumentException("Invalid attribute type");
+            throw new ShotlyException("Invalid attribute type", ShotlyErrorCode.IMPOSSIBLE_INPUT);
         }
 
         persist(attributeTemplate);
@@ -68,7 +70,7 @@ public class ShotAttributeTemplateRepository implements PanacheRepository<ShotAt
     public ShotAttributeTemplateBaseDTO update(ShotAttributeTemplateEditDTO editDTO) {
         ShotAttributeTemplateBase attribute = findById(editDTO.id());
         if (attribute == null) {
-            throw new IllegalArgumentException("Attribute not found");
+            throw new ShotlyException("Attribute not found", ShotlyErrorCode.NOT_FOUND);
         }
         if(editDTO.name() != null && !editDTO.name().isEmpty()) {
             attribute.name = editDTO.name();
@@ -76,7 +78,7 @@ public class ShotAttributeTemplateRepository implements PanacheRepository<ShotAt
         if(editDTO.position() != null && attribute.position != editDTO.position()){
 
             if(editDTO.position() < 0 || editDTO.position() >= attribute.template.shotAttributes.size()) {
-                throw new IllegalArgumentException("Position must be between 0 and " + (attribute.template.shotAttributes.size() - 1));
+                throw new ShotlyException("Position must be between 0 and " + (attribute.template.shotAttributes.size() - 1), ShotlyErrorCode.INVALID_INPUT);
             }
 
             //attr was moved back

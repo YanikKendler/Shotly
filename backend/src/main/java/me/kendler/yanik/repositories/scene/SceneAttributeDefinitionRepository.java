@@ -10,6 +10,8 @@ import me.kendler.yanik.dto.scene.SceneAttributeDefinitionEditDTO;
 import me.kendler.yanik.dto.scene.attributeDefinitions.SceneAttributeDefinitionBaseDTO;
 import me.kendler.yanik.dto.scene.attributeDefinitions.SceneMultiSelectAttributeDefinitionDTO;
 import me.kendler.yanik.dto.scene.attributeDefinitions.SceneSingleSelectAttributeDefinitionDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.scene.Scene;
 import me.kendler.yanik.model.scene.attributeDefinitions.*;
@@ -32,7 +34,7 @@ public class SceneAttributeDefinitionRepository implements PanacheRepository<Sce
         Shotlist shotlist = shotlistRepository.findById(shotlistId);
 
         if (shotlist == null) {
-            throw new IllegalArgumentException("Shotlist not found");
+            throw new ShotlyException("Shotlist not found", ShotlyErrorCode.NOT_FOUND);
         }
 
         Set<SceneAttributeDefinitionBase> attributeDefinitions = shotlist.sceneAttributeDefinitions;
@@ -71,13 +73,13 @@ public class SceneAttributeDefinitionRepository implements PanacheRepository<Sce
 
     public SceneAttributeDefinitionBaseDTO create(SceneAttributeDefinitionCreateDTO createDTO){
         if(createDTO == null) {
-            throw new IllegalArgumentException("SceneAttributeDefinitionCreateDTO cannot be null");
+            throw new ShotlyException("SceneAttributeDefinitionCreateDTO cannot be null", ShotlyErrorCode.INVALID_INPUT);
         }
         if(createDTO.shotlistId() == null) {
-            throw new IllegalArgumentException("Shotlist ID cannot be null");
+            throw new ShotlyException("Shotlist ID cannot be null", ShotlyErrorCode.INVALID_INPUT);
         }
         if(createDTO.type() == null) {
-            throw new IllegalArgumentException("SceneAttributeDefinition type cannot be null");
+            throw new ShotlyException("SceneAttributeDefinition type cannot be null", ShotlyErrorCode.INVALID_INPUT);
         }
 
         SceneAttributeDefinitionBase attributeDefinition = null;
@@ -99,7 +101,7 @@ public class SceneAttributeDefinitionRepository implements PanacheRepository<Sce
         }
 
         if(attributeDefinition == null) {
-            throw new IllegalArgumentException("Invalid attribute definition type");
+            throw new ShotlyException("Invalid attribute definition type", ShotlyErrorCode.IMPOSSIBLE_INPUT);
         }
 
         persist(attributeDefinition);
@@ -116,7 +118,7 @@ public class SceneAttributeDefinitionRepository implements PanacheRepository<Sce
     public SceneAttributeDefinitionBaseDTO update(SceneAttributeDefinitionEditDTO editDTO) {
         SceneAttributeDefinitionBase attribute = findById(editDTO.id());
         if (attribute == null) {
-            throw new IllegalArgumentException("Attribute not found");
+            throw new ShotlyException("Attribute not found", ShotlyErrorCode.NOT_FOUND);
         }
 
         Shotlist shotlist = getShotlistByDefinitionId(editDTO.id());
@@ -129,7 +131,7 @@ public class SceneAttributeDefinitionRepository implements PanacheRepository<Sce
         if(editDTO.position() != null && attribute.position != editDTO.position()){ //update position
 
             if(editDTO.position() < 0 || editDTO.position() >= shotlist.sceneAttributeDefinitions.size()) {
-                throw new IllegalArgumentException("Position must be between 0 and " + (shotlist.sceneAttributeDefinitions.size() - 1));
+                throw new ShotlyException("Position must be between 0 and " + (shotlist.sceneAttributeDefinitions.size() - 1), ShotlyErrorCode.INVALID_INPUT);
             }
 
             //attr was moved back

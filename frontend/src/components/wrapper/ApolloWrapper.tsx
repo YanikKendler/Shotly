@@ -10,6 +10,9 @@ import auth from "@/Auth"
 import {setContext} from "@apollo/client/link/context"
 import {onError} from "@apollo/client/link/error"
 import Config from "@/util/Config"
+import {ShotlyErrorCode} from "@/util/Types"
+import ErrorPage from "@/components/feedback/errorPage/errorPage"
+import React from "react"
 
 export function makeClient() {
     const httpLink = new HttpLink({
@@ -43,22 +46,23 @@ export function makeClient() {
 
     const errorLink = onError(({ graphQLErrors, networkError }) => {
         if (graphQLErrors)
-            graphQLErrors.forEach(({ message, locations, path }) =>
-                console.error(`[GraphQL error]: Message: ${message}, Path: ${path}`)
-            );
+            graphQLErrors.forEach((error) => {
+                //TODO remove
+                console.error(`[GraphQL error]`, error)
 
-        if(networkError) {
-            console.error("networkError", networkError)
-            if (networkError && 'statusCode' in networkError && networkError.statusCode === 401) {
-                if (typeof window !== 'undefined') {
-                    window.location.href = '/notAllowed';
+                console.log(error?.extensions?.code)
+
+                switch (error?.extensions?.code as ShotlyErrorCode) {
+                    case ShotlyErrorCode.ACCOUNT_DEACTIVATED:
+                        console.log("account deactived")
+                        window.location.href = '/userDeactivated'
+                        break
                 }
-            }
-        }
+            });
     });
 
     return new ApolloClient({
-        link: from([authLink, httpLink, errorLink]),
+        link: from([authLink, errorLink, httpLink]),
         cache: new InMemoryCache()
     })
 }

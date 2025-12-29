@@ -51,3 +51,17 @@ export interface SceneAttributeValueCollection {
     singleSelectValue?: number
     multiSelectValue?: number[]
 }
+
+export enum ShotlyErrorCode {
+    READ_NOT_ALLOWED = "READ_NOT_ALLOWED",
+    WRITE_NOT_ALLOWED = "WRITE_NOT_ALLOWED",
+    NOT_ALLOWED = "NOT_ALLOWED",
+
+    SHOTLIST_LIMIT_REACHED = "SHOTLIST_LIMIT_REACHED",
+    NOT_FOUND = "NOT_FOUND",
+
+    ACCOUNT_DEACTIVATED = "ACCOUNT_DEACTIVATED",
+
+    INVALID_INPUT = "INVALID_INPUT",
+    IMPOSSIBLE_INPUT = "IMPOSSIBLE_INPUT"
+}

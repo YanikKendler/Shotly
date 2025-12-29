@@ -6,6 +6,8 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.dto.shot.ShotAttributeEditDTO;
 import me.kendler.yanik.dto.shot.attributes.ShotAttributeBaseDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.shot.attributes.ShotAttributeBase;
 import me.kendler.yanik.model.shot.attributes.ShotMultiSelectAttribute;
@@ -24,7 +26,7 @@ public class ShotAttributeRepository implements PanacheRepository<ShotAttributeB
 
         switch (attribute) {
             case null -> {
-                throw new IllegalArgumentException("Attribute not found");
+                throw new ShotlyException("Attribute not found", ShotlyErrorCode.NOT_FOUND);
             }
             case ShotTextAttribute shotTextAttribute -> {
                 shotTextAttribute.value = editDTO.textValue();
@@ -39,7 +41,7 @@ public class ShotAttributeRepository implements PanacheRepository<ShotAttributeB
                         .collect(Collectors.toSet());
             }
             default -> {
-                throw new IllegalArgumentException("Attribute update failed");
+                throw new ShotlyException("Attribute update failed", ShotlyErrorCode.IMPOSSIBLE_INPUT);
             }
         }
 

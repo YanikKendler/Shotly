@@ -1,4 +1,10 @@
+[data-theme="dark"] .shotlist .sidebar{
+  --collaborators-hover-bg: hsl(20, 10%, 12%);
+}
+
 .shotlist .sidebar{
+  --collaborators-hover-bg: hsl(20, 20%, 90%);
+
   .top{
     gap: 0;
 
@@ -36,7 +42,7 @@
         padding: .3rem;
 
         &:hover, &[data-state=open]{
-          background-color: var(--hover-bg-10);
+          background-color: var(--collaborators-hover-bg);
         }
 
         .collaborator {

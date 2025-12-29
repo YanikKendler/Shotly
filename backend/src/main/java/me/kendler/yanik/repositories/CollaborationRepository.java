@@ -8,6 +8,8 @@ import jakarta.ws.rs.NotAllowedException;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationCreateDTO;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationDTO;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationEditDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.Collaboration;
 import me.kendler.yanik.model.CollaborationState;
 import me.kendler.yanik.model.Shotlist;
@@ -40,21 +42,21 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
         Collaboration collaboration = findById(id);
 
         if(collaboration == null){
-            throw new IllegalArgumentException("Collaboration with ID " + id + " not found.");
+            throw new ShotlyException("Collaboration with ID " + id + " not found.", ShotlyErrorCode.NOT_FOUND);
         }
 
         if(newState != CollaborationState.ACCEPTED && newState != CollaborationState.DECLINED){
-            throw new IllegalArgumentException("New state must be either ACCEPTED or DECLINED.");
+            throw new ShotlyException("New state must be either ACCEPTED or DECLINED.", ShotlyErrorCode.INVALID_INPUT);
         }
 
         if(collaboration.collaborationState != CollaborationState.PENDING){
-            throw new IllegalArgumentException("Collaboration with ID " + id + " is not in PENDING state.");
+            throw new ShotlyException("Collaboration with ID " + id + " is not in PENDING state.", ShotlyErrorCode.NOT_ALLOWED);
         }
 
         User user = userRepository.findOrCreateByJWT(jwt);
 
         if(!collaboration.user.id.equals(user.id)){
-            throw new NotAllowedException("User is not involved in this collaboration.");
+            throw new ShotlyException("User is not involved in this collaboration.", ShotlyErrorCode.NOT_ALLOWED);
         }
 
         collaboration.collaborationState = newState;
@@ -75,13 +77,13 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
         User currentUser = userRepository.findOrCreateByJWT(jwt);
 
         if(createDTO.email().equals(currentUser.email)){
-            throw new IllegalArgumentException("Cannot create collaboration with yourself.");
+            throw new ShotlyException("Cannot create collaboration with yourself.", ShotlyErrorCode.NOT_ALLOWED);
         }
 
         Shotlist shotlist = shotlistRepository.findById(createDTO.shotlistId());
 
         if(shotlist == null){
-            throw new IllegalArgumentException("Shotlist with ID " + createDTO.shotlistId() + " not found.");
+            throw new ShotlyException("Shotlist with ID " + createDTO.shotlistId() + " not found.", ShotlyErrorCode.NOT_FOUND);
         }
 
         List<UUID> existingCollaboratorIds = shotlist.collaborations.stream().map(c -> c.user.id).toList();
@@ -93,7 +95,7 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
         ).list();
 
         if(users == null || users.isEmpty()){
-            throw new IllegalArgumentException("User with email " + createDTO.email() + " not found.");
+            throw new ShotlyException("User with email " + createDTO.email() + " not found.", ShotlyErrorCode.NOT_FOUND);
 
         }
 
@@ -116,7 +118,7 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
         Collaboration collaboration = findById(editDTO.id());
 
         if(collaboration == null){
-            throw new IllegalArgumentException("Collaboration with ID " + editDTO.id() + " not found.");
+            throw new ShotlyException("Collaboration with ID " + editDTO.id() + " not found.", ShotlyErrorCode.NOT_FOUND);
         }
 
         if(editDTO.collaborationType() != null){
@@ -134,7 +136,7 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
         Collaboration collaboration = findById(id);
 
         if(collaboration == null){
-            throw new IllegalArgumentException("Collaboration with ID " + id + " not found.");
+            throw new ShotlyException("Collaboration with ID " + id + " not found.", ShotlyErrorCode.NOT_FOUND);
         }
 
         deleteById(id);
@@ -146,7 +148,7 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
         Collaboration collaboration = findById(id);
 
         if(collaboration == null){
-            throw new IllegalArgumentException("Collaboration with ID " + id + " not found.");
+            throw new ShotlyException("Collaboration with ID " + id + " not found.", ShotlyErrorCode.NOT_FOUND);
         }
 
         collaboration.collaborationState = CollaborationState.PENDING;

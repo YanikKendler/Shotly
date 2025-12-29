@@ -384,10 +384,6 @@ export default function Template (){
         <ErrorPage
             title='Data could not be loaded'
             description={query.error.message}
-            link={{
-                text: 'Dashboard',
-                href: '/dashboard'
-            }}
         />
     </main>
 
@@ -395,10 +391,6 @@ export default function Template (){
         <ErrorPage
             title="404"
             description='Sorry, we could not find the template you were looking for. Please check the URL or return to the dashboard.'
-            link= {{
-                text: 'Dashboard',
-                href: '/dashboard'
-            }}
         />
     </main>
 

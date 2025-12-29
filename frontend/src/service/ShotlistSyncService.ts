@@ -1,4 +1,4 @@
-import {AnyShotAttribute, SelectOption} from "@/util/Types"
+import {AnyShotAttribute} from "@/util/Types"
 import {SheetManagerRef} from "@/components/shotlist/table/sheetManager/sheetManager"
 import {
     CollaborationType,
@@ -12,13 +12,16 @@ import {
 } from "../../lib/graphql/generated"
 import {SceneAttributeParser, ShotAttributeParser} from "@/util/AttributeParser"
 import {ShotlistSidebarRef} from "@/components/shotlist/shotlistSidebar/shotlistSidebar"
-import {useRef} from "react"
 import {SelectedScene} from "@/app/shotlist/[id]/page"
 import {ApolloQueryResult} from "@apollo/client"
+import {audit} from "rxjs"
+import auth from "@/Auth"
 
 export enum ShotlistUpdateType {
     USER_JOINED = "USER_JOINED",
     USER_LEFT = "USER_LEFT",
+    COLLABORATION_TYPE_UPDATED = "COLLABORATION_TYPE_UPDATED",
+    COLLABORATION_DELETED = "COLLABORATION_DELETED",
     SHOT_ATTRIBUTE_UPDATED = "SHOT_ATTRIBUTE_UPDATED",
     SHOT_ADDED = "SHOT_ADDED",
     SHOT_UPDATED = "SHOT_UPDATED",
@@ -204,7 +207,7 @@ export class ShotlistSyncService {
         )
     }
 
-    collaboratorsChanged(payload: CollaborationPayload, setQuery: (value: (((prevState: ApolloQueryResult<Query>) => ApolloQueryResult<Query>) | ApolloQueryResult<Query>)) => void){
+    collaboratorTypeChanged(payload: CollaborationPayload, setQuery: (value: (((prevState: ApolloQueryResult<Query>) => ApolloQueryResult<Query>) | ApolloQueryResult<Query>)) => void){
         setQuery(prev => {
             if (!prev.data?.shotlist) return prev
 

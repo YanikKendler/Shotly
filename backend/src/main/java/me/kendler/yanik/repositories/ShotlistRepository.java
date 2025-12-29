@@ -1,15 +1,15 @@
 package me.kendler.yanik.repositories;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
-import io.vertx.ext.auth.impl.jose.JWT;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import me.kendler.yanik.Util;
 import me.kendler.yanik.dto.shotlist.ShotlistCollection;
 import me.kendler.yanik.dto.shotlist.ShotlistCreateDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistEditDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.User;
 import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.UserTier;
@@ -21,9 +21,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -44,7 +42,7 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
     public ShotlistDTO findAsDTO(UUID id) {
         Shotlist shotlist = findById(id);
         if (shotlist == null) {
-            return null;
+            throw new ShotlyException("This Shotlist does not exist", ShotlyErrorCode.NOT_FOUND);
         }
         return shotlist.toDTO();
     }
@@ -76,7 +74,7 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
         User user = userRepository.findOrCreateByJWT(jwt);
 
         if(user.tier == UserTier.BASIC && user.shotlists.size() >= 1){
-            throw new IllegalArgumentException("Basic users can only have one shotlist");
+            throw new ShotlyException("Basic users can only have one shotlist", ShotlyErrorCode.SHOTLIST_LIMIT_REACHED);
         }
 
         Shotlist shotlist;
@@ -87,7 +85,7 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
         else {
             Template template = templateRepository.findById(createDTO.templateId());
             if(template == null) {
-                throw new IllegalArgumentException("Template not found");
+                throw new ShotlyException("Template not found", ShotlyErrorCode.NOT_FOUND);
             }
             shotlist = new Shotlist(user, template, createDTO.name());
         }

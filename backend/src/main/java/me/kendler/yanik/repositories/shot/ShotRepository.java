@@ -8,6 +8,8 @@ import jakarta.transaction.Transactional;
 import me.kendler.yanik.Util;
 import me.kendler.yanik.dto.shot.ShotDTO;
 import me.kendler.yanik.dto.shot.ShotEditDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.scene.Scene;
 import me.kendler.yanik.model.shot.Shot;
 import me.kendler.yanik.repositories.UserRepository;
@@ -49,7 +51,7 @@ public class ShotRepository implements PanacheRepositoryBase<Shot, UUID> {
         Shot shot = findById(editDTO.id());
 
         if(editDTO.position() < 0 || editDTO.position() >= shot.scene.shots.size()) {
-            throw new IllegalArgumentException("Position must be between 0 and " + (shot.scene.shots.size() - 1));
+            throw new ShotlyException("Position must be between 0 and " + (shot.scene.shots.size() - 1), ShotlyErrorCode.INVALID_INPUT);
         }
 
         if(shot.position != editDTO.position()){

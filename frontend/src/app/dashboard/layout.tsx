@@ -193,7 +193,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     if(query.error) return <ErrorPage
         title='Data could not be loaded'
         description={query.error.message}
-        reload={true}
+        reload
     />
 
     if(!auth.getUser()) return (

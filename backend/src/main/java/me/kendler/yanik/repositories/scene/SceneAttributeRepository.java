@@ -6,6 +6,8 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.dto.scene.SceneAttributeEditDTO;
 import me.kendler.yanik.dto.scene.attributes.SceneAttributeBaseDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.scene.attributes.SceneAttributeBase;
 import me.kendler.yanik.model.scene.attributes.SceneMultiSelectAttribute;
@@ -31,7 +33,7 @@ public class SceneAttributeRepository implements PanacheRepository<SceneAttribut
 
         switch (attribute) {
             case null -> {
-                throw new IllegalArgumentException("Attribute not found");
+                throw new ShotlyException("Attribute not found", ShotlyErrorCode.NOT_FOUND);
             }
             case SceneTextAttribute sceneTextAttribute -> {
                 sceneTextAttribute.value = editDTO.textValue();
@@ -46,7 +48,7 @@ public class SceneAttributeRepository implements PanacheRepository<SceneAttribut
                         .collect(Collectors.toSet());
             }
             default -> {
-                throw new IllegalArgumentException("Attribute update failed");
+                throw new ShotlyException("Attribute update failed", ShotlyErrorCode.IMPOSSIBLE_INPUT);
             }
         }
 

@@ -10,6 +10,8 @@ import me.kendler.yanik.dto.shot.ShotAttributeDefinitionEditDTO;
 import me.kendler.yanik.dto.shot.attributeDefinitions.ShotAttributeDefinitionBaseDTO;
 import me.kendler.yanik.dto.shot.attributeDefinitions.ShotMultiSelectAttributeDefinitionDTO;
 import me.kendler.yanik.dto.shot.attributeDefinitions.ShotSingleSelectAttributeDefinitionDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.scene.attributeDefinitions.SceneAttributeDefinitionBase;
 import me.kendler.yanik.model.shot.Shot;
@@ -40,7 +42,7 @@ public class ShotAttributeDefinitionRepository implements PanacheRepository<Shot
         Shotlist shotlist = shotlistRepository.findById(shotlistId);
 
         if (shotlist == null) {
-            throw new IllegalArgumentException("Shotlist not found");
+            throw new ShotlyException("Shotlist not found", ShotlyErrorCode.NOT_FOUND);
         }
 
         if(shotlist.shotAttributeDefinitions == null || shotlist.shotAttributeDefinitions.isEmpty()) {
@@ -83,13 +85,13 @@ public class ShotAttributeDefinitionRepository implements PanacheRepository<Shot
 
     public ShotAttributeDefinitionBaseDTO create(ShotAttributeDefinitionCreateDTO createDTO) {
         if(createDTO == null) {
-            throw new IllegalArgumentException("ShotAttributeDefinitionCreateDTO cannot be null");
+            throw new ShotlyException("ShotAttributeDefinitionCreateDTO cannot be null", ShotlyErrorCode.INVALID_INPUT);
         }
         if(createDTO.shotlistId() == null) {
-            throw new IllegalArgumentException("Shotlist ID cannot be null");
+            throw new ShotlyException("Shotlist ID cannot be null", ShotlyErrorCode.NOT_FOUND);
         }
         if(createDTO.type() == null) {
-            throw new IllegalArgumentException("ShotAttributeDefinition type cannot be null");
+            throw new ShotlyException("ShotAttributeDefinition type cannot be null", ShotlyErrorCode.NOT_FOUND);
         }
 
         ShotAttributeDefinitionBase attributeDefinition = null;
@@ -111,7 +113,7 @@ public class ShotAttributeDefinitionRepository implements PanacheRepository<Shot
         }
 
         if(attributeDefinition == null) {
-            throw new IllegalArgumentException("Invalid attribute definition type");
+            throw new ShotlyException("Invalid attribute definition type", ShotlyErrorCode.IMPOSSIBLE_INPUT);
         }
 
         persist(attributeDefinition);
@@ -130,7 +132,7 @@ public class ShotAttributeDefinitionRepository implements PanacheRepository<Shot
     public ShotAttributeDefinitionBaseDTO update(ShotAttributeDefinitionEditDTO editDTO) {
         ShotAttributeDefinitionBase attribute = findById(editDTO.id());
         if (attribute == null) {
-            throw new IllegalArgumentException("Attribute not found");
+            throw new ShotlyException("Attribute not found", ShotlyErrorCode.NOT_FOUND);
         }
 
         Shotlist shotlist = getShotlistByDefinitionId(editDTO.id());
@@ -142,7 +144,7 @@ public class ShotAttributeDefinitionRepository implements PanacheRepository<Shot
         if(editDTO.position() != null && attribute.position != editDTO.position()){
 
             if(editDTO.position() < 0 || editDTO.position() >= shotlist.shotAttributeDefinitions.size()) {
-                throw new IllegalArgumentException("Position must be between 0 and " + (shotlist.shotAttributeDefinitions.size() - 1));
+                throw new ShotlyException("Position must be between 0 and " + (shotlist.shotAttributeDefinitions.size() - 1), ShotlyErrorCode.INVALID_INPUT);
             }
 
             //attr was moved back
@@ -196,7 +198,7 @@ public class ShotAttributeDefinitionRepository implements PanacheRepository<Shot
                 .setParameter("definitionId", id)
                 .getSingleResult();
         if(result == null) {
-            throw new IllegalArgumentException("Shotlist not found for definition ID: " + id);
+            throw new ShotlyException("Shotlist not found for definition ID: " + id, ShotlyErrorCode.NOT_FOUND);
         }
 
         return result;

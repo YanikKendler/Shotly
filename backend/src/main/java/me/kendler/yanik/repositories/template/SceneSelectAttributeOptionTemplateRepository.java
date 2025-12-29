@@ -6,6 +6,8 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.dto.scene.SceneSelectAttributeOptionEditDTO;
 import me.kendler.yanik.dto.template.shotAttributes.SceneSelectAttributeOptionTemplateEditDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.template.sceneAttributes.SceneAttributeTemplateBase;
 import me.kendler.yanik.model.template.sceneAttributes.SceneMultiSelectAttributeTemplate;
 import me.kendler.yanik.model.template.sceneAttributes.SceneSelectAttributeOptionTemplate;
@@ -33,7 +35,7 @@ public class SceneSelectAttributeOptionTemplateRepository implements PanacheRepo
     public SceneSelectAttributeOptionTemplate update(SceneSelectAttributeOptionTemplateEditDTO editDTO) {
         SceneSelectAttributeOptionTemplate option = findById(editDTO.id());
         if (option == null) {
-            throw new IllegalArgumentException("SceneSelectAttributeOptionTemplate not found");
+            throw new ShotlyException("SceneSelectAttributeOptionTemplate not found", ShotlyErrorCode.NOT_FOUND);
         }
         option.name = editDTO.name();
 
@@ -50,7 +52,7 @@ public class SceneSelectAttributeOptionTemplateRepository implements PanacheRepo
                 case SceneMultiSelectAttributeTemplate multiSelectTemplate -> {
                     multiSelectTemplate.options.remove(sceneSelectAttributeOptionTemplate);
                 }
-                default -> throw new IllegalArgumentException("Invalid attribute template type");
+                default -> throw new ShotlyException("Invalid attribute template type", ShotlyErrorCode.IMPOSSIBLE_INPUT);
             }
 
             delete(sceneSelectAttributeOptionTemplate);

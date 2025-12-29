@@ -120,9 +120,24 @@ public class ShotlistResource {
 
     @Mutation
     public CollaborationDTO deleteCollaboration(UUID id){
+        Shotlist affectedShotlist = collaborationRepository.findById(id).shotlist;
         userRepository.checkShotlistOwner(collaborationRepository.findById(id).shotlist, jwt);
 
-        return collaborationRepository.delete(id);
+        CollaborationDTO result = collaborationRepository.delete(id);
+
+        shotlistWebsocketService.broadcast(
+                affectedShotlist.id,
+                new ShotlistUpdateDTO(
+                        ShotlistUpdateType.COLLABORATION_DELETED,
+                        userRepository.findOrCreateByJWT(jwt).id,
+                        new CollaborationPayload(
+                                result.user().id(),
+                                result.collaborationType()
+                        )
+                )
+        );
+
+        return result;
     }
 
     @Mutation

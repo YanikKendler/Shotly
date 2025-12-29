@@ -2,6 +2,8 @@ package me.kendler.yanik.model.template.sceneAttributes;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.scene.attributeDefinitions.SceneAttributeDefinitionBase;
 import me.kendler.yanik.model.scene.attributeDefinitions.SceneSelectAttributeOptionDefinition;
 import me.kendler.yanik.model.template.shotAttributes.ShotAttributeTemplateBase;
@@ -25,7 +27,7 @@ public class SceneSelectAttributeOptionTemplate extends PanacheEntity {
             case SceneMultiSelectAttributeTemplate multiSelectTemplate -> {
                 multiSelectTemplate.options.add(this);
             }
-            default -> throw new IllegalArgumentException("Unsupported scene attribute template type");
+            default -> throw new ShotlyException("Unsupported scene attribute template type", ShotlyErrorCode.IMPOSSIBLE_INPUT);
         }
         this.sceneAttributeTemplate = sceneAttributeTemplate;
     }

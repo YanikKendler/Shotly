@@ -81,6 +81,7 @@ public class ShotlistWebsocketService {
 
             broadcast(shotlistId, update.userId(), json);
         } catch (Exception e) {
+            //TODO
             throw new RuntimeException(e);
         }
     }
@@ -105,6 +106,7 @@ public class ShotlistWebsocketService {
                 conn.sendTextAndAwait(json);
             }
         } catch (Exception e) {
+            //TODO
             throw new RuntimeException(e);
         }
     }
@@ -149,6 +151,7 @@ public class ShotlistWebsocketService {
             //is sent to the connection that was passed along (the newly connected user)
             connection.sendTextAndAwait(json);
         } catch (Exception e) {
+            //TODO
             throw new RuntimeException(e);
         }
     }

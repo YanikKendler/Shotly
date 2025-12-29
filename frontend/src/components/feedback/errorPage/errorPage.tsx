@@ -3,7 +3,6 @@
 import "./errorPage.scss"
 import React from "react"
 import Link from "next/link"
-import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 import Utils from "@/util/Utils"
 
 export default function ErrorPage(
@@ -14,7 +13,8 @@ export default function ErrorPage(
             text: "Dashboard",
             href: "/dashboard"
         },
-        reload = false
+        reload = false,
+        noButton = false
     }:
     {
         title: string
@@ -24,6 +24,7 @@ export default function ErrorPage(
             href: string
         }
         reload?: boolean
+        noButton?: boolean
     }
 ) {
     return (
@@ -46,6 +47,7 @@ export default function ErrorPage(
                         >
                             Reload
                         </Link> :
+                        noButton ? null :
                         <Link className={"solid"} href={link.href}>{link.text}</Link>
                     }
                 </div>

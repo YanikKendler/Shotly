@@ -4,9 +4,5 @@ export default function notFound(){
     return <ErrorPage
         title="404"
         description="Page not found"
-        link={{
-            href: "/dashboard",
-            text: "Dashboard",
-        }}
     />
 }

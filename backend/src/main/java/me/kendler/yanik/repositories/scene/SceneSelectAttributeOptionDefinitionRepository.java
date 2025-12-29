@@ -7,6 +7,8 @@ import jakarta.transaction.Transactional;
 import me.kendler.yanik.dto.scene.SceneSelectAttributeOptionCreateDTO;
 import me.kendler.yanik.dto.scene.SceneSelectAttributeOptionEditDTO;
 import me.kendler.yanik.dto.scene.SceneSelectAttributeOptionSearchDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.scene.attributeDefinitions.SceneAttributeDefinitionBase;
 import me.kendler.yanik.model.scene.attributeDefinitions.SceneMultiSelectAttributeDefinition;
@@ -49,7 +51,7 @@ public class SceneSelectAttributeOptionDefinitionRepository implements PanacheRe
     public SceneSelectAttributeOptionDefinition update(SceneSelectAttributeOptionEditDTO editDTO) {
         SceneSelectAttributeOptionDefinition option = findById(editDTO.id());
         if (option == null) {
-            throw new IllegalArgumentException("SceneSelectAttributeOptionDefinition not found");
+            throw new ShotlyException("SceneSelectAttributeOptionDefinition not found", ShotlyErrorCode.NOT_FOUND);
         }
         option.name = editDTO.name();
 
@@ -85,7 +87,7 @@ public class SceneSelectAttributeOptionDefinitionRepository implements PanacheRe
                     break;
                 }
                 default:
-                    throw new IllegalStateException("Unexpected value: " + sceneSelectAttributeOptionDefinition.sceneAttributeDefinition);
+                    throw new ShotlyException("Unexpected value: " + sceneSelectAttributeOptionDefinition.sceneAttributeDefinition, ShotlyErrorCode.IMPOSSIBLE_INPUT);
             }
 
             delete(sceneSelectAttributeOptionDefinition);
