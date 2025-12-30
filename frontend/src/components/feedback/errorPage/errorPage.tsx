@@ -14,7 +14,7 @@ export default function ErrorPage(
             href: "/dashboard"
         },
         reload = false,
-        noButton = false
+        noLink = false
     }:
     {
         title: string
@@ -24,7 +24,7 @@ export default function ErrorPage(
             href: string
         }
         reload?: boolean
-        noButton?: boolean
+        noLink?: boolean
     }
 ) {
     return (
@@ -39,15 +39,17 @@ export default function ErrorPage(
                     </h1>
                     <p className={"description"}>{description}</p>
                     {
-                        reload ?
+                        reload &&
                         <Link
                             className={"solid"}
                             href="#"
                             onClick={() => window.location.reload()}
                         >
                             Reload
-                        </Link> :
-                        noButton ? null :
+                        </Link>
+                    }
+                    {
+                        !noLink &&
                         <Link className={"solid"} href={link.href}>{link.text}</Link>
                     }
                 </div>

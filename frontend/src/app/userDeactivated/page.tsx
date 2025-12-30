@@ -5,7 +5,7 @@ export default function NotAllowed() {
         <ErrorPage
             title="Acount Deactivated"
             description="Your account has been specifically deactivated by an administrator."
-            noButton
+            noLink
         />
     )
 }

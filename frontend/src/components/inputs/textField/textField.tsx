@@ -56,10 +56,12 @@ export default function TextField(
     const [errorType, setErrorType] = useState<"warning" | "max">("warning");
 
     useEffect(() => {
-        if (!value) return
+        if (value == undefined) return
         validateInput(value)
         setCurrentValue(value)
-    }, [value]);
+
+        console.log("textfield value changed to", value)
+    }, [value])
 
     useEffect(() => {
         if(currentValue != "") return

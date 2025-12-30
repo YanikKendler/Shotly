@@ -84,6 +84,7 @@ export default function Overview() {
             title='Data could not be loaded'
             description={dashboardContext.query.error.message}
             reload
+            noLink
         />
     )
 
@@ -92,6 +93,7 @@ export default function Overview() {
             title='Data could not be loaded'
             description={dashboardContext.query.errors.map(e => e.message).join(", ")}
             reload
+            noLink
         />
     )
 

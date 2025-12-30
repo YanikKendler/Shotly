@@ -38,7 +38,7 @@
       .collaborators {
         display: flex;
         border: none;
-        background-color: var(--sidebar-bg);
+        background-color: hsla(20, 20%, 5%, 50%);
         padding: .3rem;
 
         &:hover, &[data-state=open]{

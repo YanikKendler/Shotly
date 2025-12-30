@@ -228,6 +228,86 @@ export default function Shotlist() {
         }
     }, [shotSelectOptionsCache, sceneSelectOptionsCache]);
 
+    const loadData = async (noCache: boolean = false) => {
+        try {
+            const result = await client.query({
+                query: gql`
+                    query shotlist($id: String!){
+                        shotlist(id: $id){
+                            id
+                            name
+                            scenes{
+                                id
+                                position
+                                attributes{
+                                    id
+                                    definition{
+                                        id,
+                                        name,
+                                        position,
+                                        type
+                                    }
+                                    type
+
+                                    ... on SceneSingleSelectAttributeDTO{
+                                        singleSelectValue{id,name}
+                                    }
+
+                                    ... on SceneMultiSelectAttributeDTO{
+                                        multiSelectValue{id,name}
+                                    }
+                                    ... on SceneTextAttributeDTO{
+                                        textValue
+                                    }
+                                }
+                            }
+                            sceneAttributeDefinitions{
+                                id
+                                name
+                                position
+                                type
+                            }
+                            shotAttributeDefinitions{
+                                id
+                                name
+                                position
+                                type
+                            }
+                            owner {
+                                id
+                                tier
+                                shotlistCount
+                            }
+                            collaborations {
+                                user {
+                                    id
+                                }
+                                collaborationType
+                            }
+                        }
+                        currentUser {
+                            id
+                        }
+                    }`,
+                variables: {id: id},
+                fetchPolicy: noCache ? "no-cache" : "cache-first",
+                errorPolicy: "all",
+            })
+
+            setSceneCount(result.data.shotlist?.scenes?.length || 0)
+
+            setQuery(result)
+
+            console.log(result)
+
+            return result
+        }
+        catch (e){
+            console.log(e)
+            setQuery({...query, errors: [e as ApolloError]})
+        }
+    }
+
     const setFocusedCell= (row: number, column: number) => {
         focusedCell.current = {row, column}
 
@@ -326,7 +406,13 @@ export default function Shotlist() {
                             break
                         case ShotlistUpdateType.COLLABORATION_DELETED:
                             if(currentUserRef.current?.id == updateDTO.payload.userId){
-                                window.location.reload()
+                                setQuery({
+                                    ...query,
+                                    errors: [{
+                                        message: "Your collaboration to this shotlist has been removed",
+                                        extensions: { code: ShotlyErrorCode.READ_NOT_ALLOWED }
+                                    }]
+                                })
                             }
                             break
                     }
@@ -499,86 +585,6 @@ export default function Shotlist() {
         setSceneSelectOptionsCache(newCache)
     }
 
-    const loadData = async (noCache: boolean = false) => {
-        try {
-            const result = await client.query({
-                query: gql`
-                    query shotlist($id: String!){
-                        shotlist(id: $id){
-                            id
-                            name
-                            scenes{
-                                id
-                                position
-                                attributes{
-                                    id
-                                    definition{
-                                        id,
-                                        name,
-                                        position,
-                                        type
-                                    }
-                                    type
-
-                                    ... on SceneSingleSelectAttributeDTO{
-                                        singleSelectValue{id,name}
-                                    }
-
-                                    ... on SceneMultiSelectAttributeDTO{
-                                        multiSelectValue{id,name}
-                                    }
-                                    ... on SceneTextAttributeDTO{
-                                        textValue
-                                    }
-                                }
-                            }
-                            sceneAttributeDefinitions{
-                                id
-                                name
-                                position
-                                type
-                            }
-                            shotAttributeDefinitions{
-                                id
-                                name
-                                position
-                                type
-                            }
-                            owner {
-                                id
-                                tier
-                                shotlistCount
-                            }
-                            collaborations {
-                                user {
-                                    id
-                                }
-                                collaborationType
-                            }
-                        }
-                        currentUser {
-                            id
-                        }
-                    }`,
-                variables: {id: id},
-                fetchPolicy: noCache ? "no-cache" : "cache-first",
-                errorPolicy: "all",
-            })
-
-            setSceneCount(result.data.shotlist?.scenes?.length || 0)
-
-            setQuery(result)
-
-            console.log(result)
-
-            return result
-        }
-        catch (e){
-            console.log(e)
-            setQuery({...query, error: e as ApolloError})
-        }
-    }
-
     const calculateReadOnlyState = () => {
         let newState: ReadOnlyState = {isReadOnly: false}
 
@@ -647,7 +653,12 @@ export default function Shotlist() {
                     title='405'
                     description='Sorry, you are not allowed to access this Shotlist. Please check the URL or return to the Dashboard.'
                 />
-
+            default:
+                return <ErrorPage
+                    title='200'
+                    description='An unkown error occured while loading the Shotlist. Please try again later.'
+                    reload
+                />
         }
     }
 
