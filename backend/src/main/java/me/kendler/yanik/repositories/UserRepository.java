@@ -155,7 +155,7 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         }
 
         //required because lazy loading :3
-        Shotlist managed = shotlistRepository.findById(shotlist.id);
+        Shotlist managed = shotlistRepository.findByIdValidated(shotlist.id);
         if (managed == null) {
             return false;
         }
@@ -191,7 +191,7 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     }
 
     public void checkShotlistEditRights(UUID shotlistId, JsonWebToken jwt) {
-        checkShotlistEditRights(shotlistRepository.findById(shotlistId), jwt);
+        checkShotlistEditRights(shotlistRepository.findByIdValidated(shotlistId), jwt);
     }
 
     public void checkTemplateEditRights(UUID templateId, JsonWebToken jwt) {
@@ -207,7 +207,7 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         }
 
         //required because lazy loading :3
-        Shotlist managed = shotlistRepository.findById(shotlist.id);
+        Shotlist managed = shotlistRepository.findByIdValidated(shotlist.id);
         if (managed == null) {
             return false;
         }
@@ -239,7 +239,7 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     }
 
     public void checkShotlistViewRights(UUID shotlistId, JsonWebToken jwt) {
-        checkShotlistViewRights(shotlistRepository.findById(shotlistId), jwt);
+        checkShotlistViewRights(shotlistRepository.findByIdValidated(shotlistId), jwt);
     }
 
     // owner
@@ -265,7 +265,7 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     }
 
     public void checkShotlistOwner(UUID shotlistId, JsonWebToken jwt) {
-        checkShotlistOwner(shotlistRepository.findById(shotlistId), jwt);
+        checkShotlistOwner(shotlistRepository.findByIdValidated(shotlistId), jwt);
     }
 
     // TEMPLATE

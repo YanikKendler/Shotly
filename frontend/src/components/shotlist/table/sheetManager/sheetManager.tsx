@@ -1,6 +1,12 @@
 import React, {
-    forwardRef, RefObject, UIEventHandler, useCallback, useContext, useEffect,
-    useImperativeHandle, useRef, useState
+    forwardRef,
+    RefObject,
+    useCallback,
+    useContext,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+    useState
 } from "react"
 import gql from "graphql-tag"
 import {ShotlistContext} from "@/context/ShotlistContext";
@@ -8,9 +14,9 @@ import {ApolloError, ApolloQueryResult, useApolloClient} from "@apollo/client"
 import ErrorDisplay from "@/components/feedback/errorDisplay/errorDisplay"
 import "./sheetManager.scss"
 import {Query, ShotAttributeDefinitionBase, ShotDto} from "../../../../../lib/graphql/generated"
-import {AnyShotAttribute, AnyShotAttributeDefinition} from "@/util/Types"
+import {AnyShotAttribute, AnyShotAttributeDefinition, ShotlyErrorCode} from "@/util/Types"
 import Utils from "@/util/Utils"
-import { tinykeys } from "@/../node_modules/tinykeys/dist/tinykeys"/*package has incorrectly configured type exports*/
+import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys" /*package has incorrectly configured type exports*/
 import {wuText} from "@yanikkendler/web-utils"
 import {ShotAttributeDefinitionParser} from "@/util/AttributeParser"
 import Skeleton from "react-loading-skeleton"
@@ -227,15 +233,18 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                     }
                 `,
                 variables: { sceneId: selectedScene.id },
-                fetchPolicy: "no-cache",
+                fetchPolicy: "no-cache"
             })
 
-            shotlistContext.setShotCount(result.data.shots.length || 0)
+            shotlistContext.setShotCount(result.data?.shots?.length || 0)
 
             setQuery(result)
+
+            console.log("shots loaded", result)
         }
         catch (e) {
-            setQuery({...query, error: e as ApolloError})
+            console.log("shot load error", e)
+            setQuery({...query, errors: [e as ApolloError]})
         }
     }
 
@@ -374,8 +383,26 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
             <p className="empty">Please select a scene from the sidebar</p>
         </div>
 
+    if(query.errors && query.errors.length > 0){
+        const error = query.errors[0]?.extensions?.code as ShotlyErrorCode
+
+        return <div className="sheetManager">
+            {
+                error == ShotlyErrorCode.NOT_FOUND ?
+                <ErrorDisplay
+                    title="Scene was not found"
+                    description="The selected scene was not found, please select one from the Sidebar."
+                /> :
+                <ErrorDisplay
+                    title="Scene could not be loaded"
+                    description="The selected scene could not be loaded, please select one from the Sidebar."
+                />
+            }
+        </div>
+    }
+
     if(query.error)
-        return <ErrorDisplay title={query.error.message}/>
+        return <div className="sheetManager"><ErrorDisplay title={query.error.message}/></div>
 
     return (
         <div

@@ -4,7 +4,6 @@ import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.NotAllowedException;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationCreateDTO;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationDTO;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationEditDTO;
@@ -80,7 +79,7 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
             throw new ShotlyException("Cannot create collaboration with yourself.", ShotlyErrorCode.NOT_ALLOWED);
         }
 
-        Shotlist shotlist = shotlistRepository.findById(createDTO.shotlistId());
+        Shotlist shotlist = shotlistRepository.findByIdValidated(createDTO.shotlistId());
 
         if(shotlist == null){
             throw new ShotlyException("Shotlist with ID " + createDTO.shotlistId() + " not found.", ShotlyErrorCode.NOT_FOUND);

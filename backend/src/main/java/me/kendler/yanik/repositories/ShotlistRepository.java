@@ -39,6 +39,14 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
 
     private static final Logger LOGGER = Logger.getLogger(ShotlistRepository.class);
 
+    public Shotlist findByIdValidated(UUID id){
+        Shotlist shotlist = findById(id);
+        if (shotlist == null) {
+            throw new ShotlyException("This Shotlist does not exist", ShotlyErrorCode.NOT_FOUND);
+        }
+        return shotlist;
+    }
+
     public ShotlistDTO findAsDTO(UUID id) {
         Shotlist shotlist = findById(id);
         if (shotlist == null) {

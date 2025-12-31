@@ -291,7 +291,6 @@ export default function Shotlist() {
                     }`,
                 variables: {id: id},
                 fetchPolicy: noCache ? "no-cache" : "cache-first",
-                errorPolicy: "all",
             })
 
             setSceneCount(result.data.shotlist?.scenes?.length || 0)
@@ -303,7 +302,7 @@ export default function Shotlist() {
             return result
         }
         catch (e){
-            console.log(e)
+            console.log("error was caught", e)
             setQuery({...query, errors: [e as ApolloError]})
         }
     }
@@ -479,6 +478,10 @@ export default function Shotlist() {
             return;
         }
 
+        if(!query?.data?.shotlist?.id) {
+            console.log("Skipping reconnect - shotlist not loaded yet");
+        }
+
         // Don't reconnect if already connected
         if (websocketRef.current?.readyState === WebSocket.OPEN) {
             console.log("Skipping reconnect - already connected");
@@ -652,12 +655,6 @@ export default function Shotlist() {
                 return <ErrorPage
                     title='405'
                     description='Sorry, you are not allowed to access this Shotlist. Please check the URL or return to the Dashboard.'
-                />
-            default:
-                return <ErrorPage
-                    title='200'
-                    description='An unkown error occured while loading the Shotlist. Please try again later.'
-                    reload
                 />
         }
     }

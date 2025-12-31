@@ -33,8 +33,8 @@ import ShotAttributeDefinition from "@/components/dialogs/shotlistOptionsDialog/
 import {Collapsible, Popover} from "radix-ui"
 import {apolloClient} from "@/components/wrapper/ApolloWrapper"
 import ShotAttributeTemplate from "@/components/template/shotAttributeTemplate/shotAttributeTemplate"
-import {AnySceneAttributeDefinition, AnyShotAttributeTemplate} from "@/util/Types"
-import Utils from "@/util/Utils"
+import {AnySceneAttributeDefinition, AnyShotAttributeTemplate, ShotlyErrorCode} from "@/util/Types"
+import Utils, {uuidRegex} from "@/util/Utils"
 import Config from "@/util/Config"
 import Link from "next/link"
 import SceneAttributeTemplate from "@/components/template/sceneAttributeTemplate/sceneAttributeTemplate"
@@ -42,6 +42,7 @@ import {router} from "next/client"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
 import {driver} from "driver.js"
 import Skeleton from "react-loading-skeleton"
+import auth from "@/Auth"
 
 export default function Template (){
     const params = useParams<{ id: string }>()
@@ -73,21 +74,31 @@ export default function Template (){
     })
 
     useEffect(() => {
-        if(!id || id.length !== 36) {
-            setQuery({...query, error: new ApolloError({errorMessage: "Invalid template ID"})})
+        if(!uuidRegex.test(id)){
+            setQuery({
+                ...query,
+                errors: [{
+                    message: "Invalid template id",
+                    extensions: { code: ShotlyErrorCode.NOT_FOUND }
+                }]
+            })
+            return
         }
-        else {
-            loadTemplate()
-        }
+
+        if(!auth.getUser()) return
+
+
+        loadTemplate()
 
         if(localStorage.getItem(Config.localStorageKey.templateTourCompleted) != "true") {
             localStorage.setItem(Config.localStorageKey.templateTourCompleted,"true")
             driverObj.drive()
         }
-    }, []);
+    }, [id]);
 
     const loadTemplate = async (noCache: boolean = false) => {
-        const result = await client.query({query: gql`
+        try{
+            const result = await client.query({query: gql`
                 query template($id: String!){
                     template(id: $id) {
                         id
@@ -97,15 +108,15 @@ export default function Template (){
                             name
                             position
                             type
-
-
+    
+    
                             ... on ShotSingleSelectAttributeTemplateDTO {
                                 options {
                                     id
                                     name
                                 }
                             }
-
+    
                             ... on ShotMultiSelectAttributeTemplateDTO {
                                 options {
                                     id
@@ -138,7 +149,14 @@ export default function Template (){
             variables: {id: id},
             fetchPolicy: noCache ? "no-cache" : "cache-first"})
 
-        setQuery(result)
+            setQuery(result)
+
+            console.log("loaded template:", result)
+        }
+        catch (e){
+            console.log("error was caught", e)
+            setQuery({...query, errors: [e as ApolloError]})
+        }
     }
 
     const updateTemplateName = async (name: string) => {
@@ -380,19 +398,21 @@ export default function Template (){
         })
     }
 
-    if(query.error) return <main className={"dashboardContent"}>
-        <ErrorPage
-            title='Data could not be loaded'
-            description={query.error.message}
-        />
-    </main>
-
-    if(!query.data) return <main className={"dashboardContent"}>
-        <ErrorPage
-            title="404"
-            description='Sorry, we could not find the template you were looking for. Please check the URL or return to the dashboard.'
-        />
-    </main>
+    if(query.errors && query.errors.length > 0) {
+        switch (query.errors[0]?.extensions?.code as ShotlyErrorCode) {
+            case ShotlyErrorCode.NOT_FOUND:
+                return <ErrorPage
+                    title='404'
+                    description='Sorry, we could not find the Template you were looking for. Please check the URL or return to the Dashboard.'
+                />
+            case ShotlyErrorCode.WRITE_NOT_ALLOWED:
+            case ShotlyErrorCode.READ_NOT_ALLOWED:
+                return <ErrorPage
+                    title='405'
+                    description='Sorry, you are not allowed to access this Template. Please check the URL or return to the Dashboard.'
+                />
+        }
+    }
 
     return (
         <main className={"template dashboardContent"}>

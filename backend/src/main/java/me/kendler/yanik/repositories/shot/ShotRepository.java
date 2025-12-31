@@ -28,6 +28,13 @@ public class ShotRepository implements PanacheRepositoryBase<Shot, UUID> {
 
     private static final Logger LOGGER = Logger.getLogger(ShotRepository.class);
 
+    public Shot findByIdValidated(UUID id){
+        Shot shot = findById(id);
+        if (shot == null) {
+            throw new ShotlyException("This Shot does not exist", ShotlyErrorCode.NOT_FOUND);
+        }
+        return shot;
+    }
 
     public List<ShotDTO> findAllForScene(UUID sceneId) {
         return list("scene.id = ?1 order by position", sceneId).stream().map(Shot::toDTO).toList();
@@ -38,7 +45,7 @@ public class ShotRepository implements PanacheRepositoryBase<Shot, UUID> {
 
         long start = System.nanoTime();
 
-        Scene scene = sceneRepository.findById(sceneId);
+        Scene scene = sceneRepository.findByIdValidated(sceneId);
         Shot shot = new Shot(scene);
         scene.shotlist.registerEdit();
         persist(shot);

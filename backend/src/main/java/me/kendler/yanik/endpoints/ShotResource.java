@@ -5,7 +5,11 @@ import jakarta.ws.rs.*;
 import me.kendler.yanik.dto.shot.*;
 import me.kendler.yanik.dto.shot.attributeDefinitions.ShotAttributeDefinitionBaseDTO;
 import me.kendler.yanik.dto.shot.attributes.ShotAttributeBaseDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.Shotlist;
+import me.kendler.yanik.model.scene.Scene;
+import me.kendler.yanik.model.shot.Shot;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotAttributeDefinitionBase;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotSelectAttributeOptionDefinition;
 import me.kendler.yanik.repositories.UserRepository;
@@ -50,14 +54,14 @@ public class ShotResource {
 
     @Query
     public List<ShotDTO> getShots(UUID sceneId) {
-        userRepository.checkShotlistViewRights(sceneRepository.findById(sceneId).shotlist, jwt);
+        userRepository.checkShotlistViewRights(sceneRepository.findByIdValidated(sceneId).shotlist, jwt);
 
         return shotRepository.findAllForScene(sceneId);
     }
 
     @Mutation
     public ShotDTO createShot(@PathParam("sceneId") UUID sceneId){
-        Shotlist affectedShotlist = sceneRepository.findById(sceneId).shotlist;
+        Shotlist affectedShotlist = sceneRepository.findByIdValidated(sceneId).shotlist;
         userRepository.checkShotlistEditRights(affectedShotlist, jwt);
 
         ShotDTO result = shotRepository.create(sceneId);
@@ -78,7 +82,7 @@ public class ShotResource {
 
     @Mutation
     public ShotDTO deleteShot(@PathParam("id") UUID id) {
-        Shotlist affectedShotlist = shotRepository.findById(id).scene.shotlist;
+        Shotlist affectedShotlist = shotRepository.findByIdValidated(id).scene.shotlist;
 
         userRepository.checkShotlistEditRights(affectedShotlist, jwt);
 
@@ -100,7 +104,7 @@ public class ShotResource {
 
     @Mutation
     public ShotDTO updateShot(ShotEditDTO editDTO) {
-        Shotlist affectedShotlist = shotRepository.findById(editDTO.id()).scene.shotlist;
+        Shotlist affectedShotlist = shotRepository.findByIdValidated(editDTO.id()).scene.shotlist;
         userRepository.checkShotlistEditRights(affectedShotlist, jwt);
 
         ShotDTO result = shotRepository.update(editDTO);

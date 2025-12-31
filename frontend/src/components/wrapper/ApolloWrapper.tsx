@@ -1,6 +1,6 @@
 "use client";
 
-import {ApolloLink, from, HttpLink} from "@apollo/client";
+import {from, HttpLink, Observable} from "@apollo/client";
 import {
     ApolloNextAppProvider,
     ApolloClient,
@@ -11,7 +11,6 @@ import {setContext} from "@apollo/client/link/context"
 import {onError} from "@apollo/client/link/error"
 import Config from "@/util/Config"
 import {ShotlyErrorCode} from "@/util/Types"
-import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import React from "react"
 
 export function makeClient() {
@@ -45,25 +44,43 @@ export function makeClient() {
     })
 
     const errorLink = onError(({ graphQLErrors, networkError }) => {
-        if (graphQLErrors)
-            graphQLErrors.forEach((error) => {
-                //TODO remove
-                console.error(`[GraphQL error]`, error)
+        if (graphQLErrors) {
+            const error = graphQLErrors[0];
 
-                console.log(error?.extensions?.code)
+            //TODO remove
+            console.error(`[GraphQL error]`, error)
 
+            if (error?.extensions?.type != 'SHOTLY_EXCEPTION') {
+                console.log("unkown exception - going to error page", error)
+                /*if(window) {
+                    window.location.replace('/serverError');
+                }*/
+            } else {
                 switch (error?.extensions?.code as ShotlyErrorCode) {
                     case ShotlyErrorCode.ACCOUNT_DEACTIVATED:
-                        console.log("account deactived")
-                        window.location.href = '/userDeactivated'
+                        if (window) {
+                            window.location.href = '/userDeactivated'
+                        }
                         break
                 }
-            });
+            }
+        }
     });
 
     return new ApolloClient({
         link: from([authLink, errorLink, httpLink]),
-        cache: new InMemoryCache()
+        cache: new InMemoryCache(),
+        defaultOptions: {
+            watchQuery: {
+                errorPolicy: "all",
+            },
+            query: {
+                errorPolicy: "all",
+            },
+            mutate: {
+                errorPolicy: "all",
+            },
+        },
     })
 }
 

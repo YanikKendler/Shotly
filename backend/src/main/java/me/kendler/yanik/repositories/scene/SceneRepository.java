@@ -1,13 +1,11 @@
 package me.kendler.yanik.repositories.scene;
 
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.dto.scene.SceneDTO;
 import me.kendler.yanik.dto.scene.SceneEditDTO;
-import me.kendler.yanik.dto.shot.ShotEditDTO;
 import me.kendler.yanik.error.ShotlyErrorCode;
 import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.Shotlist;
@@ -28,12 +26,20 @@ public class SceneRepository implements PanacheRepositoryBase<Scene, UUID> {
     @Inject
     ShotRepository shotRepository;
 
+    public Scene findByIdValidated(UUID id){
+        Scene scene = findById(id);
+        if (scene == null) {
+            throw new ShotlyException("This Scene does not exist", ShotlyErrorCode.NOT_FOUND);
+        }
+        return scene;
+    }
+
     public List<SceneDTO> listAllForShotlist(UUID shotlistId) {
         return list("shotlist.id", shotlistId).stream().map(Scene::toDTO).toList();
     }
 
     public SceneDTO create(UUID shotlistId) {
-        Shotlist shotlist = shotlistRepository.findById(shotlistId);
+        Shotlist shotlist = shotlistRepository.findByIdValidated(shotlistId);
         shotlist.registerEdit();
         Scene scene = new Scene(shotlist);
         persist(scene);

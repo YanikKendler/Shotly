@@ -8,8 +8,9 @@ import me.kendler.yanik.dto.shotlist.ShotlistCreateDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistEditDTO;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationEditDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.Shotlist;
-import me.kendler.yanik.model.User;
 import me.kendler.yanik.repositories.CollaborationRepository;
 import me.kendler.yanik.repositories.ShotlistRepository;
 import me.kendler.yanik.repositories.UserRepository;
@@ -17,7 +18,6 @@ import me.kendler.yanik.socket.ShotlistUpdateDTO;
 import me.kendler.yanik.socket.ShotlistUpdateType;
 import me.kendler.yanik.socket.ShotlistWebsocketService;
 import me.kendler.yanik.socket.payload.CollaborationPayload;
-import me.kendler.yanik.socket.payload.ShotPayload;
 import org.eclipse.microprofile.graphql.GraphQLApi;
 import org.eclipse.microprofile.graphql.Mutation;
 import org.eclipse.microprofile.graphql.Query;
@@ -50,7 +50,7 @@ public class ShotlistResource {
 
     @Query
     public ShotlistDTO getShotlist(UUID id) {
-        userRepository.checkShotlistViewRights(shotlistRepository.findById(id), jwt);
+        userRepository.checkShotlistViewRights(shotlistRepository.findByIdValidated(id), jwt);
 
         return shotlistRepository.findAsDTO(id);
     }
@@ -62,13 +62,13 @@ public class ShotlistResource {
 
     @Mutation
     public ShotlistDTO updateShotlist(ShotlistEditDTO editDTO) {
-        userRepository.checkShotlistEditRights(shotlistRepository.findById(editDTO.id()), jwt);
+        userRepository.checkShotlistEditRights(shotlistRepository.findByIdValidated(editDTO.id()), jwt);
         return shotlistRepository.update(editDTO);
     }
 
     @Mutation
     public ShotlistDTO deleteShotlist(UUID id) {
-        userRepository.checkShotlistEditRights(shotlistRepository.findById(id), jwt);
+        userRepository.checkShotlistEditRights(shotlistRepository.findByIdValidated(id), jwt);
         return shotlistRepository.delete(id);
     }
 
@@ -91,7 +91,7 @@ public class ShotlistResource {
 
     @Mutation
     public List<CollaborationDTO> addCollaboration(CollaborationCreateDTO createDTO){
-        userRepository.checkShotlistOwner(shotlistRepository.findById(createDTO.shotlistId()), jwt);
+        userRepository.checkShotlistOwner(shotlistRepository.findByIdValidated(createDTO.shotlistId()), jwt);
 
         return collaborationRepository.create(createDTO, jwt);
     }

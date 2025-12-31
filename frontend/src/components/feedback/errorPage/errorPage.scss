@@ -54,5 +54,10 @@
       width: fit-content;
       white-space: nowrap;
     }
+
+    .buttons{
+      display: flex;
+      gap: .5rem;
+    }
   }
 }

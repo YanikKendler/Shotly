@@ -69,7 +69,7 @@ public class SceneResource {
 
     @Mutation
     public SceneDTO deleteScene(UUID id) {
-        Shotlist affectedShotlist = sceneRepository.findById(id).shotlist;
+        Shotlist affectedShotlist = sceneRepository.findByIdValidated(id).shotlist;
         userRepository.checkShotlistEditRights(affectedShotlist, jwt);
 
         SceneDTO result = sceneRepository.delete(id);
@@ -90,7 +90,7 @@ public class SceneResource {
 
     @Mutation
     public SceneDTO updateScene(SceneEditDTO editDTO) {
-        Shotlist affectedShotlist = sceneRepository.findById(editDTO.id()).shotlist;
+        Shotlist affectedShotlist = sceneRepository.findByIdValidated(editDTO.id()).shotlist;
         userRepository.checkShotlistEditRights(affectedShotlist, jwt);
 
         SceneDTO result = sceneRepository.update(editDTO);

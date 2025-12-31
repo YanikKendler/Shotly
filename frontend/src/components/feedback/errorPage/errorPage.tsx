@@ -9,10 +9,7 @@ export default function ErrorPage(
     {
         title = "Error",
         description = "An unexpected error occurred.",
-        link = {
-            text: "Dashboard",
-            href: "/dashboard"
-        },
+        link = undefined,
         reload = false,
         noLink = false
     }:
@@ -22,7 +19,7 @@ export default function ErrorPage(
         link?: {
             text: string
             href: string
-        }
+        }[]
         reload?: boolean
         noLink?: boolean
     }
@@ -38,20 +35,27 @@ export default function ErrorPage(
                         {title}
                     </h1>
                     <p className={"description"}>{description}</p>
-                    {
-                        reload &&
-                        <Link
-                            className={"solid"}
-                            href="#"
-                            onClick={() => window.location.reload()}
-                        >
-                            Reload
-                        </Link>
-                    }
-                    {
-                        !noLink &&
-                        <Link className={"solid"} href={link.href}>{link.text}</Link>
-                    }
+                    <div className="buttons">
+                        {
+                            reload &&
+                            <Link
+                                className={"solid"}
+                                href="#"
+                                onClick={() => window.location.reload()}
+                            >
+                                Reload
+                            </Link>
+                        }
+                        {
+                            noLink ?
+                            null :
+                                link ?
+                                link?.map((l, i) =>
+                                    <Link key={i} className={"solid"} href={l.href}>{l.text}</Link>
+                                ) :
+                                <Link className={"solid"} href="/dashboard">Dashboard</Link>
+                        }
+                    </div>
                 </div>
             </div>
         </div>

@@ -4,7 +4,6 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import me.kendler.yanik.dto.scene.SceneAttributeDefinitionEditDTO;
 import me.kendler.yanik.dto.shot.ShotAttributeDefinitionCreateDTO;
 import me.kendler.yanik.dto.shot.ShotAttributeDefinitionEditDTO;
 import me.kendler.yanik.dto.shot.attributeDefinitions.ShotAttributeDefinitionBaseDTO;
@@ -13,19 +12,13 @@ import me.kendler.yanik.dto.shot.attributeDefinitions.ShotSingleSelectAttributeD
 import me.kendler.yanik.error.ShotlyErrorCode;
 import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.Shotlist;
-import me.kendler.yanik.model.scene.attributeDefinitions.SceneAttributeDefinitionBase;
 import me.kendler.yanik.model.shot.Shot;
 import me.kendler.yanik.model.shot.attributeDefinitions.*;
 import me.kendler.yanik.model.shot.attributes.ShotAttributeBase;
-import me.kendler.yanik.model.shot.attributes.ShotMultiSelectAttribute;
-import me.kendler.yanik.model.shot.attributes.ShotSingleSelectAttribute;
-import me.kendler.yanik.model.shot.attributes.ShotTextAttribute;
 import me.kendler.yanik.repositories.ShotlistRepository;
-import me.kendler.yanik.repositories.UserRepository;
 import org.jboss.logging.Logger;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 @Transactional
@@ -39,7 +32,7 @@ public class ShotAttributeDefinitionRepository implements PanacheRepository<Shot
     private static final Logger LOGGER = Logger.getLogger(ShotAttributeDefinitionRepository.class);
 
     public List<ShotAttributeDefinitionBaseDTO> getAll(UUID shotlistId) {
-        Shotlist shotlist = shotlistRepository.findById(shotlistId);
+        Shotlist shotlist = shotlistRepository.findByIdValidated(shotlistId);
 
         if (shotlist == null) {
             throw new ShotlyException("Shotlist not found", ShotlyErrorCode.NOT_FOUND);
@@ -95,7 +88,7 @@ public class ShotAttributeDefinitionRepository implements PanacheRepository<Shot
         }
 
         ShotAttributeDefinitionBase attributeDefinition = null;
-        Shotlist shotlist = shotlistRepository.findById(createDTO.shotlistId());
+        Shotlist shotlist = shotlistRepository.findByIdValidated(createDTO.shotlistId());
 
         shotlist.registerEdit();
 

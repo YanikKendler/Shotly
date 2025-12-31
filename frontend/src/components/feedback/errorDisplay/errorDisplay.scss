@@ -4,28 +4,30 @@ div.errorDisplay{
   align-items: center;
   justify-content: center;
   margin: auto;
+  margin-top: 4rem;
 
   svg{
     width: 80px;
     height: auto;
 
     *{
-      color: var(--bad-60);
+      color: var(--text-60);
     }
   }
 
   p {
     text-align: center;
-    color: var(--bad-60);
+    color: var(--text-50);
 
-    &.text{
+    &.title{
       font-size: 1rem;
+      font-weight: bold;
     }
 
     &.message{
       font-size: .9rem;
-      opacity: 70%;
       max-width: 60ch;
+      color: var(--text-60);
     }
   }
 }

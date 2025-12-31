@@ -31,7 +31,7 @@ public class SceneAttributeDefinitionRepository implements PanacheRepository<Sce
     SceneAttributeRepository sceneAttributeRepository;
 
     public List<SceneAttributeDefinitionBaseDTO> listAllForShotlist(UUID shotlistId) {
-        Shotlist shotlist = shotlistRepository.findById(shotlistId);
+        Shotlist shotlist = shotlistRepository.findByIdValidated(shotlistId);
 
         if (shotlist == null) {
             throw new ShotlyException("Shotlist not found", ShotlyErrorCode.NOT_FOUND);
@@ -83,7 +83,7 @@ public class SceneAttributeDefinitionRepository implements PanacheRepository<Sce
         }
 
         SceneAttributeDefinitionBase attributeDefinition = null;
-        Shotlist shotlist = shotlistRepository.findById(createDTO.shotlistId());
+        Shotlist shotlist = shotlistRepository.findByIdValidated(createDTO.shotlistId());
 
         shotlist.registerEdit();
 

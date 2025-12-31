@@ -1,6 +1,6 @@
 import React from "react"
-import "./errorDisplay.scss"
 import {Frown} from "lucide-react"
+import "./errorDisplay.scss"
 
 export default function ErrorDisplay(
     {title, scale = 1, description}:
@@ -9,7 +9,7 @@ export default function ErrorDisplay(
     return (
         <div className="errorDisplay">
             <Frown />
-            <p className="text" style={{marginTop: 1.5*scale+"rem"}}>{title || "sorry - an error occurred"}</p>
+            <p className="title" style={{marginTop: 1.5*scale+"rem"}}>{title || "sorry - an error occurred"}</p>
             <p className="message" style={{marginTop: 0.5*scale+"rem"}}>{description || "please try again later"}</p>
         </div>
     );
