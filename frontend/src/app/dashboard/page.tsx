@@ -122,7 +122,11 @@ export default function Overview() {
                             <NotepadText size={18}/>
                             <h3>{shotlist.name || <span className='italic'>Unnamed</span>}</h3>
                         </div>
-                        <p className={"bold"}>{shotlist.sceneCount} scene • {shotlist.shotCount} shots</p>
+                        <p className={"bold"}>
+                            {shotlist.sceneCount} scene{shotlist.sceneCount && shotlist.sceneCount != 1 ? "s" : ""}
+                            {" • "}
+                            {shotlist.shotCount} shot{shotlist.shotCount && shotlist.shotCount != 1 ? "s" : ""}
+                        </p>
                         <p>created by: <span className={"bold"}>{shotlist.owner?.name}</span></p>
                         <p>last edited: <span className={"bold"}>{wuTime.toRelativeString(shotlist.editedAt, 1)}</span></p>
                     </Link>
@@ -142,8 +146,18 @@ export default function Overview() {
                             <Blocks size={18}/>
                             <h3>{template.name || <span className='italic'>Unnamed</span>}</h3>
                         </div>
-                        <p>Shots: <span className={"bold"}>{template.shotAttributeCount} Attributes</span></p>
-                        <p>Scenes: <span className={"bold"}>{template.sceneAttributeCount} Attributes</span></p>
+                        <p>
+                            {"Shots: "}
+                            <span className={"bold"}>
+                                {template.shotAttributeCount} Attribute{template.sceneAttributeCount && template.sceneAttributeCount != 1 ? "s" : ""}
+                            </span>
+                        </p>
+                        <p>
+                            {"Scenes: "}
+                            <span className={"bold"}>
+                                {template.sceneAttributeCount} Attribute{template.shotAttributeCount && template.shotAttributeCount != 1 ? "s" : ""}
+                            </span>
+                        </p>
                         <p>created by: <span className={"bold"}>{template.owner?.name}</span></p>
                     </Link>
                 ))}
