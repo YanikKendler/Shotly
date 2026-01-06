@@ -10,21 +10,16 @@ export interface NotificationSettings {
     type?: "info" | "error" | "success"
 }
 
-export function useNotification() {
-    const [isOpen, setIsOpen] = useState(false);
-    const [settings, setSettings] = useState<NotificationSettings>({} as NotificationSettings);
-
-    function notify(settings: NotificationSettings) {
-        setSettings(settings)
-        setIsOpen(true)
-    }
-
-    function handleClose() {
-        setIsOpen(false);
-    }
-
-    const Notification = (
-        <Toast.Root className={`ToastRoot notification ${settings.type || "info"}`} open={isOpen} onOpenChange={setIsOpen} duration={settings.duration || 5000}>
+export function Notification({
+    settings
+} : {
+    settings: NotificationSettings
+})  {
+    return (
+        <Toast.Root
+            className={`ToastRoot notification ${settings.type || "info"}`}
+            duration={settings.duration || 500000}
+        >
             <Toast.Title className="ToastTitle">{settings.title}</Toast.Title>
             <Toast.Description className={"ToastDescription"}>
                 {settings.message}
@@ -32,13 +27,10 @@ export function useNotification() {
 
             <Toast.Close
                 aria-label="Close"
-                onClick={handleClose}
                 className={"ToastClose"}
             >
-                <XCircle/>
+                <XCircle size={18}/>
             </Toast.Close>
         </Toast.Root>
     );
-
-    return {notify, Notification};
 }

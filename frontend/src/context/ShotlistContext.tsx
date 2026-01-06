@@ -5,8 +5,9 @@ import {
     ShotlistOptionsDialogPage,
     ShotlistOptionsDialogSubPage
 } from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
-import {SelectOption} from "@/util/Types"
+import {GenericError, SelectOption} from "@/util/Types"
 import {newAnchorRef} from "yaml-ast-parser"
+import {SaveState} from "@/app/shotlist/[id]/page"
 
 export interface ShotlistContextProps {
     openShotlistOptionsDialog: (page: { main: ShotlistOptionsDialogPage, sub?: ShotlistOptionsDialogSubPage }) => void
@@ -24,7 +25,9 @@ export interface ShotlistContextProps {
     sceneSelectOptions: Map<number, SelectOption[]>
     loadSceneSelectOptions: (sceneAttributeDefinitionId: number) => Promise<void>
     addSceneSelectOption: (sceneAttributeDefinitionId: number, option: SelectOption) => void
-    websocketRef: RefObject<WebSocket | null>
+    websocketRef: RefObject<WebSocket | null>,
+    setSaveState: (key: string, saveState: SaveState) => void
+    handleError: (error: GenericError) => void
 }
 
 export const ShotlistContext = createContext<ShotlistContextProps>({
@@ -48,5 +51,7 @@ export const ShotlistContext = createContext<ShotlistContextProps>({
     sceneSelectOptions: new Map(),
     loadSceneSelectOptions: () => Promise.resolve(),
     addSceneSelectOption: () => {},
-    websocketRef: { current: null }
+    websocketRef: { current: null },
+    setSaveState: () => {},
+    handleError: () => {}
 })

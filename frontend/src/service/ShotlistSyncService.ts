@@ -11,7 +11,7 @@ import {
     Query
 } from "../../lib/graphql/generated"
 import {SceneAttributeParser, ShotAttributeParser} from "@/util/AttributeParser"
-import {ShotlistSidebarRef} from "@/components/shotlist/shotlistSidebar/shotlistSidebar"
+import {ShotlistSidebarRef} from "@/components/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
 import {SelectedScene} from "@/app/shotlist/[id]/page"
 import {ApolloQueryResult} from "@apollo/client"
 import {audit} from "rxjs"

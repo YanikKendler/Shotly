@@ -1,7 +1,7 @@
 'use client'
 
 import gql from "graphql-tag"
-import React, {useEffect, useRef, useState} from "react"
+import React, {useContext, useEffect, useRef, useState} from "react"
 import {ApolloError, ApolloQueryResult, InteropApolloQueryResult, useApolloClient} from "@apollo/client"
 import {
     CollaborationDto,
@@ -12,7 +12,7 @@ import {
     UserTier
 } from "../../../../lib/graphql/generated"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
-import {Menu, X} from "lucide-react"
+import {Check, LoaderCircle, Menu, X} from "lucide-react"
 import './shotlist.scss'
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import {ShotlistContext} from "@/context/ShotlistContext"
@@ -27,9 +27,9 @@ import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
 import Utils, {uuidRegex} from "@/util/Utils"
 import Config from "@/util/Config"
-import {SelectOption, ShotlyErrorCode} from "@/util/Types"
+import {GenericError, SelectOption, ShotlyErrorCode} from "@/util/Types"
 import SheetManager, {SheetManagerRef} from "@/components/shotlist/table/sheetManager/sheetManager"
-import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/shotlist/shotlistSidebar/shotlistSidebar"
+import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
 import Skeleton from "react-loading-skeleton"
 import {
     CollaborationPayload,
@@ -39,6 +39,9 @@ import {
     UserMinimalDTO,
     UserPayload
 } from "@/service/ShotlistSyncService"
+import DotLoader from "@/components/DotLoader"
+import SimpleTooltip from "@/components/tooltip/simpleTooltip"
+import {NotificationContext} from "@/context/NotificationContext"
 
 export interface SelectedScene {
     id: string | null
@@ -50,10 +53,13 @@ export interface ReadOnlyState {
     reason?: "tooManyShotlists" | "collaborationViewOnly"
 }
 
+export type SaveState = "saved" | "saving" | "error"
+
 export default function Shotlist() {
     const client = useApolloClient()
     const router = useRouter()
     const syncService = useRef<ShotlistSyncService | null>(null)
+    const notificationContext = useContext(NotificationContext)
     const searchParams = useSearchParams()
     const params = useParams<{ id: string }>()
 
@@ -87,6 +93,7 @@ export default function Shotlist() {
     const headerRef = useRef<HTMLDivElement>(null)
     const sheetManagerRef = useRef<SheetManagerRef>(null)
     const sidebarRef = useRef<ShotlistSidebarRef>(null);
+    const saveIndicatorRef = useRef<HTMLDivElement>(null)
 
     const [shotSelectOptionsCache, setShotSelectOptionsCache] = useState(new Map<number, SelectOption[]>())
     const [sceneSelectOptionsCache, setSceneSelectOptionsCache] = useState(new Map<number, SelectOption[]>())
@@ -95,8 +102,9 @@ export default function Shotlist() {
 
     //this needs to be a ref to avoid captures by the websocket (should probably just have made the whole websocket logic a ref..)
     const refreshShotlistFunction = useRef<() => void>(() => {});
-
     const currentUserRef = useRef<UserDto | null>(null)
+
+    const saveStateMap = useRef<Map<string, SaveState>>(new Map())
 
     const driverObj = driver({
         showProgress: true,
@@ -307,6 +315,36 @@ export default function Shotlist() {
         }
     }
 
+    const handleShotlistError = (error: GenericError) => {
+        if(error.cause)
+            console.error(error.cause)
+
+        notificationContext.notify({
+            type: "error",
+            title: `An error occurred at ${error.locationKey}`,
+            message: error.message,
+        })
+    }
+
+    const setSaveState = (key: string, state: SaveState) => {
+        saveStateMap.current.set(key, state)
+
+        let newFinalState: SaveState = "saved"
+
+        const values = Array.from(saveStateMap.current.values() || [])
+
+        if(values.includes("error")) {
+            newFinalState = "error"
+        }
+        else if(values.includes("saving")) {
+            newFinalState = "saving"
+        }
+
+        if(saveIndicatorRef.current) {
+            saveIndicatorRef.current.setAttribute("data-state", newFinalState)
+        }
+    }
+
     const setFocusedCell= (row: number, column: number) => {
         focusedCell.current = {row, column}
 
@@ -325,6 +363,7 @@ export default function Shotlist() {
         websocketRef.current?.send(JSON.stringify(updateDTO))
     }
 
+    //TODO move this to the service completely or make it a use hook or at least a ref function to avoid captures
     const joinShotlistWebsocket = (currentUserId: string) => {
         if (websocketRef.current) {
             websocketRef.current.onclose = null
@@ -637,10 +676,12 @@ export default function Shotlist() {
         setOptionsDialogOpen(true)
     }
 
+    //used in the socket handler
+    //has to be at the bottom because the functions have to be initialized before being used in the context value
     const shotlistContextFunctionsRef = useRef({
         addShotSelectOption,
         addSceneSelectOption
-    });
+    })
 
     if(!auth.getUser()) return <LoadingPage title={"logging you in..."}/>
 
@@ -676,7 +717,9 @@ export default function Shotlist() {
             sceneSelectOptions: sceneSelectOptionsCache,
             loadSceneSelectOptions: loadSceneSelectOptions,
             addSceneSelectOption: addSceneSelectOption,
-            websocketRef: websocketRef
+            websocketRef: websocketRef,
+            setSaveState: setSaveState,
+            handleError: handleShotlistError
         }}>
             {
                 readOnlyBannerVisible && readOnlyState.isReadOnly == true &&
@@ -756,7 +799,15 @@ export default function Shotlist() {
                         />
                     </Panel>
                 </PanelGroup>
-                <button className="openSidebar" onClick={() => setSidebarOpen(true)}><Menu/></button>
+
+                <div className="floater">
+                    <div className="saveIndicator" data-state="saved" ref={saveIndicatorRef} aria-hidden>
+                        <span className="saving"><LoaderCircle size={18}/></span>
+                        <span className="saved"><Check size={18} strokeWidth={2.5}/></span>
+                        <span className="error">!</span>
+                    </div>
+                    <button className="openSidebar" onClick={() => setSidebarOpen(true)}><Menu/></button>
+                </div>
             </main>
             <ShotlistOptionsDialog
                 isOpen={optionsDialogOpen}

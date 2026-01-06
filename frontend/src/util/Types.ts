@@ -65,3 +65,10 @@ export enum ShotlyErrorCode {
     INVALID_INPUT = "INVALID_INPUT",
     IMPOSSIBLE_INPUT = "IMPOSSIBLE_INPUT"
 }
+
+export interface GenericError{
+    locationKey: string
+    message: string
+    shotlyErrorCode?: ShotlyErrorCode
+    cause?: any
+}

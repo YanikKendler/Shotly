@@ -53,6 +53,8 @@ const RowBase = forwardRef<RowRef, RowProps>(({
     }
 
     async function deleteShot(){
+        shotlistContext.setSaveState("deleteShot", "saving")
+
         const { errors } = await client.mutate({
             mutation: gql`
                 mutation deleteShot($shotId: String!) {
@@ -69,6 +71,7 @@ const RowBase = forwardRef<RowRef, RowProps>(({
         }
         else{
             onDelete(shot.id as string)
+            shotlistContext.setSaveState("deleteShot", "saved")
         }
     }
 

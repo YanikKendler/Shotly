@@ -2,12 +2,12 @@ import Iconmark from "@/components/iconmark"
 import {FileSliders, House, Plus, User } from "lucide-react"
 import Link from "next/link"
 import {Popover, Tooltip } from "radix-ui"
-import {Query, SceneDto, ShotlistDto} from "../../../../lib/graphql/generated"
+import {Query, SceneDto, ShotlistDto} from "../../../../../lib/graphql/generated"
 import gql from "graphql-tag"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {wuGeneral} from "@yanikkendler/web-utils"
 import ErrorDisplay from "@/components/feedback/errorDisplay/errorDisplay"
-import SidebarScene, {SidebarSceneRef} from "@/components/shotlist/shotlistSidebar/sidebarScene/sidebarScene"
+import SidebarScene, {SidebarSceneRef} from "@/components/shotlist/sidebar/sidebarScene/sidebarScene"
 import React, {forwardRef, useContext, useEffect, useImperativeHandle, useRef} from "react"
 import Utils from "@/util/Utils"
 import {useAccountDialog} from "@/components/dialogs/accountDialog/accountDialog"
@@ -16,7 +16,7 @@ import {ShotlistContext} from "@/context/ShotlistContext"
 import "./shotlistSidebar.scss"
 import {SelectedScene} from "@/app/shotlist/[id]/page"
 import {UserMinimalDTO} from "@/service/ShotlistSyncService"
-import {SceneAttributeRef} from "@/components/shotlist/shotlistSidebar/sceneAttribute/sceneAttribute"
+import {SceneAttributeRef} from "@/components/shotlist/sidebar/sceneAttribute/sceneAttribute"
 import {Cell} from "@/components/shotlist/table/cell/cell"
 import Skeleton from "react-loading-skeleton"
 
@@ -354,7 +354,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                             ))
                         }
                         <div ref={creationLoaderRef} style={{display: "none", gap: ".5rem"}} className={"sidebarScene"}>
-                            <p className="number">{sceneCount} New Scene</p>
+                            <p className="number">{sceneCount+1} New Scene</p>
                             <Skeleton height={"1.5rem"}/>
                             <Skeleton height={"1.5rem"}/>
                         </div>
@@ -410,7 +410,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                 </div>
             </div>
             <div className="bottom">
-                <Link className="shotlistTool" href={"/"}><Iconmark/>shotly.at</Link>
+                <Link className="shotlistTool" href={"/public"}><Iconmark/>shotly.at</Link>
             </div>
             <button className="closearea" onClick={() => setSidebarOpen(false)}/>
             {AccountDialog}

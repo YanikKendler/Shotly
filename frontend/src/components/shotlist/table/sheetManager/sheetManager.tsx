@@ -251,55 +251,57 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     const createShot = async (attributePosition: number) => {
         console.log("creating new shot")
 
+        shotlistContext.setSaveState("createShot", "saving")
+
         setCreationLoaderVisibility(true)
         attributePositionToSelect.current = attributePosition
 
-        try{
-            const { data, errors } = await client.mutate({
-                mutation: gql`
-                    mutation createShot($sceneId: String!) {
-                        createShot(sceneId: $sceneId){
+        const { data, errors } = await client.mutate({
+            mutation: gql`
+                mutation createShot($sceneId: String!) {
+                    createShot(sceneId: $sceneId){
+                        id
+                        position
+                        attributes{
                             id
-                            position
-                            attributes{
-                                id
-                                definition{
-                                    id, 
-                                    name, 
-                                    position,
-                                    type
-                                }
+                            definition{
+                                id, 
+                                name, 
+                                position,
                                 type
-    
-                                ... on ShotSingleSelectAttributeDTO{
-                                    singleSelectValue{id,name}
-                                }
-    
-                                ... on ShotMultiSelectAttributeDTO{
-                                    multiSelectValue{id,name}
-                                }
-                                ... on ShotTextAttributeDTO{
-                                    textValue
-                                }
+                            }
+                            type
+
+                            ... on ShotSingleSelectAttributeDTO{
+                                singleSelectValue{id,name}
+                            }
+
+                            ... on ShotMultiSelectAttributeDTO{
+                                multiSelectValue{id,name}
+                            }
+                            ... on ShotTextAttributeDTO{
+                                textValue
                             }
                         }
                     }
-                `,
-                variables: { sceneId: selectedScene.id },
+                }
+            `,
+            variables: { sceneId: selectedScene.id },
+        })
+
+        if (errors) {
+            shotlistContext.setSaveState("createShot", "error")
+            shotlistContext.handleError({
+                locationKey: "createShot",
+                message: "Failed to create shot",
+                cause: errors
             })
-
-            if (errors) {
-                //TODO notify user
-                console.error(errors);
-                return;
-            }
-
-            onCreateShot(data.createShot)
-
+            return;
         }
-        catch (e) {
-            //TODO notify user
-        }
+
+        onCreateShot(data.createShot)
+
+        shotlistContext.setSaveState("createShot", "saved")
 
         setCreationLoaderVisibility(false)
     }
