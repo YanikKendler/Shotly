@@ -20,13 +20,14 @@
   border-top-left-radius: 1rem;
   padding: 1.5rem;
   padding-bottom: 5rem;
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
   position: relative;
 
-  &::-webkit-scrollbar {
-    display: none; /*Chrome, Safari and Opera */
-  }
+  /*-ms-overflow-style: none;  !* IE and Edge *!
+  scrollbar-width: none;  !* Firefox *!*/
+
+  /*&::-webkit-scrollbar {
+    display: none; !*Chrome, Safari and Opera *!
+  }*/
 
   @media screen and (max-width: 600px){
     padding: .5rem;

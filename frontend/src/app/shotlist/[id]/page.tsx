@@ -322,7 +322,7 @@ export default function Shotlist() {
 
         notificationContext.notify({
             type: "error",
-            title: `An error occurred at ${error.locationKey}`,
+            title: `Oh no, an error occurred at ${error.locationKey}.`,
             message: error.message,
         })
     }
@@ -686,7 +686,8 @@ export default function Shotlist() {
         addSceneSelectOption
     })
 
-    if(!auth.getUser()) return <LoadingPage title={"logging you in..."}/>
+    if(!auth.getUser())
+        return <LoadingPage title={Config.loadingMessage.authGetUser}/>
 
     if(query.errors && query.errors.length > 0) {
         switch (query.errors[0]?.extensions?.code as ShotlyErrorCode) {

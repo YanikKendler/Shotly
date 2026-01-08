@@ -6,13 +6,16 @@ import { useRouter } from 'next/navigation'
 import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 import Auth from "@/Auth"
 
+/**
+ * User is sent here after a login on the auth0 hosted login.shotly.at page
+ * @constructor
+ */
 export default function CallbackPage() {
     const router = useRouter()
 
     useEffect(() => {
         auth.handleAuthentication()
             .then((targetUrl) => {
-                console.log("redirecting to dashboard")
                 router.push(targetUrl)
             })
             .catch((error) => {
@@ -22,6 +25,6 @@ export default function CallbackPage() {
     }, []);
 
     return (
-        <LoadingPage title={"logging you in"}/>
+        <LoadingPage title={"Logging you in..."}/>
     )
 }

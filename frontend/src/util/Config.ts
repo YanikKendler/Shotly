@@ -38,4 +38,8 @@ export default class Config {
         templateTourCompleted: "shotly-template-tour-completed",
         isLoggedIn: "shotly-is-logged-in"
     }
+
+    static readonly loadingMessage = {
+        authGetUser: "Logging you in...",
+    }
 }

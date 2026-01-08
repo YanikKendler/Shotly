@@ -95,7 +95,7 @@
       &::before{
         content: '';
         border-radius: .3rem;
-        height: 80%;
+        height: 32px;
         width: 80%;
         background-color: var(--contrast);
         grid-area: 1/1/2/2;
@@ -169,6 +169,8 @@
 
   .readOnlyValue{
     padding: .2rem;
+    min-width: 0;
+    word-wrap: break-word;
 
     &.empty{
       font-style: italic;

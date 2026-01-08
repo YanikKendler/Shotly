@@ -22,6 +22,7 @@ import Skeleton from "react-loading-skeleton"
 import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 import { DashboardContext } from "@/context/DashboardContext"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
+import Config from "@/util/Config"
 
 export default function DashboardLayout({children}: { children: React.ReactNode }) {
     const client = useApolloClient()
@@ -197,9 +198,8 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         noLink
     />
 
-    if(!auth.getUser()) return (
-        <LoadingPage title={"logging you in..."}/>
-    )
+    if(!auth.getUser())
+        return <LoadingPage title={Config.loadingMessage.authGetUser}/>
 
     return (
         <DashboardContext.Provider value={{

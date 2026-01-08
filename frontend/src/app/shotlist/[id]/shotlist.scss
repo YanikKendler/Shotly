@@ -5,6 +5,7 @@ main.shotlist{
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow: hidden;
 
   .content{
     display: flex;
@@ -97,6 +98,7 @@ main.shotlist{
       transition: max-width 300ms ease-in, border 200ms;
       max-width: 10ch;
       overflow: hidden;
+      user-select: none;
 
       /*There is an unused setup here that would allow changing the width of the indicator to display text*/
 

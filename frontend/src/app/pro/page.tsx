@@ -14,6 +14,7 @@ import Link from "next/link"
 import {Query, UserDto, UserTier} from "../../../lib/graphql/generated"
 import {Separator} from "radix-ui";
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
+import Config from "@/util/Config"
 
 export default function Pro(){
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -69,10 +70,16 @@ export default function Pro(){
         setCurrentUser(result.data.currentUser)
     }
 
-    if(isLoading) return <LoadingPage title={"loading account data"}/>
+    if(isLoading) return <LoadingPage title={Config.loadingMessage.authGetUser}/>
 
-    //TODO
-    if(!currentUser || !currentUser.id || !currentUser.tier) return <ErrorPage title={"User not loaded"} description={""}/>
+    if(!currentUser || !currentUser.id || !currentUser.tier) return (
+        <ErrorPage
+            title={"User could not be loaded"}
+            description={"Please try again later."}
+            reload
+            noLink
+        />
+    )
 
     //TODO multiple messages based on user tier
     if(currentUser.tier)
