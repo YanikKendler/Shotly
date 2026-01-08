@@ -1,0 +1,46 @@
+:root  > * {
+  --md-primary-fg-color:        hsl(18, 100%, 47%);
+  --md-primary-fg-color--light: hsl(18, 100%, 60%);
+  --md-primary-fg-color--dark:  hsl(18, 95%, 30%);
+  --md-primary-fg-color--transparent: hsla(18, 100%, 60%, 20%);
+}
+
+.md-content .admonition {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* Base brand-style admonition */
+.md-content .admonition,
+.md-content details {
+  border: none;
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  background-color: var(--md-primary-fg-color--transparent);
+  font-size: .75rem;
+}
+
+/* Remove the icon completely */
+.md-content .admonition-title::before {
+  display: none;
+}
+
+/* Title styling */
+.md-content .admonition-title.admonition-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  padding: 0;
+  background-color: transparent;
+  margin-left: 0;
+}
+
+/* Body text */
+.md-content .admonition p {
+  margin: 0;
+}
+
+/* Ensure no left bar */
+.md-content .admonition::before {
+  display: none;
+}
