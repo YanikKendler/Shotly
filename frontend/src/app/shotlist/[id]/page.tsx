@@ -237,87 +237,88 @@ export default function Shotlist() {
     }, [shotSelectOptionsCache, sceneSelectOptionsCache]);
 
     const loadData = async (noCache: boolean = false) => {
-        try {
-            const result = await client.query({
-                query: gql`
-                    query shotlist($id: String!){
-                        shotlist(id: $id){
+        const result = await client.query({
+            query: gql`
+                query shotlist($id: String!){
+                    shotlist(id: $id){
+                        id
+                        name
+                        scenes{
+                            id
+                            position
+                            attributes{
+                                id
+                                definition{
+                                    id,
+                                    name,
+                                    position,
+                                    type
+                                }
+                                type
+
+                                ... on SceneSingleSelectAttributeDTO{
+                                    singleSelectValue{id,name}
+                                }
+
+                                ... on SceneMultiSelectAttributeDTO{
+                                    multiSelectValue{id,name}
+                                }
+                                ... on SceneTextAttributeDTO{
+                                    textValue
+                                }
+                            }
+                        }
+                        sceneAttributeDefinitions{
                             id
                             name
-                            scenes{
-                                id
-                                position
-                                attributes{
-                                    id
-                                    definition{
-                                        id,
-                                        name,
-                                        position,
-                                        type
-                                    }
-                                    type
-
-                                    ... on SceneSingleSelectAttributeDTO{
-                                        singleSelectValue{id,name}
-                                    }
-
-                                    ... on SceneMultiSelectAttributeDTO{
-                                        multiSelectValue{id,name}
-                                    }
-                                    ... on SceneTextAttributeDTO{
-                                        textValue
-                                    }
-                                }
-                            }
-                            sceneAttributeDefinitions{
-                                id
-                                name
-                                position
-                                type
-                            }
-                            shotAttributeDefinitions{
-                                id
-                                name
-                                position
-                                type
-                            }
-                            owner {
-                                id
-                                tier
-                                shotlistCount
-                            }
-                            collaborations {
-                                user {
-                                    id
-                                }
-                                collaborationType
-                            }
+                            position
+                            type
                         }
-                        currentUser {
+                        shotAttributeDefinitions{
                             id
+                            name
+                            position
+                            type
                         }
-                    }`,
-                variables: {id: id},
-                fetchPolicy: noCache ? "no-cache" : "cache-first",
+                        owner {
+                            id
+                            tier
+                            shotlistCount
+                        }
+                        collaborations {
+                            user {
+                                id
+                            }
+                            collaborationType
+                        }
+                    }
+                    currentUser {
+                        id
+                    }
+                }`,
+            variables: {id: id},
+            fetchPolicy: noCache ? "no-cache" : "cache-first",
+        })
+
+        if(result.errors) {
+            handleShotlistError({
+                locationKey: "createShotMultiSelectOption",
+                message: "Failed to load Shotlist.",
+                cause: result.errors
             })
-
-            setSceneCount(result.data.shotlist?.scenes?.length || 0)
-
-            setQuery(result)
-
-            console.log(result)
-
-            return result
+            setSaveState("createShotMultiSelectOption", "error")
+            return
         }
-        catch (e){
-            console.log("error was caught", e)
-            setQuery({...query, errors: [e as ApolloError]})
-        }
+
+        setSceneCount(result.data.shotlist?.scenes?.length || 0)
+
+        setQuery(result)
+
+        return result
     }
 
     const handleShotlistError = (error: GenericError) => {
-        if(error.cause)
-            console.error(error.cause)
+        console.error(error)
 
         notificationContext.notify({
             type: "error",
@@ -328,6 +329,8 @@ export default function Shotlist() {
 
     const setSaveState = (key: string, state: SaveState) => {
         saveStateMap.current.set(key, state)
+
+        console.log(`new save state map, after updating: ${key}`, saveStateMap.current)
 
         let newFinalState: SaveState = "saved"
 

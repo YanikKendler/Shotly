@@ -32,6 +32,7 @@ export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBas
     menu: (baseStyles) => ({
         ...baseStyles,
         marginTop: 0,
+        zIndex: 20
     }),
     singleValue: (baseStyles) => ({
         ...baseStyles,
@@ -289,9 +290,6 @@ function AttributeValueSelect({
                         e.preventDefault()                    }
                 }
             }}
-/*
-            menuIsOpen={true}
-*/
         />
     );
 }

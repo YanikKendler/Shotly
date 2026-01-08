@@ -1,6 +1,6 @@
 import {forwardRef, memo, ReactNode, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
 import "./cell.scss"
-import {AnyShotAttribute, SelectOption, ShotAttributeValueMultiType} from "@/util/Types"
+import {AnyShotAttribute, SelectOption, ShotAttributeValueCollection, ShotAttributeValueMultiType} from "@/util/Types"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import CellTextInput from "../input/cellTextInput/cellTextInput"
 import CellSingleSelectInput from "../input/cellSingleSelectInput/cellSingleSelectInput"
@@ -12,6 +12,10 @@ import {
     ShotSingleSelectAttributeDto,
     ShotTextAttributeDto
 } from "../../../../../lib/graphql/generated"
+import {apolloClient} from "@/components/wrapper/ApolloWrapper"
+import gql from "graphql-tag"
+import {useApolloClient} from "@apollo/client"
+import {wuGeneral} from "@yanikkendler/web-utils"
 
 export interface CellInputRef {
     setFocus: () => void
@@ -57,6 +61,7 @@ const CellBase = forwardRef<CellRef, CellProps>(({
     const inputRef = useRef<CellInputRef>(null)
     const internalRef = useRef<HTMLDivElement>(null)
     const shotlistContext = useContext(ShotlistContext)
+    const client = useApolloClient()
 
     const [readOnlyValue, setReadOnlyValue] = useState<string>("")
 
@@ -90,16 +95,49 @@ const CellBase = forwardRef<CellRef, CellProps>(({
         }
     }))
 
+    const updateAttribute = async (attributeId: number, value: ShotAttributeValueCollection) => {
+        shotlistContext.setSaveState("updateShotAttribute", "saving")
+
+        const {data, errors} = await client.mutate({
+            mutation: gql`
+                mutation updateShotAttribute($id: BigInteger!, $textValue: String, $singleSelectValue: BigInteger, $multiSelectValue: [BigInteger]) {
+                    updateShotAttribute(editDTO:{
+                        id: $id
+                        textValue: $textValue
+                        singleSelectValue: $singleSelectValue
+                        multiSelectValue: $multiSelectValue
+                    }){
+                        id
+                    }
+                }
+            `,
+            variables: {id: attributeId, ...value},
+        })
+        if (errors) {
+            shotlistContext.handleError({
+                locationKey: "updateShotAttribute",
+                message: "Failed to update shot attribute.",
+                cause: errors
+            })
+            shotlistContext.setSaveState("updateShotAttribute", "error")
+            return
+        }
+
+        shotlistContext.setSaveState("updateShotAttribute", "saved")
+    }
+
+    const debouncedUpdateAttribute = wuGeneral.debounce(updateAttribute)
+
     const renderInput = () => {
         if(!attribute) return
 
         switch (attribute.type) {
             case "ShotTextAttributeDTO":
-                return <CellTextInput attribute={attribute as ShotTextAttributeDto} ref={inputRef} />
+                return <CellTextInput attribute={attribute as ShotTextAttributeDto} updateAttribute={debouncedUpdateAttribute} ref={inputRef} />
             case "ShotSingleSelectAttributeDTO":
-                return <CellSingleSelectInput attribute={attribute as ShotSingleSelectAttributeDto} ref={inputRef} />
+                return <CellSingleSelectInput attribute={attribute as ShotSingleSelectAttributeDto} updateAttribute={updateAttribute} ref={inputRef} />
             case "ShotMultiSelectAttributeDTO":
-                return <CellMultiSelectInput attribute={attribute as ShotMultiSelectAttributeDto} ref={inputRef} />
+                return <CellMultiSelectInput attribute={attribute as ShotMultiSelectAttributeDto} updateAttribute={updateAttribute} ref={inputRef} />
             default:
                 return <p>unknown attribute - please report this as a bug</p>
         }

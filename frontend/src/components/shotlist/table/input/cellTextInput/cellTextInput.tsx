@@ -2,11 +2,12 @@ import {wuConstants, wuGeneral} from "@yanikkendler/web-utils"
 import {Type} from "lucide-react"
 import React, {forwardRef, useEffect, useImperativeHandle, useMemo, useRef} from "react"
 import {ShotTextAttributeDto} from "../../../../../../lib/graphql/generated"
-import ShotService from "@/service/ShotService"
 import {CellInputRef} from "@/components/shotlist/table/cell/cell"
+import {ShotAttributeValueCollection} from "@/util/Types"
 
 interface CellTextInputProps {
     attribute: ShotTextAttributeDto
+    updateAttribute: (attributeId: number, value: ShotAttributeValueCollection) => void
 }
 
 /**
@@ -16,7 +17,8 @@ interface CellTextInputProps {
  */
 const CellTextInput = forwardRef<CellInputRef, CellTextInputProps>(
 ({
-    attribute
+    attribute,
+    updateAttribute
 }, ref) =>{
     const [textValue, setTextValue]  = React.useState<string>("")
     const inputRef = useRef<HTMLInputElement>(null)
@@ -84,7 +86,7 @@ const CellTextInput = forwardRef<CellInputRef, CellTextInputProps>(
         }
 
         setTextValue(cleaned)
-        ShotService.debouncedUpdateAttribute(attribute.id, { textValue: cleaned })
+        updateAttribute(attribute.id, { textValue: cleaned })
     }
 
     //AI generated

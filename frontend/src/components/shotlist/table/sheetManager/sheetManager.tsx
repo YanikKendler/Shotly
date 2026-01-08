@@ -10,7 +10,7 @@ import React, {
 } from "react"
 import gql from "graphql-tag"
 import {ShotlistContext} from "@/context/ShotlistContext";
-import {ApolloError, ApolloQueryResult, useApolloClient} from "@apollo/client"
+import { ApolloQueryResult, useApolloClient} from "@apollo/client"
 import ErrorDisplay from "@/components/feedback/errorDisplay/errorDisplay"
 import "./sheetManager.scss"
 import {Query, ShotAttributeDefinitionBase, ShotDto} from "../../../../../lib/graphql/generated"
@@ -20,7 +20,6 @@ import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys" /*package has 
 import {wuText} from "@yanikkendler/web-utils"
 import {ShotAttributeDefinitionParser} from "@/util/AttributeParser"
 import Skeleton from "react-loading-skeleton"
-import ShotService from "@/service/ShotService"
 import Sortable from 'sortablejs';
 import {Cell, CellRef} from "@/components/shotlist/table/cell/cell"
 import {Row, RowRef} from "../row/row";
@@ -200,57 +199,55 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     }
 
     const loadShots = async () => {
-        try{
-            const result = await client.query({
-                query : gql`
-                    query shots($sceneId: String!){
-                        shots(sceneId: $sceneId){
+        const result = await client.query({
+            query : gql`
+                query shots($sceneId: String!){
+                    shots(sceneId: $sceneId){
+                        id
+                        position
+                        attributes{
                             id
-                            position
-                            attributes{
-                                id
-                                definition{
-                                    id, 
-                                    name, 
-                                    position
-                                    type
-                                }
+                            definition{
+                                id, 
+                                name, 
+                                position
                                 type
-    
-                                ... on ShotSingleSelectAttributeDTO{
-                                    singleSelectValue{id,name}
-                                }
-    
-                                ... on ShotMultiSelectAttributeDTO{
-                                    multiSelectValue{id,name}
-                                }
-                                ... on ShotTextAttributeDTO{
-                                    textValue
-                                }
                             }
-                            sceneId
+                            type
+
+                            ... on ShotSingleSelectAttributeDTO{
+                                singleSelectValue{id,name}
+                            }
+
+                            ... on ShotMultiSelectAttributeDTO{
+                                multiSelectValue{id,name}
+                            }
+                            ... on ShotTextAttributeDTO{
+                                textValue
+                            }
                         }
+                        sceneId
                     }
-                `,
-                variables: { sceneId: selectedScene.id },
-                fetchPolicy: "no-cache"
+                }
+            `,
+            variables: { sceneId: selectedScene.id },
+            fetchPolicy: "no-cache"
+        })
+
+        if(result.errors){
+            shotlistContext.handleError({
+                locationKey: "loadShots",
+                message: "Failed to load shots",
+                cause: result.errors
             })
-
-            shotlistContext.setShotCount(result.data?.shots?.length || 0)
-
-            setQuery(result)
-
-            console.log("shots loaded", result)
         }
-        catch (e) {
-            console.log("shot load error", e)
-            setQuery({...query, errors: [e as ApolloError]})
-        }
+
+        shotlistContext.setShotCount(result.data?.shots?.length || 0)
+
+        setQuery(result)
     }
 
     const createShot = async (attributePosition: number) => {
-        console.log("creating new shot")
-
         shotlistContext.setSaveState("createShot", "saving")
 
         setCreationLoaderVisibility(true)
@@ -290,20 +287,20 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         })
 
         if (errors) {
-            shotlistContext.setSaveState("createShot", "error")
             shotlistContext.handleError({
                 locationKey: "createShot",
                 message: "Failed to create shot",
                 cause: errors
             })
-            return;
+            shotlistContext.setSaveState("createShot", "error")
+            return
         }
 
         onCreateShot(data.createShot)
 
-        shotlistContext.setSaveState("createShot", "saved")
-
         setCreationLoaderVisibility(false)
+
+        shotlistContext.setSaveState("createShot", "saved")
     }
 
     const onCreateShot = useCallback((newShot: ShotDto) => {
@@ -338,8 +335,32 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     }, [query])
 
     const moveShot = useCallback((shotId: string, to: number) => {
-        ShotService.updateShot(shotId, to).then(response => {
-            if(response.errors) console.error(response.errors) //TODO notify
+        shotlistContext.setSaveState("moveShot", "saving")
+
+        client.mutate({
+            mutation : gql`
+            mutation updateShot($id: String!, $position: Int!) {
+                updateShot(editDTO:{
+                    id: $id,
+                    position: $position
+                }){
+                    id
+                    position
+                }
+            }
+        `,
+            variables: {id: shotId, position: to},
+        }).then(({errors}) => {
+            if(errors) {
+                shotlistContext.handleError({
+                    locationKey: "moveShot",
+                    message: "Failed to move shot.",
+                    cause: errors
+                })
+                shotlistContext.setSaveState("moveShot", "error")
+                return
+            }
+            shotlistContext.setSaveState("moveShot", "saved")
         })
 
         onMoveShot(shotId, to)

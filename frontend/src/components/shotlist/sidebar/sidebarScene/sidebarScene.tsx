@@ -109,7 +109,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
         onDelete(scene.id as string)
         onSelect(null, null)
 
-        shotlistContext.setSaveState("deleteScene", "saving")
+        shotlistContext.setSaveState("deleteScene", "saved")
     }
 
     if(!scene || !scene.id) return (<ErrorDisplay title={"Scene not found"} scale={0.5} noMargin/>)

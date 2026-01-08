@@ -1,8 +1,7 @@
 import React, {forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
-import {SelectOption} from "@/util/Types"
+import {SelectOption, ShotAttributeValueCollection} from "@/util/Types"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import {ShotMultiSelectAttributeDto} from "../../../../../../lib/graphql/generated"
-import ShotService from "@/service/ShotService"
 import AttributeValueSelect, {
     AttributeValueSelectRef,
     selectShotStyles
@@ -15,11 +14,13 @@ import {CellInputRef} from "@/components/shotlist/table/cell/cell"
 
 interface CellMultiSelectInputProps {
     attribute: ShotMultiSelectAttributeDto
+    updateAttribute: (attributeId: number, value: ShotAttributeValueCollection) => void
 }
 
 const CellMultiSelectInput = forwardRef<CellInputRef, CellMultiSelectInputProps>(
 ({
-     attribute
+    attribute,
+    updateAttribute
  }, ref) =>{
     const [multiSelectValue, setMultiSelectValue] = useState<SelectOption[]>();
 
@@ -55,12 +56,13 @@ const CellMultiSelectInput = forwardRef<CellInputRef, CellMultiSelectInputProps>
 
     const updateMultiSelectValue = (value: SelectOption[] | null) => {
         setMultiSelectValue(value || [])
-        console.log(value)
-        ShotService.updateAttribute(attribute.id, {multiSelectValue: value?.map((option) => Number(option.value))})
+        updateAttribute(attribute.id, {multiSelectValue: value?.map((option) => Number(option.value))})
     }
 
     const createOption = async (inputValue: string) => {
-        const { data } = await client.mutate({
+        shotlistContext.setSaveState("createShotMultiSelectOption", "saving")
+
+        const { errors, data } = await client.mutate({
             mutation: gql`
                 mutation createShotOption($definitionId: BigInteger!, $name: String!) {
                     createShotSelectAttributeOption(createDTO:{
@@ -75,6 +77,16 @@ const CellMultiSelectInput = forwardRef<CellInputRef, CellMultiSelectInputProps>
             variables: { definitionId: attribute.definition?.id, name: inputValue },
         })
 
+        if(errors) {
+            shotlistContext.handleError({
+                locationKey: "createShotMultiSelectOption",
+                message: "Failed to create shot multi select attribute option.",
+                cause: errors
+            })
+            shotlistContext.setSaveState("createShotMultiSelectOption", "error")
+            return
+        }
+
         const newOption = {
             label: data.createShotSelectAttributeOption.name,
             value: data.createShotSelectAttributeOption.id
@@ -85,6 +97,8 @@ const CellMultiSelectInput = forwardRef<CellInputRef, CellMultiSelectInputProps>
         ])
 
         shotlistContext.addShotSelectOption(attribute.definition?.id, newOption)
+
+        shotlistContext.setSaveState("createShotMultiSelectOption", "saved")
     }
 
     return <div className="cellInput">

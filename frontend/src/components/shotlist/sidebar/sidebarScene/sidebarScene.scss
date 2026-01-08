@@ -90,7 +90,8 @@
       opacity: 0;
       transition: opacity .2s;
       cursor: pointer;
-      padding: 0;
+      padding: .2rem .1rem;
+      margin: -.2rem -.1rem;
 
       &:hover{
         color: var(--text-20);

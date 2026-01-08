@@ -1,8 +1,7 @@
 import React, {forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
-import {SelectOption} from "@/util/Types"
+import {SelectOption, ShotAttributeValueCollection} from "@/util/Types"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import {ShotSingleSelectAttributeDto} from "../../../../../../lib/graphql/generated"
-import ShotService from "@/service/ShotService"
 import AttributeValueSelect, {
     AttributeValueSelectRef,
     selectShotStyles
@@ -14,11 +13,13 @@ import {CellInputRef} from "@/components/shotlist/table/cell/cell"
 
 interface CellSingleSelectInputProps {
     attribute: ShotSingleSelectAttributeDto
+    updateAttribute: (attributeId: number, value: ShotAttributeValueCollection) => void
 }
 
 const CellSingleSelectInput = forwardRef<CellInputRef, CellSingleSelectInputProps>(
 ({
-     attribute
+    attribute,
+    updateAttribute
  }, ref) => {
     const [singleSelectValue, setSingleSelectValue] = useState<SelectOption>();
 
@@ -49,11 +50,13 @@ const CellSingleSelectInput = forwardRef<CellInputRef, CellSingleSelectInputProp
 
     const updateSingleSelectValue = (value: SelectOption | null) => {
         setSingleSelectValue(value || undefined)
-        ShotService.updateAttribute(attribute.id, {singleSelectValue: Number(value?.value)})
+        updateAttribute(attribute.id, {singleSelectValue: Number(value?.value)})
     }
 
     const createOption = async (inputValue: string) => {
-        const { data } = await client.mutate({
+        shotlistContext.setSaveState("createShotSingleSelectOption", "saving")
+
+        const { data, errors } = await client.mutate({
             mutation: gql`
                 mutation createShotOption($definitionId: BigInteger!, $name: String!) {
                     createShotSelectAttributeOption(createDTO:{
@@ -68,6 +71,16 @@ const CellSingleSelectInput = forwardRef<CellInputRef, CellSingleSelectInputProp
             variables: { definitionId: attribute.definition?.id, name: inputValue },
         })
 
+        if(errors) {
+            shotlistContext.handleError({
+                locationKey: "createShotSingleSelectOption",
+                message: "Failed to create shot single select attribute option.",
+                cause: errors
+            })
+            shotlistContext.setSaveState("createShotSingleSelectOption", "error")
+            return
+        }
+
         const newOption = {
             label: data.createShotSelectAttributeOption.name,
             value: data.createShotSelectAttributeOption.id
@@ -76,6 +89,8 @@ const CellSingleSelectInput = forwardRef<CellInputRef, CellSingleSelectInputProp
         updateSingleSelectValue(newOption)
 
         shotlistContext.addShotSelectOption(attribute.definition?.id, newOption)
+
+        shotlistContext.setSaveState("createShotSingleSelectOption", "saved")
     }
 
     return(

@@ -67,12 +67,17 @@ const RowBase = forwardRef<RowRef, RowProps>(({
         });
 
         if(errors) {
-            console.error(errors)
+            shotlistContext.handleError({
+                locationKey: "deleteShot",
+                message: "Failed to delete shot.",
+                cause: errors
+            })
+            shotlistContext.setSaveState("deleteShot", "error")
+            return
         }
-        else{
-            onDelete(shot.id as string)
-            shotlistContext.setSaveState("deleteShot", "saved")
-        }
+
+        onDelete(shot.id as string)
+        shotlistContext.setSaveState("deleteShot", "saved")
     }
 
     return (

@@ -208,6 +208,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                 shotlistContext.setSaveState("moveScene", "error")
                 return
             }
+            shotlistContext.setSaveState("moveScene", "saved")
         })
 
 
@@ -218,8 +219,6 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
         // its avoided if scene nums are turned off
         if(Utils.getUserSettingsFromLocalStorage().displaySceneNumbersNextToShotNumbers)
             selectScene(sceneId, to)
-
-        shotlistContext.setSaveState("moveScene", "saved")
     }
 
     const onMoveScene = (sceneId: string, to: number) => {
