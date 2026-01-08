@@ -17,7 +17,6 @@ import "./shotlistSidebar.scss"
 import {SelectedScene} from "@/app/shotlist/[id]/page"
 import {UserMinimalDTO} from "@/service/ShotlistSyncService"
 import {SceneAttributeRef} from "@/components/shotlist/sidebar/sceneAttribute/sceneAttribute"
-import {Cell} from "@/components/shotlist/table/cell/cell"
 import Skeleton from "react-loading-skeleton"
 
 export interface ShotlistSidebarRef {
@@ -129,13 +128,15 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
         }
     }, [query]);
 
-    const setCreationLoaderVisibility = (visible:boolean) => {
+    const setCreationLoaderVisibility = (visible: boolean) => {
         if(!creationLoaderRef.current) return
 
         creationLoaderRef.current.style.display = visible ? "flex" : "none"
     }
 
     const updateShotlistName = async (name: string) => {
+        shotlistContext.setSaveState("updateShotlistName", "saving")
+
         const { data, errors } = await client.mutate({
             mutation: gql`
                 mutation updateShotlist($shotlistId: String!, $name: String!) {
@@ -152,8 +153,13 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
         });
 
         if (errors) {
-            console.error(errors);
-            return;
+            shotlistContext.handleError({
+                locationKey: "updateShotlistName",
+                message: "Failed to update shotlist name",
+                cause: errors
+            })
+            shotlistContext.setSaveState("updateShotlistName", "error")
+            return
         }
 
         const newShotlist: ShotlistDto = {
@@ -168,12 +174,16 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                 shotlist: newShotlist
             }
         })
+
+        shotlistContext.setSaveState("updateShotlistName", "saved")
     }
 
     const debounceUpdateShotlistName = wuGeneral.debounce(updateShotlistName)
 
     const moveScene = (sceneId: string, to: number) => {
         if(!query.data.shotlist || !query.data.shotlist.scenes) return
+
+        shotlistContext.setSaveState("moveScene", "saving")
 
         client.mutate({
             mutation: gql`
@@ -188,7 +198,18 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                 }
             `,
             variables: {id: sceneId, position: to},
+        }).then(({errors}) => {
+            if(errors){
+                shotlistContext.handleError({
+                    locationKey: "moveScene",
+                    message: "Failed to move scene",
+                    cause: errors
+                })
+                shotlistContext.setSaveState("moveScene", "error")
+                return
+            }
         })
+
 
         onMoveScene(sceneId, to)
 
@@ -197,6 +218,8 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
         // its avoided if scene nums are turned off
         if(Utils.getUserSettingsFromLocalStorage().displaySceneNumbersNextToShotNumbers)
             selectScene(sceneId, to)
+
+        shotlistContext.setSaveState("moveScene", "saved")
     }
 
     const onMoveScene = (sceneId: string, to: number) => {
@@ -237,50 +260,53 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
 
     const createScene = async () => {
         setCreationLoaderVisibility(true)
+        shotlistContext.setSaveState("createScene", "saving")
 
-        try {
-            const {data, errors} = await client.mutate({
-                mutation: gql`
-                    mutation createScene($shotlistId: String!) {
-                        createScene(shotlistId: $shotlistId){
+        const {data, errors} = await client.mutate({
+            mutation: gql`
+                mutation createScene($shotlistId: String!) {
+                    createScene(shotlistId: $shotlistId){
+                        id
+                        position
+                        attributes{
                             id
-                            position
-                            attributes{
-                                id
-                                definition{id, name, position}
-                                type
+                            definition{id, name, position}
+                            type
 
-                                ... on SceneSingleSelectAttributeDTO{
-                                    singleSelectValue{id,name}
-                                }
+                            ... on SceneSingleSelectAttributeDTO{
+                                singleSelectValue{id,name}
+                            }
 
-                                ... on SceneMultiSelectAttributeDTO{
-                                    multiSelectValue{id,name}
-                                }
-                                ... on SceneTextAttributeDTO{
-                                    textValue
-                                }
+                            ... on SceneMultiSelectAttributeDTO{
+                                multiSelectValue{id,name}
+                            }
+                            ... on SceneTextAttributeDTO{
+                                textValue
                             }
                         }
                     }
-                `,
-                variables: {shotlistId: query.data.shotlist?.id},
-            });
+                }
+            `,
+            variables: {shotlistId: query.data.shotlist?.id},
+        });
 
-            if (errors) {
-                console.error(errors);
-                return;
-            }
-
-            onCreateScene(data.createScene)
-
-            selectScene(data.createScene.id || null, query.data.shotlist?.scenes?.length ?? null)
+        if (errors) {
+            shotlistContext.handleError({
+                locationKey: "createScene",
+                message: "Failed to create scene",
+                cause: errors
+            })
+            shotlistContext.setSaveState("createScene", "error")
+            return;
         }
-        catch (e){
-            //TODO: show error to user
-        }
+
+        onCreateScene(data.createScene)
+
+        selectScene(data.createScene.id || null, query.data.shotlist?.scenes?.length ?? null)
 
         setCreationLoaderVisibility(false)
+
+        shotlistContext.setSaveState("createScene", "saved")
     }
 
     const onCreateScene = (scene: SceneDto) => {

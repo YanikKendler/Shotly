@@ -258,7 +258,7 @@ export default function Landing() {
                             </div>
                             <Separator.Root className={"Separator"}/>
                             <ul className="features">
-                                <li className={"bold"}><Check size={20} strokeWidth={3}/>unlimited shotlist</li>
+                                <li className={"bold"}><Check size={20} strokeWidth={3}/>unlimited shotlists</li>
                                 <li className={"bold"}><Check size={20} strokeWidth={3}/>unlimited collaborators</li>
                                 <li className={"thin"}><Check size={20} strokeWidth={3}/>unlimited scenes</li>
                                 <li className={"thin"}><Check size={20} strokeWidth={3}/>unlimited shots</li>
@@ -272,11 +272,23 @@ export default function Landing() {
                 <footer>
                     <div className={"credits"}>
                         <Wordmark/>
-                        <p className={"createdBy"}>created with ♥ by <Link href={"https://yanik.kendler.me"}
-                                                                           target={"_blank"} className={"noPadding"}>Yanik
-                            Kendler</Link></p>
-                        <Link className={"noPadding"} href={"https://github.com/YanikKendler/shotly"}
-                              target={"_blank"}>github.com/YanikKendler/shotly</Link>
+                        <p className={"createdBy"}>
+                            {"created with ♥ by "}
+                            <Link
+                                href={"https://yanik.kendler.me"}
+                                target={"_blank"}
+                                className={"noPadding"}
+                            >
+                                Yanik Kendler
+                            </Link>
+                        </p>
+                        <Link
+                            className={"noPadding"}
+                            href={"https://github.com/YanikKendler/shotly"}
+                            target={"_blank"}
+                        >
+                            github.com/YanikKendler/shotly
+                        </Link>
                         <p className={"copyright"}>© 2025 Yanik Kendler. Open source under the MIT License.</p>
                     </div>
                     <div>

@@ -161,30 +161,10 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
         }
     }
 
-    const loadOptions = async (inputValue: string) => {
-        const { data } = await client.query({
-            query: gql`
-                query searchSceneSelectAttributeOptions($definitionId: BigInteger!, $searchTerm: String!) {
-                    searchSceneSelectAttributeOptions(
-                        searchDTO: { sceneAttributeDefinitionId: $definitionId, searchTerm: $searchTerm }
-                    ) {
-                        id
-                        name
-                    }
-                }
-            `,
-            variables: { definitionId: attribute.definition?.id, searchTerm: inputValue},
-            fetchPolicy: 'no-cache'
-        });
-
-        return data.searchSceneSelectAttributeOptions.map((option: any): SelectOption => ({
-            value: option.id,
-            label: option.name,
-        }));
-    }
-
     const createOption = async (inputValue: string) => {
-        const {data} = await client.mutate({
+        shotlistContext.setSaveState("createSceneAttributeOption", "saving")
+
+        const {data, errors} = await client.mutate({
             mutation: gql`
                 mutation createSceneOption($definitionId: BigInteger!, $name: String!) {
                     createSceneSelectAttributeOption(createDTO:{
@@ -199,6 +179,16 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
             variables: {definitionId: attribute.definition?.id, name: inputValue},
         });
 
+        if(errors){
+            shotlistContext.handleError({
+                locationKey: "createSceneAttributeOption",
+                message: "Failed to create scene attribute option",
+                cause: errors
+            })
+            shotlistContext.setSaveState("createSceneAttributeOption", "error")
+            return
+        }
+
         const newOption = {
             label: data.createSceneSelectAttributeOption.name,
             value: data.createSceneSelectAttributeOption.id
@@ -212,8 +202,9 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
                 newOption
             ])
 
-
         shotlistContext.addSceneSelectOption(attribute.definition?.id, newOption)
+
+        shotlistContext.setSaveState("createSceneAttributeOption", "saved")
     }
 
     //AI
@@ -263,6 +254,8 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
     }
 
     const updateAttributeValue = async (value: SceneAttributeValueCollection) => {
+        shotlistContext.setSaveState("updateSceneAttributeOption", "saving")
+
         const {data, errors} = await client.mutate({
             mutation : gql`
                 mutation updateSceneAttribute($id: BigInteger!, $textValue: String, $singleSelectValue: BigInteger, $multiSelectValue: [BigInteger]) {
@@ -279,8 +272,16 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
             variables: {id: attribute.id, ...value},
         });
         if(errors) {
-            console.error(errors)
+            shotlistContext.handleError({
+                locationKey: "updateSceneAttributeOption",
+                message: "Failed to update scene attribute option",
+                cause: errors
+            })
+            shotlistContext.setSaveState("updateSceneAttributeOption", "error")
+            return
         }
+
+        shotlistContext.setSaveState("updateSceneAttributeOption", "saved")
     }
 
     const debouncedUpdateAttributeValue = useMemo(() => wuGeneral.debounce(updateAttributeValue), []);

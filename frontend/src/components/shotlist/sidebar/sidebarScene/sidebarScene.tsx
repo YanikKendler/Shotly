@@ -12,6 +12,7 @@ import {useApolloClient} from "@apollo/client"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import SceneAttribute, {SceneAttributeRef} from "../sceneAttribute/sceneAttribute"
+import ErrorDisplay from "@/components/feedback/errorDisplay/errorDisplay"
 
 export interface SidebarSceneRef {
     closePopover: () => void
@@ -82,6 +83,8 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
     const deleteScene = async () => {
         if(!await confirm({message: `Scene #${position+1} and all of its shots will be lost forever. You cannot undo this.`, buttons: {confirm: {className: "bad"}}})) return
 
+        shotlistContext.setSaveState("deleteScene", "saving")
+
         const { errors } = await client.mutate({
             mutation: gql`
                 mutation deleteScene($sceneId: String!) {
@@ -91,19 +94,25 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                 }
             `,
             variables: { sceneId: scene.id },
-        });
+        })
 
         if(errors) {
-            //TODO notify user
-            console.error(errors)
+            shotlistContext.handleError({
+                locationKey: "deleteScene",
+                message: "Failed to the delete the scene.",
+                cause: errors
+            })
+            shotlistContext.setSaveState("deleteScene", "error")
+            return
         }
-        else{
-            onDelete(scene.id as string)
-            onSelect(null, null)
-        }
+
+        onDelete(scene.id as string)
+        onSelect(null, null)
+
+        shotlistContext.setSaveState("deleteScene", "saving")
     }
 
-    if(!scene || !scene.id) return (<p>scene not found</p>)
+    if(!scene || !scene.id) return (<ErrorDisplay title={"Scene not found"} scale={0.5} noMargin/>)
 
     return (
         <div
