@@ -1,4 +1,4 @@
-import {ShotlistDto} from "../../../../../lib/graphql/generated"
+import {ShotlistDto, UserDto} from "../../../../../lib/graphql/generated"
 import {Separator} from "radix-ui"
 import React from "react"
 import gql from "graphql-tag"
@@ -14,12 +14,14 @@ export default function GeneralTab({
     shotlist,
     setShotlist,
     dataChanged,
-    isReadOnly
+    isReadOnly,
+    currentUser,
 }: {
     shotlist: ShotlistDto | null,
     setShotlist: (shotlist: ShotlistDto) => void,
     dataChanged: () => void,
-    isReadOnly: boolean
+    isReadOnly: boolean,
+    currentUser: UserDto | null,
 }) {
     const client = useApolloClient()
     const { confirm, ConfirmDialog } = useConfirmDialog();
@@ -115,18 +117,22 @@ export default function GeneralTab({
                 <p><b>{shotlist.sceneCount}</b> scenes • <b>{shotlist.shotCount}</b> shots</p>
             </div>
 
-            <Separator.Root className={"Separator dangerZone"}></Separator.Root>
-
-            <div className="row">
-                <p>Permanently delete the shotlist "{shotlist.name}"</p>
-                <button
-                    disabled={isReadOnly}
-                    className="deleteShotlist bad"
-                    onClick={deleteShotlist}
-                >
-                    Delete Shotlist
-                </button>
-            </div>
+            {
+                shotlist.owner?.id == currentUser?.id &&
+                <>
+                    <Separator.Root className={"Separator dangerZone"}></Separator.Root>
+                    <div className="row">
+                        <p>Permanently delete the shotlist "{shotlist.name}"</p>
+                        <button
+                            disabled={isReadOnly}
+                            className="deleteShotlist bad"
+                            onClick={deleteShotlist}
+                        >
+                            Delete Shotlist
+                        </button>
+                    </div>
+                </>
+            }
             {ConfirmDialog}
         </div>
     )

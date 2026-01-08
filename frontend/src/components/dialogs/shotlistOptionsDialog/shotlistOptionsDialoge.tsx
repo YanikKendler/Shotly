@@ -247,6 +247,7 @@ export default function ShotlistOptionsDialog({
                                     setShotlist={setShotlist}
                                     dataChanged={() => setDataChanged(true)}
                                     isReadOnly={isReadOnly}
+                                    currentUser={currentUser}
                                 />
                             </Tabs.Content>
                             <Tabs.Content value={"attributes"} className={"content"}>

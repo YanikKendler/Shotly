@@ -384,7 +384,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                                 <RefreshCw size={16}/>
                                                 {
                                                     collaborationReloadAllowed ?
-                                                    "reload" :
+                                                    "refresh" :
                                                     "please wait a few seconds..."
                                                 }
                                             </button>

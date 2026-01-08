@@ -68,7 +68,7 @@ public class ShotlistResource {
 
     @Mutation
     public ShotlistDTO deleteShotlist(UUID id) {
-        userRepository.checkShotlistEditRights(shotlistRepository.findByIdValidated(id), jwt);
+        userRepository.checkShotlistOwner(shotlistRepository.findByIdValidated(id), jwt);
         return shotlistRepository.delete(id);
     }
 
