@@ -42,4 +42,8 @@ export default class Config {
     static readonly loadingMessage = {
         authGetUser: "Logging you in...",
     }
+
+    static readonly constant = {
+        maxCollaboratorsInFreePlan: 5
+    }
 }

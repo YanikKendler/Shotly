@@ -69,6 +69,14 @@ div.shotlistOptionsDialogCollaboratorsTab{
     align-items: flex-end;
     gap: .8rem;
 
+    .textField input{
+      border-color: var(--accent-40);
+
+      &:hover{
+        border-color: var(--accent-60);
+      }
+    }
+
     button{
       font-weight: 500;
       font-size: .95rem;
@@ -82,6 +90,11 @@ div.shotlistOptionsDialogCollaboratorsTab{
         background-color: var(--accent-60);
         color: var(--text);
       }
+    }
+
+    > .error{
+      margin-top: 1rem;
+      color: var(--text-40);
     }
   }
 

@@ -7,6 +7,9 @@ import jakarta.transaction.Transactional;
 import me.kendler.yanik.dto.template.TemplateCreateDTO;
 import me.kendler.yanik.dto.template.TemplateDTO;
 import me.kendler.yanik.dto.template.TemplateEditDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
+import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.User;
 import me.kendler.yanik.model.template.Template;
 import me.kendler.yanik.model.template.sceneAttributes.SceneAttributeTemplateBase;
@@ -59,10 +62,17 @@ public class TemplateRepository implements PanacheRepositoryBase<Template, UUID>
 
     public TemplateDTO delete(UUID id) {
         Template template = findById(id);
-        if (template != null) {
-            delete(template);
-            return template.toDTO();
+
+        if(template == null) {
+            throw new ShotlyException("Template not found", ShotlyErrorCode.NOT_FOUND);
         }
-        return null;
+
+        List<Shotlist> relevantShotlists = Shotlist.find("template.id", template.id).list();
+        for (Shotlist shotlist : relevantShotlists) {
+            shotlist.template = null;
+        }
+
+        delete(template);
+        return template.toDTO();
     }
 }

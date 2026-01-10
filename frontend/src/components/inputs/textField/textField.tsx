@@ -33,7 +33,8 @@ export default function TextField(
         maxWidth = "40ch",
         inputClass = "",
         showLengthError = true,
-        debounceValueChange = false
+        debounceValueChange = false,
+        autoComplete = true
     }
     :
     {
@@ -49,6 +50,7 @@ export default function TextField(
         inputClass?: string;
         showLengthError?: boolean;
         debounceValueChange?: boolean;
+        autoComplete?: boolean;
     }
 ) {
     const [currentValue, setCurrentValue] = useState<string>(value || defaultValue);
@@ -59,8 +61,6 @@ export default function TextField(
         if (value == undefined) return
         validateInput(value)
         setCurrentValue(value)
-
-        console.log("textfield value changed to", value)
     }, [value])
 
     useEffect(() => {
@@ -105,6 +105,15 @@ export default function TextField(
             valueChange(value)
     }
 
+    const ignoreProps = !autoComplete ? {
+        "autoComplete": "new-password",
+        "data-lpignore": "true",     // LastPass
+        "data-bwignore": "true",     // Bitwarden
+        "data-1p-ignore": "true",    // 1Password
+        "data-form-type": "other",   // Dashlane
+        name: `field_${Math.random().toString(36).substring(7)}`, // Random name prevents matching
+    } : {};
+
     return (
         <div className="textField">
             {
@@ -123,6 +132,7 @@ export default function TextField(
                         disabled={disabled}
                         className={inputClass}
                         style={{maxWidth: maxWidth}}
+                        {...ignoreProps}
                     />
                     <p className={"error " + errorType}>{error}</p>
                 </div>

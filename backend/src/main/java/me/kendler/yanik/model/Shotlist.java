@@ -18,6 +18,8 @@ import me.kendler.yanik.model.template.Template;
 import me.kendler.yanik.model.template.sceneAttributes.SceneAttributeTemplateBase;
 import me.kendler.yanik.model.template.shotAttributes.ShotAttributeTemplateBase;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "shotlist")
@@ -28,7 +30,7 @@ public class Shotlist extends PanacheEntityBase {
     @ManyToOne
     @JsonIgnore
     public User owner;
-    @ManyToOne
+    @ManyToOne()
     public Template template;
 
     @OneToMany(mappedBy = "shotlist", fetch = FetchType.LAZY)

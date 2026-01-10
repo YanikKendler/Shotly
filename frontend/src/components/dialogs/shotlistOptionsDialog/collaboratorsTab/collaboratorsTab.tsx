@@ -13,6 +13,7 @@ import {Popover, Separator} from "radix-ui"
 import auth from "@/Auth"
 import GoogleLogo from "@/components/googleLogo"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
+import Config from "@/util/Config"
 
 export default function CollaboratorsTab(
     {
@@ -253,22 +254,29 @@ export default function CollaboratorsTab(
             <Separator.Root className="Separator horizontal" orientation="horizontal"/>
 
             <div className="new">
-                <TextField
-                    label={"email"}
-                    placeholder={"yourfriend@email.com"}
-                    valueChange={value => {
-                        setInputValue(value)
-                        setEmailInvalid(false)
-                    }}
-                    value={inputValue}
-                />
-                <button
-                    className={"accent"}
-                    disabled={!wuConstants.Regex.email.test(inputValue) || auth.getUser()?.email == inputValue}
-                    onClick={addCollaborator}
-                >
-                    Invite
-                </button>
+                {
+                    collaborations && collaborations?.length >= Config.constant.maxCollaboratorsInFreePlan ?
+                    <p className="error">Sorry, users in basic tier can only have {Config.constant.maxCollaboratorsInFreePlan} collaborators.</p> :
+                    <>
+                        <TextField
+                            label={"email"}
+                            placeholder={"yourfriend@email.com"}
+                            valueChange={value => {
+                                setInputValue(value)
+                                setEmailInvalid(false)
+                            }}
+                            value={inputValue}
+                            autoComplete={false}
+                        />
+                        <button
+                            className={"accent"}
+                            disabled={!wuConstants.Regex.email.test(inputValue) || auth.getUser()?.email == inputValue}
+                            onClick={addCollaborator}
+                        >
+                            Invite
+                        </button>
+                    </>
+                }
             </div>
             {
                 emailInvalid &&

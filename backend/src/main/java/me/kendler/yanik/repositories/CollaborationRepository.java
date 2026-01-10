@@ -9,10 +9,7 @@ import me.kendler.yanik.dto.shotlist.collaboration.CollaborationDTO;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationEditDTO;
 import me.kendler.yanik.error.ShotlyErrorCode;
 import me.kendler.yanik.error.ShotlyException;
-import me.kendler.yanik.model.Collaboration;
-import me.kendler.yanik.model.CollaborationState;
-import me.kendler.yanik.model.Shotlist;
-import me.kendler.yanik.model.User;
+import me.kendler.yanik.model.*;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.util.LinkedList;
@@ -83,6 +80,10 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
 
         if(shotlist == null){
             throw new ShotlyException("Shotlist with ID " + createDTO.shotlistId() + " not found.", ShotlyErrorCode.NOT_FOUND);
+        }
+
+        if(currentUser.tier == UserTier.BASIC && shotlist.collaborations.size() >= 5){
+            throw new ShotlyException("Basic users can only have one shotlist", ShotlyErrorCode.COLLABORATOR_LIMIT_REACHED);
         }
 
         List<UUID> existingCollaboratorIds = shotlist.collaborations.stream().map(c -> c.user.id).toList();

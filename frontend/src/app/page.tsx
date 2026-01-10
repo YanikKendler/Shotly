@@ -241,7 +241,7 @@ export default function Landing() {
                             <Separator.Root className={"Separator"}/>
                             <ul className="features">
                                 <li><Check size={20} strokeWidth={3}/>1 free shotlist</li>
-                                <li><Check size={20} strokeWidth={3}/>2 collaborators</li>
+                                <li><Check size={20} strokeWidth={3}/>{Config.constant.maxCollaboratorsInFreePlan} collaborators</li>
                                 <li><Check size={20} strokeWidth={3}/>unlimited scenes</li>
                                 <li><Check size={20} strokeWidth={3}/>unlimited shots</li>
                             </ul>
