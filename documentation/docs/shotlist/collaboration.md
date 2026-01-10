@@ -11,7 +11,7 @@ Collaborators can only be added to specific shotlists, one at a time. To add a c
 
 Using the input field at the bottom and the `invite` button you can now add a collaborator using their email. There is no option of searching for a user by their name or parts of the email to prevent leakage of email adresses.
 
-Only valid email adresses can be added as collaborators but you will see a error messages if you enter a syntacitcally valid email that is not linked to an existing shotly account.
+Only valid email adresses can be added as collaborators and you will see an error message if you enter a syntacitcally valid email that is not linked to an existing shotly account.
 
 ## Accepting Collaborations
 

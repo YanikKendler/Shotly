@@ -3,9 +3,26 @@ theme:
   name: material
   palette:
     primary: custom
+    accent: custom
+  favicon: /img/shotly-docs-iconmark_o2.png
+  logo: /img/shotly-iconmark_white.png
+  features:
+  - navigation.expand
 extra_css:
   - stylesheets/extra.css
 markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.superfences
+extra:
+  homepage: https://shotly.at
+nav:
+- Overview: index.md
+- Templates: templates.md
+- Shotlist:
+  - Navigation: shotlist/navigation.md
+  - Attributes: shotlist/attributes.md
+  - Collaborators: shotlist/collaboration.md
+  - Export: shotlist/export.md
+plugins:
+  - open-in-new-tab

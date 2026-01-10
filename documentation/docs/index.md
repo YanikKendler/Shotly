@@ -1,17 +1,9 @@
-# Welcome to the Shotly Documentation
+# Overview
 
-Shotly is available at [shotly.at](https://shotly.at).
+Shotly is a simple yet powerful, open source shotlist creation tool with a generous free tier and a cheap pro Tier. It is available at [shotly.at](https://shotly.at).
 
-## features
+It's developed solo by [Yanik Kendler](https://yanik.kendler.me), the source code can be viewed on [GitHub](https://github.com/YanikKendler/shotly).
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.x
+## Bugs and Feature-Requests
 
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+To report a bug or request a feature please [open an issue on GitHub](https://github.com/YanikKendler/shotly/issues/new/choose).
