@@ -6,6 +6,8 @@ import "./simpleTooltip.scss"
 export default function SimpleTooltip({
     children,
     text,
+    fontSize = 0.9,
+    offset = 2,
     hoverAreaExpansion,
     showHoverArea = true,
     asButton = false,
@@ -13,6 +15,8 @@ export default function SimpleTooltip({
 }: {
     children: ReactNode
     text: string
+    fontSize?: number
+    offset?: number
     hoverAreaExpansion?: number
     showHoverArea?: boolean
     asButton?: boolean
@@ -39,7 +43,7 @@ export default function SimpleTooltip({
                 }
             </Tooltip.Trigger>
             <Tooltip.Portal>
-                <Tooltip.Content className="TooltipContent" sideOffset={2}>
+                <Tooltip.Content className="TooltipContent" sideOffset={offset} style={{fontSize: fontSize + "rem"}}>
                     {text}
                     <Tooltip.Arrow className="TooltipArrow" />
                 </Tooltip.Content>

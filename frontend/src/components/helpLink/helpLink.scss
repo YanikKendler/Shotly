@@ -1,0 +1,21 @@
+a.helpLink{
+  background-color: var(--contrast);
+  border: 2px solid var(--default-interactable-border);
+  border-radius: 5rem;
+  height: 35px;
+  width: 35px;
+  display: grid;
+  place-content: center;
+  user-select: none;
+  color: var(--text-30);
+
+  &:hover{
+    border-color: var(--default-interactable-hover-border);
+  }
+
+  &.floating{
+    position: absolute;
+    bottom: .5rem;
+    right: .5rem;
+  }
+}

@@ -7,7 +7,21 @@ import "./layout.scss"
 import React, {useEffect, useState} from "react"
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
-import {ChevronDown, House, Menu, NotepadText, Blocks, Plus, User, Info, Inbox, Check, X, RefreshCw} from "lucide-react"
+import {
+    ChevronDown,
+    House,
+    Menu,
+    NotepadText,
+    Blocks,
+    Plus,
+    User,
+    Info,
+    Inbox,
+    Check,
+    X,
+    RefreshCw,
+    LoaderCircle
+} from "lucide-react"
 import {CollaborationDto, CollaborationState, Query, ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
 import {Collapsible, Popover, Separator, Tooltip} from "radix-ui"
 import {wuGeneral} from "@yanikkendler/web-utils"
@@ -23,6 +37,7 @@ import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 import { DashboardContext } from "@/context/DashboardContext"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
 import Config from "@/util/Config"
+import HelpLink from "@/components/helpLink/helpLink"
 
 export default function DashboardLayout({children}: { children: React.ReactNode }) {
     const client = useApolloClient()
@@ -419,11 +434,16 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                     {children}
                 </Panel>
             </PanelGroup>
-            {
-                /*Yeah i know this is ugly*/
-                pathname?.includes("template") &&
-                <button className="openSidebar" onClick={() => setSidebarOpen(true)}><Menu/></button>
-            }
+
+            <div className="floater">
+                {
+                    /*Yeah i know this is ugly*/
+                    pathname?.includes("template") && <>
+                        <HelpLink link="https://docs.shotly.at/templates"/>
+                        <button className="openSidebar" onClick={() => setSidebarOpen(true)}><Menu/></button>
+                    </>
+                }
+            </div>
 
             {CreateShotlistDialog}
             {CreateTemplateDialog}

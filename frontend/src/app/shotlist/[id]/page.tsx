@@ -42,6 +42,7 @@ import {
 import DotLoader from "@/components/DotLoader"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import {NotificationContext} from "@/context/NotificationContext"
+import HelpLink from "@/components/helpLink/helpLink"
 
 export interface SelectedScene {
     id: string | null
@@ -810,6 +811,7 @@ export default function Shotlist() {
                         <span className="saved"><Check size={18} strokeWidth={2.5}/></span>
                         <span className="error">!</span>
                     </div>
+                    <HelpLink link="https://docs.shotly.at/shotlist/navigation"/>
                     <button className="openSidebar" onClick={() => setSidebarOpen(true)}><Menu/></button>
                 </div>
             </main>

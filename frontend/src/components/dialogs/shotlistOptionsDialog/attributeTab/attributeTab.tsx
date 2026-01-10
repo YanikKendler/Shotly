@@ -23,6 +23,7 @@ import {ShotlistOptionsDialogSubPage} from "@/components/dialogs/shotlistOptions
 import {AnySceneAttributeDefinition, AnyShotAttributeDefinition} from "@/util/Types"
 import {apolloClient} from "@/components/wrapper/ApolloWrapper"
 import Loader from "@/components/feedback/loader/loader"
+import HelpLink from "@/components/helpLink/helpLink"
 
 export default function AttributeTab(
     { shotlistId, shotAttributeDefinitions, setShotAttributeDefinitions, sceneAttributeDefinitions, setSceneAttributeDefinitions, selectedPage = "shot", dataChanged }
@@ -285,6 +286,7 @@ export default function AttributeTab(
                     }
                 </Tabs.Content>
             </Tabs.Root>
+            <HelpLink link="https://docs.shotly.at/shotlist/attributes" floating/>
         </div>
     )
 }

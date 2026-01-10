@@ -69,7 +69,7 @@ export default function Landing() {
         <main className="landing" ref={pageRef}>
             <nav>
                 <div className="left">
-                    <Link href={"/"} className={"noPadding"}><BookText size={22} />Documentation</Link>
+                    <Link href={"https://docs.shotly.at"} target={"_blank"} className={"noPadding"}><BookText size={22} />Documentation</Link>
                 </div>
                 <div className="center">
                     <Link href={"#hero"}>Home</Link>
@@ -301,9 +301,9 @@ export default function Landing() {
 
                     <div>
                         <h3>Support</h3>
-                        <Link className={"noPadding"} href={"/"}>Documentation</Link>
-                        <Link className={"noPadding"} href={"https://github.com/YanikKendler/shotly/issues/new/choose"}>Report a Bug</Link>
-                        <Link className={"noPadding"} href={"https://github.com/YanikKendler/shotly/issues/new/choose"}>Suggest a Feature</Link>
+                        <Link className={"noPadding"} href={"https://docs.shotly.at"} target={"_blank"}>Documentation</Link>
+                        <Link className={"noPadding"} href={"https://github.com/YanikKendler/shotly/issues/new/choose"} target={"_blank"}>Report a Bug</Link>
+                        <Link className={"noPadding"} href={"https://github.com/YanikKendler/shotly/issues/new/choose"} target={"_blank"}>Suggest a Feature</Link>
                         <Link className={"noPadding"} href={"/freeForStudents"}>Free for Students</Link>
                     </div>
                 </footer>

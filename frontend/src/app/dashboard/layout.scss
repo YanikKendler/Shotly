@@ -129,12 +129,6 @@ main.home{
           }
         }
       }
-
-      .openSidebar {
-        display: none;
-        margin-right: auto;
-        padding: .3rem;
-      }
     }
 
     .dashboardContent{
@@ -147,18 +141,24 @@ main.home{
     }
   }
 
-  .openSidebar{
+  .floater {
     position: absolute;
-    background-color: var(--contrast);
-    border: 2px solid var(--default-interactable-border);
-    border-radius: 100%;
     bottom: 1rem;
     right: 1rem;
-    padding: .6rem;
-    display: none;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
 
-    @media screen and (max-width: 600px){
-      display: flex;
+    .openSidebar {
+      background-color: var(--contrast);
+      border: 2px solid var(--default-interactable-border);
+      border-radius: 100%;
+      padding: .6rem;
+      display: none;
+
+      @media screen and (max-width: 600px) {
+        display: flex;
+      }
     }
   }
 }

@@ -14,6 +14,7 @@ import auth from "@/Auth"
 import GoogleLogo from "@/components/googleLogo"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import Config from "@/util/Config"
+import HelpLink from "@/components/helpLink/helpLink"
 
 export default function CollaboratorsTab(
     {
@@ -282,6 +283,8 @@ export default function CollaboratorsTab(
                 emailInvalid &&
                 <p className={"invalid"}>No Shotly account is associated with that email.</p>
             }
+
+            <HelpLink link="https://docs.shotly.at/shotlist/collaboration" floating/>
 
             {ConfirmDialog}
         </div>

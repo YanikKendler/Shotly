@@ -30,6 +30,7 @@ import Loader from "@/components/feedback/loader/loader"
 import {downloadCSV} from "@/downloadCSV"
 import {Popover, Separator} from "radix-ui"
 import {MultiValue} from "react-select"
+import HelpLink from "@/components/helpLink/helpLink"
 
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full"
 
@@ -460,6 +461,8 @@ export default function ExportTab(
             </Popover.Root>
 
             <button className={"export"} onClick={exportShotlist}>download shotlist<Download size={16} strokeWidth={3}/></button>
+
+            <HelpLink link="https://docs.shotly.at/shotlist/export" floating/>
         </div>
     )
 }
