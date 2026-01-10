@@ -196,7 +196,7 @@ export default function ShotlistOptionsDialog({
                 <Dialog.Overlay className={"shotlistOptionsDialogOverlay dialogOverlay"}/>
                 <Dialog.Content aria-describedby={"confirm action dialog"} className={"shotlistOptionsDialogContent dialogContent"}>
                     <VisuallyHidden.Root>
-                        <Dialog.Title className={"title"}>Shotlist Options</Dialog.Title>
+                        <Dialog.Title className={"title"}>Shotlist options</Dialog.Title>
                         <Dialog.Description className={"description"}>Edit attributes and collaborators or export a shotlist.</Dialog.Description>
                     </VisuallyHidden.Root>
 

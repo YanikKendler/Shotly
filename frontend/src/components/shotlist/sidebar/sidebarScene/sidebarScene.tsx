@@ -157,7 +157,8 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                                 <button className={"bad"} onClick={(e) => {
                                     e.stopPropagation();
                                     deleteScene()
-                                }}><Trash size={18}/> delete
+                                }}>
+                                    <Trash size={18}/>Delete
                                 </button>
                                 <Separator.Root className="Separator"/>
                                 <button

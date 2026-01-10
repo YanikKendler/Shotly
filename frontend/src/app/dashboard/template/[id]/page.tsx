@@ -204,7 +204,7 @@ export default function Template (){
             message: `Do you want to delete the template "${query.data.template?.name || "Unknown"}". No Shotlists will be affected by this action. This action cannot be undone.`,
             buttons: {
                 confirm: {
-                    text: 'Delete Template',
+                    text: 'Delete template',
                     className: 'bad'
                 }
             }
@@ -442,7 +442,7 @@ export default function Template (){
 
                 <Popover.Root defaultOpen={false}>
                     <Popover.Trigger className={"noClickFx default infoTrigger"}>
-                        <span>More on Templates</span>
+                        <span>More on templates</span>
                         <Info size={18}/>
                     </Popover.Trigger>
                     <Popover.Portal>
@@ -459,11 +459,11 @@ export default function Template (){
                 </Popover.Root>
 
                 <button className="delete bad" onClick={deleteTemplate}>
-                    <span>Delete Template</span>
+                    <span>Delete template</span>
                     <Trash size={18}/>
                 </button>
             </div>
-            <h3>Shot Attributes</h3>
+            <h3>Shot attributes</h3>
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -492,7 +492,7 @@ export default function Template (){
                 query.loading ?
                 <Skeleton height="2rem" count={2}/> :
                 <Popover.Root>
-                    <Popover.Trigger className={"add"}>Add Shot Attribute <Plus size={20}/></Popover.Trigger>
+                    <Popover.Trigger className={"add"}>Add shot attribute <Plus size={20}/></Popover.Trigger>
                     <Popover.Portal>
                         <Popover.Content className="PopoverContent addAttributeTemplatePopup" sideOffset={5}
                                          align={"start"}>
@@ -512,7 +512,7 @@ export default function Template (){
                 </Popover.Root>
             }
 
-            <h3>Scene Attributes</h3>
+            <h3>Scene attributes</h3>
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -541,7 +541,7 @@ export default function Template (){
                 query.loading ?
                 <Skeleton height="2rem" count={2}/> :
                 <Popover.Root>
-                    <Popover.Trigger className={"add"}>Add Scene Attribute <Plus size={20}/></Popover.Trigger>
+                    <Popover.Trigger className={"add"}>Add scene attribute <Plus size={20}/></Popover.Trigger>
                     <Popover.Portal>
                         <Popover.Content className="PopoverContent addAttributeTemplatePopup" sideOffset={5}
                                          align={"start"}>
