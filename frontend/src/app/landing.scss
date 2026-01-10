@@ -203,6 +203,8 @@ main.landing{
       position: absolute;
       animation: wiggle 5s infinite;
       z-index: -1;
+      user-select: none;
+      pointer-events: none;
 
       &#shotlist{
         left: 10%;

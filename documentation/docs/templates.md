@@ -2,9 +2,9 @@
 
 Templates can be selected when creating a shotlist so that you don't have to create the same attributes over and over again.
 
-None of the changes made to a templated will be reflected in existing shotlists. Every shotlist manages its own attributes, only those that are created based on this template *after* it has been edited will use the updated attributes.
+None of the changes made to a template will be reflected in existing shotlists. Every shotlist manages its own attributes - only those created based on this template *after* it has been edited will use the updated attributes.
 
-This also means that deleting a template has no effect on any shotlists, there is also no way for the template owner to access or edit your shotlist if you created it using a shared template.
+This also means that deleting a template has no effect on any shotlists. There is also no way for the template owner to access or edit your shotlist if you created it using a shared template.
 
 ## Editing
 
@@ -14,6 +14,4 @@ New attributes can be added using the `Add scene attribute` / `Add shot attribut
 
 A template can be deleted by clicking `Delete template` in the top right.
 
-## Sharing
-
-<!-- TODO -->
+<!-- TODO Sharing -->

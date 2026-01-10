@@ -1,6 +1,6 @@
 # Attributes
 
-The Attributes for all the Scenes and all the Shots of a given Shotlist can be controlled in one central location: `Shotlist options` > `Attributes`
+The Attributes for all the Scenes and all the Shots of a given shotlist can be controlled in one central location: `Shotlist options` > `Attributes`
 
 Currently, Shotly supports three types of attributes:
 
@@ -13,9 +13,9 @@ Currently, Shotly supports three types of attributes:
 
 ## Manage Attributes
 
-By clicking the `Add attribute` button, a popup menu will apear and you can choose the attribute type to add.
+By clicking the `Add attribute` button, a popup menu will appear and you can choose the attribute type to add.
 
-Each attribute can be deleted by using the trash bin icon to the right. A dialog will apear that asks for your confirmation - deleting a column will **permanently remove** the selected attribute from the shotlist, this means that all the data in that column of the list or that attribute of a scene will be lost.
+Each attribute can be deleted by using the trash bin icon to the right. A dialog will appear that asks for your confirmation - deleting a column will **permanently remove** the selected attribute from the shotlist, this means that all the data in that column of the list or that attribute of a scene will be lost.
 
 Attributes can be re-ordered by using the drag handle to the left of each Attribute in the Attribute dialog.
 
