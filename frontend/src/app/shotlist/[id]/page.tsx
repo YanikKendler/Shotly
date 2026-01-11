@@ -2,7 +2,7 @@
 
 import gql from "graphql-tag"
 import React, {useContext, useEffect, useRef, useState} from "react"
-import {ApolloError, ApolloQueryResult, InteropApolloQueryResult, useApolloClient} from "@apollo/client"
+import {ApolloQueryResult, InteropApolloQueryResult, useApolloClient} from "@apollo/client"
 import {
     CollaborationDto,
     CollaborationType,
@@ -39,8 +39,6 @@ import {
     UserMinimalDTO,
     UserPayload
 } from "@/service/ShotlistSyncService"
-import DotLoader from "@/components/DotLoader"
-import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import {NotificationContext} from "@/context/NotificationContext"
 import HelpLink from "@/components/helpLink/helpLink"
 
@@ -75,7 +73,7 @@ export default function Shotlist() {
 
     const [selectedScene, setSelectedScene] = useState<SelectedScene>({ id: sceneId, position: null })
     const [optionsDialogOpen, setOptionsDialogOpen] = useState(false)
-    const [selectedOptionsDialogPage, setSelectedOptionsDialogPage] = useState<{main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage}>({main: "general", sub: "shot"})
+    const [selectedOptionsDialogPage, setSelectedOptionsDialogPage] = useState<{main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage} | null>(null)
     const [elementIsBeingDragged, setElementIsBeingDragged] = useState(false)
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [readOnlyBannerVisible, setReadOnlyBannerVisible] = useState(true)
@@ -119,20 +117,6 @@ export default function Shotlist() {
     })
 
     useEffect(() => {
-        const url = new URL(window.location.href)
-        if(url.searchParams.get("oo") == "true") {
-            let currentOptionsMainPage = url.searchParams.get("mp")
-            let currentOptionsSubPage = url.searchParams.get("sp")
-
-            if(!currentOptionsMainPage || currentOptionsMainPage == "") currentOptionsMainPage = "general"
-            if(!currentOptionsSubPage || currentOptionsSubPage == "") currentOptionsSubPage = "shot"
-
-            openShotlistOptionsDialog({
-                main: currentOptionsMainPage as ShotlistOptionsDialogPage,
-                sub: currentOptionsSubPage as ShotlistOptionsDialogSubPage
-            })
-        }
-
         refreshShotlistFunction.current = () => {
             loadData(true).then(() => {
                 setReloadKey(k => k + 1)
@@ -323,7 +307,7 @@ export default function Shotlist() {
 
         notificationContext.notify({
             type: "error",
-            title: `Oh no, an error occurred at ${error.locationKey}.`,
+            title: `Oh no, an error occurred at "${error.locationKey}".`,
             message: error.message,
         })
     }
@@ -676,7 +660,7 @@ export default function Shotlist() {
     }
 
     const openShotlistOptionsDialog = (page: { main: ShotlistOptionsDialogPage, sub?: ShotlistOptionsDialogSubPage }) => {
-        setSelectedOptionsDialogPage({main: page.main, sub: page.sub || "shot"})
+        setSelectedOptionsDialogPage({main: page.main, sub: page.sub || ShotlistOptionsDialogSubPage.shot})
         setOptionsDialogOpen(true)
     }
 

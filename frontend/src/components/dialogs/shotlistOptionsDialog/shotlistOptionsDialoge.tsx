@@ -18,9 +18,21 @@ import GeneralTab from "@/components/dialogs/shotlistOptionsDialog/generalTab/ge
 import AttributeTab from "@/components/dialogs/shotlistOptionsDialog/attributeTab/attributeTab"
 import CollaboratorsTab from "@/components/dialogs/shotlistOptionsDialog/collaboratorsTab/collaboratorsTab"
 
-export type ShotlistOptionsDialogPage = "general" | "attributes" | "collaborators" | "export"
+export enum ShotlistOptionsDialogPage {
+    general = "general",
+    attributes = "attributes",
+    collaborators = "collaborators",
+    export = "export"
+}
 
-export type ShotlistOptionsDialogSubPage = "shot" | "scene"
+export const ShotlistOptionsDialogPageValues: string[] = Object.values(ShotlistOptionsDialogPage)
+
+export enum ShotlistOptionsDialogSubPage {
+    shot = "shot",
+    scene = "scene"
+}
+
+export const ShotlistOptionsDialogSubPageValues: string[] = Object.values(ShotlistOptionsDialogSubPage)
 
 export default function ShotlistOptionsDialog({
     isOpen,
@@ -32,7 +44,7 @@ export default function ShotlistOptionsDialog({
 }: {
     isOpen: boolean,
     setIsOpen: any,
-    selectedPage: { main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage },
+    selectedPage: { main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage } | null,
     shotlistId: string | null,
     refreshShotlist: () => void,
     isReadOnly: boolean,
@@ -45,10 +57,35 @@ export default function ShotlistOptionsDialog({
     // used for refreshing the shotlist on dialog close, only when any data has been edited
     const [stringifiedAttributeData, setStringifiedAttributeData] = useState<string>("");
     const [dataChanged, setDataChanged] = useState(false);
-    const [currentTab, setCurrentTab] = useState<ShotlistOptionsDialogPage>(selectedPage.main)
+    const [selectedMainPage, setSelectedMainPage] = useState<ShotlistOptionsDialogPage>(ShotlistOptionsDialogPage.general);
+    const [selectedSubPage, setSelectedSubPage] = useState<ShotlistOptionsDialogSubPage>(ShotlistOptionsDialogSubPage.shot);
 
     const client = useApolloClient()
     const router = useRouter()
+
+    useEffect(() => {
+        const url = new URL(window.location.href)
+        if(url.searchParams.get("oo") == "true") {
+            setIsOpen(true)
+
+            const mpParam = url.searchParams.get("mp")
+            const spParam = url.searchParams.get("sp")
+
+            console.log({mpParam})
+
+            if(mpParam && ShotlistOptionsDialogPageValues.includes(mpParam)) {
+                setSelectedMainPage(ShotlistOptionsDialogPage[mpParam as keyof typeof ShotlistOptionsDialogPage])
+
+                if(spParam && ShotlistOptionsDialogSubPageValues.includes(spParam)) {
+                    setSelectedSubPage(ShotlistOptionsDialogSubPage[spParam as keyof typeof ShotlistOptionsDialogSubPage])
+                }
+            }
+            else {
+                setSelectedMainPage(ShotlistOptionsDialogPage.general)
+            }
+
+        }
+    }, []);
 
     useEffect(() => {
         if(!shotlistId) return
@@ -58,17 +95,23 @@ export default function ShotlistOptionsDialog({
     }, [shotlistId, isOpen]);
 
     useEffect(() => {
-        setCurrentTab(selectedPage.main)
+        if(selectedPage)
+            setSelectedMainPage(selectedPage.main)
     }, [selectedPage]);
 
     useEffect(() => {
         if (isOpen) {
             setStringifiedAttributeData(JSON.stringify(shotAttributeDefinitions) + JSON.stringify(sceneAttributeDefinitions) + JSON.stringify(shotlist));
         }
-        //TODO rework this - when opening the dialog it always selects the page from the initial URL and the data storrage is ass
-        updateUrl(selectedPage.main)
-        setCurrentTab(selectedPage.main)
+        if(selectedPage){
+            updateUrl(selectedPage.main)
+            setSelectedMainPage(selectedPage.main)
+        }
     }, [isOpen]);
+
+    useEffect(() => {
+        console.log({currentTab: selectedMainPage})
+    }, [selectedMainPage]);
 
     const updateUrl = (page?: ShotlistOptionsDialogPage) => {
         const url = new URL(window.location.href)
@@ -209,9 +252,9 @@ export default function ShotlistOptionsDialog({
                         </button>
                         <Tabs.Root
                             className={"optionsDialogPageTabRoot"}
-                            defaultValue={selectedPage.main}
+                            value={selectedMainPage}
                             onValueChange={page => {
-                                setCurrentTab(page as ShotlistOptionsDialogPage)
+                                setSelectedMainPage(page as ShotlistOptionsDialogPage)
                                 updateUrl(page as ShotlistOptionsDialogPage)
                             }}
                         >
@@ -260,7 +303,8 @@ export default function ShotlistOptionsDialog({
                                         setShotAttributeDefinitions={setShotAttributeDefinitions}
                                         sceneAttributeDefinitions={sceneAttributeDefinitions}
                                         setSceneAttributeDefinitions={setSceneAttributeDefinitions}
-                                        selectedPage={selectedPage.sub}
+                                        selectedPage={selectedSubPage}
+                                        setSelectedPage={setSelectedSubPage}
                                         dataChanged={() => setDataChanged(true)}
                                     />
                                 }
@@ -284,11 +328,12 @@ export default function ShotlistOptionsDialog({
                                 value={"export"}
                                 className={"content"}
                                 forceMount={true}
-                                style={{display: currentTab == "export" ? "block" : "none"}}
+                                style={{display: selectedMainPage == "export" ? "block" : "none"}}
                             >
                                 <ExportTab
                                     shotlist={shotlist}
                                     shotAttributeDefinitions={shotAttributeDefinitions}
+                                    sceneAttributeDefinitions={sceneAttributeDefinitions}
                                 />
                             </Tabs.Content>
                         </Tabs.Root>

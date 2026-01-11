@@ -36,6 +36,7 @@ div.shotAttributeDefinition{
     border-radius: .3rem;
     flex-shrink: 1;
     min-width: 10ch;
+    font-size: .95rem;
 
     &:hover{
       border-color: var(--default-interactable-hover-border);

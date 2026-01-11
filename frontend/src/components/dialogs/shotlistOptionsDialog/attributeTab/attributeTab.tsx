@@ -5,7 +5,6 @@ import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {useRouter} from "next/navigation"
 import "./attributeTab.scss"
-import Image from "next/image"
 import {
     closestCenter,
     DndContext,
@@ -24,9 +23,19 @@ import {AnySceneAttributeDefinition, AnyShotAttributeDefinition} from "@/util/Ty
 import {apolloClient} from "@/components/wrapper/ApolloWrapper"
 import Loader from "@/components/feedback/loader/loader"
 import HelpLink from "@/components/helpLink/helpLink"
+import Skeleton from "react-loading-skeleton"
 
 export default function AttributeTab(
-    { shotlistId, shotAttributeDefinitions, setShotAttributeDefinitions, sceneAttributeDefinitions, setSceneAttributeDefinitions, selectedPage = "shot", dataChanged }
+    {
+        shotlistId,
+        shotAttributeDefinitions,
+        setShotAttributeDefinitions,
+        sceneAttributeDefinitions,
+        setSceneAttributeDefinitions,
+        selectedPage = ShotlistOptionsDialogSubPage.shot,
+        setSelectedPage,
+        dataChanged
+    }
         :
     {
         shotlistId: string | null,
@@ -35,6 +44,7 @@ export default function AttributeTab(
         sceneAttributeDefinitions: AnySceneAttributeDefinition[] | null,
         setSceneAttributeDefinitions: (definitions: AnySceneAttributeDefinition[]) => void
         selectedPage: ShotlistOptionsDialogSubPage
+        setSelectedPage: (page: ShotlistOptionsDialogSubPage) => void
         dataChanged: () => void
     }
 ) {
@@ -54,7 +64,7 @@ export default function AttributeTab(
 
         url.searchParams.set("oo", "true") // options open
         if(page)
-            url.searchParams.set("mp", page) // main page
+            url.searchParams.set("sp", page) // sub page
 
         router.push(url.toString())
     }
@@ -188,8 +198,11 @@ export default function AttributeTab(
         <div className={"shotlistOptionsDialogAttributeTab"}>
             <Tabs.Root
                 className={"attributeTypeTabRoot"}
-                defaultValue={selectedPage}
-                onValueChange={page => updateUrl(page as ShotlistOptionsDialogSubPage)}
+                value={selectedPage}
+                onValueChange={page => {
+                    updateUrl(page as ShotlistOptionsDialogSubPage)
+                    setSelectedPage(page as ShotlistOptionsDialogSubPage)
+                }}
             >
                 <Tabs.List className={"tabs"}>
                     <Tabs.Trigger value={"shot"}>
@@ -201,7 +214,11 @@ export default function AttributeTab(
                 </Tabs.List>
                 <Tabs.Content value={"shot"} className={"content"}>
                     {!shotAttributeDefinitions ?
-                        <Loader/> :
+                        <>
+                            <Skeleton height={"2.5rem"} count={3} style={{marginTop: ".5rem"}}/>
+                            <Skeleton height={"2rem"} width={"15ch"} style={{marginTop: "2rem"}}/>
+                        </>
+                        :
                         <>
                             <DndContext
                                 sensors={sensors}
@@ -244,7 +261,11 @@ export default function AttributeTab(
                 </Tabs.Content>
                 <Tabs.Content value={"scene"} className={"content"}>
                     {!sceneAttributeDefinitions ?
-                        <Loader/> :
+                        <>
+                            <Skeleton height={"2.5rem"} count={3} style={{marginTop: ".5rem"}}/>
+                            <Skeleton height={"2rem"} width={"15ch"} style={{marginTop: "2rem"}}/>
+                        </>
+                        :
                         <>
                             <DndContext
                                 sensors={sensors}
@@ -273,7 +294,7 @@ export default function AttributeTab(
                                 </SortableContext>
                             </DndContext>
                             <Popover.Root>
-                                <Popover.Trigger className={"add"}>Add attribute <Plus/></Popover.Trigger>
+                                <Popover.Trigger className={"add"}>Add attribute <Plus size={20}/></Popover.Trigger>
                                 <Popover.Portal>
                                     <Popover.Content className="PopoverContent addAttributeDefinitionPopup" sideOffset={5} align={"start"}>
                                         <button onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneTextAttribute)}><Type size={16}/>Text</button>

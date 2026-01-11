@@ -2,6 +2,16 @@ div.shotlistOptionsDialogExportTab{
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow-y: hidden;
+
+  .scroll{
+    height: 100%;
+    overflow-y: auto;
+    padding-bottom: 4rem;
+    padding-right: .3rem;
+
+    scrollbar-width: thin;
+  }
 
   .filters{
     display: flex;
@@ -18,6 +28,7 @@ div.shotlistOptionsDialogExportTab{
         display: flex;
         align-items: center;
         gap: .5rem;
+        font-size: .95rem;
 
         svg{
           color: var(--text-30);
@@ -48,6 +59,10 @@ div.shotlistOptionsDialogExportTab{
     }
   }
 
+  .Separator{
+    margin-block: 1rem;
+  }
+
   button.addFilter{
     border: 2px solid var(--default-interactable-border);
     color: var(--text-30);
@@ -55,8 +70,8 @@ div.shotlistOptionsDialogExportTab{
     padding-inline: .6rem;
     font-weight: 500;
     font-size: .95rem;
-    margin-top: 1.5rem;
     width: fit-content;
+    margin-top: 2rem;
 
     &:not([disabled]):hover{
       border-color: var(--default-interactable-hover-border);
@@ -64,17 +79,53 @@ div.shotlistOptionsDialogExportTab{
     }
   }
 
-  button.export{
-    padding: .5rem .8rem;
-    color: var(--contrast);
-    background-color: var(--accent);
-    font-weight: bold;
+  .bottom{
     margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    border-top: 2px solid var(--text-90);
+    padding-top: 1rem;
+    background-color: var(--contrast);
+
+    button.export{
+      padding: .5rem .8rem;
+      color: var(--contrast);
+      background-color: var(--accent);
+      font-weight: bold;
+      font-size: .95rem;
+      width: fit-content;
+
+      &:hover{
+        background-color: var(--accent-55);
+      }
+    }
+  }
+}
+
+.PopoverContent.addFilterPopup{
+  text-align: left;
+  min-width: var(--radix-popover-trigger-width);
+
+  h3{
+    color: var(--text-50);
+    font-weight: bold;
+    margin-left: .3rem;
+    font-size: .9rem;
+  }
+
+  .empty{
+    color: var(--text-50);
+    font-style: italic;
+    text-align: center;
+  }
+
+  button{
+    padding-block: .3rem;
     font-size: .95rem;
-    width: fit-content;
+    color: var(--text);
 
     &:hover{
-      background-color: var(--accent-55);
+      background-color: var(--hover-bg-10);
     }
   }
 }

@@ -3,11 +3,11 @@ import React, {Fragment, useEffect, useRef, useState} from "react"
 import gql from "graphql-tag"
 import {pdf} from "@react-pdf/renderer"
 import PDFExport from "@/components/PDFExport"
-import {wuTime} from "@yanikkendler/web-utils"
-import {useApolloClient} from "@apollo/client"
+import {wuGeneral, wuTime} from "@yanikkendler/web-utils"
+import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {
-    SceneAttributeType,
-    SceneDto,
+    Query,
+    SceneDto, SceneSelectAttributeOptionDefinition,
     ShotDto,
     ShotlistDto, ShotMultiSelectAttributeDto,
     ShotSelectAttributeOptionDefinition, ShotSingleSelectAttributeDto
@@ -18,43 +18,53 @@ import {
     AnySceneAttribute,
     AnySceneAttributeDefinition,
     AnyShotAttribute,
-    AnyShotAttributeDefinition,
+    AnyShotAttributeDefinition, SceneSingleOrMultiSelectAttributeDefinition,
     SelectOption, ShotSingleOrMultiSelectAttribute, ShotSingleOrMultiSelectAttributeDefinition
 } from "@/util/Types"
 import Utils from "@/util/Utils"
 import Config from "@/util/Config"
 import MultiSelect from "@/components/inputs/multiSelect/multiSelect"
-import {SceneAttributeParser, ShotAttributeDefinitionParser, ShotAttributeParser} from "@/util/AttributeParser"
+import {
+    SceneAttributeDefinitionParser,
+    SceneAttributeParser,
+    ShotAttributeDefinitionParser,
+    ShotAttributeParser
+} from "@/util/AttributeParser"
 //@ts-ignore
-import Loader from "@/components/feedback/loader/loader"
 import {downloadCSV} from "@/downloadCSV"
 import {Popover, Separator} from "radix-ui"
 import {MultiValue} from "react-select"
 import HelpLink from "@/components/helpLink/helpLink"
+import Skeleton from "react-loading-skeleton"
+import ExportFilter from "@/components/dialogs/shotlistOptionsDialog/exportTab/exportFilter"
 
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full"
 
 interface ExportSettingsLocalStorage {
     selectedFileType?: SelectedFileTypes
     selectedScenes?: MultiValue<SelectOption>
-    customFilters?: [number, MultiValue<SelectOption>][]
+    customShotFilters?: [number, MultiValue<SelectOption>][]
+    customSceneFilters?: [number, MultiValue<SelectOption>][]
 }
 
 export default function ExportTab(
     {
         shotlist,
-        shotAttributeDefinitions
+        shotAttributeDefinitions,
+        sceneAttributeDefinitions
     }:
     {
         shotlist: ShotlistDto | null
-        shotAttributeDefinitions?: AnyShotAttributeDefinition[] | null
+        shotAttributeDefinitions: AnyShotAttributeDefinition[] | null
+        sceneAttributeDefinitions: AnySceneAttributeDefinition[] | null
     }
 ) {
     const [sceneOptions, setSceneOptions] = useState<SelectOption[]>([{value: "this is bad", label: "1"}])
 
     const [selectedFileType, setSelectedFileType] = useState<SelectedFileTypes>("PDF")
     const [selectedScenes, setSelectedScenes] = useState<MultiValue<SelectOption>>([])
-    const [customFilters, setCustomFilters] = useState<Map<number, MultiValue<SelectOption>>>(new Map())
+    const [customSceneFilters, setCustomSceneFilters] = useState<Map<number, MultiValue<SelectOption>>>(new Map())
+    const [customShotFilters, setCustomShotFilters] = useState<Map<number, MultiValue<SelectOption>>>(new Map())
 
     const client = useApolloClient()
 
@@ -71,22 +81,24 @@ export default function ExportTab(
             setSelectedFileType(settingsObject.selectedFileType)
         if(settingsObject.selectedScenes && settingsObject.selectedScenes.length > 0)
             setSelectedScenes(settingsObject.selectedScenes)
-        if(settingsObject.customFilters && settingsObject.customFilters.length > 0) {
-            setCustomFilters(new Map(settingsObject.customFilters))
-        }
+        if(settingsObject.customShotFilters && settingsObject.customShotFilters.length > 0)
+            setCustomShotFilters(new Map(settingsObject.customShotFilters))
+        if(settingsObject.customSceneFilters && settingsObject.customSceneFilters.length > 0)
+            setCustomSceneFilters(new Map(settingsObject.customSceneFilters))
 
     }, [])
 
-    //save settings to local storrage
+    //save settings to local storage
     useEffect(() => {
         const settingsObject: ExportSettingsLocalStorage = {
             selectedFileType: selectedFileType,
             selectedScenes: selectedScenes,
-            customFilters: Array.from(customFilters)
+            customShotFilters: Array.from(customShotFilters),
+            customSceneFilters: Array.from(customSceneFilters)
         }
         const settingsString = JSON.stringify(settingsObject)
         localStorage.setItem(Config.localStorageKey.exportSettings, settingsString)
-    }, [selectedFileType, selectedScenes, customFilters]);
+    }, [selectedFileType, selectedScenes, customShotFilters, customSceneFilters]);
 
     //extract scenes as SelectOptions from shotlist
     useEffect(() => {
@@ -99,10 +111,18 @@ export default function ExportTab(
         setSceneOptions(newSceneOptions)
     }, [shotlist]);
 
-    async function getFilteredData() {
+    const getFilteredData = async () => {
+        const queryResult = await loadData()
+
+        if(!queryResult) return null;
+
+        return filterData(queryResult)
+    }
+
+    async function loadData() {
         if(!shotlist) return null;
 
-        const {data, error, loading} = await client.query({
+        const result = await client.query({
                 query: gql`
                     query shotlistForExport($id: String!) {
                         shotlist(id: $id){
@@ -165,17 +185,23 @@ export default function ExportTab(
 
         //TODO error handling and notification
 
-        let filteredScenes= data.shotlist.scenes as SceneDto[]
+        return result
+    }
+
+    const filterData = (result: ApolloQueryResult<Query>): ShotlistDto => {
+        let filteredScenes= result.data.shotlist?.scenes as SceneDto[] || []
 
         //scene number filter
         if(selectedScenes.length > 0) {
             const selectedScenesArray = Array.from(selectedScenes.entries()).map(s => s[1].value)
 
-            filteredScenes = (data.shotlist.scenes as SceneDto[])
+            filteredScenes = (result.data.shotlist?.scenes as SceneDto[] || [])
                 .filter((scene) => selectedScenesArray.includes(String(scene.position)))
         }
 
-        //custom attribute filters
+        //TODO add scene filter logic
+
+        //custom shot attribute filters
         filteredScenes.forEach(scene => {
             if(!scene.shots || scene.shots.length == 0) return
 
@@ -194,9 +220,9 @@ export default function ExportTab(
                 if(!shot) return
 
                 const matchesFilters = (shot.attributes as AnyShotAttribute[]).every(attribute => {
-                    if(!customFilters.has(attribute.definition?.id)) return true //no filter was defined for this attribute
+                    if(!customShotFilters.has(attribute.definition?.id)) return true //no filter was defined for this attribute
 
-                    const filter = customFilters.get(attribute.definition?.id)?.map(f => Number(f.value))
+                    const filter = customShotFilters.get(attribute.definition?.id)?.map(f => Number(f.value))
                     if(!filter || filter.length == 0) return true //a filter was defined but no options were selected
 
                     switch (attribute.type){
@@ -227,7 +253,7 @@ export default function ExportTab(
             scene.shots = filteredShots;
         })
 
-        return {...data.shotlist, scenes: filteredScenes} as ShotlistDto;
+        return {...result.data.shotlist, scenes: filteredScenes} as ShotlistDto;
     }
 
     async function exportShotlist() {
@@ -322,31 +348,61 @@ export default function ExportTab(
         return `shotly_${shotlist?.name?.replace(/\s/g, "-") || "unnamed-shotlist"}_${wuTime.toFullDateTimeString(Date.now(), {timeSeparator: "-", dateSeparator: "-", dateTimeSeparator: "_", showMilliseconds: false}).replace(/\s/g, "_")}`
     }
 
-    const addFilter = (attributeDefinitionId: number) => {
-        const newCustomFilters = new Map(customFilters)
+    const addShotFilter = (attributeDefinitionId: number) => {
+        const newCustomFilters = new Map(customShotFilters)
         newCustomFilters.set(attributeDefinitionId, [])
-        setCustomFilters(newCustomFilters)
+        setCustomShotFilters(newCustomFilters)
     }
 
-    const setFilterValue = (attributeDefinitionId: number, value: MultiValue<SelectOption>) => {
-        const newCustomFilters = new Map(customFilters)
+    const addSceneFilter = (attributeDefinitionId: number) => {
+        const newCustomFilters = new Map(customSceneFilters)
+        newCustomFilters.set(attributeDefinitionId, [])
+        setCustomSceneFilters(newCustomFilters)
+    }
+
+    const setShotFilterValue = (attributeDefinitionId: number, value: MultiValue<SelectOption>) => {
+        const newCustomFilters = new Map(customShotFilters)
         newCustomFilters.set(attributeDefinitionId, value)
-        setCustomFilters(newCustomFilters)
+        setCustomShotFilters(newCustomFilters)
     }
 
-    const removeFilter = (attributeDefinitionId: number) => {
-        const newCustomFilters = new Map(customFilters)
+    const setSceneFilterValue = (attributeDefinitionId: number, value: MultiValue<SelectOption>) => {
+        const newCustomFilters = new Map(customSceneFilters)
+        newCustomFilters.set(attributeDefinitionId, value)
+        setCustomSceneFilters(newCustomFilters)
+    }
+
+    const removeShotFilter = (attributeDefinitionId: number) => {
+        const newCustomFilters = new Map(customShotFilters)
         newCustomFilters.delete(attributeDefinitionId)
-        setCustomFilters(newCustomFilters)
+        setCustomShotFilters(newCustomFilters)
     }
 
-    //TODO check if this is correct or should be an error
-    if(!shotlist) return <Loader text={"loading shotlist export"}/>
+    const removeSceneFilter = (attributeDefinitionId: number) => {
+        const newCustomFilters = new Map(customSceneFilters)
+        newCustomFilters.delete(attributeDefinitionId)
+        setCustomSceneFilters(newCustomFilters)
+    }
 
-    const customFilterCandidates = shotAttributeDefinitions
+    if(!shotlist) return <>
+        <h2>Configure the export</h2>
+        <Skeleton height={"2rem"} count={2} style={{marginTop: ".5rem"}}/>
+        <Skeleton height={"2rem"} width={"15ch"} style={{marginTop: "2rem"}}/>
+    </>
+
+    const customSceneFilterCandidates = sceneAttributeDefinitions
         ?.filter(attributeDefinition => {
             if(
-                customFilters.has(attributeDefinition?.id) ||
+                customSceneFilters.has(attributeDefinition?.id) ||
+                (attributeDefinition as AnySceneAttributeDefinition).type === "SceneTextAttributeDefinitionDTO"
+            ) return false
+            return true
+        })
+
+    const customShotFilterCandidates = shotAttributeDefinitions
+        ?.filter(attributeDefinition => {
+            if(
+                customShotFilters.has(attributeDefinition?.id) ||
                 (attributeDefinition as AnyShotAttributeDefinition).type === "ShotTextAttributeDefinitionDTO"
             ) return false
             return true
@@ -355,114 +411,151 @@ export default function ExportTab(
     return (
         <div className={"shotlistOptionsDialogExportTab"}>
             <h2>Configure the export</h2>
-            <div className="filters">
-                <div className="filter">
-                    <div className="left">
-                        <File/>
-                        <p>Format</p>
-                    </div>
 
-                    <SimpleSelect
-                        name="File Type"
-                        onChange={newValue => setSelectedFileType(newValue as SelectedFileTypes)}
-                        options={[
-                            {value: "PDF", label: "PDF"},
-                            {value: "CSV-full", label: "CSV (full)"},
-                            {value: "CSV-small", label: "CSV (shots only)"},
-                        ]}
-                        value={selectedFileType}
-                        fontSize={".95rem"}
-                    />
-                </div>
-                <div className="filter">
-                    <div className="left">
-                        <ListOrdered size={22}/>
-                        <p>Scenes</p>
-                    </div>
+            <div className="scroll">
+                <div className="filters">
+                    <div className="filter">
+                        <div className="left">
+                            <File/>
+                            <p>Format</p>
+                        </div>
 
-                    <MultiSelect
-                        name={"Scenes"}
-                        placeholder={"All Scenes"}
-                        options={sceneOptions}
-                        value={selectedScenes}
-                        onChange={newValue => {
-                            setSelectedScenes(newValue)
-                        }}
-                        sorted={true}
-                        minWidth={"20rem"}
-                    />
+                        <SimpleSelect
+                            name="File Type"
+                            onChange={newValue => setSelectedFileType(newValue as SelectedFileTypes)}
+                            options={[
+                                {value: "PDF", label: "PDF"},
+                                {value: "CSV-full", label: "CSV (full)"},
+                                {value: "CSV-small", label: "CSV (shots only)"},
+                            ]}
+                            value={selectedFileType}
+                            fontSize={".95rem"}
+                        />
+                    </div>
+                    <div className="filter">
+                        <div className="left">
+                            <ListOrdered size={22}/>
+                            <p>Scenes</p>
+                        </div>
+
+                        <MultiSelect
+                            name={"Scenes"}
+                            placeholder={"All Scenes"}
+                            options={sceneOptions}
+                            value={selectedScenes}
+                            onChange={newValue => {
+                                setSelectedScenes(newValue)
+                            }}
+                            sorted={true}
+                            minWidth={"20rem"}
+                        />
+                    </div>
                 </div>
 
                 <Separator.Separator orientation="horizontal" className={"Separator"}/>
 
+                <div className="filters">
+                    {Array.from(customSceneFilters).map((filter, index) => {
+                        const definition = sceneAttributeDefinitions?.find(def => def?.id === filter[0]) as SceneSingleOrMultiSelectAttributeDefinition
 
-                {Array.from(customFilters).map((filter, index) => {
-                    const definition = shotAttributeDefinitions?.find(def => def?.id === filter[0]) as ShotSingleOrMultiSelectAttributeDefinition
-                    const Icon = ShotAttributeDefinitionParser.toIcon(definition)
+                        if(!definition) return null
 
-                    return (<Fragment key={definition.id}>
-                        <div className="filter">
-                            <div className="left">
-                                <Icon size={22}/>
-                                <p>{definition.name || "Unnamed"}</p>
-                            </div>
+                        const Icon = SceneAttributeDefinitionParser.toIcon(definition)
+                        const options = (definition.options as SceneSelectAttributeOptionDefinition[])
+                            ?.map(option =>
+                                ({value: option.id.toString(), label: option.name || "Unnamed"})
+                            ) || []
 
-                            <p className="combinationInfo">is {(customFilters.get(definition.id)?.length || 0) > 1 && "one of"}</p>
+                        return (<Fragment key={definition.id}>
+                            <ExportFilter
+                                Icon={Icon}
+                                name={definition.name || "Unnamed"}
+                                options={options}
+                                value={filter[1]}
+                                onChange={newValue => {
+                                    setSceneFilterValue(definition.id, newValue)
+                                }}
+                                onRemove={() => removeSceneFilter(definition.id)}
+                            />
+                            {customSceneFilters.size > index+1 && <p className="combinationInfo">and</p>}
+                        </Fragment>)
+                    })}
+                </div>
 
-                            <div className="right">
-                                <MultiSelect
-                                    name={definition.name || "Unnamed"}
-                                    placeholder={"All " + (definition.name || "Unnamed") + "s"}
-                                    value={filter[1]}
-                                    options={
-                                        (definition.options as ShotSelectAttributeOptionDefinition[])
-                                            ?.map(option =>
-                                                ({value: option.id.toString(), label: option.name || "Unnamed"})
-                                            ) || []
-                                    }
-                                    onChange={newValue => {
-                                        setFilterValue(definition.id, newValue)
-                                    }}
-                                    sorted={true}
-                                    minWidth={"20rem"}
-                                />
+                <Separator.Separator orientation="horizontal" className={"Separator"}/>
 
-                                <button
-                                    className="remove bad"
-                                    onClick={() => removeFilter(definition.id)}
-                                >
-                                    <X size={18}/>
-                                </button>
-                            </div>
-                        </div>
-                        {customFilters.size > index+1 && <p className="combinationInfo">and</p>}
-                    </Fragment>)
-                })}
+                <div className="filters">
+                    {Array.from(customShotFilters).map((filter, index) => {
+                        const definition = shotAttributeDefinitions?.find(def => def?.id === filter[0]) as ShotSingleOrMultiSelectAttributeDefinition
+
+                        if(!definition) return null
+
+                        const Icon = ShotAttributeDefinitionParser.toIcon(definition)
+                        const options = (definition.options as ShotSelectAttributeOptionDefinition[])
+                            ?.map(option =>
+                                ({value: option.id.toString(), label: option.name || "Unnamed"})
+                            ) || []
+
+                        return (<Fragment key={definition.id}>
+                            <ExportFilter
+                                Icon={Icon}
+                                name={definition.name || "Unnamed"}
+                                options={options}
+                                value={filter[1]}
+                                onChange={newValue => {
+                                    setShotFilterValue(definition.id, newValue)
+                                }}
+                                onRemove={() => removeShotFilter(definition.id)}
+                            />
+                            {customShotFilters.size > index+1 && <p className="combinationInfo">and</p>}
+                        </Fragment>)
+                    })}
+                </div>
+
+                <Popover.Root>
+                    <Popover.Trigger className={"addFilter"}>
+                        Add filter <Plus size={20}/>
+                    </Popover.Trigger>
+                    <Popover.Portal>
+                        <Popover.Content className="PopoverContent addFilterPopup" sideOffset={5} align={"start"}>
+                                <h3>Scene</h3>
+                                {
+                                    !customSceneFilterCandidates || customSceneFilterCandidates?.length <= 0 ?
+                                        <p className="empty">None left</p> :
+                                    customSceneFilterCandidates?.map((attributeDefinition, index) => (
+                                        <Popover.Close asChild key={index}>
+                                            <button
+                                                onClick={() => addSceneFilter(attributeDefinition?.id || -1)}
+                                            >
+                                                {attributeDefinition?.name || "Unnamed"}
+                                            </button>
+                                        </Popover.Close>
+                                    ))
+                                }
+                                <h3>Shot</h3>
+                                {
+                                    !customShotFilterCandidates || customShotFilterCandidates?.length <= 0 ?
+                                        <p className="empty">None left</p> :
+                                    customShotFilterCandidates.map((attributeDefinition, index) => (
+                                        <Popover.Close asChild key={index}>
+                                            <button
+                                                onClick={() => addShotFilter(attributeDefinition?.id || -1)}
+                                            >
+                                                {attributeDefinition?.name || "Unnamed"}
+                                            </button>
+                                        </Popover.Close>
+                                    ))
+                                }
+                        </Popover.Content>
+                    </Popover.Portal>
+                </Popover.Root>
             </div>
 
-            {/*TODO show empty info instead of disabling*/}
-            <Popover.Root>
-                <Popover.Trigger className={"addFilter"} disabled={customFilterCandidates?.length == 0}>Add filter<Plus size={20}/></Popover.Trigger>
-                <Popover.Portal>
-                    <Popover.Content className="PopoverContent addAttributeDefinitionPopup" sideOffset={5} align={"start"}>
-                            {
-                                customFilterCandidates?.map((attributeDefinition, index) => (
-                                    <Popover.Close asChild key={index}>
-                                        <button
-                                            onClick={() => addFilter(attributeDefinition?.id || -1)}
-                                        >
-                                            {attributeDefinition?.name || "Unnamed"}
-                                        </button>
-                                    </Popover.Close>
-                                ))
-                            }
-                    </Popover.Content>
-                </Popover.Portal>
-            </Popover.Root>
+            <div className="bottom">
+                <button className={"export"} onClick={exportShotlist}>download shotlist<Download size={16} strokeWidth={3}/></button>
+                <HelpLink link="https://docs.shotly.at/shotlist/export"/>
+            </div>
 
-            <button className={"export"} onClick={exportShotlist}>download shotlist<Download size={16} strokeWidth={3}/></button>
-
-            <HelpLink link="https://docs.shotly.at/shotlist/export" floating/>
         </div>
     )
 }

@@ -2,9 +2,9 @@ import React from "react"
 import "./loader.scss"
 
 
-export default function Loader({ text, scale = 1 }: { text?: string; scale?: number }) {
+export default function Loader({ text, scale = 1, mt }: { text?: string; scale?: number, mt?: string }) {
     return (
-        <div className="loader">
+        <div className="loader" style={{marginTop: mt}}>
             <svg
                 version="1.1"
                 id="Layer_1"

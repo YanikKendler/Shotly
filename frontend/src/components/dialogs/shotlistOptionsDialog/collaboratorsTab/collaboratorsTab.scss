@@ -1,11 +1,16 @@
 div.shotlistOptionsDialogCollaboratorsTab{
   display: flex;
   flex-direction: column;
-  gap: .3rem;
 
+  .collaborators{
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
   .collaborator{
     display: flex;
     align-items: center;
+    font-size: .95rem;
 
     p{
       margin-left: .5rem;
@@ -25,6 +30,7 @@ div.shotlistOptionsDialogCollaboratorsTab{
 
     .simpleSelect{
       margin-left: auto;
+      font-size: .9rem;
     }
 
     .inlineButtons{
@@ -60,17 +66,15 @@ div.shotlistOptionsDialogCollaboratorsTab{
     color: var(--text-50);
   }
 
-  .Separator{
-    margin-top: 2rem;
-  }
-
   .new{
     display: flex;
     align-items: flex-end;
     gap: .8rem;
+    margin-top: 2rem;
 
     .textField input{
       border-color: var(--accent-40);
+      font-size: .9rem;
 
       &:hover{
         border-color: var(--accent-60);
@@ -79,7 +83,7 @@ div.shotlistOptionsDialogCollaboratorsTab{
 
     button{
       font-weight: 500;
-      font-size: .95rem;
+      font-size: .9rem;
       padding-block: .55rem;
       padding-inline: 1rem;
 

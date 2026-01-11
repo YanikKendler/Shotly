@@ -176,17 +176,24 @@ export default function CollaboratorsTab(
         setCollaborations(newCollaborations)
     }
 
+    if(collaborations == null) {
+        return <>
+            <h2>Current Collaborators</h2>
+            <Skeleton height={"2rem"} style={{marginTop: ".5rem"}} count={2}/>
+            <Skeleton height={"2rem"} width={"15ch"} style={{marginTop: "2rem"}}/>
+        </>
+    }
+
     return (
         <div className={"shotlistOptionsDialogCollaboratorsTab"}>
             <h2>Current Collaborators</h2>
+            <div className="collaborators">
             {
-                collaborations == null ?
-                    <Skeleton height={"2rem"} width={"80%"} count={2}/> :
                 collaborations.length <= 0 ?
                     <p className={"empty"}>No collaborators yet</p> :
                 collaborations?.map((collab) => (
                     <div className={"collaborator"} key={collab.id}>
-                        <User size={28}/>
+                        <User size={26}/>
                         <p><span className={"bold"}>{collab.user?.name}</span> • {collab.user?.email}</p>
                         {collab.user?.auth0Sub?.startsWith("google-oauth2|") && <SimpleTooltip asButton={true} text="Signed up using Google"><GoogleLogo/></SimpleTooltip>}
                         <div className="inlineButtons">
@@ -212,6 +219,7 @@ export default function CollaboratorsTab(
                                     {label: "Viewer", value: CollaborationType.View},
                                     {label: "Editor", value: CollaborationType.Edit},
                                 ]}
+                                fontSize={".95rem"}
                             />
                             <button
                                 className="delete bad"
@@ -251,8 +259,7 @@ export default function CollaboratorsTab(
                     </div>
                 )
             )}
-
-            <Separator.Root className="Separator horizontal" orientation="horizontal"/>
+            </div>
 
             <div className="new">
                 {
