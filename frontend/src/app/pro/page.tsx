@@ -12,9 +12,9 @@ import PaymentService from "@/service/PaymentService"
 import SimplePage from "@/components/simplePage/simplePage"
 import Link from "next/link"
 import {Query, UserDto, UserTier} from "../../../lib/graphql/generated"
-import {Separator} from "radix-ui";
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import Config from "@/util/Config"
+import Separator from "@/components/separator/separator"
 
 export default function Pro(){
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -87,7 +87,7 @@ export default function Pro(){
         <SimplePage>
             <h1>Thank you for choosing Shotly Pro!</h1>
             <p>You will get access to unlimited Shotlists and Collaborators.</p>
-            <Separator.Root className="Separator horizontal" orientation="horizontal"/>
+            <Separator/>
             <p className={"small"}>
                 By proceeding, you agree to our <Link href={"/legal/termsOfUse"} className={"inline"}>Terms of Use</Link> and <Link href={"/legal/privacy"} className={"inline"}>Privacy Policy</Link>.
                 <br/>

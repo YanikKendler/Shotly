@@ -28,7 +28,9 @@ div.shotlistOptionsDialogExportTab{
         display: flex;
         align-items: center;
         gap: .5rem;
-        font-size: .95rem;
+        font-size: .9rem;
+        color: var(--text-20);
+        font-weight: 500;
 
         svg{
           color: var(--text-30);
@@ -53,14 +55,15 @@ div.shotlistOptionsDialogExportTab{
     }
 
     .combinationInfo{
-      color: var(--text-50);
-      font-size: .95rem;
+      color: var(--text-60);
+      font-size: .85rem;
       margin-left: 1rem;
+      text-wrap: nowrap;
     }
   }
 
   .Separator{
-    margin-block: 1rem;
+    margin-block: .8rem;
   }
 
   button.addFilter{
@@ -69,7 +72,7 @@ div.shotlistOptionsDialogExportTab{
     padding-block: .4rem;
     padding-inline: .6rem;
     font-weight: 500;
-    font-size: .95rem;
+    font-size: .9rem;
     width: fit-content;
     margin-top: 2rem;
 

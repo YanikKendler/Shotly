@@ -205,14 +205,19 @@ export default function AttributeTab(
                 }}
             >
                 <Tabs.List className={"tabs"}>
-                    <Tabs.Trigger value={"shot"}>
-                        Shot
-                    </Tabs.Trigger>
                     <Tabs.Trigger value={"scene"}>
                         Scene
                     </Tabs.Trigger>
+                    <Tabs.Trigger value={"shot"}>
+                        Shot
+                    </Tabs.Trigger>
                 </Tabs.List>
-                <Tabs.Content value={"shot"} className={"content"}>
+                <Tabs.Content
+                    value={"shot"}
+                    className={"content"}
+                    forceMount={true}
+                    style={{display: selectedPage == "shot" ? "block" : "none"}}
+                >
                     {!shotAttributeDefinitions ?
                         <>
                             <Skeleton height={"2.5rem"} count={3} style={{marginTop: ".5rem"}}/>
@@ -259,7 +264,12 @@ export default function AttributeTab(
                         </>
                     }
                 </Tabs.Content>
-                <Tabs.Content value={"scene"} className={"content"}>
+                <Tabs.Content
+                    value={"scene"}
+                    className={"content"}
+                    forceMount={true}
+                    style={{display: selectedPage == "scene" ? "block" : "none"}}
+                >
                     {!sceneAttributeDefinitions ?
                         <>
                             <Skeleton height={"2.5rem"} count={3} style={{marginTop: ".5rem"}}/>

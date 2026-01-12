@@ -1,5 +1,4 @@
 import {ShotlistDto, UserDto} from "../../../../../lib/graphql/generated"
-import {Separator} from "radix-ui"
 import React from "react"
 import gql from "graphql-tag"
 import {wuGeneral, wuTime} from "@yanikkendler/web-utils"
@@ -9,6 +8,7 @@ import {useRouter} from "next/navigation"
 import "./generalTab.scss"
 import TextField from "@/components//inputs/textField/textField"
 import Loader from "@/components/feedback/loader/loader"
+import Separator from "@/components/separator/separator"
 
 export default function GeneralTab({
     shotlist,
@@ -109,7 +109,7 @@ export default function GeneralTab({
                 disabled={isReadOnly}
             />
 
-            <Separator.Root className={"Separator"}></Separator.Root>
+            <Separator/>
 
             <div className="details">
                 <p>Created at <b>{wuTime.toFullDateTimeString(shotlist.createdAt)}</b> by <b>{shotlist.owner?.name}</b></p>
@@ -124,7 +124,7 @@ export default function GeneralTab({
             {
                 shotlist.owner?.id == currentUser?.id &&
                 <>
-                    <Separator.Root className={"Separator dangerZone"}></Separator.Root>
+                    <Separator className={"dangerZone"}/>
                     <div className="row">
                         <p>Permanently delete the shotlist "{shotlist.name}"</p>
                         <button

@@ -24,6 +24,7 @@ export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBas
         paddingInline: ".5rem",
         backgroundColor: state.isFocused ? 'var(--hover-bg-accent-10)' : 'transparent',
         color: "var(--text)",
+        fontSize: "0.85rem",
     }),
     input: (baseStyles) => ({
         ...baseStyles,
@@ -31,8 +32,7 @@ export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBas
     }),
     menu: (baseStyles) => ({
         ...baseStyles,
-        marginTop: 0,
-        zIndex: 20
+        marginTop: 0
     }),
     singleValue: (baseStyles) => ({
         ...baseStyles,
@@ -54,9 +54,11 @@ export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBas
     multiValueRemove: (baseStyles) => ({
         ...baseStyles,
         transition: 'background-color 0.1s, color 0.1s',
+        color: "var(--text-30)",
         '&:hover': {
-            backgroundColor: "var(--hover-bg-bad-10)",
-            cursor: 'pointer',
+            color: "var(--bad)",
+            backgroundColor: "var(--bad-80)",
+            cursor: "default"
         },
     }),
 }

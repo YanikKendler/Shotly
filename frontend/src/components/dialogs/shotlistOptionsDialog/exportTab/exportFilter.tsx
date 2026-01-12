@@ -9,6 +9,7 @@ import {SelectOption} from "@/util/Types"
 export default function ExportFilter({
     Icon,
     name,
+    isMulti,
     options,
     value,
     onChange,
@@ -16,6 +17,7 @@ export default function ExportFilter({
 }:{
     Icon: ForwardRefExoticComponent<Omit<LucideProps, "ref">>
     name: string,
+    isMulti: boolean,
     options: SelectOption[],
     value: MultiValue<SelectOption>,
     onChange: (value: MultiValue<SelectOption>) => void,
@@ -35,7 +37,7 @@ export default function ExportFilter({
             <div className="right">
                 <MultiSelect
                     name={name}
-                    placeholder={"All " + name + "s"}
+                    placeholder={`All ${name}${isMulti ? "" : "s"}`}
                     value={value}
                     options={options}
                     onChange={onChange}

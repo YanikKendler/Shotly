@@ -1,13 +1,18 @@
-import React, {forwardRef, memo, ReactNode, useContext, useImperativeHandle, useMemo, useState} from "react"
+import React, {forwardRef, memo, ReactNode, useContext, useImperativeHandle, useState} from "react"
 import "./row.scss"
-import {Popover, Separator, Tooltip} from "radix-ui"
+import {Popover} from "radix-ui"
 import {ArrowBigDown, ArrowBigUp, CornerDownRight, GripVertical, List, NotepadText, Trash} from "lucide-react"
 import {useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import {ShotDto} from "../../../../../lib/graphql/generated"
-import { Cell } from "../cell/cell"
+import {Cell} from "../cell/cell"
 import Utils from "@/util/Utils"
+import Separator from "@/components/separator/separator"
+import {
+    ShotlistOptionsDialogPage,
+    ShotlistOptionsDialogSubPage
+} from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 
 export interface RowRef {
     closePopover: () => void
@@ -111,7 +116,7 @@ const RowBase = forwardRef<RowRef, RowProps>(({
                             <button disabled={true}><CornerDownRight size={18}/> Make Subshot</button>
                             <button disabled={true}><NotepadText size={18}/> Notes</button>
                             <button className={"bad"} onClick={deleteShot}><Trash size={18}/> Delete</button>
-                            <Separator.Root className="Separator"/>
+                            <Separator/>
                             <button
                                 disabled={position == 0}
                                 onClick={() => moveShot(shot.id as string, position-1)}
@@ -124,9 +129,14 @@ const RowBase = forwardRef<RowRef, RowProps>(({
                             >
                                 <ArrowBigDown size={18}/>Move down
                             </button>
-                            <Separator.Root className="Separator"/>
-                            <button onClick={() => shotlistContext.openShotlistOptionsDialog({main: "attributes", sub: "shot"})}><List size={18}/> Edit shot attributes</button>
-                            <Separator.Root className="Separator"/>
+                            <Separator/>
+                            <button onClick={() => shotlistContext.openShotlistOptionsDialog({
+                                main: ShotlistOptionsDialogPage.attributes,
+                                sub: ShotlistOptionsDialogSubPage.shot})}
+                            >
+                                <List size={18}/> Edit shot attributes
+                            </button>
+                            <Separator/>
                             <p className={"instructions"}><span className="bold">Click</span> to edit, <span className="bold">Drag</span> to reorder</p>
                         </Popover.Content>
                     </Popover.Portal>

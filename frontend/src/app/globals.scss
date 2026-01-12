@@ -68,7 +68,7 @@
 
   --popup-border: hsl(0, 0%, 82%);
   --select-menu-border: hsl(0, 0%, 75%);
-  --select-menu-multivalue-bg: hsl(0, 0%, 95%);
+  --select-menu-multivalue-bg: hsl(0, 0%, 90%);
 
   --dialog-close-button-bg: hsl(0, 0%, 90%);
   --dialog-close-button-hover-bg: hsl(0, 0%, 85%);
@@ -163,7 +163,7 @@
 
   --popup-border: hsl(0, 0%, 18%);
   --select-menu-border: hsl(0, 0%, 25%);
-  --select-menu-multivalue-bg: hsl(0, 0%, 15%);
+  --select-menu-multivalue-bg: hsl(0, 0%, 25%);
 
   --dialog-close-button-bg: hsl(0, 0%, 10%);
   --dialog-close-button-hover-bg: hsl(0, 0%, 15%);
@@ -333,6 +333,10 @@ button, a:not(.inline){
     padding: 0;
   }
 
+  &.inline{
+    display: inline-block;
+  }
+
   svg{
     flex-shrink: 0;
   }
@@ -477,7 +481,7 @@ span.wrap{
       }
 
       .Separator{
-        background-color: var(--text-70);
+        --color: var(--text-70);
       }
 
       > .bottom{
@@ -614,29 +618,6 @@ span.wrap{
   to {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-// Style radix Separator
-
-.Separator {
-  background-color: var(--text-90);
-  flex-shrink: 0;
-
-  &[data-orientation="horizontal"] {
-    --offset: 0rem;
-    height: 1px;
-    width: calc(100% - var(--offset) * 2);
-    margin-inline: var(--offset);
-    margin-block: .5rem;
-  }
-
-  &[data-orientation="vertical"] {
-    --offset: 0rem;
-    width: 1px;
-    height: calc(100% - var(--offset) * 2);
-    margin-block: var(--offset);
-    margin-inline: .5rem;
   }
 }
 

@@ -27,7 +27,7 @@
   }
 
   .list {
-    > .empty {
+    #scenes > .empty {
       text-align: center;
       color: var(--text-40);
       font-size: .9rem;

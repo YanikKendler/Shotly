@@ -78,7 +78,6 @@ export default function MultiSelect(
         onChange(newOptions)
     }
 
-
     return (
         <Select
             isMulti
@@ -134,6 +133,7 @@ export default function MultiSelect(
                 }),
                 option: (base, state) => ({
                     ...base,
+                    fontSize: "0.85rem",
                     borderRadius: '0.3rem',
                     backgroundColor: state.isSelected
                         ? 'var(--hover-bg-accent-10)'
@@ -150,6 +150,14 @@ export default function MultiSelect(
                     ...baseStyles,
                     color: "var(--text)",
                 }),
+                multiValueRemove: (baseStyles, state) => ({
+                    ...baseStyles,
+                    color: "var(--text-30)",
+                    '&:hover': {
+                        color: "var(--bad)",
+                        backgroundColor: "var(--bad-90)"
+                    },
+                })
             }}
         />
     )

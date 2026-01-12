@@ -11,7 +11,7 @@ export default function SimpleTooltip({
     hoverAreaExpansion,
     showHoverArea = true,
     asButton = false,
-    delay
+    delay = 500
 }: {
     children: ReactNode
     text: string

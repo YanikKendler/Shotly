@@ -18,11 +18,12 @@ import {
     Users
 } from "lucide-react"
 import Image from "next/image"
-import {Popover, Separator, Tooltip} from "radix-ui"
+import {Popover, Tooltip} from "radix-ui"
 import AuthSwitcher from "@/components/utility/authSwitcher/authSwitcher"
 import ThemeSwitcher from "@/components/utility/themeSwitcher/themeSwitcher"
 import Skeleton from "react-loading-skeleton"
 import Config from "@/util/Config"
+import Separator from "@/components/separator/separator"
 
 export default function Landing() {
     const pageRef = useRef<HTMLDivElement>(null);
@@ -238,7 +239,7 @@ export default function Landing() {
                                     </Popover.Root>
                                 </div>
                             </div>
-                            <Separator.Root className={"Separator"}/>
+                            <Separator/>
                             <ul className="features">
                                 <li><Check size={20} strokeWidth={3}/>1 free shotlist</li>
                                 <li><Check size={20} strokeWidth={3}/>{Config.constant.maxCollaboratorsInFreePlan} collaborators</li>
@@ -256,7 +257,7 @@ export default function Landing() {
                                     <p className="frequency">/mo</p>
                                 </div>
                             </div>
-                            <Separator.Root className={"Separator"}/>
+                            <Separator/>
                             <ul className="features">
                                 <li className={"bold"}><Check size={20} strokeWidth={3}/>unlimited shotlists</li>
                                 <li className={"bold"}><Check size={20} strokeWidth={3}/>unlimited collaborators</li>

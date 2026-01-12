@@ -8,9 +8,10 @@ import {ChevronDown, List, Type, Loader} from "lucide-react"
 import {JSX} from "react"
 import {wuConstants, wuText} from "@yanikkendler/web-utils/dist"
 import {
+    SceneAttributeDefinitionBase,
     SceneMultiSelectAttributeDto,
     SceneSelectAttributeOptionDefinition, SceneSingleSelectAttributeDto,
-    SceneTextAttributeDto, ShotMultiSelectAttributeDto,
+    SceneTextAttributeDto, ShotAttributeDefinitionBase, ShotMultiSelectAttributeDto,
     ShotSelectAttributeOptionDefinition, ShotSingleSelectAttributeDto, ShotTextAttributeDto
 } from "../../lib/graphql/generated"
 
@@ -126,6 +127,10 @@ export abstract class ShotAttributeDefinitionParser {
                 return Type
         }
     }
+
+    static isMulti(definition: AnyShotAttributeDefinition) {
+        return definition.type === "ShotMultiSelectAttributeDefinitionDTO"
+    }
 }
 
 export abstract class SceneAttributeDefinitionParser {
@@ -141,6 +146,10 @@ export abstract class SceneAttributeDefinitionParser {
             default:
                 return Type
         }
+    }
+
+    static isMulti(definition: AnySceneAttributeDefinition) {
+        return definition.type === "SceneMultiSelectAttributeDefinitionDTO"
     }
 }
 

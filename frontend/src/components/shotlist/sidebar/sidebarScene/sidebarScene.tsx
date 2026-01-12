@@ -4,15 +4,20 @@ import {SceneAttributeParser} from "@/util/AttributeParser"
 import {SceneDto} from "../../../../../lib/graphql/generated"
 import "./sidebarScene.scss"
 import React, {forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
-import {Collapsible, Popover, Separator, Tooltip} from "radix-ui"
-import {AnySceneAttribute, AnyShotAttribute} from "@/util/Types"
-import {ArrowBigDown, ArrowBigUp, CornerDownRight, GripVertical, List, NotepadText, Trash} from "lucide-react"
+import {Collapsible, Popover} from "radix-ui"
+import {AnySceneAttribute} from "@/util/Types"
+import {ArrowBigDown, ArrowBigUp, GripVertical, List, Trash} from "lucide-react"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import SceneAttribute, {SceneAttributeRef} from "../sceneAttribute/sceneAttribute"
 import ErrorDisplay from "@/components/feedback/errorDisplay/errorDisplay"
+import {
+    ShotlistOptionsDialogPage,
+    ShotlistOptionsDialogSubPage
+} from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
+import Separator from "@/components/separator/separator"
 
 export interface SidebarSceneRef {
     closePopover: () => void
@@ -160,7 +165,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                                 }}>
                                     <Trash size={18}/>Delete
                                 </button>
-                                <Separator.Root className="Separator"/>
+                                <Separator/>
                                 <button
                                     disabled={position == 0}
                                     onClick={() => moveScene(scene.id as string, position - 1)}
@@ -173,14 +178,14 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                                 >
                                     <ArrowBigDown size={18}/>Move down
                                 </button>
-                                <Separator.Root className="Separator"/>
+                                <Separator/>
                                 <button onClick={() => shotlistContext.openShotlistOptionsDialog({
-                                    main: "attributes",
-                                    sub: "scene"
+                                    main: ShotlistOptionsDialogPage.attributes,
+                                    sub: ShotlistOptionsDialogSubPage.scene
                                 })}>
                                     <List size={18}/> Edit scene attributes
                                 </button>
-                                <Separator.Root className="Separator"/>
+                                <Separator/>
                                 <p className={"instructions"}><span className="bold">Click</span> to edit, <span className="bold">Drag</span> to reorder</p>
                             </Popover.Content>
                         </Popover.Portal>
@@ -195,7 +200,20 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                 >
                     <div className="attributes">
                         {sceneAttributes.length == 0 ?
-                            <p className={"empty"}>No attributes defined</p> : sceneAttributes.map((attr, index) => (
+                            <p className={"empty"}>
+                                {"Add a "}
+                                <button
+                                    className="inline noPadding accent noSceneAttributes"
+                                    onClick={() => shotlistContext.openShotlistOptionsDialog({
+                                        main: ShotlistOptionsDialogPage.attributes,
+                                        sub: ShotlistOptionsDialogSubPage.scene
+                                    })}
+                                >
+                                    scene attribute
+                                </button>
+                                {" to get started"}
+                            </p> :
+                            sceneAttributes.map((attr, index) => (
                                 <SceneAttribute
                                     key={attr.id}
                                     attribute={attr}

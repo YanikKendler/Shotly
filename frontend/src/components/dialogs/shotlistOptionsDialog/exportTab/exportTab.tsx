@@ -7,7 +7,7 @@ import {wuGeneral, wuTime} from "@yanikkendler/web-utils"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {
     Query,
-    SceneDto, SceneSelectAttributeOptionDefinition,
+    SceneDto, SceneMultiSelectAttributeDto, SceneSelectAttributeOptionDefinition, SceneSingleSelectAttributeDto,
     ShotDto,
     ShotlistDto, ShotMultiSelectAttributeDto,
     ShotSelectAttributeOptionDefinition, ShotSingleSelectAttributeDto
@@ -32,11 +32,12 @@ import {
 } from "@/util/AttributeParser"
 //@ts-ignore
 import {downloadCSV} from "@/downloadCSV"
-import {Popover, Separator} from "radix-ui"
+import {Popover} from "radix-ui"
 import {MultiValue} from "react-select"
 import HelpLink from "@/components/helpLink/helpLink"
 import Skeleton from "react-loading-skeleton"
 import ExportFilter from "@/components/dialogs/shotlistOptionsDialog/exportTab/exportFilter"
+import Separator from "@/components/separator/separator"
 
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full"
 
@@ -70,8 +71,10 @@ export default function ExportTab(
 
     //retrieve settings from local storage
     useEffect(() => {
-        const settingsString = localStorage.getItem(Config.localStorageKey.exportSettings)
-        if (!settingsString) return;
+        if(!shotlist || !shotlist.id) return
+
+        const settingsString = localStorage.getItem(Config.localStorageKey.exportSettings(shotlist.id))
+        if (!settingsString) return
 
         const settingsObject = JSON.parse(settingsString) as ExportSettingsLocalStorage
 
@@ -86,10 +89,12 @@ export default function ExportTab(
         if(settingsObject.customSceneFilters && settingsObject.customSceneFilters.length > 0)
             setCustomSceneFilters(new Map(settingsObject.customSceneFilters))
 
-    }, [])
+    }, [shotlist])
 
     //save settings to local storage
     useEffect(() => {
+        if(!shotlist || !shotlist.id) return
+
         const settingsObject: ExportSettingsLocalStorage = {
             selectedFileType: selectedFileType,
             selectedScenes: selectedScenes,
@@ -97,7 +102,7 @@ export default function ExportTab(
             customSceneFilters: Array.from(customSceneFilters)
         }
         const settingsString = JSON.stringify(settingsObject)
-        localStorage.setItem(Config.localStorageKey.exportSettings, settingsString)
+        localStorage.setItem(Config.localStorageKey.exportSettings(shotlist.id), settingsString)
     }, [selectedFileType, selectedScenes, customShotFilters, customSceneFilters]);
 
     //extract scenes as SelectOptions from shotlist
@@ -199,7 +204,39 @@ export default function ExportTab(
                 .filter((scene) => selectedScenesArray.includes(String(scene.position)))
         }
 
-        //TODO add scene filter logic
+        //custom scene attribute filters
+        filteredScenes = filteredScenes.filter((scene) => {
+            const matchesFilters = (scene.attributes as AnySceneAttribute[]).every(attribute => {
+                if(!customSceneFilters.has(attribute.definition?.id)) return true //no filter was defined for this attribute
+
+                const filter = customSceneFilters
+                    .get(attribute.definition?.id)
+                    ?.map(f => Number(f.value))
+
+                if(!filter || filter.length == 0) return true //a filter was defined but no options were selected
+
+                switch (attribute.type){
+                    case "SceneSingleSelectAttributeDTO":
+                        const singleValueId = (attribute as SceneSingleSelectAttributeDto).singleSelectValue?.id
+                        if(filter.includes(singleValueId)) {
+                            return true
+                        }
+                        break
+                    case "SceneMultiSelectAttributeDTO":
+                        const multiValue = (attribute as SceneMultiSelectAttributeDto).multiSelectValue
+                        if(multiValue?.some(value =>
+                            filter.includes(value?.id))
+                        ) {
+                            return true
+                        }
+                        break
+                }
+
+                return false //filters were found but not passed
+            })
+
+            return matchesFilters
+        })
 
         //custom shot attribute filters
         filteredScenes.forEach(scene => {
@@ -211,8 +248,8 @@ export default function ExportTab(
              * For every shot - check if all the attributes match the filters
              * if any attribute does not match, the whole shot is not included
              *
-             * Every attribute can only have one filter associated with it so iterating over all the attributes
-             * and then checking if a filter exists for each attribute covers all cases
+             * Every attribute can only have one filter associated with it so iterating over all the attributes and
+             * then checking if a filter exists for each attribute covers all cases
              *
              * The shots of the scene are then replaced with only those that passed the filter (filteredShots)
              */
@@ -251,6 +288,11 @@ export default function ExportTab(
             })
 
             scene.shots = filteredShots;
+        })
+
+        //remove scenes where not shots passed the filters
+        filteredScenes = filteredScenes.filter(scene => {
+            return scene.shots && scene.shots.length > 0
         })
 
         return {...result.data.shotlist, scenes: filteredScenes} as ShotlistDto;
@@ -429,7 +471,7 @@ export default function ExportTab(
                                 {value: "CSV-small", label: "CSV (shots only)"},
                             ]}
                             value={selectedFileType}
-                            fontSize={".95rem"}
+                            fontSize={".9rem"}
                         />
                     </div>
                     <div className="filter">
@@ -452,7 +494,7 @@ export default function ExportTab(
                     </div>
                 </div>
 
-                <Separator.Separator orientation="horizontal" className={"Separator"}/>
+                {customSceneFilters.size > 0 && <Separator text={"Scene attributes"}/>}
 
                 <div className="filters">
                     {Array.from(customSceneFilters).map((filter, index) => {
@@ -463,13 +505,17 @@ export default function ExportTab(
                         const Icon = SceneAttributeDefinitionParser.toIcon(definition)
                         const options = (definition.options as SceneSelectAttributeOptionDefinition[])
                             ?.map(option =>
-                                ({value: option.id.toString(), label: option.name || "Unnamed"})
+                                ({
+                                    value: option.id.toString(),
+                                    label: option.name || "Unnamed",
+                                })
                             ) || []
 
                         return (<Fragment key={definition.id}>
                             <ExportFilter
                                 Icon={Icon}
                                 name={definition.name || "Unnamed"}
+                                isMulti={SceneAttributeDefinitionParser.isMulti(definition)}
                                 options={options}
                                 value={filter[1]}
                                 onChange={newValue => {
@@ -482,7 +528,7 @@ export default function ExportTab(
                     })}
                 </div>
 
-                <Separator.Separator orientation="horizontal" className={"Separator"}/>
+                {customShotFilters.size > 0 && <Separator text={"Shot attributes"}/>}
 
                 <div className="filters">
                     {Array.from(customShotFilters).map((filter, index) => {
@@ -500,6 +546,7 @@ export default function ExportTab(
                             <ExportFilter
                                 Icon={Icon}
                                 name={definition.name || "Unnamed"}
+                                isMulti={ShotAttributeDefinitionParser.isMulti(definition)}
                                 options={options}
                                 value={filter[1]}
                                 onChange={newValue => {

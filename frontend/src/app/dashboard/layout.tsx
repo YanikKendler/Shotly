@@ -23,7 +23,7 @@ import {
     LoaderCircle
 } from "lucide-react"
 import {CollaborationDto, CollaborationState, Query, ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
-import {Collapsible, Popover, Separator, Tooltip} from "radix-ui"
+import {Collapsible, Popover, Tooltip} from "radix-ui"
 import {wuGeneral} from "@yanikkendler/web-utils"
 import auth from "@/Auth"
 import {usePathname, useRouter} from "next/navigation"
@@ -38,6 +38,7 @@ import { DashboardContext } from "@/context/DashboardContext"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
 import Config from "@/util/Config"
 import HelpLink from "@/components/helpLink/helpLink"
+
 
 export default function DashboardLayout({children}: { children: React.ReactNode }) {
     const client = useApolloClient()
@@ -309,7 +310,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                 </Collapsible.Content>
                             </Collapsible.Root>
 
-                            <Separator.Separator decorative orientation="horizontal" className={"Separator"}/>
+                            <Separator/>
 
                             <Collapsible.Root className={"CollapsibleRoot dashboardSidebar"} defaultOpen={true}>
                                 <Collapsible.Trigger className={"noClickFx"}>

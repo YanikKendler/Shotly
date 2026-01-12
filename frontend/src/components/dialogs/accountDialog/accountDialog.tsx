@@ -8,7 +8,7 @@ import gql from "graphql-tag"
 import {Monitor, Moon, Sun, X} from "lucide-react"
 import Auth from "@/Auth"
 import {User, UserDto, UserTier} from "../../../../lib/graphql/generated"
-import {RadioGroup, Separator, Switch, VisuallyHidden} from "radix-ui"
+import {RadioGroup, Switch, VisuallyHidden} from "radix-ui"
 import TextField from "@/components/inputs/textField/textField"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
 import Loader from "@/components/feedback/loader/loader"
@@ -20,6 +20,7 @@ import Skeleton from "react-loading-skeleton"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
 import Slider from "@/components/inputs/slider/slider"
 import {BUILD_INFO} from "../../../../buildinfo"
+import Separator from "@/components/separator/separator";
 
 export interface UserSettings {
     saveExportSettingsInLocalstorage: boolean
@@ -49,7 +50,13 @@ export function useAccountDialog() {
     const [settingsLoaded, setSettingsLoaded] = useState(false)
     
     useEffect(() => {
-        setSelectedAppearance(localStorage.getItem(Config.localStorageKey.theme) || "system")
+        const appearance = localStorage.getItem(Config.localStorageKey.theme)
+        if(appearance != null) {
+            setSelectedAppearance(appearance)
+        }
+        else{
+            setSelectedAppearance("system")
+        }
 
         const userSettingsString = localStorage.getItem(Config.localStorageKey.userSettings)
         if(userSettingsString != null) {
@@ -67,11 +74,14 @@ export function useAccountDialog() {
     }, [])
 
     /**
+     * write theme to localstorage
      * this is handled individually and not with the other settings
      * because the appearance is applied and loaded in the root layout before anything else so that there is no flashing
      * @param value
      */
     useEffect(() => {
+        if(!settingsLoaded) return
+
         localStorage.setItem(Config.localStorageKey.theme, selectedAppearance)
 
         switch (selectedAppearance) {
@@ -86,6 +96,7 @@ export function useAccountDialog() {
         }
     }, [selectedAppearance])
 
+    //load settings from localstorage
     useEffect(() => {
         if(settingsLoaded == false) return
 
@@ -256,7 +267,7 @@ export function useAccountDialog() {
                 </div>
 
 
-                <Separator.Root className={"Separator"}/>
+                <Separator/>
 
                 <div className="row">
                     <p>Appearance</p>
@@ -356,14 +367,14 @@ export function useAccountDialog() {
                     </>
                 }
 
-                <Separator.Root className={"Separator"}/>
+                <Separator/>
 
                 <div className="row">
                     <p>Report a bug or request a feature</p>
                     <Link href={"https://github.com/YanikKendler/shotly/issues/new/choose"} target={"_blank"}>new issue</Link>
                 </div>
 
-                <Separator.Root className={"Separator"}/>
+                <Separator/>
 
                 <div className="row">
                     <p>Use another account</p>
@@ -374,7 +385,7 @@ export function useAccountDialog() {
                     <button className={"delete bad"} onClick={deleteAccount}>delete account</button>
                 </div>
 
-                <Separator.Root className={"Separator"}/>
+                <Separator/>
 
                 <div className="row legal">
                     <Link href={"./legal/cookies"} target={"_blank"}>cookies</Link>

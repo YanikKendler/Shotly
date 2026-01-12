@@ -10,7 +10,7 @@ import React, {
 } from "react"
 import gql from "graphql-tag"
 import {ShotlistContext} from "@/context/ShotlistContext";
-import { ApolloQueryResult, useApolloClient} from "@apollo/client"
+import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import ErrorDisplay from "@/components/feedback/errorDisplay/errorDisplay"
 import "./sheetManager.scss"
 import {Query, ShotAttributeDefinitionBase, ShotDto} from "../../../../../lib/graphql/generated"
@@ -24,6 +24,10 @@ import Sortable from 'sortablejs';
 import {Cell, CellRef} from "@/components/shotlist/table/cell/cell"
 import {Row, RowRef} from "../row/row";
 import {SelectedScene} from "@/app/shotlist/[id]/page"
+import {
+    ShotlistOptionsDialogPage,
+    ShotlistOptionsDialogSubPage
+} from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 
 export interface SheetManagerRef {
     getCellRef: (row: number, column: number) => CellRef | null
@@ -427,6 +431,27 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     if(query.error)
         return <div className="sheetManager"><ErrorDisplay title={query.error.message}/></div>
 
+    if(
+        (isReadOnly && query.data.shots && query.data.shots.length <= 0) ||
+        shotAttributeDefinitions.length == 0
+    ) {
+        return <div className="sheetManager">
+            <p className={"empty"}>
+                {"Add a "}
+                <button
+                    className="inline noPadding accent noShotAttributes"
+                    onClick={() => shotlistContext.openShotlistOptionsDialog({
+                        main: ShotlistOptionsDialogPage.attributes,
+                        sub: ShotlistOptionsDialogSubPage.shot
+                    })}
+                >
+                    shot attribute
+                </button>
+                {" to get started"}
+            </p>
+        </div>
+    }
+
     return (
         <div
             className="sheetManager"
@@ -434,10 +459,6 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
             onScrollEnd={handleScroll}
             ref={shotTableElement}
         >
-            {
-                isReadOnly && query.data.shots && query.data.shots.length <= 0 &&
-                <p className={"empty"}>No Shots here yet ¯\(o_o)/¯</p>
-            }
             <div id="shots">
                 {(query.data.shots as ShotDto[])?.map((shot: ShotDto, row: number) => (
                     <Row

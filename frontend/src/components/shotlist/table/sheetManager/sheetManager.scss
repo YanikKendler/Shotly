@@ -44,5 +44,16 @@
     text-align: center;
     margin-top: 2rem;
     color: var(--text-50);
+
+    button.noShotAttributes{
+      text-decoration: underline;
+      padding: .3rem;
+      margin: -.3rem;
+      color: var(--accent);
+
+      &:hover{
+        color: var(--accent-40);
+      }
+    }
   }
 }

@@ -31,7 +31,10 @@ export default class Config {
 
     static readonly localStorageKey = {
         theme: "shotly-theme",
-        exportSettings: "shotly-export-settings",
+        //I guess this could be regarded as a sin.. non constant value in a config file or whatever but this actually
+        //enforces the convention more nicely because its accessed in the same place as all other local storage keys
+        //but then throws an error if its used as a value instead of a function call and requires the shotlistId to be passed
+        exportSettings: (shotlistId: string) => "shotly-export-settings_" + shotlistId,
         userSettings: "shotly-user-settings",
         dashboardTourCompleted: "shotly-dashboard-tour-completed",
         shotlistTourCompleted: "shotly-shotlist-tour-completed",

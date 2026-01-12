@@ -3,7 +3,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import React, {useEffect, useState} from 'react';
 import "./shotlistOptionsDialog.scss"
-import {Popover, Separator, Tabs, VisuallyHidden} from "radix-ui"
+import {Popover, Tabs, VisuallyHidden} from "radix-ui"
 import {ChevronDown, File, FileDown, List, Plus, Type, Users, X, ListOrdered, Settings, Settings2} from "lucide-react"
 import {
     AnySceneAttributeDefinition,
@@ -17,6 +17,7 @@ import ExportTab from "@/components/dialogs/shotlistOptionsDialog/exportTab/expo
 import GeneralTab from "@/components/dialogs/shotlistOptionsDialog/generalTab/generalTab"
 import AttributeTab from "@/components/dialogs/shotlistOptionsDialog/attributeTab/attributeTab"
 import CollaboratorsTab from "@/components/dialogs/shotlistOptionsDialog/collaboratorsTab/collaboratorsTab"
+import Separator from "@/components/separator/separator"
 
 export enum ShotlistOptionsDialogPage {
     general = "general",
@@ -95,23 +96,17 @@ export default function ShotlistOptionsDialog({
     }, [shotlistId, isOpen]);
 
     useEffect(() => {
-        if(selectedPage)
+        if(selectedPage) {
             setSelectedMainPage(selectedPage.main)
+            setSelectedSubPage(selectedPage.sub)
+        }
     }, [selectedPage]);
 
     useEffect(() => {
         if (isOpen) {
             setStringifiedAttributeData(JSON.stringify(shotAttributeDefinitions) + JSON.stringify(sceneAttributeDefinitions) + JSON.stringify(shotlist));
         }
-        if(selectedPage){
-            updateUrl(selectedPage.main)
-            setSelectedMainPage(selectedPage.main)
-        }
     }, [isOpen]);
-
-    useEffect(() => {
-        console.log({currentTab: selectedMainPage})
-    }, [selectedMainPage]);
 
     const updateUrl = (page?: ShotlistOptionsDialogPage) => {
         const url = new URL(window.location.href)
@@ -230,11 +225,14 @@ export default function ShotlistOptionsDialog({
     }
 
     return (
-        <Dialog.Root open={isOpen} onOpenChange={(isOpen: boolean) => {
-            setIsOpen(isOpen)
-            updateUrl()
-            runRefreshShotlistCheck()
-        }}>
+        <Dialog.Root
+            open={isOpen}
+            onOpenChange={(isOpen: boolean) => {
+                setIsOpen(isOpen)
+                updateUrl()
+                runRefreshShotlistCheck()
+            }}
+        >
             <Dialog.Portal>
                 <Dialog.Overlay className={"shotlistOptionsDialogOverlay dialogOverlay"}/>
                 <Dialog.Content aria-describedby={"confirm action dialog"} className={"shotlistOptionsDialogContent dialogContent"}>
@@ -276,14 +274,8 @@ export default function ShotlistOptionsDialog({
                                     Export
                                 </Tabs.Trigger>
                             </Tabs.List>
-                            <Separator.Root
-                                className="Separator vertical"
-                                orientation="vertical"
-                            />
-                            <Separator.Root
-                                className="Separator horizontal"
-                                orientation="horizontal"
-                            />
+                            <Separator orientation={"vertical"}/>
+                            <Separator orientation={"horizontal"}/>
                             <Tabs.Content value={"general"} className={"content"}>
                                 <GeneralTab
                                     shotlist={shotlist}
