@@ -60,7 +60,12 @@ public class ShotlistWebsocketService {
 
     @Transactional
     public void removeFromRoom(UUID shotlistId, UUID userId, String connectionId) {
-        rooms.get(shotlistId).remove(connectionId);
+        try{
+            rooms.get(shotlistId).remove(connectionId);
+        }
+        catch (Exception e){
+            LOGGER.errorf("Error removing connection %s from room %s: %s", connectionId, shotlistId, e.getMessage());
+        }
 
         User user = userRepository.findById(userId);
 

@@ -10,6 +10,7 @@ import me.kendler.yanik.dto.shotlist.ShotlistDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistEditDTO;
 import me.kendler.yanik.error.ShotlyErrorCode;
 import me.kendler.yanik.error.ShotlyException;
+import me.kendler.yanik.model.Collaboration;
 import me.kendler.yanik.model.User;
 import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.UserTier;
@@ -36,6 +37,9 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
 
     @Inject
     TemplateRepository templateRepository;
+
+    @Inject
+    CollaborationRepository collaborationRepository;
 
     private static final Logger LOGGER = Logger.getLogger(ShotlistRepository.class);
 
@@ -119,6 +123,9 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
         if (shotlist != null) {
             for (Scene scene : shotlist.scenes) {
                 sceneRepository.delete(scene.id);
+            }
+            for (Collaboration collab : shotlist.collaborations){
+                collaborationRepository.delete(collab.id);
             }
             delete(shotlist);
             return shotlist.toDTO();
