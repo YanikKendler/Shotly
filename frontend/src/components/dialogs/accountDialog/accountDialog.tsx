@@ -319,7 +319,7 @@ export function useAccountDialog() {
                         </div>
 
                         <div className="row">
-                            <p>Display Scene numbers next to Shot numbers</p>
+                            <p>Display Scene numbers next to Shot letters</p>
                             <Switch.Root
                                 className="SwitchRoot"
                                 checked={userSettings.displaySceneNumbersNextToShotNumbers}
@@ -335,7 +335,7 @@ export function useAccountDialog() {
                         </div>
 
                         <div className="row">
-                            <p>Display shot numbers after Z as</p>
+                            <p>Display shot letters after Z as</p>
                             <RadioGroup.Root
                                 className="RadioGroupRoot rect"
                                 aria-label="Shot numbering after Z"
