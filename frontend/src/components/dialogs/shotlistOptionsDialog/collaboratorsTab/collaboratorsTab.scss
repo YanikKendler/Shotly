@@ -73,11 +73,11 @@ div.shotlistOptionsDialogCollaboratorsTab{
     margin-top: 2rem;
 
     .textField input{
-      border-color: var(--accent-40);
       font-size: .9rem;
+      border-color: var(--default-interactable-light-border);
 
-      &:hover{
-        border-color: var(--accent-60);
+      &:focus-visible{
+        border-color: var(--accent);
       }
     }
 

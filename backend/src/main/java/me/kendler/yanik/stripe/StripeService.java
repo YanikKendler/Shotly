@@ -11,6 +11,8 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.User;
 import me.kendler.yanik.model.UserTier;
 import me.kendler.yanik.repositories.UserRepository;
@@ -43,7 +45,7 @@ public class StripeService {
     public Session createCheckoutSession(String lookupKey, JsonWebToken jwt) throws StripeException {
         PriceCollection prices = Price.list(PriceListParams.builder().addLookupKey(lookupKey).build());
         if (prices.getData().isEmpty()) {
-            throw new IllegalArgumentException("No price found for lookup key: " + lookupKey);
+            throw new ShotlyException("No price found for lookup key: " + lookupKey, ShotlyErrorCode.PRICE_NOT_FOUND);
         }
         String priceId = prices.getData().get(0).getId();
 
@@ -65,7 +67,7 @@ public class StripeService {
                         sub.getStatus().equals("past_due")) {
                     LOGGER.warn("User " + user.name + " (Stripe Customer ID: " + user.stripeCustomerId +
                             ") is already actively subscribed to price " + priceId);
-                    throw new IllegalArgumentException("User is already subscribed to this product.");
+                    throw new ShotlyException("User is already subscribed to this product.", ShotlyErrorCode.ALREADY_SUBSCRIBED);
                 }
             }
         }
@@ -104,7 +106,7 @@ public class StripeService {
         //edge case where the DB lost the user's stripeCustomerId
         if(user.stripeCustomerId == null){
             LOGGER.warn("User " + user.name + " does not have a Stripe Customer ID when trying to create a portal session. But has sub tier: " + user.tier);
-            throw new IllegalArgumentException("User does not have a Stripe Customer ID.");
+            throw new ShotlyException("User does not have a Stripe Customer ID.", ShotlyErrorCode.NO_STRIPE_CUSTOMER_ID);
         }
 
         return com.stripe.model.billingportal.Session.create(

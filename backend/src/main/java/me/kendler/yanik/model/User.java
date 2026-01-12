@@ -77,7 +77,8 @@ public class User extends PanacheEntityBase {
                 createdAt,
                 tier,
                 stripeCustomerId,
-                hasCancelled
+                hasCancelled,
+                revokeProAfter
         );
     }
 

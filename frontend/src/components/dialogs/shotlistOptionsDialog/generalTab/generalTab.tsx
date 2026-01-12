@@ -112,8 +112,8 @@ export default function GeneralTab({
             <Separator/>
 
             <div className="details">
-                <p>Created at <b>{wuTime.toFullDateTimeString(shotlist.createdAt)}</b> by <b>{shotlist.owner?.name}</b></p>
-                <p>Last edited at: <b>{wuTime.toFullDateTimeString(shotlist.editedAt)}</b></p>
+                <p>Created at <b>{wuTime.toDateTimeString(shotlist.createdAt)}</b> by <b>{shotlist.owner?.name}</b></p>
+                <p>Last edited at: <b>{wuTime.toDateTimeString(shotlist.editedAt) || "Unkown"}</b></p>
                 <p><b>{shotlist.sceneCount}</b> scenes • <b>{shotlist.shotCount}</b> shots</p>
                 {
                     shotlist.template &&

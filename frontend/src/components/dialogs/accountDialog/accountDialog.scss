@@ -49,8 +49,6 @@
             border-color: var(--accent-60);
           }
         }
-
-
       }
     }
 
@@ -67,6 +65,14 @@
           text-decoration: underline;
         }
       }
+    }
+
+    &.subscription p:nth-of-type(2){
+      color: var(--accent-40);
+      font-weight: bold;
+      background-color: var(--accent-92);
+      padding: .5rem;
+      border-radius: .3rem;
     }
   }
 

@@ -76,6 +76,7 @@
   --drag-handle-hover: var(--accent-80);
 
   --default-interactable-border: hsl(0, 0%, 82%);
+  --default-interactable-light-border: hsl(0, 0%, 65%);
   --default-interactable-hover-border: hsl(0, 0%, 25%);
 
   --skelleton-base-color: hsl(0, 0%, 90%);
@@ -171,6 +172,7 @@
   --drag-handle-hover: var(--accent-80);
 
   --default-interactable-border: hsl(0, 0%, 18%);
+  --default-interactable-light-border: hsl(0, 0%, 35%);
   --default-interactable-hover-border: hsl(0, 0%, 70%);
 
   --skelleton-base-color: hsl(0, 0%, 15%);
@@ -268,7 +270,7 @@ input{
   border-radius: .2rem;
 }
 
-button, a:not(.inline){
+button, a{
   display: flex;
   justify-content: space-between; /* This was a mistake but I wont refactor this :D */
   align-items: center;
@@ -334,7 +336,10 @@ button, a:not(.inline){
   }
 
   &.inline{
-    display: inline-block;
+    display: inline;
+    word-wrap: anywhere;
+    white-space: wrap;
+    font-size: inherit;
   }
 
   svg{
@@ -480,7 +485,7 @@ span.wrap{
         }
       }
 
-      .Separator{
+      .separator{
         --color: var(--text-70);
       }
 

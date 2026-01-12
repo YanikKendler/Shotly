@@ -1,4 +1,4 @@
-.Separator{
+.separator{
   flex-shrink: 0;
   --color: var(--text-90);
   display: flex;
@@ -29,7 +29,7 @@
       width: 100%;
 
       &.split.short{
-        width: 10%;
+        width: 5%;
       }
     }
 

@@ -11,7 +11,7 @@ export default function ProPurchaseCancel(){
     return (
         <SimplePage>
             <h1>Unsure if Shotly is right for you?</h1>
-            <p>Test it with the basic tier - free forever</p>
+            <p>Test it with the basic tier - free forever.</p>
 
             <div className="buttons">
                 <Link href="/pro" className={"outlined"}>Subscribe to Shotly Pro</Link>

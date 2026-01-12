@@ -128,7 +128,7 @@ export default function Overview() {
                             {shotlist.shotCount} shot{shotlist.shotCount && shotlist.shotCount != 1 ? "s" : ""}
                         </p>
                         <p>created by: <span className={"bold"}>{shotlist.owner?.name}</span></p>
-                        <p>last edited: <span className={"bold"}>{wuTime.toRelativeString(shotlist.editedAt, 1)}</span></p>
+                        <p>last edited: <span className={"bold"}>{wuTime.toRelativeString(shotlist.editedAt, {precision: 1, separator: ":"}) || "Unkown"}</span></p>
                     </Link>
                 ))}
                 <button className={"gridItem add shotlist"} onClick={() => {

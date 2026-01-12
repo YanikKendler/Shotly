@@ -7,7 +7,7 @@ import {useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import {Monitor, Moon, Sun, X} from "lucide-react"
 import Auth from "@/Auth"
-import {User, UserDto, UserTier} from "../../../../lib/graphql/generated"
+import {UserDto, UserTier} from "../../../../lib/graphql/generated"
 import {RadioGroup, Switch, VisuallyHidden} from "radix-ui"
 import TextField from "@/components/inputs/textField/textField"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
@@ -21,6 +21,8 @@ import {wuConstants} from "@yanikkendler/web-utils/dist"
 import Slider from "@/components/inputs/slider/slider"
 import {BUILD_INFO} from "../../../../buildinfo"
 import Separator from "@/components/separator/separator";
+import SimpleTooltip from "@/components/tooltip/simpleTooltip"
+import {wuTime} from "@yanikkendler/web-utils"
 
 export interface UserSettings {
     saveExportSettingsInLocalstorage: boolean
@@ -103,16 +105,6 @@ export function useAccountDialog() {
         writeSettingsToLocalStorage()
     }, [userSettings])
 
-    const writeSettingsToLocalStorage = () => {
-        const userSettingsString = JSON.stringify(userSettings)
-        localStorage.setItem(Config.localStorageKey.userSettings, userSettingsString)
-    }
-
-    function openAccountDialog() {
-        setIsOpen(true)
-        getCurrentUser()
-    }
-
     async function getCurrentUser(){
         const {data, error} = await client.query({
             query: gql`
@@ -127,6 +119,7 @@ export function useAccountDialog() {
                         shotlists {
                             name
                         }
+                        revokeProAfter
                     }
                 }`,
             fetchPolicy: "no-cache"
@@ -137,7 +130,19 @@ export function useAccountDialog() {
             return
         }
 
+        console.log(data.currentUser)
+
         setUser(data.currentUser)
+    }
+
+    const writeSettingsToLocalStorage = () => {
+        const userSettingsString = JSON.stringify(userSettings)
+        localStorage.setItem(Config.localStorageKey.userSettings, userSettingsString)
+    }
+
+    function openAccountDialog() {
+        setIsOpen(true)
+        getCurrentUser()
     }
 
     async function resetPassword() {
@@ -250,19 +255,24 @@ export function useAccountDialog() {
                 { !Auth.getUser()?.isSocial &&
                     <div className="row">
                         <p>Send password reset request to your email</p>
-                        <button disabled={passwordResetDisabled} className={"logout"} onClick={resetPassword}>send email
-                        </button>
+                        <button disabled={passwordResetDisabled} className={"logout"} onClick={resetPassword}>Send email</button>
                     </div>
                 }
 
-                <div className="row">
+                <div className="row subscription">
                     <p>Subscription</p>
                     {
-                        user?.tier != UserTier.Basic ?
-                        <button onClick={PaymentService.manageSubscription}>Manage subscription</button> :
-                        user?.hasCancelled === true ?
-                        <button onClick={PaymentService.manageSubscription}>Renew subscription</button> :
-                        <a className={"accent"} href={"/pro"}>Upgrade to Pro</a>
+                        user?.tier == UserTier.Basic ?
+                            user?.hasCancelled == true ?
+                            <button onClick={PaymentService.manageSubscription}>Renew subscription</button> :
+                            <a className={"accent"} href={"/pro"}>Upgrade to Pro</a> :
+                        user?.tier == UserTier.Pro ?
+                            <button onClick={PaymentService.manageSubscription}>Manage subscription</button> :
+                        user?.tier == UserTier.ProStudent ?
+                            <SimpleTooltip text={`Your Subscription is active until ${wuTime.toDateString(new Date(user.revokeProAfter)) || "Unkown"}.`}><p>Pro for students {"<3"}</p></SimpleTooltip> :
+                        user?.tier == UserTier.ProFree ?
+                            <p>( ͡° ͜ʖ ͡°)</p> :
+                            <p>Unknown</p>
                     }
                 </div>
 
@@ -371,27 +381,24 @@ export function useAccountDialog() {
 
                 <div className="row">
                     <p>Report a bug or request a feature</p>
-                    <Link href={"https://github.com/YanikKendler/shotly/issues/new/choose"} target={"_blank"}>new issue</Link>
+                    <Link href={"https://github.com/YanikKendler/shotly/issues/new/choose"} target={"_blank"}>New issue</Link>
                 </div>
-
-                <Separator/>
-
                 <div className="row">
                     <p>Use another account</p>
-                    <button className={"logout"} onClick={() => Auth.logout()}>sign out</button>
+                    <button className={"logout"} onClick={() => Auth.logout()}>Sign out</button>
                 </div>
                 <div className="row">
                     <p>Delete your account</p>
-                    <button className={"delete bad"} onClick={deleteAccount}>delete account</button>
+                    <button className={"delete bad"} onClick={deleteAccount}>Delete account</button>
                 </div>
 
                 <Separator/>
 
                 <div className="row legal">
-                    <Link href={"./legal/cookies"} target={"_blank"}>cookies</Link>
-                    <Link href={"./legal/privacy"} target={"_blank"}>privacy</Link>
-                    <Link href={"./legal/legalNotice"} target={"_blank"}>legal notice</Link>
-                    <Link href={"./legal/termsOfUse"} target={"_blank"}>terms of use</Link>
+                    <Link href={"./legal/cookies"} target={"_blank"}>Cookies</Link>
+                    <Link href={"./legal/privacy"} target={"_blank"}>Privacy</Link>
+                    <Link href={"./legal/legalNotice"} target={"_blank"}>Legal notice</Link>
+                    <Link href={"./legal/termsOfUse"} target={"_blank"}>Terms of use</Link>
                 </div>
 
                 <small>

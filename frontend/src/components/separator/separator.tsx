@@ -15,13 +15,13 @@ export default function Separator({
     className?: string
 }){
     if(text && !wuConstants.Regex.empty.test(text))
-        return <span className={`Separator ${className} ${orientation}`}>
+        return <span className={`separator ${className} ${orientation}`}>
             <RdxSeparator.Separator decorative={decorative} orientation={orientation} className={`RdxSeparator split short`}/>
             <span className={`text ${orientation}`}>{text}</span>
             <RdxSeparator.Separator decorative={decorative} orientation={orientation} className={`RdxSeparator split long`}/>
         </span>
 
-    return <span className={`Separator ${className} ${orientation}`}>
+    return <span className={`separator ${className} ${orientation}`}>
         <RdxSeparator.Separator decorative={decorative} orientation={orientation} className={`RdxSeparator`}/>
     </span>
 }

@@ -1,6 +1,8 @@
 import Config from "@/util/Config"
 import Auth from "@/Auth"
 
+//TODO error handling and user notifications
+
 export default class PaymentService {
     static manageSubscription() {
         fetch(`${Config.backendURL}/stripe/create-portal-session`, {

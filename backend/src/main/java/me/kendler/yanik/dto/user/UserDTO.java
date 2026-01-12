@@ -6,6 +6,7 @@ import me.kendler.yanik.model.UserTier;
 import me.kendler.yanik.model.template.Template;
 import org.hibernate.annotations.BatchSize;
 
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,5 +24,6 @@ public record UserDTO (
         ZonedDateTime createdAt,
         UserTier tier,
         String stripeCustomerId,
-        boolean hasCancelled
+        boolean hasCancelled,
+        LocalDate revokeProAfter
 ) { }

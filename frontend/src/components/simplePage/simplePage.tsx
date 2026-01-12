@@ -18,7 +18,7 @@ export default function SimplePage({
                 <div className="left">
                     <Link href={"/"}><Iconmark/>Home</Link>
                 </div>
-                <Wordmark/>
+                <Link href={"/"} className={"middle"}><Wordmark/></Link>
                 <div className="right">
                     <Link href={"/dashboard"}><House size={16} strokeWidth={2.5}/>Dashboard</Link>
                 </div>

@@ -15,6 +15,7 @@ import {Query, UserDto, UserTier} from "../../../lib/graphql/generated"
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import Config from "@/util/Config"
 import Separator from "@/components/separator/separator"
+import {wuTime} from "@yanikkendler/web-utils"
 
 export default function Pro(){
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -22,32 +23,24 @@ export default function Pro(){
     const client = useApolloClient();
     const router = useRouter();
 
-    const [action, setAction] = useState({name: "Continue to Checkout", action: PaymentService.subscribeToPro})
-
     const [currentUser, setCurrentUser] = useState<UserDto | null>(null);
 
     useEffect(() => {
-        if(!auth.isAuthenticated() || !auth.getUser()){
-            router.replace('/')
+        if(!auth.isAuthenticated()){
+            router.replace('/login')
             return
         }
 
-        getUserDetails();
-        setIsLoading(false);
+        if(!auth.getUser()) return
+
+        getCurrentUser();
     }, []);
 
     useEffect(() => {
         if(!currentUser) return
-
-        if(currentUser.tier !== UserTier.Basic || currentUser.hasCancelled == true){
-            setAction({
-                name: "Manage Subscription",
-                action: PaymentService.manageSubscription
-            })
-        }
     }, [currentUser]);
 
-    const getUserDetails = async () => {
+    const getCurrentUser = async () => {
         const result: ApolloQueryResult<Query> = await client.query({
             query: gql`
                 query checkCurrentUserTier {
@@ -55,6 +48,7 @@ export default function Pro(){
                         id
                         tier
                         hasCancelled
+                        revokeProAfter
                     }
                 }`,
             fetchPolicy: "no-cache"
@@ -68,9 +62,11 @@ export default function Pro(){
         }
 
         setCurrentUser(result.data.currentUser)
+
+        setIsLoading(false);
     }
 
-    if(isLoading) return <LoadingPage title={Config.loadingMessage.authGetUser}/>
+    if(isLoading || !auth.getUser()) return <LoadingPage title={Config.loadingMessage.authGetUser}/>
 
     if(!currentUser || !currentUser.id || !currentUser.tier) return (
         <ErrorPage
@@ -81,26 +77,105 @@ export default function Pro(){
         />
     )
 
-    //TODO multiple messages based on user tier
-    if(currentUser.tier)
-    return (
-        <SimplePage>
-            <h1>Thank you for choosing Shotly Pro!</h1>
-            <p>You will get access to unlimited Shotlists and Collaborators.</p>
-            <Separator/>
-            <p className={"small"}>
-                By proceeding, you agree to our <Link href={"/legal/termsOfUse"} className={"inline"}>Terms of Use</Link> and <Link href={"/legal/privacy"} className={"inline"}>Privacy Policy</Link>.
+    else if(currentUser.tier == UserTier.Pro)
+        return (
+            <SimplePage className={"pro"}>
+                <h1>You already own Shotly Pro!</h1>
+                <p>
+                    I hope you are enjoying Shotly, if you run into any issues or have a feature request, feel free to reach out at <Link className={"noPadding inline"} href={"mailto:yanik.kendler@gmail.com"}>yanik.kendler@gmail.com</Link> or <Link className={"noPadding inline"} href={"https://github.com/YanikKendler/shotly/issues/new/choose"}>create a new Issue on GitHub</Link>.
+                </p>
+                <p>Thank you for supporting my work :D</p>
+
+                <div className="buttons">
+                    <button className={"text"} onClick={PaymentService.manageSubscription}>Manage Subscription</button>
+                    <Link className={"filled"} href={"/dashboard"}>To your Dashboard</Link>
+                </div>
+            </SimplePage>
+        )
+    else if(currentUser.tier == UserTier.ProStudent)
+        return (
+            <SimplePage className={"pro"}>
+                <h1>You already own Shotly Pro for Free!</h1>
+                <p>Since you are a student living off student money and stuff :D</p>
+                <p>Lets hope you are not american.. then you would be living off student debt :(</p>
                 <br/>
-                Subscriptions renew automatically every month until canceled. You can cancel anytime in your account settings.
-                We reserve the right to suspend or cancel subscriptions at our discretion, including for misuse or violation of our Terms of Use.
+                <p>Your pro subscription will be revoked after {wuTime.toDateString(currentUser.revokeProAfter) || "Unkown"}.</p>
+
+                <div className="buttons">
+                    <Link className={"filled"} href={"/dashboard"}>To your Dashboard</Link>
+                </div>
+            </SimplePage>
+        )
+    else if(currentUser.tier == UserTier.ProFree)
+        return (
+            <SimplePage className={"pro"}>
+                <h1>You already own Shotly Pro for Free!</h1>
+                <p>Since you are a friend.. or you hacked the server and decided to give yourself pro. In that case I will take that as a compliment but please do send me an email.</p>
+                <p>Aaaanyways, if you are in fact a friend - have fun mate!</p>
                 <br/>
-                Payments are securely processed by Stripe; we do not store credit card details.
-                No refunds are provided for monthly plans. All prices shown include applicable taxes.
-            </p>
-            <div className="buttons">
-                <Link className={"text"} href={"/dashboard"}>To your Dashboard</Link>
-                <button className={"filled"} onClick={action.action}>{action.name}</button>
-            </div>
-        </SimplePage>
-    );
+                {
+                    currentUser.revokeProAfter &&
+                    <p>Your pro subscription will be revoked after {wuTime.toDateString(currentUser.revokeProAfter) || "Unkown"}.</p>
+                }
+
+                <div className="buttons">
+                    <Link className={"filled"} href={"/dashboard"}>To your Dashboard</Link>
+                </div>
+            </SimplePage>
+        )
+    else {
+        if (currentUser.hasCancelled == true)
+            return (
+                <SimplePage className={"pro"}>
+                    <h1>Thank you for choosing Shotly Pro!</h1>
+                    <p>You will get access to <span>unlimited Shotlists</span> and <span>unlimited Collaborators</span>.
+                    </p>
+                    <p>All of your existing shotlists will no longer be read-only!</p>
+                    <div className="buttons">
+                        <Link className={"text"} href={"/dashboard"}>Cancel</Link>
+                        <button className={"filled"} onClick={PaymentService.subscribeToPro}>Continue to Checkout
+                        </button>
+                    </div>
+                    <Separator/>
+                    <p className={"small"}>
+                        By proceeding, you agree to our <Link href={"/legal/termsOfUse"} className={"inline"}>Terms of
+                        Use</Link> and <Link href={"/legal/privacy"} className={"inline"}>Privacy Policy</Link>.
+                        <br/>
+                        Subscriptions renew automatically every month until canceled. You can cancel anytime in your
+                        account settings.
+                        We reserve the right to suspend or cancel subscriptions at our discretion, including for misuse
+                        or violation of our Terms of Use.
+                        <br/>
+                        Payments are securely processed by Stripe; we do not store credit card details.
+                        No refunds are provided for monthly plans. All prices shown include applicable taxes.
+                    </p>
+                </SimplePage>
+            )
+        else
+            return (
+                <SimplePage className={"pro"}>
+                    <h1>Thank you for choosing Shotly Pro!</h1>
+                    <p>You will get access to <span>unlimited Shotlists</span> and <span>unlimited Collaborators</span>.
+                    </p>
+                    <p>And thanks for supporting my work :D</p>
+                    <div className="buttons">
+                        <Link className={"text"} href={"/dashboard"}>Cancel</Link>
+                        <button className={"filled"} onClick={PaymentService.subscribeToPro}>Continue to Checkout</button>
+                    </div>
+                    <Separator/>
+                    <p className={"small"}>
+                        By proceeding, you agree to our <Link href={"/legal/termsOfUse"} className={"inline"}>Terms of
+                        Use</Link> and <Link href={"/legal/privacy"} className={"inline"}>Privacy Policy</Link>.
+                        <br/>
+                        Subscriptions renew automatically every month until canceled. You can cancel anytime in your
+                        account settings.
+                        We reserve the right to suspend or cancel subscriptions at our discretion, including for misuse
+                        or violation of our Terms of Use.
+                        <br/>
+                        Payments are securely processed by Stripe; we do not store credit card details.
+                        No refunds are provided for monthly plans. All prices shown include applicable taxes.
+                    </p>
+                </SimplePage>
+            )
+    }
 }
