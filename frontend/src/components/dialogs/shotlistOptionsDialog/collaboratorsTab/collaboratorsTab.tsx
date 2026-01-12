@@ -178,7 +178,7 @@ export default function CollaboratorsTab(
 
     if(collaborations == null) {
         return <>
-            <h2>Current Collaborators</h2>
+            <h2></h2>
             <Skeleton height={"2rem"} style={{marginTop: ".5rem"}} count={2}/>
             <Skeleton height={"2rem"} width={"15ch"} style={{marginTop: "2rem"}}/>
         </>

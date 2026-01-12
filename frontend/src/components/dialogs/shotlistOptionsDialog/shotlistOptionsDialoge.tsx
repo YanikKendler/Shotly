@@ -18,6 +18,7 @@ import GeneralTab from "@/components/dialogs/shotlistOptionsDialog/generalTab/ge
 import AttributeTab from "@/components/dialogs/shotlistOptionsDialog/attributeTab/attributeTab"
 import CollaboratorsTab from "@/components/dialogs/shotlistOptionsDialog/collaboratorsTab/collaboratorsTab"
 import Separator from "@/components/separator/separator"
+import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
 
 export enum ShotlistOptionsDialogPage {
     general = "general",
@@ -63,6 +64,7 @@ export default function ShotlistOptionsDialog({
 
     const client = useApolloClient()
     const router = useRouter()
+    const {confirm, ConfirmDialog} = useConfirmDialog()
 
     useEffect(() => {
         const url = new URL(window.location.href)
@@ -107,22 +109,6 @@ export default function ShotlistOptionsDialog({
             setStringifiedAttributeData(JSON.stringify(shotAttributeDefinitions) + JSON.stringify(sceneAttributeDefinitions) + JSON.stringify(shotlist));
         }
     }, [isOpen]);
-
-    const updateUrl = (page?: ShotlistOptionsDialogPage) => {
-        const url = new URL(window.location.href)
-        if(isOpen){
-            url.searchParams.set("oo", "true") // options open
-            if(page)
-                url.searchParams.set("mp", page) // main page
-        }
-        else {
-            url.searchParams.delete("oo") // options open
-            url.searchParams.delete("mp") // main page
-            url.searchParams.delete("sp") // sub page
-        }
-
-        router.push(url.toString())
-    }
 
     const loadData = async () => {
         //fetching the defintions separately because im lazy and the shotlist query doesnt actually return the options hehe
@@ -216,6 +202,56 @@ export default function ShotlistOptionsDialog({
         )
     }
 
+    const leaveCollaboration = async () => {
+        if(!shotlistId) return
+
+        let decision = await confirm({
+            title: "Are you sure?",
+            message: `You will loose access to the Shotlist "${shotlist?.name || "Unnamed"}" until its owner invites you again."`,
+            buttons: {
+                confirm: {
+                    className: "bad",
+                }
+            }
+        })
+
+        if(!decision) return
+
+        const result = await client.mutate({
+            mutation: gql`
+                mutation leaveCollaboration($shotlistId: String!){
+                    leaveCollaboration(shotlistId: $shotlistId){
+                        id
+                    }
+                }`,
+            variables: {shotlistId: shotlistId}
+        })
+
+        if(result.errors){
+            //TODO notify user
+            console.error("Error leaving collaboration:", result.errors)
+            return
+        }
+
+        router.push("/dashboard")
+    }
+
+    const updateUrl = (page?: ShotlistOptionsDialogPage) => {
+        const url = new URL(window.location.href)
+        if(isOpen){
+            url.searchParams.set("oo", "true") // options open
+            if(page)
+                url.searchParams.set("mp", page) // main page
+        }
+        else {
+            url.searchParams.delete("oo") // options open
+            url.searchParams.delete("mp") // main page
+            url.searchParams.delete("sp") // sub page
+        }
+
+        router.push(url.toString())
+    }
+
     function runRefreshShotlistCheck(){
         let currentAttributeData = JSON.stringify(shotAttributeDefinitions) + JSON.stringify(sceneAttributeDefinitions) + JSON.stringify(shotlist)
 
@@ -225,6 +261,7 @@ export default function ShotlistOptionsDialog({
     }
 
     return (
+        <>
         <Dialog.Root
             open={isOpen}
             onOpenChange={(isOpen: boolean) => {
@@ -303,10 +340,24 @@ export default function ShotlistOptionsDialog({
                             </Tabs.Content>
                             <Tabs.Content value={"collaborators"} className={"content"}>
                                 {
-                                    isReadOnly ?
-                                    <p className={"empty"}>Sorry, this shotlist is in read-only Mode.</p> :
                                     shotlist?.owner?.id != currentUser?.id ?
-                                    <p className={"empty"}>Sorry, as a collaborator, you don’t have permission to edit collaborators.</p> :
+                                    <>
+                                        <div className="collabNotOwner">
+                                            <h2>Collaboration</h2>
+                                            <div className="row">
+                                                <p>Leave this Shotlist</p>
+                                                <button
+                                                    className="bad"
+                                                    onClick={leaveCollaboration}
+                                                >
+                                                    Leave
+                                                </button>
+                                            </div>
+                                            <p className={"empty"}>
+                                                As a collaborator, you don’t have permission to edit collaborators.
+                                            </p>
+                                        </div>
+                                    </> :
 
                                     <CollaboratorsTab
                                         shotlistId={shotlistId}
@@ -333,5 +384,7 @@ export default function ShotlistOptionsDialog({
                 </Dialog.Content>
             </Dialog.Portal>
         </Dialog.Root>
+        {ConfirmDialog}
+        </>
     );
 }

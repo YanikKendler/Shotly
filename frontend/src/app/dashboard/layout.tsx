@@ -38,6 +38,7 @@ import { DashboardContext } from "@/context/DashboardContext"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
 import Config from "@/util/Config"
 import HelpLink from "@/components/helpLink/helpLink"
+import Separator from "@/components/separator/separator"
 
 
 export default function DashboardLayout({children}: { children: React.ReactNode }) {

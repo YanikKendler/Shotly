@@ -60,6 +60,25 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
         return collaboration.toDTO();
     }
 
+    public CollaborationDTO leave(UUID shotlistId, JsonWebToken jwt){
+        User user = userRepository.findOrCreateByJWT(jwt);
+        Shotlist shotlist = shotlistRepository.findByIdValidated(shotlistId);
+
+        Collaboration collaboration = shotlist.collaborations
+                .stream()
+                .filter(c -> c.user.id.equals(user.id))
+                .findFirst()
+                .orElse(null);
+
+        if(collaboration == null){
+            throw new ShotlyException("User is not involved in this collaboration.", ShotlyErrorCode.NOT_ALLOWED);
+        }
+
+        delete(collaboration);
+
+        return collaboration.toDTO();
+    }
+
     /**
      * Creates a new Collaboration with all users found with the given email
      * Its possible to have multiple users with the same email because Auth0 does not provide a clean way of
