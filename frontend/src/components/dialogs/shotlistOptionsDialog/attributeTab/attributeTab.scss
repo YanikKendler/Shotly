@@ -30,6 +30,21 @@ div.shotlistOptionsDialogAttributeTab{
       height: 100%;
       padding-bottom: 3rem;
 
+      .creationLoader{
+        display: none;
+        align-items: center;
+        gap: .3rem;
+        width: 100%;
+
+        svg{
+          color: var(--text-70);
+        }
+
+        span:last-of-type{
+          margin-left: auto;
+        }
+      }
+
       .definitions{
         display: flex;
         flex-direction: column;

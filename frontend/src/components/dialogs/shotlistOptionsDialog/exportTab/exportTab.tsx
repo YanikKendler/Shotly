@@ -38,6 +38,7 @@ import HelpLink from "@/components/helpLink/helpLink"
 import Skeleton from "react-loading-skeleton"
 import ExportFilter from "@/components/dialogs/shotlistOptionsDialog/exportTab/exportFilter"
 import Separator from "@/components/separator/separator"
+import DotLoader from "@/components/DotLoader"
 
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full"
 
@@ -68,6 +69,8 @@ export default function ExportTab(
     const [customShotFilters, setCustomShotFilters] = useState<Map<number, MultiValue<SelectOption>>>(new Map())
 
     const client = useApolloClient()
+
+    const [exportRunning, setExportRunning] = useState(false)
 
     //retrieve settings from local storage
     useEffect(() => {
@@ -307,6 +310,8 @@ export default function ExportTab(
             return;
         }
 
+        setExportRunning(true)
+
         switch (selectedFileType) {
             case "CSV-small":
                 exportCSVSmall(data)
@@ -318,6 +323,10 @@ export default function ExportTab(
                 exportPDF(data)
                 break
         }
+        
+        setTimeout(() => {
+            setExportRunning(false)
+        },2000)
     }
 
     const exportCSVSmall = (data: ShotlistDto) =>{
@@ -599,10 +608,19 @@ export default function ExportTab(
             </div>
 
             <div className="bottom">
-                <button className={"export"} onClick={exportShotlist}>download shotlist<Download size={16} strokeWidth={3}/></button>
+                <button
+                    className={"export"}
+                    onClick={exportShotlist}
+                    disabled={exportRunning}
+                >
+                    {
+                        exportRunning ?
+                        <span>{"exporting"}<DotLoader/></span> :
+                        <>{"download shotlist"}<Download size={16} strokeWidth={3}/></>
+                    }
+                </button>
                 <HelpLink link="https://docs.shotly.at/shotlist/export"/>
             </div>
-
         </div>
     )
 }
