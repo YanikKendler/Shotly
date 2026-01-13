@@ -273,23 +273,15 @@ function AttributeValueSelect({
             menuPlacement="auto"
             ref={selectRef}
             onKeyDown={e => {
-                if(menuIsOpen.current == true) {
-                    if(e.key == "ArrowUp" || e.key == "ArrowDown"){
-                        e.stopPropagation()
+                if (menuIsOpen.current) {
+                    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                        e.stopPropagation(); // Verhindert, dass das Event weitergegeben wird
                     }
-
-                    if(e.key == "ArrowLeft" || e.key == "ArrowRight"){
-                        closeMenu()
+                } else {
+                    if (e.key === "Enter") {
+                        openMenu();
+                        e.preventDefault();
                     }
-                }
-                else{
-                    if(e.key == "Enter"){
-                        openMenu()
-                        e.preventDefault()
-                    }
-                    if(e.key == "ArrowUp" || e.key == "ArrowDown"){
-                        closeMenu()
-                        e.preventDefault()                    }
                 }
             }}
         />

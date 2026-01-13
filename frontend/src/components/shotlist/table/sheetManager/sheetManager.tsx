@@ -68,6 +68,8 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     const creationLoaderRef = useRef<HTMLDivElement>(null)
     const attributePositionToSelect = useRef<number>(-1) //position of attribute to select on next re-render
 
+    const handleCreateShotKeybind = useRef(() => {})
+
     useImperativeHandle(ref, () => ({
         getCellRef: getCellRef,
         findCellRef: findCellRef,
@@ -82,11 +84,28 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
             "ArrowRight": (e) => moveFocusedCell(e, 0, 1),
             "ArrowUp": (e) => moveFocusedCell(e, -1, 0),
             "ArrowDown": (e) => moveFocusedCell(e, 1, 0),
+            "Control+Enter": () => {
+                handleCreateShotKeybind.current()
+            },
+            "Alt+N": () => {
+                handleCreateShotKeybind.current()
+            }
         })
         return () => {
             unsubscribe()
         }
     }, [])
+
+    useEffect(() => {
+        handleCreateShotKeybind.current = () => {
+            let column = 0
+
+            if(shotlistContext.focusedCell.current && shotlistContext.focusedCell.current.column != -1)
+                column = shotlistContext.focusedCell.current.column
+
+            createShot(column)
+        }
+    });
 
     useEffect(() => {
         if(selectedScene.id && selectedScene.id !== null && selectedScene.id != query.data.shots?.at(0)?.sceneId){
@@ -148,62 +167,6 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         }
     }, [query])
 
-    const setCreationLoaderVisibility = (visible:boolean) => {
-        if(!creationLoaderRef.current) return
-
-        creationLoaderRef.current.style.display = visible ? "flex" : "none"
-    }
-
-    const refocusCell = () =>{
-        getCellRef(shotlistContext.focusedCell.current.row, shotlistContext.focusedCell.current.column)?.setFocus()
-    }
-
-    const moveFocusedCell = useCallback((e:KeyboardEvent, row:number = 0, column: number = 0) => {
-        if(!shotlistContext.focusedCell.current || shotlistContext.focusedCell.current.row < 0 && shotlistContext.focusedCell.current.column < 0) return
-
-        e.stopPropagation()
-        e.preventDefault()
-
-        const newRow = wuText.clamp(
-            0,
-            shotlistContext.focusedCell.current.row + row,
-            cellRefs.current.size - 1
-        )
-
-        const newColumn = wuText.clamp(
-            0,
-            shotlistContext.focusedCell.current.column + column,
-            (cellRefs.current.get(newRow)?.size || 1) - 1
-        )
-
-        shotlistContext.setFocusedCell(newRow, newColumn)
-
-        getCellRef(newRow, newColumn)?.setFocus()
-    }, [shotlistContext.focusedCell])
-
-    const setCellRef = useCallback((row: number, column: number, value: CellRef | null) => {
-        if (!cellRefs.current.has(row)) {
-            cellRefs.current.set(row, new Map());
-        }
-        cellRefs.current.get(row)!.set(column, value);
-    },[cellRefs.current])
-
-    const getCellRef = (row: number, column: number) => {
-        return cellRefs.current.get(row)?.get(column) || null;
-    }
-
-    const findCellRef = (id: number) => {
-        for (let [row, columns] of cellRefs.current) {
-            for (let [column, cellRef] of columns) {
-                if (cellRef && cellRef.id === id) {
-                    return cellRef;
-                }
-            }
-        }
-
-        return null
-    }
-
     const loadShots = async () => {
         const result = await client.query({
             query : gql`
@@ -251,6 +214,64 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         shotlistContext.setShotCount(result.data?.shots?.length || 0)
 
         setQuery(result)
+    }
+
+    const setCreationLoaderVisibility = (visible:boolean) => {
+        if(!creationLoaderRef.current) return
+
+        creationLoaderRef.current.style.display = visible ? "flex" : "none"
+    }
+
+    const refocusCell = () =>{
+        getCellRef(shotlistContext.focusedCell.current.row, shotlistContext.focusedCell.current.column)?.setFocus()
+    }
+
+    const moveFocusedCell = useCallback((e:KeyboardEvent, row:number = 0, column: number = 0) => {
+        if(!shotlistContext.focusedCell.current || shotlistContext.focusedCell.current.row < 0 && shotlistContext.focusedCell.current.column < 0) return
+
+        e.stopPropagation()
+        e.preventDefault()
+
+        const newRow = wuText.clamp(
+            0,
+            shotlistContext.focusedCell.current.row + row,
+            cellRefs.current.size - 1
+        )
+
+        const newColumn = wuText.clamp(
+            0,
+            shotlistContext.focusedCell.current.column + column,
+            (cellRefs.current.get(newRow)?.size || 1) - 1
+        )
+
+        console.log("moving focus to", newRow, newColumn)
+
+        shotlistContext.setFocusedCell(newRow, newColumn)
+
+        getCellRef(newRow, newColumn)?.setFocus()
+    }, [shotlistContext.focusedCell])
+
+    const setCellRef = useCallback((row: number, column: number, value: CellRef | null) => {
+        if (!cellRefs.current.has(row)) {
+            cellRefs.current.set(row, new Map());
+        }
+        cellRefs.current.get(row)!.set(column, value);
+    },[cellRefs.current])
+
+    const getCellRef = (row: number, column: number) => {
+        return cellRefs.current.get(row)?.get(column) || null;
+    }
+
+    const findCellRef = (id: number) => {
+        for (let [row, columns] of cellRefs.current) {
+            for (let [column, cellRef] of columns) {
+                if (cellRef && cellRef.id === id) {
+                    return cellRef;
+                }
+            }
+        }
+
+        return null
     }
 
     const createShot = async (attributePosition: number) => {
@@ -402,10 +423,11 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     }
 
 
-    if(query.loading || !shotAttributeDefinitions)
+    if(query.loading || !shotAttributeDefinitions) {
         return <div className="sheetManager">
             <Skeleton count={5} height="38px"/>
         </div>
+    }
 
     if(selectedScene.id == null)
         return <div className="sheetManager">
