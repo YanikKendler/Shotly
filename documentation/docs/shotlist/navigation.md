@@ -8,3 +8,15 @@ At the bottom of the sidebar the button `Collab-Requests` is replaced with the `
     The shotlist can also be renamed by simply clicking the shotlist's name in the top left next to the dashboard icon.
 
 Both shots and scenes can be modified and reordered using the "6 dots grip-icon" that appears when hovering either. By clicking and dragging this grip, the scene/shot can be moved and re-ordered. By clicking on the grip a context menu appears that allows you to move, edit or delete a scene/shot.
+
+## Keybinds
+
+The shotlist supports the following keybinds:
+
+- The cells can be navigated using the arrow keys `↑` `↓` `←` `→`
+- The dropdown menu for single- and multiselects
+    - can be opend by pressing `enter`
+    - can be navigated using the arrow keys `↑` `↓`
+    - a value can be selected by pressing `enter`
+    - can be closed using `esc`
+- A new shot can be created using `control + enter` or `alt + N`
