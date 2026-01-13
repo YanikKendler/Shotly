@@ -6,10 +6,14 @@ import AttributeValueSelect, {
     AttributeValueSelectRef,
     selectShotStyles
 } from "@/components/inputs/attributeValueSelect/attributeValueSelect"
-import {ChevronDown, List} from "lucide-react"
+import {List} from "lucide-react"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {CellInputRef} from "@/components/shotlist/table/cell/cell"
+import {
+    ShotlistOptionsDialogPage,
+    ShotlistOptionsDialogSubPage
+} from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 
 
 interface CellMultiSelectInputProps {
@@ -44,6 +48,9 @@ const CellMultiSelectInput = forwardRef<CellInputRef, CellMultiSelectInputProps>
 
     useImperativeHandle(ref, () => ({
         setFocus: setFocus,
+        openMenu: () => {
+            selectInputRef.current?.openMenu()
+        },
         setValue: value => {
             const options = value as SelectOption[]
             setMultiSelectValue(options)
@@ -113,8 +120,8 @@ const CellMultiSelectInput = forwardRef<CellInputRef, CellMultiSelectInputProps>
             value={multiSelectValue}
             shotOrScene={"shot"}
             editAction={() => shotlistContext.openShotlistOptionsDialog({
-                main: "attributes",
-                sub: "shot"
+                main: ShotlistOptionsDialogPage.attributes,
+                sub: ShotlistOptionsDialogSubPage.shot
             })}
             styles={selectShotStyles}
             ref={selectInputRef}

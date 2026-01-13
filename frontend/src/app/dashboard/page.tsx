@@ -127,8 +127,8 @@ export default function Overview() {
                             {" • "}
                             {shotlist.shotCount} shot{shotlist.shotCount && shotlist.shotCount != 1 ? "s" : ""}
                         </p>
-                        <p>created by: <span className={"bold"}>{shotlist.owner?.name}</span></p>
-                        <p>last edited: <span className={"bold"}>{wuTime.toRelativeString(shotlist.editedAt, {precision: 1, separator: ":"}) || "Unkown"}</span></p>
+                        <p>Created by: <span className={"bold"}>{shotlist.owner?.name}</span></p>
+                        <p>Last edited: <span className={"bold"}>{wuTime.toRelativeString(shotlist.editedAt, {precision: 1, separator: ":"}) || "Unkown"}</span></p>
                     </Link>
                 ))}
                 <button className={"gridItem add shotlist"} onClick={() => {
@@ -158,7 +158,7 @@ export default function Overview() {
                                 {template.sceneAttributeCount} Attribute{template.shotAttributeCount && template.shotAttributeCount != 1 ? "s" : ""}
                             </span>
                         </p>
-                        <p>created by: <span className={"bold"}>{template.owner?.name}</span></p>
+                        <p>Created by: <span className={"bold"}>{template.owner?.name}</span></p>
                     </Link>
                 ))}
                 <button className={"gridItem add"} onClick={openCreateTemplateDialog}>

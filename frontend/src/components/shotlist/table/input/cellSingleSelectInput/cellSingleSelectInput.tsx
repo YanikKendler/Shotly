@@ -10,6 +10,10 @@ import {ChevronDown} from "lucide-react"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {CellInputRef} from "@/components/shotlist/table/cell/cell"
+import {
+    ShotlistOptionsDialogPage,
+    ShotlistOptionsDialogSubPage
+} from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 
 interface CellSingleSelectInputProps {
     attribute: ShotSingleSelectAttributeDto
@@ -38,6 +42,9 @@ const CellSingleSelectInput = forwardRef<CellInputRef, CellSingleSelectInputProp
 
     useImperativeHandle(ref, () => ({
         setFocus: setFocus,
+        openMenu: () => {
+            selectInputRef.current?.openMenu()
+        },
         setValue: value => {
             const option = value as SelectOption
             setSingleSelectValue(option)
@@ -108,8 +115,8 @@ const CellSingleSelectInput = forwardRef<CellInputRef, CellSingleSelectInputProp
                 value={singleSelectValue}
                 shotOrScene={"shot"}
                 editAction={() => shotlistContext.openShotlistOptionsDialog({
-                    main: "attributes",
-                    sub: "shot"
+                    main: ShotlistOptionsDialogPage.attributes,
+                    sub: ShotlistOptionsDialogSubPage.shot
                 })}
                 styles={selectShotStyles}
                 ref={selectInputRef}

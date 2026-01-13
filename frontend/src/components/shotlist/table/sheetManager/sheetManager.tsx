@@ -102,7 +102,9 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         // select a attribute (in a newly created shot)
         // specified by attributePositionToSelect.current after the shots are re rendered
         if(attributePositionToSelect.current >= 0){
-            getCellRef(cellRefs.current.size-1, attributePositionToSelect.current)?.setFocus()
+            const cellRef = getCellRef(cellRefs.current.size-1, attributePositionToSelect.current)
+            cellRef?.setFocus()
+            cellRef?.openMenu()
             attributePositionToSelect.current = -1
         }
 
