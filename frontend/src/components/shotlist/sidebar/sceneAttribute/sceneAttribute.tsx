@@ -2,30 +2,28 @@
 
 import {
     AnySceneAttribute,
-    SelectOption,
-    SceneAttributeValueCollection, SceneAttributeValueMultiType
+    SceneAttributeValueCollection,
+    SceneAttributeValueMultiType,
+    SelectOption
 } from "@/util/Types"
-import React, {
-    forwardRef,
-    useCallback, useContext,
-    useEffect, useImperativeHandle,
-    useMemo,
-    useRef,
-    useState
-} from "react"
+import React, {forwardRef, useContext, useEffect, useImperativeHandle, useMemo, useRef, useState} from "react"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import './sceneAttribute.scss'
-import {wuConstants, wuGeneral, wuText} from "@yanikkendler/web-utils/dist"
+import {wuConstants, wuGeneral} from "@yanikkendler/web-utils/dist"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import {ChevronDown, List, Type} from "lucide-react"
 import AttributeValueSelect, {selectSceneStyles} from "@/components/inputs/attributeValueSelect/attributeValueSelect"
-import {SceneAttributeParser, ShotAttributeParser} from "@/util/AttributeParser"
+import {SceneAttributeParser} from "@/util/AttributeParser"
 import {
     SceneMultiSelectAttributeDto,
     SceneSingleSelectAttributeDto,
     SceneTextAttributeDto
 } from "../../../../../lib/graphql/generated"
+import {
+    ShotlistOptionsDialogPage,
+    ShotlistOptionsDialogSubPage
+} from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 
 export interface SceneAttributeRef {
     setValue: (value: SceneAttributeValueMultiType) => void
@@ -312,8 +310,8 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
                             value={singleSelectValue}
                             shotOrScene={"scene"}
                             editAction={() => shotlistContext.openShotlistOptionsDialog({
-                                main: "attributes",
-                                sub: "scene"
+                                main: ShotlistOptionsDialogPage.attributes,
+                                sub: ShotlistOptionsDialogSubPage.scene
                             })}
                             styles={selectSceneStyles}
                         ></AttributeValueSelect>
@@ -337,8 +335,8 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
                             value={multiSelectValue}
                             shotOrScene={"scene"}
                             editAction={() => shotlistContext.openShotlistOptionsDialog({
-                                main: "attributes",
-                                sub: "scene"
+                                main: ShotlistOptionsDialogPage.attributes,
+                                sub: ShotlistOptionsDialogSubPage.scene
                             })}
                             styles={selectSceneStyles}
                         ></AttributeValueSelect>

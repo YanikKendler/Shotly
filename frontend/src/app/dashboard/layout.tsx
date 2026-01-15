@@ -285,7 +285,10 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                 </Collapsible.Content>
                             </Collapsible.Root>
 
-                            <Collapsible.Root className={"CollapsibleRoot dashboardSidebar"} defaultOpen={true}>
+                            <Collapsible.Root
+                                className={"CollapsibleRoot dashboardSidebar"}
+                                defaultOpen={query.data.shotlists?.shared && query.data.shotlists.shared.length > 0 || false}
+                            >
                                 <Collapsible.Trigger className={"noClickFx"}>
                                     Shared Shotlists <ChevronDown size={18} className={"chevron"}/>
                                 </Collapsible.Trigger>
@@ -339,7 +342,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                     }
                                 </Collapsible.Content>
                             </Collapsible.Root>
-                            <Collapsible.Root className={"CollapsibleRoot dashboardSidebar"} defaultOpen={false}>
+                            {/*<Collapsible.Root className={"CollapsibleRoot dashboardSidebar"} defaultOpen={false}>
                                 <Collapsible.Trigger className={"noClickFx"}>
                                     Shared Templates <ChevronDown size={18} className={"chevron"}/>
                                 </Collapsible.Trigger>
@@ -348,7 +351,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                 >
                                     <p className={"empty"}>work in progress</p>
                                 </Collapsible.Content>
-                            </Collapsible.Root>
+                            </Collapsible.Root>*/}
 
                             <div className="bottom">
                                 {/*only visible on mobile (via CSS)*/}

@@ -123,9 +123,9 @@ export default function Overview() {
                             <h3>{shotlist.name || <span className='italic'>Unnamed</span>}</h3>
                         </div>
                         <p className={"bold"}>
-                            {shotlist.sceneCount} scene{shotlist.sceneCount && shotlist.sceneCount != 1 ? "s" : ""}
+                            {shotlist.sceneCount} scene{shotlist.sceneCount && shotlist.sceneCount === 1 ? "" : "s"}
                             {" • "}
-                            {shotlist.shotCount} shot{shotlist.shotCount && shotlist.shotCount != 1 ? "s" : ""}
+                            {shotlist.shotCount} shot{shotlist.shotCount && shotlist.shotCount === 1 ? "" : "s"}
                         </p>
                         <p>Created by: <span className={"bold"}>{shotlist.owner?.name}</span></p>
                         <p>Last edited: <span className={"bold"}>{wuTime.toRelativeString(shotlist.editedAt, {precision: 1, separator: ":"}) || "Unkown"}</span></p>
@@ -147,15 +147,15 @@ export default function Overview() {
                             <h3>{template.name || <span className='italic'>Unnamed</span>}</h3>
                         </div>
                         <p>
-                            {"Shots: "}
+                            {"Scenes: "}
                             <span className={"bold"}>
-                                {template.shotAttributeCount} Attribute{template.sceneAttributeCount && template.sceneAttributeCount != 1 ? "s" : ""}
+                                {template.sceneAttributeCount} Attribute{template.sceneAttributeCount && template.sceneAttributeCount === 1 ? "" : "s"}
                             </span>
                         </p>
                         <p>
-                            {"Scenes: "}
+                            {"Shots: "}
                             <span className={"bold"}>
-                                {template.sceneAttributeCount} Attribute{template.shotAttributeCount && template.shotAttributeCount != 1 ? "s" : ""}
+                                {template.shotAttributeCount} Attribute{template.shotAttributeCount && template.shotAttributeCount === 1 ? "" : "s"}
                             </span>
                         </p>
                         <p>Created by: <span className={"bold"}>{template.owner?.name}</span></p>

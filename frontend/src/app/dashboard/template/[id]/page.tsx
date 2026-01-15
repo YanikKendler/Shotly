@@ -450,6 +450,7 @@ export default function Template (){
                             <p>
                                 <span className="dark">Templates can be selected when creating a shotlist so that you don't have to create the same attributes over and over again.</span>
                                 <br/>
+                                <br/>
                                 None of the changes made to this templated will be reflected in existing shotlists.
                                 Every shotlist manages its own attributes, only those that are created based on this
                                 template <i>after</i> it has been edited will use the updated attributes.

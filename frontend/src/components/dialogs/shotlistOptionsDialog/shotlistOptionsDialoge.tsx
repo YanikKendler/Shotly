@@ -91,6 +91,8 @@ export default function ShotlistOptionsDialog({
     }, []);
 
     useEffect(() => {
+        updateUrl()
+
         if(!shotlistId) return
 
         loadData()
@@ -249,6 +251,8 @@ export default function ShotlistOptionsDialog({
             url.searchParams.delete("sp") // sub page
         }
 
+        console.log({url: url.toString()})
+
         router.push(url.toString())
     }
 
@@ -266,7 +270,6 @@ export default function ShotlistOptionsDialog({
             open={isOpen}
             onOpenChange={(isOpen: boolean) => {
                 setIsOpen(isOpen)
-                updateUrl()
                 runRefreshShotlistCheck()
             }}
         >

@@ -72,7 +72,7 @@ export default function ExportTab(
 
     const [exportRunning, setExportRunning] = useState(false)
 
-    //retrieve settings from local storage
+    //load settings from local storage
     useEffect(() => {
         if(!shotlist || !shotlist.id) return
 
@@ -396,7 +396,7 @@ export default function ExportTab(
     }
 
     const generateFileName = () => {
-        return `shotly_${shotlist?.name?.replace(/\s/g, "-") || "unnamed-shotlist"}_${wuTime.toDateTimeString(Date.now(), {timeSeparator: "-", dateSeparator: "-", dateTimeSeparator: "_", showMilliseconds: false}).replace(/\s/g, "_")}`
+        return `shotly_${shotlist?.name?.replace(/\s/g, "-") || "unnamed-shotlist"}_${wuTime.toDateTimeString(Date.now(), {timeSeparator: "-", dateSeparator: "-", dateTimeSeparator: "_"})}`
     }
 
     const addShotFilter = (attributeDefinitionId: number) => {

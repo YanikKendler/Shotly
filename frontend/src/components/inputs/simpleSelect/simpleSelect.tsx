@@ -32,7 +32,7 @@ export default function SimpleSelect ({
     return (
         <div className="simpleSelect">
             { label && <label>{label}</label>}
-            <Select.Root onValueChange={onChange} defaultValue={value}>
+            <Select.Root onValueChange={onChange} value={value}>
                 <Select.Trigger className="SelectTrigger noClickFx" aria-label="select" style={{fontSize: fontSize}}>
                     <Select.Value placeholder={`Select a ${name}…`}/>
                     <Select.Icon className="SelectIcon">

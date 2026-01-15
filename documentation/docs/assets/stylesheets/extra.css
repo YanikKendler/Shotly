@@ -48,3 +48,7 @@
 .md-content .admonition::before {
   display: none;
 }
+
+.md-main__inner{
+  margin-bottom: 3rem;
+}

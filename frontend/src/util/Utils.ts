@@ -58,7 +58,7 @@ export default class Utils {
             const letter = wuText.numberToLetter(position);
 
             // Repeat the letter 'cycle' times
-            shotLetter = letter.repeat(cycle);
+            shotLetter = letter?.repeat(cycle) || "#";
         } else {
             let result = '';
             let n = shotNum;
