@@ -650,9 +650,12 @@ span.wrap{
   text-align: center;
   animation: slideUpAndFade 200ms ease-in-out;
   max-width: 300px;
+  max-height: min(500px, var(--radix-popper-available-height));
   display: flex;
   flex-direction: column;
   gap: .3rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
 
   &.left{
     text-align: left;
