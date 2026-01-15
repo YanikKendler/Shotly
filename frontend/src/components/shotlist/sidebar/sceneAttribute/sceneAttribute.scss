@@ -11,6 +11,7 @@ div.sceneAttribute{
   align-items: center;
   border-bottom: 2px solid var(--scene-underline-color);
   transition: border-color 0.2s ease, outline-color 0.2s ease;
+  position: relative;
 
   &:has(*:focus-visible){
     border-color: var(--accent);
@@ -63,6 +64,18 @@ div.sceneAttribute{
   }
 
   .icon{
-    translate: 0 4px;
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    translate: 0 -50%;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+  }
+
+  &:focus-within {
+    .icon {
+      display: none;
+    }
   }
 }

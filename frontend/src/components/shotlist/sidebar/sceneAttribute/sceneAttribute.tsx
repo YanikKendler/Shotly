@@ -315,9 +315,12 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
                             })}
                             styles={selectSceneStyles}
                         ></AttributeValueSelect>
-                        <div className="icon">
-                            <ChevronDown size={18} strokeWidth={2}/>
-                        </div>
+                        {
+                            !singleSelectValue &&
+                            <div className="icon">
+                                <ChevronDown size={18} strokeWidth={2}/>
+                            </div>
+                        }
                     </>
                 )
                 break
@@ -340,9 +343,12 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
                             })}
                             styles={selectSceneStyles}
                         ></AttributeValueSelect>
-                        <div className="icon">
-                            <List size={18} strokeWidth={2}/>
-                        </div>
+                        {
+                            !multiSelectValue &&
+                            <div className="icon">
+                                <List size={18} strokeWidth={2}/>
+                            </div>
+                        }
                     </>
                 )
                 break
