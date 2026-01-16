@@ -44,19 +44,23 @@ public class SceneSelectAttributeOptionTemplateRepository implements PanacheRepo
 
     public SceneSelectAttributeOptionTemplate delete(Long id){
         SceneSelectAttributeOptionTemplate sceneSelectAttributeOptionTemplate = findById(id);
-        if(sceneSelectAttributeOptionTemplate != null) {
-            switch (sceneSelectAttributeOptionTemplate.sceneAttributeTemplate){
-                case SceneSingleSelectAttributeTemplate singleSelectTemplate -> {
-                    singleSelectTemplate.options.remove(sceneSelectAttributeOptionTemplate);
-                }
-                case SceneMultiSelectAttributeTemplate multiSelectTemplate -> {
-                    multiSelectTemplate.options.remove(sceneSelectAttributeOptionTemplate);
-                }
-                default -> throw new ShotlyException("Invalid attribute template type", ShotlyErrorCode.IMPOSSIBLE_INPUT);
-            }
 
-            delete(sceneSelectAttributeOptionTemplate);
+        if(sceneSelectAttributeOptionTemplate == null) {
+            throw new ShotlyException("SceneSelectAttributeOptionTemplate not found", ShotlyErrorCode.NOT_FOUND);
         }
+
+        switch (sceneSelectAttributeOptionTemplate.sceneAttributeTemplate){
+            case SceneSingleSelectAttributeTemplate singleSelectTemplate -> {
+                singleSelectTemplate.options.remove(sceneSelectAttributeOptionTemplate);
+            }
+            case SceneMultiSelectAttributeTemplate multiSelectTemplate -> {
+                multiSelectTemplate.options.remove(sceneSelectAttributeOptionTemplate);
+            }
+            default -> throw new ShotlyException("Invalid attribute template type", ShotlyErrorCode.IMPOSSIBLE_INPUT);
+        }
+
+        delete(sceneSelectAttributeOptionTemplate);
+
         return sceneSelectAttributeOptionTemplate;
     }
 }

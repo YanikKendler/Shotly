@@ -124,6 +124,7 @@ public class ShotAttributeDefinitionRepository implements PanacheRepository<Shot
 
     public ShotAttributeDefinitionBaseDTO update(ShotAttributeDefinitionEditDTO editDTO) {
         ShotAttributeDefinitionBase attribute = findById(editDTO.id());
+
         if (attribute == null) {
             throw new ShotlyException("Attribute not found", ShotlyErrorCode.NOT_FOUND);
         }
@@ -159,35 +160,48 @@ public class ShotAttributeDefinitionRepository implements PanacheRepository<Shot
     public ShotAttributeDefinitionBaseDTO delete(Long id){
         ShotAttributeDefinitionBase attributeDefinition = findById(id);
 
-        if(attributeDefinition != null) {
-            List<ShotAttributeBase> relevantAttributes = getEntityManager()
-                    .createQuery("select sa from ShotAttributeBase sa where sa.definition.id = :definitionId", ShotAttributeBase.class)
-                    .setParameter("definitionId", id)
-                    .getResultList();
-
-            List<Shot> relevantShots = getEntityManager()
-                    .createQuery("select s from Shot s join s.attributes sab where sab.definition.id = :definitionId", Shot.class)
-                    .setParameter("definitionId", id)
-                    .getResultList();
-
-            relevantShots.forEach(shot -> {
-                relevantAttributes.forEach(shot.attributes::remove);
-            });
-
-            Shotlist relevantShotlist = getShotlistByDefinitionId(id);
-
-            relevantShotlist.shotAttributeDefinitions.remove(attributeDefinition);
-
-            relevantShotlist.registerEdit();
-
-            return attributeDefinition.toDTO();
+        if(attributeDefinition == null) {
+            throw new ShotlyException("Attribute definition not found", ShotlyErrorCode.NOT_FOUND);
         }
-        return null;
+
+        List<ShotAttributeBase> relevantAttributes = getEntityManager()
+                .createQuery("select sa from ShotAttributeBase sa where sa.definition.id = :definitionId", ShotAttributeBase.class)
+                .setParameter("definitionId", id)
+                .getResultList();
+
+        List<Shot> relevantShots = getEntityManager()
+                .createQuery("select s from Shot s join s.attributes sab where sab.definition.id = :definitionId", Shot.class)
+                .setParameter("definitionId", id)
+                .getResultList();
+
+        relevantShots.forEach(shot -> {
+            relevantAttributes.forEach(a -> {
+                shot.attributes.remove(a);
+                a.definition = null;
+            });
+        });
+
+        Shotlist relevantShotlist = getShotlistByDefinitionId(id);
+
+        relevantShotlist.shotAttributeDefinitions.remove(attributeDefinition);
+
+        relevantShotlist.shotAttributeDefinitions.stream()
+                .filter(d -> d.position > attributeDefinition.position)
+                .forEach(d -> d.position--);
+
+        deleteById(id);
+
+        relevantShotlist.registerEdit();
+
+        return attributeDefinition.toDTO();
     }
 
     public Shotlist getShotlistByDefinitionId(Long id) {
         Shotlist result = getEntityManager()
-                .createQuery("select s from Shotlist s join s.shotAttributeDefinitions d where d.id = :definitionId", Shotlist.class)
+                .createQuery(
+                    "select s from Shotlist s join s.shotAttributeDefinitions d where d.id = :definitionId"
+                    , Shotlist.class
+                )
                 .setParameter("definitionId", id)
                 .getSingleResult();
         if(result == null) {

@@ -41,16 +41,11 @@ public class ShotRepository implements PanacheRepositoryBase<Shot, UUID> {
     }
 
     public ShotDTO create(UUID sceneId) {
-        //return new ShotDTO(UUID.randomUUID(), null, null, 0, false, null);
-
-        long start = System.nanoTime();
-
         Scene scene = sceneRepository.findByIdValidated(sceneId);
         Shot shot = new Shot(scene);
         scene.shotlist.registerEdit();
         persist(shot);
 
-        Util.timer(start, "create shot");
         return shot.toDTO();
     }
 
@@ -84,14 +79,18 @@ public class ShotRepository implements PanacheRepositoryBase<Shot, UUID> {
     public ShotDTO delete(UUID id) {
         Shot shot = findById(id);
 
+        if(shot == null) {
+            throw new ShotlyException("Shot not found", ShotlyErrorCode.NOT_FOUND);
+        }
+
         shot.attributes.forEach(PanacheEntityBase::delete);
 
         shot.scene.shots.remove(shot);
 
         //update positions of all shots after this one
         shot.scene.shots.stream()
-                .filter(s -> s.position > shot.position)
-                .forEach(a -> a.position--);
+            .filter(s -> s.position > shot.position)
+            .forEach(a -> a.position--);
 
         shot.scene.shotlist.registerEdit();
 

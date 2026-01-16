@@ -74,8 +74,6 @@ export default function ShotlistOptionsDialog({
             const mpParam = url.searchParams.get("mp")
             const spParam = url.searchParams.get("sp")
 
-            console.log({mpParam})
-
             if(mpParam && ShotlistOptionsDialogPageValues.includes(mpParam)) {
                 setSelectedMainPage(ShotlistOptionsDialogPage[mpParam as keyof typeof ShotlistOptionsDialogPage])
 
@@ -250,8 +248,6 @@ export default function ShotlistOptionsDialog({
             url.searchParams.delete("mp") // main page
             url.searchParams.delete("sp") // sub page
         }
-
-        console.log({url: url.toString()})
 
         router.push(url.toString())
     }

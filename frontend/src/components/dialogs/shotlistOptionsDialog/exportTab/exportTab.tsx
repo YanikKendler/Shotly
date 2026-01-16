@@ -81,8 +81,6 @@ export default function ExportTab(
 
         const settingsObject = JSON.parse(settingsString) as ExportSettingsLocalStorage
 
-        console.log(settingsObject)
-
         if(settingsObject.selectedFileType)
             setSelectedFileType(settingsObject.selectedFileType)
         if(settingsObject.selectedScenes && settingsObject.selectedScenes.length > 0)

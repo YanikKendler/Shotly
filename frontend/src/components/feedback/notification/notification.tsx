@@ -18,7 +18,7 @@ export function Notification({
     return (
         <Toast.Root
             className={`ToastRoot notification ${settings.type || "info"}`}
-            duration={settings.duration || 5000}
+            duration={settings.duration || settings.type == "error" ? 10000 : 5000}
         >
             <Toast.Title className="ToastTitle">{settings.title}</Toast.Title>
             <Toast.Description className={"ToastDescription"}>

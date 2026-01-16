@@ -76,19 +76,21 @@ public class SceneRepository implements PanacheRepositoryBase<Scene, UUID> {
 
     public SceneDTO delete(UUID id) {
         Scene scene = findById(id);
-        if (scene != null) {
-            scene.shotlist.scenes.stream().filter(s -> s.position > scene.position).forEach(s -> s.position--);
 
-            for (Shot shot : scene.shots) {
-                shotRepository.delete(shot);
-            }
-
-            scene.shotlist.registerEdit();
-
-            delete(scene);
-
-            return scene.toDTO();
+        if (scene == null) {
+            throw new ShotlyException("Scene not found", ShotlyErrorCode.NOT_FOUND);
         }
-        return null;
+
+        scene.shots.forEach(shotRepository::delete);
+
+        scene.shotlist.scenes.stream()
+                .filter(s -> s.position > scene.position)
+                .forEach(s -> s.position--);
+
+        scene.shotlist.registerEdit();
+
+        delete(scene);
+
+        return scene.toDTO();
     }
 }

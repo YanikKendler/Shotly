@@ -99,11 +99,18 @@ public class ShotAttributeTemplateRepository implements PanacheRepository<ShotAt
 
     public ShotAttributeTemplateBaseDTO delete(Long id){
         ShotAttributeTemplateBase attribute = findById(id);
-        if(attribute != null) {
-            attribute.template.shotAttributes.remove(attribute);
-            delete(attribute);
-            return attribute.toDTO();
+
+        if(attribute == null) {
+            throw new ShotlyException("Attribute not found", ShotlyErrorCode.NOT_FOUND);
         }
-        return null;
+
+        attribute.template.shotAttributes.remove(attribute);
+
+        attribute.template.shotAttributes.stream()
+            .filter(a -> a.position > attribute.position)
+            .forEach(a -> a.position--);
+
+        delete(attribute);
+        return attribute.toDTO();
     }
 }

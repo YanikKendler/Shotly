@@ -66,38 +66,42 @@ public class SceneSelectAttributeOptionDefinitionRepository implements PanacheRe
 
     public SceneSelectAttributeOptionDefinition delete(Long id){
         SceneSelectAttributeOptionDefinition sceneSelectAttributeOptionDefinition = findById(id);
-        if(sceneSelectAttributeOptionDefinition != null) {
-            switch (sceneSelectAttributeOptionDefinition.sceneAttributeDefinition){
-                case SceneMultiSelectAttributeDefinition attributeDefinition: {
-                    List<SceneMultiSelectAttribute> relevantAttributes = getEntityManager()
-                            .createQuery("select sa from SceneMultiSelectAttribute sa where sa.definition = :definition", SceneMultiSelectAttribute.class)
-                            .setParameter("definition", attributeDefinition)
-                            .getResultList();
 
-                    for (SceneMultiSelectAttribute relevantAttribute : relevantAttributes) {
-                        relevantAttribute.value.remove(sceneSelectAttributeOptionDefinition);
-                    }
-
-                    break;
-                }
-                case SceneSingleSelectAttributeDefinition attributeDefinition: {
-                    getEntityManager().createQuery("update SceneSingleSelectAttribute sa set sa.value = null where sa.definition = :definition")
-                            .setParameter("definition", attributeDefinition)
-                            .executeUpdate();
-                    break;
-                }
-                default:
-                    throw new ShotlyException("Unexpected value: " + sceneSelectAttributeOptionDefinition.sceneAttributeDefinition, ShotlyErrorCode.IMPOSSIBLE_INPUT);
-            }
-
-            delete(sceneSelectAttributeOptionDefinition);
-
-             getEntityManager().createQuery("select s from Shotlist s join s.sceneAttributeDefinitions sad where sad = :definition"
-                    , Shotlist.class)
-                    .setParameter("definition", sceneSelectAttributeOptionDefinition.sceneAttributeDefinition)
-                    .getSingleResult()
-            .registerEdit();
+        if(sceneSelectAttributeOptionDefinition == null) {
+            throw new ShotlyException("SceneSelectAttributeOptionDefinition not found", ShotlyErrorCode.NOT_FOUND);
         }
-        return sceneSelectAttributeOptionDefinition;
+
+        switch (sceneSelectAttributeOptionDefinition.sceneAttributeDefinition){
+            case SceneMultiSelectAttributeDefinition attributeDefinition: {
+                List<SceneMultiSelectAttribute> relevantAttributes = getEntityManager()
+                        .createQuery("select sa from SceneMultiSelectAttribute sa where sa.definition = :definition", SceneMultiSelectAttribute.class)
+                        .setParameter("definition", attributeDefinition)
+                        .getResultList();
+
+                for (SceneMultiSelectAttribute relevantAttribute : relevantAttributes) {
+                    relevantAttribute.value.remove(sceneSelectAttributeOptionDefinition);
+                }
+
+                break;
+            }
+            case SceneSingleSelectAttributeDefinition attributeDefinition: {
+                getEntityManager().createQuery("update SceneSingleSelectAttribute sa set sa.value = null where sa.definition = :definition")
+                        .setParameter("definition", attributeDefinition)
+                        .executeUpdate();
+                break;
+            }
+            default:
+                throw new ShotlyException("Unexpected value: " + sceneSelectAttributeOptionDefinition.sceneAttributeDefinition, ShotlyErrorCode.IMPOSSIBLE_INPUT);
+        }
+
+        delete(sceneSelectAttributeOptionDefinition);
+
+         getEntityManager().createQuery("select s from Shotlist s join s.sceneAttributeDefinitions sad where sad = :definition"
+                , Shotlist.class)
+                .setParameter("definition", sceneSelectAttributeOptionDefinition.sceneAttributeDefinition)
+                .getSingleResult()
+        .registerEdit();
+
+         return sceneSelectAttributeOptionDefinition;
     }
 }

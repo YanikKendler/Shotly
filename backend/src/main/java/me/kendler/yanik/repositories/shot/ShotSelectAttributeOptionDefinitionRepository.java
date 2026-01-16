@@ -37,8 +37,7 @@ public class ShotSelectAttributeOptionDefinitionRepository implements PanacheRep
 
         persist(shotSelectAttributeOptionDefinition);
 
-        getEntityManager().createQuery("select s from Shotlist s join s.shotAttributeDefinitions sad where sad = :definition"
-                        , Shotlist.class)
+        getEntityManager().createQuery("select s from Shotlist s join s.shotAttributeDefinitions sad where sad = :definition", Shotlist.class)
                 .setParameter("definition", shotAttributeDefinition)
                 .getSingleResult()
                 .registerEdit();
@@ -64,6 +63,7 @@ public class ShotSelectAttributeOptionDefinitionRepository implements PanacheRep
         if (option == null) {
             throw new ShotlyException("ShotSelectAttributeOptionDefinition not found", ShotlyErrorCode.NOT_FOUND);
         }
+
         option.name = editDTO.name();
 
         getEntityManager().createQuery("select s from Shotlist s join s.shotAttributeDefinitions sad where sad = :definition"
@@ -77,37 +77,41 @@ public class ShotSelectAttributeOptionDefinitionRepository implements PanacheRep
 
     public ShotSelectAttributeOptionDefinition delete(Long id){
         ShotSelectAttributeOptionDefinition shotSelectAttributeOptionDefinition = findById(id);
-        if(shotSelectAttributeOptionDefinition != null) {
-            switch (shotSelectAttributeOptionDefinition.shotAttributeDefinition){
-                case ShotMultiSelectAttributeDefinition attributeDefinition: {
-                    List<ShotMultiSelectAttribute> relevantAttributes = getEntityManager()
-                            .createQuery("select sa from ShotMultiSelectAttribute sa where sa.definition = :definition", ShotMultiSelectAttribute.class)
-                            .setParameter("definition", attributeDefinition)
-                            .getResultList();
 
-                    for (ShotMultiSelectAttribute relevantAttribute : relevantAttributes) {
-                        relevantAttribute.value.remove(shotSelectAttributeOptionDefinition);
-                    }
-                    break;
-                }
-                case ShotSingleSelectAttributeDefinition attributeDefinition: {
-                    getEntityManager().createQuery("update ShotSingleSelectAttribute sa set sa.value = null where sa.definition = :definition")
-                            .setParameter("definition", attributeDefinition)
-                            .executeUpdate();
-                    break;
-                }
-                default:
-                    throw new ShotlyException("Unexpected value: " + shotSelectAttributeOptionDefinition.shotAttributeDefinition, ShotlyErrorCode.IMPOSSIBLE_INPUT);
-            }
-
-            delete(shotSelectAttributeOptionDefinition);
-
-            getEntityManager().createQuery("select s from Shotlist s join s.shotAttributeDefinitions sad where sad = :definition"
-                            , Shotlist.class)
-                    .setParameter("definition", shotSelectAttributeOptionDefinition.shotAttributeDefinition)
-                    .getSingleResult()
-                    .registerEdit();
+        if(shotSelectAttributeOptionDefinition == null){
+            throw new ShotlyException("ShotSelectAttributeOptionDefinition not found", ShotlyErrorCode.NOT_FOUND);
         }
+
+        switch (shotSelectAttributeOptionDefinition.shotAttributeDefinition){
+            case ShotMultiSelectAttributeDefinition attributeDefinition: {
+                List<ShotMultiSelectAttribute> relevantAttributes = getEntityManager()
+                        .createQuery("select sa from ShotMultiSelectAttribute sa where sa.definition = :definition", ShotMultiSelectAttribute.class)
+                        .setParameter("definition", attributeDefinition)
+                        .getResultList();
+
+                for (ShotMultiSelectAttribute relevantAttribute : relevantAttributes) {
+                    relevantAttribute.value.remove(shotSelectAttributeOptionDefinition);
+                }
+                break;
+            }
+            case ShotSingleSelectAttributeDefinition attributeDefinition: {
+                getEntityManager().createQuery("update ShotSingleSelectAttribute sa set sa.value = null where sa.definition = :definition")
+                        .setParameter("definition", attributeDefinition)
+                        .executeUpdate();
+                break;
+            }
+            default:
+                throw new ShotlyException("Unexpected value: " + shotSelectAttributeOptionDefinition.shotAttributeDefinition, ShotlyErrorCode.IMPOSSIBLE_INPUT);
+        }
+
+        delete(shotSelectAttributeOptionDefinition);
+
+        getEntityManager().createQuery("select s from Shotlist s join s.shotAttributeDefinitions sad where sad = :definition"
+                        , Shotlist.class)
+                .setParameter("definition", shotSelectAttributeOptionDefinition.shotAttributeDefinition)
+                .getSingleResult()
+                .registerEdit();
+
         return shotSelectAttributeOptionDefinition;
     }
 }

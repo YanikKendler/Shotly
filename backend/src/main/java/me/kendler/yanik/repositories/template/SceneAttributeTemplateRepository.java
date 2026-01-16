@@ -99,11 +99,18 @@ public class SceneAttributeTemplateRepository implements PanacheRepository<Scene
 
     public SceneAttributeTemplateBaseDTO delete(Long id){
         SceneAttributeTemplateBase attribute = findById(id);
-        if(attribute != null) {
-            attribute.template.sceneAttributes.remove(attribute);
-            delete(attribute);
-            return attribute.toDTO();
+
+        if(attribute == null) {
+            throw new ShotlyException("Attribute not found", ShotlyErrorCode.NOT_FOUND);
         }
-        return null;
+
+        attribute.template.sceneAttributes.remove(attribute);
+
+        attribute.template.sceneAttributes.stream()
+            .filter(a -> a.position > attribute.position)
+            .forEach(a -> a.position--);
+
+        delete(attribute);
+        return attribute.toDTO();
     }
 }

@@ -15,8 +15,13 @@ import me.kendler.yanik.model.User;
 import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.UserTier;
 import me.kendler.yanik.model.scene.Scene;
+import me.kendler.yanik.model.scene.attributeDefinitions.SceneAttributeDefinitionBase;
+import me.kendler.yanik.model.shot.attributeDefinitions.ShotAttributeDefinitionBase;
 import me.kendler.yanik.model.template.Template;
+import me.kendler.yanik.repositories.scene.SceneAttributeDefinitionRepository;
 import me.kendler.yanik.repositories.scene.SceneRepository;
+import me.kendler.yanik.repositories.shot.ShotAttributeDefinitionRepository;
+import me.kendler.yanik.repositories.template.SceneAttributeTemplateRepository;
 import me.kendler.yanik.repositories.template.TemplateRepository;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
@@ -40,6 +45,12 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
 
     @Inject
     CollaborationRepository collaborationRepository;
+
+    @Inject
+    ShotAttributeDefinitionRepository shotAttributeDefinitionRepository;
+
+    @Inject
+    SceneAttributeDefinitionRepository sceneAttributeDefinitionRepository;
 
     private static final Logger LOGGER = Logger.getLogger(ShotlistRepository.class);
 
@@ -126,6 +137,12 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
             }
             for (Collaboration collab : shotlist.collaborations){
                 collaborationRepository.delete(collab.id);
+            }
+            for (ShotAttributeDefinitionBase definition : shotlist.shotAttributeDefinitions) {
+                shotAttributeDefinitionRepository.delete(definition.id);
+            }
+            for (SceneAttributeDefinitionBase definition : shotlist.sceneAttributeDefinitions) {
+                sceneAttributeDefinitionRepository.delete(definition.id);
             }
             delete(shotlist);
             return shotlist.toDTO();

@@ -53,19 +53,23 @@ public class ShotSelectAttributeOptionTemplateRepository implements PanacheRepos
 
     public ShotSelectAttributeOptionTemplate delete(Long id){
         ShotSelectAttributeOptionTemplate shotSelectAttributeOptionTemplate = findById(id);
-        if(shotSelectAttributeOptionTemplate != null) {
-            switch (shotSelectAttributeOptionTemplate.shotAttributeTemplate){
-                case ShotSingleSelectAttributeTemplate singleSelectTemplate -> {
-                    singleSelectTemplate.options.remove(shotSelectAttributeOptionTemplate);
-                }
-                case ShotMultiSelectAttributeTemplate multiSelectTemplate -> {
-                    multiSelectTemplate.options.remove(shotSelectAttributeOptionTemplate);
-                }
-                default -> throw new ShotlyException("Invalid attribute template type", ShotlyErrorCode.IMPOSSIBLE_INPUT);
-            }
 
-            delete(shotSelectAttributeOptionTemplate);
+        if(shotSelectAttributeOptionTemplate == null) {
+            throw new ShotlyException("ShotSelectAttributeOptionTemplate not found", ShotlyErrorCode.NOT_FOUND);
         }
+
+        switch (shotSelectAttributeOptionTemplate.shotAttributeTemplate){
+            case ShotSingleSelectAttributeTemplate singleSelectTemplate -> {
+                singleSelectTemplate.options.remove(shotSelectAttributeOptionTemplate);
+            }
+            case ShotMultiSelectAttributeTemplate multiSelectTemplate -> {
+                multiSelectTemplate.options.remove(shotSelectAttributeOptionTemplate);
+            }
+            default -> throw new ShotlyException("Invalid attribute template type", ShotlyErrorCode.IMPOSSIBLE_INPUT);
+        }
+
+        delete(shotSelectAttributeOptionTemplate);
+
         return shotSelectAttributeOptionTemplate;
     }
 }

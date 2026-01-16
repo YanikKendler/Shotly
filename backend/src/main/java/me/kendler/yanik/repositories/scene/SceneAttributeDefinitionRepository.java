@@ -16,6 +16,7 @@ import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.scene.Scene;
 import me.kendler.yanik.model.scene.attributeDefinitions.*;
 import me.kendler.yanik.model.scene.attributes.SceneAttributeBase;
+import me.kendler.yanik.model.shot.attributeDefinitions.ShotAttributeDefinitionBase;
 import me.kendler.yanik.repositories.ShotlistRepository;
 
 import java.util.*;
@@ -156,30 +157,40 @@ public class SceneAttributeDefinitionRepository implements PanacheRepository<Sce
     public SceneAttributeDefinitionBaseDTO delete(Long id){
         SceneAttributeDefinitionBase attributeDefinition = findById(id);
 
-        if(attributeDefinition != null) {
-            List<SceneAttributeBase> relevantAttributes = getEntityManager()
-                    .createQuery("select sa from SceneAttributeBase sa where sa.definition.id = :definitionId", SceneAttributeBase.class)
-                    .setParameter("definitionId", id)
-                    .getResultList();
-
-            List<Scene> relevantScenes = getEntityManager()
-                    .createQuery("select s from Scene s join s.attributes sab where sab.definition.id = :definitionId", Scene.class)
-                    .setParameter("definitionId", id)
-                    .getResultList();
-
-            relevantScenes.forEach(scene -> {
-                relevantAttributes.forEach(scene.attributes::remove);
-            });
-
-            Shotlist relevantShotlist = getShotlistByDefinitionId(id);
-
-            relevantShotlist.sceneAttributeDefinitions.remove(attributeDefinition);
-
-            relevantShotlist.registerEdit();
-
-            return attributeDefinition.toDTO();
+        if(attributeDefinition == null) {
+            throw new ShotlyException("Attribute definition not found", ShotlyErrorCode.NOT_FOUND);
         }
-        return null;
+
+        List<SceneAttributeBase> relevantAttributes = getEntityManager()
+                .createQuery("select sa from SceneAttributeBase sa where sa.definition.id = :definitionId", SceneAttributeBase.class)
+                .setParameter("definitionId", id)
+                .getResultList();
+
+        List<Scene> relevantScenes = getEntityManager()
+                .createQuery("select s from Scene s join s.attributes sab where sab.definition.id = :definitionId", Scene.class)
+                .setParameter("definitionId", id)
+                .getResultList();
+
+        relevantScenes.forEach(scene -> {
+            relevantAttributes.forEach(a -> {
+                scene.attributes.remove(a);
+                a.definition = null;
+            });
+        });
+
+        Shotlist relevantShotlist = getShotlistByDefinitionId(id);
+
+        relevantShotlist.sceneAttributeDefinitions.remove(attributeDefinition);
+
+        relevantShotlist.sceneAttributeDefinitions.stream()
+            .filter(d -> d.position > attributeDefinition.position)
+            .forEach(d -> d.position--);
+
+        deleteById(id);
+
+        relevantShotlist.registerEdit();
+
+        return attributeDefinition.toDTO();
     }
 
     public Shotlist getShotlistByDefinitionId(Long id) {
