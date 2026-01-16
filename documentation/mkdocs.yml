@@ -1,4 +1,5 @@
 site_name: Shotly Docs
+site_url: https://docs.shotly.at/
 theme:
   name: material
   palette:
