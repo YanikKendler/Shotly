@@ -4,7 +4,7 @@ import React, {useEffect, useState} from 'react';
 import {Document, Page, StyleSheet, Text, View} from '@react-pdf/renderer';
 import {useApolloClient, useQuery} from "@apollo/client"
 import gql from "graphql-tag"
-import {SceneDto, ShotDto, ShotlistDto} from "../../lib/graphql/generated"
+import {SceneDto, ShotDto, ShotlistDto} from "../../../../../lib/graphql/generated"
 import {
     AnySceneAttribute,
     AnySceneAttributeDefinition,

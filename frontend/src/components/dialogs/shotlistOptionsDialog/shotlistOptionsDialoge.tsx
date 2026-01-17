@@ -3,8 +3,8 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import React, {useEffect, useState} from 'react';
 import "./shotlistOptionsDialog.scss"
-import {Popover, Tabs, VisuallyHidden} from "radix-ui"
-import {ChevronDown, File, FileDown, List, Plus, Type, Users, X, ListOrdered, Settings, Settings2} from "lucide-react"
+import {Tabs, VisuallyHidden} from "radix-ui"
+import {FileDown, List, Plus, Type, Users, X, ListOrdered, Settings, Settings2} from "lucide-react"
 import {
     AnySceneAttributeDefinition,
     AnyShotAttributeDefinition,

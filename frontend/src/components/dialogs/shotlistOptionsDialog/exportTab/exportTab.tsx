@@ -1,8 +1,8 @@
 import {ChevronDown, Download, File, List, ListOrdered, Plus, Trash, Type, X} from "lucide-react"
 import React, {Fragment, useEffect, useRef, useState} from "react"
 import gql from "graphql-tag"
-import {pdf} from "@react-pdf/renderer"
-import PDFExport from "@/components/PDFExport"
+import {pdf, PDFViewer} from "@react-pdf/renderer"
+import PDFExport from "@/components/dialogs/shotlistOptionsDialog/exportTab/PDFExport"
 import {wuGeneral, wuTime} from "@yanikkendler/web-utils"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {
@@ -32,7 +32,7 @@ import {
 } from "@/util/AttributeParser"
 //@ts-ignore
 import {downloadCSV} from "@/downloadCSV"
-import {Popover} from "radix-ui"
+import {Dialog, Popover} from "radix-ui"
 import {MultiValue} from "react-select"
 import HelpLink from "@/components/helpLink/helpLink"
 import Skeleton from "react-loading-skeleton"
@@ -68,6 +68,8 @@ export default function ExportTab(
     const [customSceneFilters, setCustomSceneFilters] = useState<Map<number, MultiValue<SelectOption>>>(new Map())
     const [customShotFilters, setCustomShotFilters] = useState<Map<number, MultiValue<SelectOption>>>(new Map())
 
+    const [shotlistPreviewCache, setShotlistPreviewCache] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
+
     const client = useApolloClient()
 
     const [exportRunning, setExportRunning] = useState(false)
@@ -76,20 +78,14 @@ export default function ExportTab(
     useEffect(() => {
         if(!shotlist || !shotlist.id) return
 
-        const settingsString = localStorage.getItem(Config.localStorageKey.exportSettings(shotlist.id))
-        if (!settingsString) return
+        loadSettingsFromLocalStorage(shotlist.id)
+        extractSceneOptions()
 
-        const settingsObject = JSON.parse(settingsString) as ExportSettingsLocalStorage
+        loadData().then(data => {
+            if(!data) return
 
-        if(settingsObject.selectedFileType)
-            setSelectedFileType(settingsObject.selectedFileType)
-        if(settingsObject.selectedScenes && settingsObject.selectedScenes.length > 0)
-            setSelectedScenes(settingsObject.selectedScenes)
-        if(settingsObject.customShotFilters && settingsObject.customShotFilters.length > 0)
-            setCustomShotFilters(new Map(settingsObject.customShotFilters))
-        if(settingsObject.customSceneFilters && settingsObject.customSceneFilters.length > 0)
-            setCustomSceneFilters(new Map(settingsObject.customSceneFilters))
-
+            setShotlistPreviewCache(data)
+        })
     }, [shotlist])
 
     //save settings to local storage
@@ -106,18 +102,31 @@ export default function ExportTab(
         localStorage.setItem(Config.localStorageKey.exportSettings(shotlist.id), settingsString)
     }, [selectedFileType, selectedScenes, customShotFilters, customSceneFilters]);
 
-    //extract scenes as SelectOptions from shotlist
-    useEffect(() => {
-        if (!shotlist) return;
+    const loadSettingsFromLocalStorage = (shotlistId: string) => {
+        const settingsString = localStorage.getItem(Config.localStorageKey.exportSettings(shotlistId))
+        if (!settingsString) return
 
+        const settingsObject = JSON.parse(settingsString) as ExportSettingsLocalStorage
+
+        if(settingsObject.selectedFileType)
+            setSelectedFileType(settingsObject.selectedFileType)
+        if(settingsObject.selectedScenes && settingsObject.selectedScenes.length > 0)
+            setSelectedScenes(settingsObject.selectedScenes)
+        if(settingsObject.customShotFilters && settingsObject.customShotFilters.length > 0)
+            setCustomShotFilters(new Map(settingsObject.customShotFilters))
+        if(settingsObject.customSceneFilters && settingsObject.customSceneFilters.length > 0)
+            setCustomSceneFilters(new Map(settingsObject.customSceneFilters))
+    }
+
+    const extractSceneOptions = () => {
         let newSceneOptions: SelectOption[] = [];
         for (let i = 0; i < (shotlist?.sceneCount || 0); i++) {
             newSceneOptions.push({value: i.toString(), label: `${(i + 1).toString()}`});
         }
         setSceneOptions(newSceneOptions)
-    }, [shotlist]);
+    }
 
-    const getFilteredData = async () => {
+    const loadFilteredData = async () => {
         const queryResult = await loadData()
 
         if(!queryResult) return null;
@@ -190,6 +199,8 @@ export default function ExportTab(
         )
 
         //TODO error handling and notification
+
+
 
         return result
     }
@@ -300,7 +311,7 @@ export default function ExportTab(
     }
 
     async function exportShotlist() {
-        const data: ShotlistDto | null = await getFilteredData()
+        const data: ShotlistDto | null = await loadFilteredData()
 
         if (!data) {
             //TODO notification
@@ -614,9 +625,40 @@ export default function ExportTab(
                     {
                         exportRunning ?
                         <span>{"exporting"}<DotLoader/></span> :
-                        <>{"download shotlist"}<Download size={16} strokeWidth={3}/></>
+                        <>{"Download shotlist"}<Download size={16} strokeWidth={3}/></>
                     }
                 </button>
+                <Dialog.Root>
+                    <Dialog.Trigger asChild>
+                        <button className="preview">
+                            Preview
+                        </button>
+                    </Dialog.Trigger>
+                    <Dialog.Portal>
+                        <Dialog.Overlay className={"dialogOverlay"}/>
+                        <Dialog.Content className="dialogContent pdfPreviewDialogContent">
+                            <Dialog.Title>PDF preview <span>(the final export will be: {selectedFileType})</span></Dialog.Title>
+                            <PDFViewer showToolbar={false}>
+                                <PDFExport data={shotlistPreviewCache.data.shotlist as ShotlistDto}/>
+                            </PDFViewer>
+                            <Dialog.Close asChild>
+                                <button
+                                    className={"export"}
+                                    onClick={exportShotlist}
+                                >
+                                    Download shotlist<Download size={16} strokeWidth={3}/>
+                                </button>
+                            </Dialog.Close>
+                            <p className="small">If a collaborator has edited the shotlist, the preview might not be fully up to date, but the final export will be.</p>
+
+                            <Dialog.Close asChild>
+                                <button className={"closeButton"}>
+                                    <X size={18}/>
+                                </button>
+                            </Dialog.Close>
+                        </Dialog.Content>
+                    </Dialog.Portal>
+                </Dialog.Root>
                 <HelpLink link="https://docs.shotly.at/shotlist/export"/>
             </div>
         </div>
