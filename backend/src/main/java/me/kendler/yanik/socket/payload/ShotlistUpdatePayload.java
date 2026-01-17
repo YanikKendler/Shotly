@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = SceneSelectOptionPayload.class, name = "sceneAttributeOption"),
         @JsonSubTypes.Type(value = ShotSelectOptionPayload.class, name = "shotAttributeOption"),
         @JsonSubTypes.Type(value = SelectedCellPayload.class, name = "selectedCell"),
+        @JsonSubTypes.Type(value = SelectSceneAttributePayload.class, name = "selectedSceneAttribute"),
         @JsonSubTypes.Type(value = EmptyPayload.class, name = "empty"),
 })
 public sealed interface ShotlistUpdatePayload permits
@@ -38,5 +39,6 @@ public sealed interface ShotlistUpdatePayload permits
         SceneSelectOptionPayload,
         ShotSelectOptionPayload,
         SelectedCellPayload,
+        SelectSceneAttributePayload,
         EmptyPayload
 { }

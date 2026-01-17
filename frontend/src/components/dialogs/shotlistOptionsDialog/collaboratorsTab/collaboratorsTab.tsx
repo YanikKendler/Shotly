@@ -278,7 +278,7 @@ export default function CollaboratorsTab(
                         />
                         <button
                             className={"accent"}
-                            disabled={!wuConstants.Regex.email.test(inputValue) || auth.getUser()?.email == inputValue}
+                            disabled={!wuConstants.Regex.email.test(inputValue)}
                             onClick={addCollaborator}
                         >
                             Invite

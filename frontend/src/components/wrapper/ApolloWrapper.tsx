@@ -46,7 +46,7 @@ export function makeClient() {
     const errorLink = onError(({ graphQLErrors, networkError }) => {
         if (graphQLErrors) {
             const error = graphQLErrors[0];
-            
+
             if (error?.extensions?.type != 'SHOTLY_EXCEPTION') {
                 console.log("unkown exception - going to error page", error)
                 //redirectToServerError()

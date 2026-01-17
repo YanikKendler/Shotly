@@ -28,6 +28,8 @@ import {
 export interface SceneAttributeRef {
     setValue: (value: SceneAttributeValueMultiType) => void
     setReadOnlyValue: (value: string) => void
+    setCollaboratorHighlight: (userId: string) => void
+    removeCollaboratorHighlight: (userId: string) => void
     id: number
 }
 
@@ -54,6 +56,8 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
 
     const [readOnlyValue, setReadOnlyValue] = useState<string>("")
 
+    const [isBlockedByCollaborator, setIsBlockedByCollaborator] = useState(false)
+
     useImperativeHandle(ref, () => ({
         //instead of multiype, i should really pass a AnySceneAttribute and then use the setValueFromAttribute
         setValue: (value: SceneAttributeValueMultiType) => {
@@ -70,22 +74,29 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
             }
         },
         setReadOnlyValue: setReadOnlyValue,
-        id: attribute.id
+        id: attribute.id,
+        setCollaboratorHighlight(userId: string){
+            if(attribute)
+                setIsBlockedByCollaborator(true)
+        },
+        removeCollaboratorHighlight(userId: string){
+            setIsBlockedByCollaborator(false)
+        }
     }))
 
     useEffect(() => {
-        if(isReadOnly == false) {
+        if(isReadOnly == false && isBlockedByCollaborator == false) {
             setValueFromAttribute(attribute)
         }
-    }, [isReadOnly]);
+    }, [isReadOnly, isBlockedByCollaborator]);
 
     useEffect(() => {
         if(!attribute) return;
 
-        if(isReadOnly == true){
+        if(isReadOnly == true || isBlockedByCollaborator == true) {
             setReadOnlyValue(SceneAttributeParser.toValueString(attribute, false))
         }
-    }, [isReadOnly, attribute]);
+    }, [isReadOnly, attribute, isBlockedByCollaborator]);
 
     useEffect(() => {
         if (!attribute) return;
@@ -286,8 +297,7 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
 
     let content: React.JSX.Element = <></>
 
-
-    if(isReadOnly == true) {
+    if(isReadOnly == true || isBlockedByCollaborator == true) {
         if(!readOnlyValue || wuConstants.Regex.empty.test(readOnlyValue))
             content = <p className="readOnlyValue empty">Unset</p>
         else
@@ -386,7 +396,17 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
         }
     }
 
-    return <div className="sceneAttribute">{content}</div>
+    return <div
+        className={`sceneAttribute ${isBlockedByCollaborator && "collaboratorHighlight"}`}
+        onFocus={() => {
+            shotlistContext.broadCastSceneAttributeSelect(attribute.id)
+        }}
+        onBlur={() => {
+            shotlistContext.broadCastSceneAttributeSelect(-1)
+        }}
+    >
+        {content}
+    </div>
 })
 
 export default SceneAttribute

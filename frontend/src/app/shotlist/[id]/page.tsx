@@ -351,6 +351,23 @@ export default function Shotlist() {
         websocketRef.current?.send(JSON.stringify(updateDTO))
     }
 
+    const broadCastSceneAttributeSelect = (attributeId: number) => {
+        const updateDTO: ShotlistUpdateDTO = {
+            type: ShotlistUpdateType.COLLABORATOR_SCENE_ATTRIBUTE_SELECTED,
+            userId: query.data.currentUser?.id || "unknown",
+            timestamp: new Date(),
+            payload: {
+                kind: "selectedSceneAttribute",
+                sceneId: selectedScene.id || "unknown",
+                attributeId: attributeId
+            }
+        }
+
+        console.log("updating selection", updateDTO)
+
+        websocketRef.current?.send(JSON.stringify(updateDTO))
+    }
+
     //TODO move this to the service completely or make it a use hook or at least a ref function to avoid captures
     const joinShotlistWebsocket = (currentUserId: string) => {
         if (websocketRef.current) {
@@ -472,8 +489,10 @@ export default function Shotlist() {
                     syncService.current.shotAttributeOptionCreated(updateDTO.payload, shotlistContextFunctionsRef.current.addShotSelectOption)
                     break
                 case "selectedCell":
-                    syncService.current.setCollaboratorHighlight(updateDTO, selectedSceneRef.current, sheetManagerRef.current)
+                    syncService.current.setCollaboratorCellHighlight(updateDTO, selectedSceneRef.current, sheetManagerRef.current)
                     break
+                case "selectedSceneAttribute":
+                    syncService.current.setCollaboratorSceneAttributeHighlight(updateDTO, selectedSceneRef.current, sidebarRef.current)
                 case "empty":
                     switch (updateDTO.type) {
                         case ShotlistUpdateType.SHOTLIST_OPTIONS_UPDATED:
@@ -707,6 +726,7 @@ export default function Shotlist() {
             loadSceneSelectOptions: loadSceneSelectOptions,
             addSceneSelectOption: addSceneSelectOption,
             websocketRef: websocketRef,
+            broadCastSceneAttributeSelect: broadCastSceneAttributeSelect,
             setSaveState: setSaveState,
             handleError: handleShotlistError
         }}>

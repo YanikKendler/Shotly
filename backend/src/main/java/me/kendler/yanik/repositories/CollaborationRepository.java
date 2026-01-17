@@ -91,10 +91,6 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
     public List<CollaborationDTO> create(CollaborationCreateDTO createDTO, JsonWebToken jwt){
         User currentUser = userRepository.findOrCreateByJWT(jwt);
 
-        if(createDTO.email().equals(currentUser.email)){
-            throw new ShotlyException("Cannot create collaboration with yourself.", ShotlyErrorCode.NOT_ALLOWED);
-        }
-
         Shotlist shotlist = shotlistRepository.findByIdValidated(createDTO.shotlistId());
 
         if(shotlist == null){
@@ -108,16 +104,15 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
         List<UUID> existingCollaboratorIds = shotlist.collaborations.stream().map(c -> c.user.id).toList();
 
         List<User> users = userRepository.find(
-                "email = ?1 and id not in ?2",
+                "email = ?1 and id not in ?2 and id != ?3",
                 createDTO.email(),
-                existingCollaboratorIds
+                existingCollaboratorIds,
+                currentUser.id
         ).list();
 
         if(users == null || users.isEmpty()){
             throw new ShotlyException("User with email " + createDTO.email() + " not found.", ShotlyErrorCode.NOT_FOUND);
-
         }
-
 
         List<CollaborationDTO> result = new LinkedList<>();
 

@@ -455,10 +455,16 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     if(query.error)
         return <div className="sheetManager"><ErrorDisplay title={query.error.message}/></div>
 
-    if(
-        (isReadOnly && query.data.shots && query.data.shots.length <= 0) ||
-        shotAttributeDefinitions.length == 0
-    ) {
+    if(isReadOnly){
+        if((query.data.shots && query.data.shots.length <= 0) || shotAttributeDefinitions.length == 0){
+            return <div className="sheetManager">
+                <p className={"empty"}>
+                    No Shots here yet ¯\(o_o)/¯
+                </p>
+            </div>
+        }
+    }
+    if(!isReadOnly && shotAttributeDefinitions.length == 0) {
         return <div className="sheetManager">
             <p className={"empty"}>
                 {"Add a "}

@@ -26,6 +26,7 @@ export interface ShotlistContextProps {
     loadSceneSelectOptions: (sceneAttributeDefinitionId: number) => Promise<void>
     addSceneSelectOption: (sceneAttributeDefinitionId: number, option: SelectOption) => void
     websocketRef: RefObject<WebSocket | null>,
+    broadCastSceneAttributeSelect: (attributeId: number) => void
     setSaveState: (key: string, saveState: SaveState) => void
     handleError: (error: GenericError) => void
 }
@@ -52,6 +53,7 @@ export const ShotlistContext = createContext<ShotlistContextProps>({
     loadSceneSelectOptions: () => Promise.resolve(),
     addSceneSelectOption: () => {},
     websocketRef: { current: null },
+    broadCastSceneAttributeSelect: () => {},
     setSaveState: () => {},
     handleError: () => {}
 })

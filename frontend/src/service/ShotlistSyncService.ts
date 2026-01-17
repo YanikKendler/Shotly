@@ -34,6 +34,7 @@ export enum ShotlistUpdateType {
     SHOT_SELECT_OPTION_CREATED = "SHOT_SELECT_OPTION_CREATED",
     SHOTLIST_OPTIONS_UPDATED = "SHOTLIST_OPTIONS_UPDATED",
     COLLABORATOR_CELL_SELECTED = "COLLABORATOR_CELL_SELECTED",
+    COLLABORATOR_SCENE_ATTRIBUTE_SELECTED = "COLLABORATOR_SCENE_ATTRIBUTE_SELECTED"
 }
 
 /**
@@ -100,6 +101,12 @@ export interface SelectedCellPayload {
     sceneId: string
 }
 
+export interface SelectedSceneAttributePayload {
+    kind: "selectedSceneAttribute"
+    attributeId: number
+    sceneId: string
+}
+
 export interface EmptyPayload {
     kind: "empty"
 }
@@ -115,6 +122,7 @@ export type ShotlistUpdatePayload =
     SceneAttributeOptionPayload |
     ShotAttributeOptionPayload |
     SelectedCellPayload |
+    SelectedSceneAttributePayload |
     EmptyPayload
 
 /* other stuff */
@@ -132,6 +140,7 @@ export class ShotlistSyncService {
     shotlistId: string
     isReadOnly: boolean = false
     collaboratorSelectedCell: Map<string, SelectedCellPayload> = new Map();
+    collaboratorSelectedSceneAttribute: Map<string, SelectedSceneAttributePayload> = new Map();
 
     constructor(shotlistId: string) {
         this.shotlistId = shotlistId
@@ -231,7 +240,7 @@ export class ShotlistSyncService {
         })
     }
 
-    setCollaboratorHighlight(updateDTO: ShotlistUpdateDTO, selectedScene: SelectedScene, sheetManagerRef: SheetManagerRef | null){
+    setCollaboratorCellHighlight(updateDTO: ShotlistUpdateDTO, selectedScene: SelectedScene, sheetManagerRef: SheetManagerRef | null){
         if(updateDTO.payload.kind != "selectedCell") return
 
         if(updateDTO.payload.sceneId == selectedScene.id) { //the new highlight is in the currently selected scene
@@ -257,5 +266,27 @@ export class ShotlistSyncService {
                 ?.setCollaboratorHighlight(updateDTO.userId)
         }
         this.collaboratorSelectedCell.set(updateDTO.userId, updateDTO.payload)
+    }
+
+    setCollaboratorSceneAttributeHighlight(updateDTO: ShotlistUpdateDTO, selectedScene: SelectedScene, sidebarRef: ShotlistSidebarRef | null){
+        if(updateDTO.payload.kind != "selectedSceneAttribute") return
+
+        if(updateDTO.payload.sceneId == selectedScene.id) { //the new highlight is in the currently selected scene
+            //remove the highlight from the previously selected attribute
+            if (this.collaboratorSelectedSceneAttribute.has(updateDTO.userId)) {
+                const currentlySelected = this.collaboratorSelectedSceneAttribute.get(updateDTO.userId)
+
+                if (currentlySelected != updateDTO.payload) {
+                    sidebarRef
+                        ?.findAttribute(currentlySelected?.attributeId ?? -1)
+                        ?.removeCollaboratorHighlight(updateDTO.userId)
+                }
+            }
+
+            sidebarRef
+                ?.findAttribute(updateDTO.payload?.attributeId ?? -1)
+                ?.setCollaboratorHighlight(updateDTO.userId)
+        }
+        this.collaboratorSelectedSceneAttribute.set(updateDTO.userId, updateDTO.payload)
     }
 }
