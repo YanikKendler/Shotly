@@ -14,3 +14,14 @@
     background-color: var(--hover-bg-10);
   }
 }
+
+.tooltipContent{
+  .scrollArea{
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+
+  .tooltipArrow{
+
+  }
+}

@@ -27,6 +27,11 @@
   }
 
   .list {
+    &.reloading{
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
     #scenes > .empty {
       text-align: center;
       color: var(--text-40);

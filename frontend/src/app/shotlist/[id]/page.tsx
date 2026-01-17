@@ -12,7 +12,7 @@ import {
     UserTier
 } from "../../../../lib/graphql/generated"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
-import {Check, LoaderCircle, Menu, X} from "lucide-react"
+import {Check, House, LoaderCircle, Menu, X} from "lucide-react"
 import './shotlist.scss'
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import {ShotlistContext} from "@/context/ShotlistContext"
@@ -41,6 +41,9 @@ import {
 } from "@/service/ShotlistSyncService"
 import {NotificationContext} from "@/context/NotificationContext"
 import HelpLink from "@/components/helpLink/helpLink"
+import Link from "next/link"
+import DotLoader from "@/components/DotLoader"
+import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 
 export interface SelectedScene {
     id: string | null
@@ -79,6 +82,7 @@ export default function Shotlist() {
     const [readOnlyBannerVisible, setReadOnlyBannerVisible] = useState(true)
 
     const [reloadKey, setReloadKey] = useState(0)
+    const [reloadInProgress, setReloadInProgress] = useState(false)
 
     const [readOnlyState, setReadOnlyState] = useState<ReadOnlyState>({isReadOnly: false})
 
@@ -118,7 +122,9 @@ export default function Shotlist() {
 
     useEffect(() => {
         refreshShotlistFunction.current = () => {
+            setReloadInProgress(true)
             loadData(true).then(() => {
+                setReloadInProgress(false)
                 setReloadKey(k => k + 1)
             })
             setShotSelectOptionsCache(new Map())
@@ -744,7 +750,7 @@ export default function Shotlist() {
                     <button onClick={() => setReadOnlyBannerVisible(false)}><X size={18}/></button>
                 </div>
             }
-            <main className="shotlist" key={reloadKey}>
+            <main className={`shotlist`} key={reloadKey}>
                 <PanelGroup autoSaveId={"shotly-shotlist-sidebar-width"} direction="horizontal"
                             className={"PanelGroup"}>
                     <Panel
@@ -755,8 +761,13 @@ export default function Shotlist() {
                     >
                         {
                             query.loading ?
-                            <div style={{display: "flex", flexDirection: "column", padding: ".5rem", height: "100%"}}>
-                                <Skeleton height="2rem" style={{marginBottom: "1rem"}}/>
+                            <div style={{display: "flex", flexDirection: "column", padding: ".5rem", height: "100%"}} className={"content"}>
+                                <div className={"top"}>
+                                    <Link href={`../dashboard`}>
+                                        <House strokeWidth={2.5} size={20}/>
+                                    </Link>
+                                    <Skeleton height="2rem" width={"18ch"} style={{marginLeft: ".5rem"}}/>
+                                </div>
                                 <Skeleton height="2rem" count={6} style={{marginBottom: ".3rem"}}/>
                             </div> :
                             <ShotlistSidebar
@@ -769,6 +780,7 @@ export default function Shotlist() {
 
                                 isReadOnly={readOnlyState.isReadOnly}
                                 setSidebarOpen={setSidebarOpen}
+                                reloadInProgress={reloadInProgress}
 
                                 openShotlistOptionsDialog={() => {
                                     setOptionsDialogOpen(true)
@@ -782,7 +794,7 @@ export default function Shotlist() {
                         }
                     </Panel>
                     <PanelResizeHandle className="PanelResizeHandle sidebarResize" hitAreaMargins={{fine: 5, coarse: 10}}/>
-                    <Panel className="content" id={"shotTable"}>
+                    <Panel className={`content ${reloadInProgress && "reloading"}`} id={"shotTable"}>
                         <div className="header" ref={headerRef}>
                             <div className="number"><p>#</p></div>
                             {
@@ -810,12 +822,25 @@ export default function Shotlist() {
                 </PanelGroup>
 
                 <div className="floater">
+                    {
+                        reloadInProgress &&
+                        <SimpleTooltip
+                            text={"The reload is triggered when either you or a collaborator make changes to the shotlist options like adding/removing attributes."}
+                            fontSize={0.85}
+                            offset={0}
+                            delay={0}
+                        >
+                            <div className="reloading">
+                                Shotlist is reloading<DotLoader/>
+                            </div>
+                        </SimpleTooltip>
+                    }
                     <div className="saveIndicator" data-state="saved" ref={saveIndicatorRef} aria-hidden>
                         <span className="saving"><LoaderCircle size={18}/></span>
                         <span className="saved"><Check size={18} strokeWidth={2.5}/></span>
                         <span className="error">!</span>
                     </div>
-                    <HelpLink link="https://docs.shotly.at/shotlist/navigation"/>
+                    <HelpLink link="https://docs.shotly.at/shotlist/navigation" delay={0}/>
                     <button className="openSidebar" onClick={() => setSidebarOpen(true)}><Menu/></button>
                 </div>
             </main>
@@ -839,7 +864,7 @@ export default function Shotlist() {
                     //been processed, causing the shotlist to not be updated properly
                     setTimeout(() => {
                         websocketRef.current?.send(JSON.stringify(updateDTO))
-                    },500)
+                    },300)
                 }}
                 isReadOnly={readOnlyState.isReadOnly}
             ></ShotlistOptionsDialog>

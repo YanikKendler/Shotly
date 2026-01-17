@@ -36,6 +36,7 @@ export interface ShotlistSidebarProps {
     sceneCount: number
     setSceneCount: (count: number) => void
     isReadOnly: boolean
+    reloadInProgress: boolean
     setSidebarOpen: (open: boolean) => void
     openShotlistOptionsDialog: () => void
     presentCollaborators: UserMinimalDTO[]
@@ -49,6 +50,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
     sceneCount,
     setSceneCount,
     isReadOnly,
+    reloadInProgress,
     setSidebarOpen,
     openShotlistOptionsDialog,
     presentCollaborators
@@ -354,7 +356,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                         role={"heading"}
                     />
                 </div>
-                <div className="list" id="sceneList">
+                <div className={`list ${reloadInProgress && "reloading"}`} id={`sceneList`}>
                     <div id="scenes">
                         {!query.data.shotlist.scenes || query.data.shotlist.scenes.length == 0 ?
                             <p className={"empty"}>No scenes yet :(</p> :

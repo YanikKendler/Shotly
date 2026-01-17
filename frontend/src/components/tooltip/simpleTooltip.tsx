@@ -43,9 +43,11 @@ export default function SimpleTooltip({
                 }
             </Tooltip.Trigger>
             <Tooltip.Portal>
-                <Tooltip.Content className="TooltipContent" sideOffset={offset} style={{fontSize: fontSize + "rem"}}>
-                    {text}
-                    <Tooltip.Arrow className="TooltipArrow" />
+                <Tooltip.Content className="tooltipContent" sideOffset={offset} style={{fontSize: fontSize + "rem"}}>
+                    <div className="scrollArea">
+                        {text}
+                    </div>
+                    <Tooltip.Arrow className="tooltipArrow"/>
                 </Tooltip.Content>
             </Tooltip.Portal>
         </Tooltip.Root>
