@@ -46,15 +46,10 @@ export function makeClient() {
     const errorLink = onError(({ graphQLErrors, networkError }) => {
         if (graphQLErrors) {
             const error = graphQLErrors[0];
-
-            //TODO remove
-            console.error(`[GraphQL error]`, error)
-
+            
             if (error?.extensions?.type != 'SHOTLY_EXCEPTION') {
                 console.log("unkown exception - going to error page", error)
-                /*if(window) {
-                    window.location.replace('/serverError');
-                }*/
+                //redirectToServerError()
             } else {
                 switch (error?.extensions?.code as ShotlyErrorCode) {
                     case ShotlyErrorCode.ACCOUNT_DEACTIVATED:
@@ -63,6 +58,15 @@ export function makeClient() {
                         }
                         break
                 }
+            }
+        }
+        if (networkError) {
+            if (networkError.name === 'AbortError') {
+                redirectToServerError()
+            }
+
+            if (networkError.message.includes("Failed to fetch") || (networkError as any).code === 'ECONNREFUSED') {
+                redirectToServerError()
             }
         }
     });
@@ -82,6 +86,12 @@ export function makeClient() {
             },
         },
     })
+}
+
+function redirectToServerError() {
+    if (typeof window !== 'undefined') {
+        window.location.replace('/serverError');
+    }
 }
 
 export const apolloClient = makeClient();
