@@ -57,6 +57,8 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false)
     const [collaborationReloadAllowed, setCollaborationReloadAllowed] = useState<boolean>(true)
 
+    const [sharedShotlistsOpen, setSharedShotlistsOpen] = useState<boolean>(false)
+
     useEffect(() => {
         if(!auth.isAuthenticated()){
             router.replace('/')
@@ -124,6 +126,8 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             )
 
             setQuery(result)
+
+            setSharedShotlistsOpen(result.data.shotlists?.shared && result.data.shotlists.shared.length > 0)
         }
         catch (error) {
             setQuery({...query, error: error as ApolloError})
@@ -287,7 +291,8 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
                             <Collapsible.Root
                                 className={"CollapsibleRoot dashboardSidebar"}
-                                defaultOpen={query.data.shotlists?.shared && query.data.shotlists.shared.length > 0 || false}
+                                open={sharedShotlistsOpen}
+                                onOpenChange={setSharedShotlistsOpen}
                             >
                                 <Collapsible.Trigger className={"noClickFx"}>
                                     Shared Shotlists <ChevronDown size={18} className={"chevron"}/>

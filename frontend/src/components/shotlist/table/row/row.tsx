@@ -49,6 +49,8 @@ const RowBase = forwardRef<RowRef, RowProps>(({
 
     const [isBeingEdited, setIsBeingEdited] = useState(false)
 
+    const [markAsDeletedInProgress, setMarkAsDeletedInProgress] = useState(false)
+
     useImperativeHandle(ref, () => ({
         closePopover
     }))
@@ -59,6 +61,7 @@ const RowBase = forwardRef<RowRef, RowProps>(({
 
     async function deleteShot(){
         shotlistContext.setSaveState("deleteShot", "saving")
+        setMarkAsDeletedInProgress(true)
 
         const { errors } = await client.mutate({
             mutation: gql`
@@ -78,16 +81,18 @@ const RowBase = forwardRef<RowRef, RowProps>(({
                 cause: errors
             })
             shotlistContext.setSaveState("deleteShot", "error")
+            setMarkAsDeletedInProgress(false)
             return
         }
 
         onDelete(shot.id as string)
+
         shotlistContext.setSaveState("deleteShot", "saved")
     }
 
     return (
     <div
-        className={`sheetRow ${isBeingEdited && "active"}`}
+        className={`sheetRow ${isBeingEdited && "active"} ${markAsDeletedInProgress && "deleting"}`}
         data-shot-id={shot.id}
     >
         <Cell
@@ -113,29 +118,29 @@ const RowBase = forwardRef<RowRef, RowProps>(({
                     </Popover.Trigger>
                     <Popover.Portal>
                         <Popover.Content className="PopoverContent shotContextOptionsPopup" align={"center"}>
-                            <button disabled={true}><CornerDownRight size={18}/> Make Subshot</button>
-                            <button disabled={true}><NotepadText size={18}/> Notes</button>
-                            <button className={"bad"} onClick={deleteShot}><Trash size={18}/> Delete</button>
+                            <Popover.Close asChild><button disabled={true}><CornerDownRight size={18}/> Make Subshot</button></Popover.Close>
+                            <Popover.Close asChild><button disabled={true}><NotepadText size={18}/> Notes</button></Popover.Close>
+                            <Popover.Close asChild><button className={"bad"} onClick={deleteShot}><Trash size={18}/> Delete</button></Popover.Close>
                             <Separator/>
-                            <button
+                            <Popover.Close asChild><button
                                 disabled={position == 0}
                                 onClick={() => moveShot(shot.id as string, position-1)}
                             >
                                 <ArrowBigUp size={18}/>Move up
-                            </button>
-                            <button
+                            </button></Popover.Close>
+                            <Popover.Close asChild><button
                                 disabled={position >= shotlistContext.shotCount - 1}
                                 onClick={() => moveShot(shot.id as string, position+1)}
                             >
                                 <ArrowBigDown size={18}/>Move down
-                            </button>
+                            </button></Popover.Close>
                             <Separator/>
-                            <button onClick={() => shotlistContext.openShotlistOptionsDialog({
+                                <Popover.Close asChild><button onClick={() => shotlistContext.openShotlistOptionsDialog({
                                 main: ShotlistOptionsDialogPage.attributes,
                                 sub: ShotlistOptionsDialogSubPage.shot})}
                             >
                                 <List size={18}/> Edit shot attributes
-                            </button>
+                            </button></Popover.Close>
                             <Separator/>
                             <p className={"instructions"}><span className="bold">Click</span> to edit, <span className="bold">Drag</span> to reorder</p>
                         </Popover.Content>

@@ -27,6 +27,11 @@
   position: relative;
   background-color: var(--row-bg);
 
+  &.deleting{
+    opacity: .5;
+    pointer-events: none;
+  }
+
   &:has(:hover){
     --number-color: var(--accent);
   }
