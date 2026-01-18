@@ -3,11 +3,11 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import React, {useContext, useEffect, useState} from 'react';
 import "./accountDialog.scss"
-import {useApolloClient} from "@apollo/client"
+import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import {Monitor, Moon, Sun, X} from "lucide-react"
 import Auth from "@/Auth"
-import {UserDto, UserTier} from "../../../../lib/graphql/generated"
+import {Query, UserDto, UserTier} from "../../../../lib/graphql/generated"
 import {RadioGroup, Switch, VisuallyHidden} from "radix-ui"
 import TextField from "@/components/inputs/textField/textField"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
@@ -23,6 +23,7 @@ import {BUILD_INFO} from "../../../../buildinfo"
 import Separator from "@/components/separator/separator";
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import {wuTime} from "@yanikkendler/web-utils"
+import Utils from "@/util/Utils"
 
 export interface UserSettings {
     saveExportSettingsInLocalstorage: boolean
@@ -37,7 +38,7 @@ export function useAccountDialog() {
     const notificationContext = useContext(NotificationContext)
 
     const [isOpen, setIsOpen] = useState(false);
-    const [user, setUser] = useState<UserDto | null>(null);
+    const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult);
     const [deleting, setDeleting] = useState(false);
     const [passwordResetDisabled, setPasswordResetDisabled] = useState(false);
 
@@ -106,7 +107,7 @@ export function useAccountDialog() {
     }, [userSettings])
 
     async function getCurrentUser(){
-        const {data, error} = await client.query({
+        const result = await client.query({
             query: gql`
                 query currentUser{
                     currentUser {
@@ -125,14 +126,15 @@ export function useAccountDialog() {
             fetchPolicy: "no-cache"
         })
 
-        if(error) {
-            console.error("Error fetching current user:", error)
+        if(result.error) {
+            //TODO notify
+            console.error("Error fetching current user:", result.error)
             return
         }
 
-        console.log(data.currentUser)
+        console.log(result.data.currentUser)
 
-        setUser(data.currentUser)
+        setQuery(result)
     }
 
     const writeSettingsToLocalStorage = () => {
@@ -164,7 +166,7 @@ export function useAccountDialog() {
 
         notificationContext.notify({
             title: "Password reset request sent",
-            message: `Please check your email: "${user?.email}" for a link to reset your password.`,
+            message: `Please check your email: "${query.data.currentUser?.email}" for a link to reset your password.`,
         })
 
         setTimeout(() => {
@@ -175,7 +177,7 @@ export function useAccountDialog() {
     async function deleteAccount() {
         let decision = await confirm({
             title: "Are you sure?",
-            message: `This will delete your account and all associated data. The following shotlist(s) will be deleted: ${user?.shotlists?.map(s => `"${s!.name}"`).join(", ")}. This action cannot be undone.`,
+            message: `This will delete your account and all associated data. The following shotlist(s) will be deleted: ${query.data.currentUser?.shotlists?.map(s => `"${s!.name}"`).join(", ")}. This action cannot be undone.`,
             checkbox: true,
             buttons: {
                 confirm: {
@@ -232,50 +234,62 @@ export function useAccountDialog() {
     let dialogContent
 
     if(deleting)
-        dialogContent = <Loader text={"loading user"}/>
+        dialogContent = <Loader text={"deleting user"}/>
     else
         dialogContent = (
             <>
                 <TextField
                     label={"email"}
-                    value={user?.email || "unknown"}
+                    value={query.data.currentUser?.email || "unknown"}
                     disabled={true}
+                    loading={query.loading}
                 />
 
                 <TextField
                     label={"display name"}
-                    value={user?.name || "unknown"}
+                    value={query.data.currentUser?.name || "unknown"}
                     info={"This a publicly visible name used for collaboration with others. You cannot use it to log in."}
                     maxLength={50}
                     placeholder={"John Doe"}
                     valueChange={updateUserName}
                     debounceValueChange={true}
+                    loading={query.loading}
                 />
 
-                { !Auth.getUser()?.isSocial &&
-                    <div className="row">
-                        <p>Send password reset request to your email</p>
-                        <button disabled={passwordResetDisabled} className={"logout"} onClick={resetPassword}>Send email</button>
-                    </div>
+                {
+                    query.loading ?
+                    <Skeleton height={"2.5rem"}/> :
+                    <>
+                        {
+                            !Auth.getUser()?.isSocial &&
+                            <div className="row">
+                                <p>Send password reset request to your email</p>
+                                <button disabled={passwordResetDisabled} className={"logout"} onClick={resetPassword}>Send
+                                    email
+                                </button>
+                            </div>
+                        }
+
+                        <div className="row subscription">
+                            <p>Subscription</p>
+                            {
+                                query.data.currentUser?.tier == UserTier.Basic ?
+                                    query.data.currentUser?.hasCancelled == true ?
+                                        <button onClick={PaymentService.manageSubscription}>Renew subscription</button> :
+                                        <a className={"accent"} href={"/pro"}>Upgrade to Pro</a> :
+                                    query.data.currentUser?.tier == UserTier.Pro ?
+                                        <button onClick={PaymentService.manageSubscription}>Manage subscription</button> :
+                                        query.data.currentUser?.tier == UserTier.ProStudent ?
+                                            <SimpleTooltip
+                                                text={`Your Subscription is active until ${wuTime.toDateString(new Date(query.data.currentUser.revokeProAfter)) || "Unkown"}.`}>
+                                                <p>Pro for students {"<3"}</p></SimpleTooltip> :
+                                            query.data.currentUser?.tier == UserTier.ProFree ?
+                                                <p>( ͡° ͜ʖ ͡°)</p> :
+                                                <p>Unknown</p>
+                            }
+                        </div>
+                    </>
                 }
-
-                <div className="row subscription">
-                    <p>Subscription</p>
-                    {
-                        user?.tier == UserTier.Basic ?
-                            user?.hasCancelled == true ?
-                            <button onClick={PaymentService.manageSubscription}>Renew subscription</button> :
-                            <a className={"accent"} href={"/pro"}>Upgrade to Pro</a> :
-                        user?.tier == UserTier.Pro ?
-                            <button onClick={PaymentService.manageSubscription}>Manage subscription</button> :
-                        user?.tier == UserTier.ProStudent ?
-                            <SimpleTooltip text={`Your Subscription is active until ${wuTime.toDateString(new Date(user.revokeProAfter)) || "Unkown"}.`}><p>Pro for students {"<3"}</p></SimpleTooltip> :
-                        user?.tier == UserTier.ProFree ?
-                            <p>( ͡° ͜ʖ ͡°)</p> :
-                            <p>Unknown</p>
-                    }
-                </div>
-
 
                 <Separator/>
 

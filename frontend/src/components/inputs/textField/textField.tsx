@@ -3,6 +3,7 @@ import {Info} from "lucide-react"
 import React, {useCallback, useEffect, useRef, useState} from "react"
 import "./textField.scss"
 import {wuGeneral} from "@yanikkendler/web-utils/dist"
+import Skeleton from "react-loading-skeleton"
 
 /**
  * simple input wrapper for use in static UIs like settings pages
@@ -34,7 +35,8 @@ export default function TextField(
         inputClass = "",
         showLengthError = true,
         debounceValueChange = false,
-        autoComplete = true
+        autoComplete = true,
+        loading = false
     }
     :
     {
@@ -51,6 +53,7 @@ export default function TextField(
         showLengthError?: boolean;
         debounceValueChange?: boolean;
         autoComplete?: boolean;
+        loading?: boolean;
     }
 ) {
     const [currentValue, setCurrentValue] = useState<string>(value || defaultValue);
@@ -122,19 +125,25 @@ export default function TextField(
             }
             <div className="infoContainer">
                 <div className="errorContainer" style={{maxWidth: maxWidth}}>
-                    <input
-                        id={label}
-                        type="text"
-                        placeholder={placeholder}
-                        value={currentValue}
-                        onInput={e => handleInput(e.currentTarget.value)}
-                        maxLength={maxLength}
-                        disabled={disabled}
-                        className={inputClass}
-                        style={{maxWidth: maxWidth}}
-                        {...ignoreProps}
-                    />
-                    <p className={"error " + errorType}>{error}</p>
+                    {
+                        loading?
+                        <Skeleton height={"2rem"}/> :
+                        <>
+                            <input
+                                id={label}
+                                type="text"
+                                placeholder={placeholder}
+                                value={currentValue}
+                                onInput={e => handleInput(e.currentTarget.value)}
+                                maxLength={maxLength}
+                                disabled={disabled}
+                                className={inputClass}
+                                style={{maxWidth: maxWidth}}
+                                {...ignoreProps}
+                            />
+                            <p className={"error " + errorType}>{error}</p>
+                        </>
+                    }
                 </div>
                 {
                     info &&
