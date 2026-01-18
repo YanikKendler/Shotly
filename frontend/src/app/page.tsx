@@ -207,8 +207,15 @@ export default function Landing() {
                             <div className="icon">
                                 <FileCode size={40}/>
                             </div>
-                            <h2>Open Source</h2>
-                            <p>Self host your shotlists or add your own features and improve Shotly.</p>
+                            <h2>Source Available</h2>
+                            <p>All the code is public on GitHub - self host your shotlists or add your own features.</p>
+                            <a
+                                href="https://github.com/YanikKendler/Shotly/blob/main/README.md##License"
+                                className={"noPadding"}
+                                target={"_blank"}
+                            >
+                                Learn more
+                            </a>
                         </div>
                     </div>
                 </section>
@@ -290,7 +297,7 @@ export default function Landing() {
                         >
                             github.com/YanikKendler/shotly
                         </Link>
-                        <p className={"copyright"}>© 2025 Yanik Kendler. Open source under the MIT License.</p>
+                        <p className={"copyright"}>© 2026 Yanik Kendler. Source Available under the PolyForm Noncommercial License.</p>
                     </div>
                     <div>
                         <h3>Legal</h3>

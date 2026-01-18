@@ -13,7 +13,7 @@ import {SkeletonTheme} from "react-loading-skeleton"
 export const metadata: Metadata = {
     title: "Shotly | Shotlist creation made easy",
     description:
-        "A freemium, open source, no-AI, clean and simple shotlist creation tool for filmmakers.",
+        "A freemium, source available, no-AI, clean and simple shotlist creation tool for filmmakers.",
     keywords: [
         "shotlist",
         "shotlist creation",
@@ -32,7 +32,6 @@ export const metadata: Metadata = {
         "filmmaking tools",
         "production tools",
         "film crew collaboration",
-        "open source filmmaking",
         "no AI filmmaking",
         "film production software",
         "video production software",
@@ -50,7 +49,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: "Shotly | Shotlist creation made easy",
         description:
-            "A freemium, open source, no-AI, clean and simple shotlist creation tool for filmmakers.",
+            "A freemium, source available, no-AI, clean and simple shotlist creation tool for filmmakers.",
         url: "https://shotly.at",
         siteName: "Shotly",
         images: [
@@ -68,7 +67,7 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: "Shotly | Shotlist creation made easy",
         description:
-            "Create clean, professional shotlists with Shotly. Open source and no AI.",
+            "Create clean, professional shotlists with Shotly. Source available and no AI.",
         images: ["https://shotly.at/og-image.jpg"],
     },
     authors: [{ name: "Yanik Kendler", url: "https://yanik.kendler.me" }],

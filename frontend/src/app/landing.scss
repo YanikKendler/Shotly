@@ -366,6 +366,16 @@ main.landing{
         color: var(--text-20);
       }
 
+      a{
+        margin-top: .5rem;
+        color: var(--text-50);
+        text-decoration: underline;
+
+        &:hover{
+          color: var(--text-20);
+        }
+      }
+
       &.unavailable{
         background-color: var(--feature-unavailable-bg);
 
