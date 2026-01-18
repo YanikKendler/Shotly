@@ -148,7 +148,7 @@ export default function Landing() {
                             />
                         }
                         loader={
-                            <Skeleton/>
+                            <Skeleton className={"skeleton"}/>
                         }
                     />
 
