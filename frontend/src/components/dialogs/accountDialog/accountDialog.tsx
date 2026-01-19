@@ -395,9 +395,16 @@ export function useAccountDialog() {
                 <Separator/>
 
                 <div className="row">
+                    <p>Visit the Documentation</p>
+                    <Link href={"https://docs.shotly.at"} target={"_blank"}>Shotly Docs</Link>
+                </div>
+                <div className="row">
                     <p>Report a bug or request a feature</p>
                     <Link href={"https://github.com/YanikKendler/shotly/issues/new/choose"} target={"_blank"}>New issue</Link>
                 </div>
+
+                <Separator/>
+
                 <div className="row">
                     <p>Use another account</p>
                     <button className={"logout"} onClick={() => Auth.logout()}>Sign out</button>
@@ -418,7 +425,7 @@ export function useAccountDialog() {
 
                 <div className="row bottom">
                     <small>
-                        All your changes are automatically saved
+                        All your changes are automatically saved.
                     </small>
                     <small>
                         shotly v{BUILD_INFO.version} - {BUILD_INFO.buildTime} - {Config.mode}
