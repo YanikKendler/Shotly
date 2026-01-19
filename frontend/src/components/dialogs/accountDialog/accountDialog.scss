@@ -38,6 +38,11 @@
           border-color: var(--accent);
         }
 
+        &.bad:hover{
+          border-color: var(--bad);
+          color: var(--bad-10);
+        }
+
         &:not([disabled]):not(.bad):hover {
           background-color: var(--hover-bg-10);
           color: var(--text);

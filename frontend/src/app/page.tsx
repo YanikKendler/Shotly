@@ -232,7 +232,7 @@ export default function Landing() {
                                         </Popover.Trigger>
                                         <Popover.Portal>
                                             <Popover.Content className={"PopoverContent left"} side={"top"}>
-                                                <Popover.Arrow/>
+                                                {/*<Popover.Arrow/>*/}
                                                 <p>
                                                     Shotly's basic tier will always stay free, and you will always be
                                                     able to export your data.

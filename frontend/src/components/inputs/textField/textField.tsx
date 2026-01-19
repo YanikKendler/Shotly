@@ -154,8 +154,8 @@ export default function TextField(
                             <Info/>
                         </Popover.Trigger>
                         <Popover.Portal>
-                            <Popover.Content className={"PopoverContent"}>
-                                <Popover.Arrow/>
+                            <Popover.Content className={"PopoverContent"} side={"top"}>
+                                {/*<Popover.Arrow/>*/}
                                 <p>{info}</p>
                             </Popover.Content>
                         </Popover.Portal>

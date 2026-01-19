@@ -410,7 +410,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                                     </Popover.Trigger>
                                     <Popover.Portal>
                                         <Popover.Content className={"PopoverContent"} side={"top"}>
-                                            <Popover.Arrow/>
+                                            {/*<Popover.Arrow/>*/}
                                             {
                                                 Array.from(presentCollaborators).map(user => (
                                                     <p key={user.id}>{user.name}</p>
