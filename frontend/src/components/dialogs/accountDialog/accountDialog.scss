@@ -54,7 +54,6 @@
 
     &.legal{
       flex-wrap: wrap;
-      padding-inline: .5rem;
 
       a{
         font-size: .9rem;
@@ -65,6 +64,10 @@
           text-decoration: underline;
         }
       }
+    }
+
+    &.bottom{
+      padding-inline: .5rem;
     }
 
     &.subscription p:nth-of-type(2){
@@ -90,7 +93,7 @@
   }
 
   small{
-    font-size: .7rem;
+    font-size: .8rem;
     color: var(--text-70);
     text-align: center;
   }

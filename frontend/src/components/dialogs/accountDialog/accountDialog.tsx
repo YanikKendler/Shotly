@@ -226,7 +226,8 @@ export function useAccountDialog() {
         )
 
         if(errors) {
-            console.error("Error deleting account:", errors);
+            //TODO notify
+            console.error("Error updating usename:", errors);
             return;
         }
     }
@@ -415,9 +416,14 @@ export function useAccountDialog() {
                     <Link href={"./legal/termsOfUse"} target={"_blank"}>Terms of use</Link>
                 </div>
 
-                <small>
-                    shotly v{BUILD_INFO.version} - {BUILD_INFO.buildTime} - {Config.mode}
-                </small>
+                <div className="row bottom">
+                    <small>
+                        All your changes are automatically saved
+                    </small>
+                    <small>
+                        shotly v{BUILD_INFO.version} - {BUILD_INFO.buildTime} - {Config.mode}
+                    </small>
+                </div>
             </>
         )
 
