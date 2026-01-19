@@ -302,15 +302,21 @@ export function useAccountDialog() {
                         aria-label="Appearance"
                         onValueChange={setSelectedAppearance}
                     >
-                        <RadioGroup.Item className="RadioGroupItem" value="light">
-                            <Sun size={20}/>
-                        </RadioGroup.Item>
-                        <RadioGroup.Item className="RadioGroupItem" value="dark">
-                            <Moon size={20}/>
-                        </RadioGroup.Item>
-                        <RadioGroup.Item className="RadioGroupItem" value="system">
-                            <Monitor size={20}/>
-                        </RadioGroup.Item>
+                        <SimpleTooltip text={"Light"} asButton showHoverArea={false} hoverAreaExpansion={0} delay={700}>
+                            <RadioGroup.Item className="RadioGroupItem" value="light">
+                                <Sun size={20}/>
+                            </RadioGroup.Item>
+                        </SimpleTooltip>
+                        <SimpleTooltip text={"Dark"} asButton showHoverArea={false} hoverAreaExpansion={0} delay={700}>
+                            <RadioGroup.Item className="RadioGroupItem" value="dark">
+                                <Moon size={20}/>
+                            </RadioGroup.Item>
+                        </SimpleTooltip>
+                        <SimpleTooltip text={"System"} asButton showHoverArea={false} hoverAreaExpansion={0} delay={700}>
+                            <RadioGroup.Item className="RadioGroupItem" value="system">
+                                <Monitor size={20}/>
+                            </RadioGroup.Item>
+                        </SimpleTooltip>
                     </RadioGroup.Root>
                 </div>
 
