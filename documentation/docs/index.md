@@ -1,8 +1,8 @@
 # Overview
 
-Shotly is a simple yet powerful, open-source, shotlist creation tool with a generous free tier and a cheap pro tier. It is available at [shotly.at](https://shotly.at).
+Shotly is a simple yet powerful, source-available shotlist creation tool with a generous free tier and an affordable pro tier. It is available at [shotly.at](https://shotly.at).
 
-It's developed solo by [Yanik Kendler](https://yanik.kendler.me), the source code can be viewed on [GitHub](https://github.com/YanikKendler/shotly).
+It's developed solo solo by [Yanik Kendler](https://yanik.kendler.me), the source code can be viewed on [GitHub](https://github.com/YanikKendler/shotly).
 
 ## Bugs and Feature-Requests
 
