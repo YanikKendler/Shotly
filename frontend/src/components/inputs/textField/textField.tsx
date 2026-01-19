@@ -1,4 +1,4 @@
-import {Popover, Tooltip} from "radix-ui"
+import {Popover} from "radix-ui"
 import {Info} from "lucide-react"
 import React, {useCallback, useEffect, useRef, useState} from "react"
 import "./textField.scss"
@@ -36,12 +36,13 @@ export default function TextField(
         showLengthError = true,
         debounceValueChange = false,
         autoComplete = true,
-        loading = false
+        loading = false,
+        color = "gray"
     }
     :
     {
         label?: string;
-        value?: string;
+        value?: string | null;
         defaultValue?: string;
         valueChange?: (value: string) => void;
         placeholder?: string;
@@ -54,6 +55,7 @@ export default function TextField(
         debounceValueChange?: boolean;
         autoComplete?: boolean;
         loading?: boolean;
+        color?: "gray" | "accent"
     }
 ) {
     const [currentValue, setCurrentValue] = useState<string>(value || defaultValue);
@@ -118,7 +120,7 @@ export default function TextField(
     } : {};
 
     return (
-        <div className="textField">
+        <div className={`textField ${color}`}>
             {
                 label &&
                 <label htmlFor={label}>{label}</label>

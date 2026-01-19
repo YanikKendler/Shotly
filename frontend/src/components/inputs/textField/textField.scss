@@ -2,6 +2,18 @@ div.textField{
   display: flex;
   flex-direction: column;
 
+  --border: var(--default-interactable-border);
+  --border-hover: var(--default-interactable-hover-border);
+  --focus-border: var(--accent);
+  --focus-border-hover: var(--accent-40);
+
+  &.accent{
+    --border: var(--accent);
+    --border-hover: var(--accent-40);
+    --focus-border: var(--accent-55);
+    --focus-border-hover: var(--accent-60);
+  }
+
   label{
     font-size: .9rem;
     color: var(--text-40);
@@ -47,21 +59,21 @@ div.textField{
 
   input{
     border-radius: .3rem;
-    border: 2px solid var(--default-interactable-border);
+    border: 2px solid var(--border);
     padding: .5rem .3rem;
     max-width: 40ch;
     width: 100%;
 
     &:not([disabled]):not(:focus-visible):hover{
-      border-color: var(--default-interactable-border-hover);
+      border-color: var(--border-hover);
     }
 
     &:focus-visible{
       outline: none;
-      border-color: var(--accent);
+      border-color: var(--focus-border);
 
       &:hover{
-        border-color: var(--accent-40);
+        border-color: var(--focus-border-hover);
       }
     }
 
