@@ -127,3 +127,42 @@ main.overview{
     background-color: var(--accent);
   }
 }
+
+.dialogContent.enterNameDialogContent{
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+
+  h2{
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: .5rem;
+  }
+
+  p{
+    color: var(--text-20);
+
+    span.gray{
+      color: var(--text-40);
+    }
+  }
+
+  p.small {
+    font-size: .9rem;
+    color: var(--text-40);
+  }
+
+  .textField{
+    margin-top: 1rem;
+  }
+
+  button{
+    width: 100%;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    margin-top: 1rem;
+    background-color: var(--accent);
+  }
+}

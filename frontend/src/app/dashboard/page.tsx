@@ -13,7 +13,7 @@ import {
     Plus,
 } from "lucide-react"
 import {Query, ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
-import {wuGeneral, wuTime} from "@yanikkendler/web-utils"
+import {wuConstants, wuGeneral, wuTime} from "@yanikkendler/web-utils"
 import {useRouter, useSearchParams} from "next/navigation"
 import {useCreateShotlistDialog} from "@/components/dialogs/createShotlistDialog/createShotlistDialog"
 import Utils from "@/util/Utils"
@@ -25,6 +25,7 @@ import "driver.js/dist/driver.css";
 import Skeleton from "react-loading-skeleton"
 import auth from "@/Auth"
 import {DashboardContext} from "@/context/DashboardContext"
+import TextField from "@/components/inputs/textField/textField"
 
 export default function Overview() {
     const client = useApolloClient()
@@ -38,6 +39,9 @@ export default function Overview() {
     const justBoughtPro = searchParams?.get('jbp') === 'true'
     const [justBoughtProDialogOpen, setJustBoughtProDialogOpen] = useState<boolean>(justBoughtPro)
 
+    const [enterNameDialogOpen, setEnterNameDialogOpen] = useState(false)
+    const [newName, setNewName] = useState<string>("")
+
     const { openCreateShotlistDialog, CreateShotlistDialog } = useCreateShotlistDialog()
     const { openCreateTemplateDialog, CreateTemplateDialog } = useCreateTemplateDialog()
 
@@ -45,8 +49,19 @@ export default function Overview() {
         showProgress: true,
         allowClose: true,
         steps: [
-            { popover: { title: 'Welcome to Shotly', description: 'You will now get a quick tour of the Dashboard' } },
-            { element: '.sidebar', popover: { title: 'The Sidebar', description: 'Here you see all your shotlists and Templates. You currently dont have any shotlists, but a default Template was automatically created!', side: "right", align: 'center' }},
+            { popover: { title: 'Welcome to Shotly', description: 'You will now get a quick tour of the Dashboard.' } },
+            { element: '.sidebar', popover: {
+                title: 'The Sidebar',
+                description: 'Here you see all your shotlists and Templates. You currently dont have any Shotlists, but a default Template was automatically created!',
+                side: "right",
+                align: 'center'
+            }},
+            { element: '.sidebar .content .list .bottom', popover: {
+                title: 'Account & Activity',
+                description: 'If someone invites you to their shotlist the request will be visible under "Collab-Requests". Using the "Account" button you can modify your account and change your settings.',
+                side: "right",
+                align: 'center'
+            }},
 /*
             { element: '.sidebar .template', popover: { description: 'You can use it when creating your first shotlist to start with a default attribute for shots and scenes.', side: "right", align: 'center' }},
 */
@@ -58,25 +73,69 @@ export default function Overview() {
         if (justBoughtPro) {
             setJustBoughtProDialogOpen(true)
         }
-
-        if(localStorage.getItem(Config.localStorageKey.dashboardTourCompleted) != "true") {
-            localStorage.setItem(Config.localStorageKey.dashboardTourCompleted, "true")
-            driverObj.drive()
-        }
     }, []);
+
+    useEffect(() => {
+        const email = dashboardContext.query.data.currentUser?.email
+        const name = dashboardContext.query.data.currentUser?.name
+        if(name && email && name == email){
+            setEnterNameDialogOpen(true)
+            return
+        }
+
+        checkAndShowIntroduction()
+    }, [dashboardContext.query.data.currentUser]);
 
     useEffect(() => {
         if(!dashboardContext.query || !dashboardContext.query.data || !dashboardContext.query.data.shotlists) return;
 
-        const newShotlists = [...dashboardContext.query.data.shotlists.personal || [], ...dashboardContext.query.data.shotlists.shared || []]
+        const newShotlists = [
+            ...dashboardContext.query.data.shotlists.personal || [],
+            ...dashboardContext.query.data.shotlists.shared || []
+        ]
 
         setShotlists((newShotlists as ShotlistDto[]).sort(Utils.oderShotlistsByChangeDate))
         setTemplates(dashboardContext.query.data.templates as TemplateDto[])
     }, [dashboardContext.query]);
 
+    const checkAndShowIntroduction = () => {
+        if(localStorage.getItem(Config.localStorageKey.dashboardTourCompleted) != "true") {
+            localStorage.setItem(Config.localStorageKey.dashboardTourCompleted, "true")
+            driverObj.drive()
+        }
+    }
+
     const handleJustBoughtProDialogOpenChange = (newOpen: boolean)=> {
         setJustBoughtProDialogOpen(newOpen)
         router.replace("/dashboard")
+    }
+
+    const handleNewUserName = async () => {
+        if(wuConstants.Regex.empty.test(newName)) return
+
+        const {data, errors} = await client.mutate({
+                mutation: gql`
+                    mutation updateUser($name: String!){
+                        updateUser(editDTO: {
+                            name: $name
+                        }) {
+                            id
+                            name
+                        }
+                    }`,
+                variables: {name: newName.trim()},
+            },
+        )
+
+        if(errors) {
+            //TODO notify
+            console.error("Error updating username:", errors);
+            return;
+        }
+
+        setEnterNameDialogOpen(false)
+
+        checkAndShowIntroduction()
     }
 
     if(dashboardContext.query.error) return (
@@ -165,6 +224,7 @@ export default function Overview() {
                     <span><Plus/>New Template</span>
                 </button>
             </div>
+
             <Dialog.Root open={justBoughtProDialogOpen} onOpenChange={handleJustBoughtProDialogOpenChange}>
                 <Dialog.Portal>
                     <Dialog.Overlay className={"dialogOverlay"}/>
@@ -176,10 +236,44 @@ export default function Overview() {
                         <Dialog.Title className={"title"}>Thank you for subscribing to Shotly Pro!</Dialog.Title>
                         <p className={"financing"}>You are financing the development and server costs of Shotly, I am very grateful for that.</p>
                         <p className={"issues"}>I hope you are satisfied with your Purchase! If you do however encounter any problems, please open an issue via the account tab.</p>
-                        <button onClick={event => handleJustBoughtProDialogOpenChange(false)}>Start creating</button>
+                        <button onClick={() => handleJustBoughtProDialogOpenChange(false)}>Start creating</button>
                     </Dialog.Content>
                 </Dialog.Portal>
             </Dialog.Root>
+
+            <Dialog.Root open={enterNameDialogOpen}>
+                <Dialog.Portal>
+                    <Dialog.Overlay className={"dialogOverlay"}/>
+                    <Dialog.Content
+                        aria-describedby={"enter name dialog"}
+                        className={"enterNameDialogContent dialogContent"}
+                    >
+                        <Dialog.Title className={"title"}>Welcome to Shotly!</Dialog.Title>
+                        <p>
+                            <span className="bold">Please enter your name (or nickname) to continue.</span>
+                            <br/>
+                            <span className="gray">This name will be visible to all collaborators and can not be used to log in.</span>
+                        </p>
+                        <TextField
+                            value={newName}
+                            valueChange={setNewName}
+                            label={"Your name"}
+                            maxWidth={"100%"}
+                            placeholder={"Quentin Tarantino"}
+                            color={"accent"}
+                        />
+                        <p className={"small"}>You can always change your name in the Account settings.</p>
+
+                        <button
+                            disabled={wuConstants.Regex.empty.test(newName)}
+                            onClick={handleNewUserName}
+                        >
+                            Done
+                        </button>
+                    </Dialog.Content>
+                </Dialog.Portal>
+            </Dialog.Root>
+
             {CreateShotlistDialog}
             {CreateTemplateDialog}
         </main>
