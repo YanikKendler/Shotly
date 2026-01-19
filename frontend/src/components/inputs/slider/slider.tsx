@@ -1,9 +1,7 @@
-import {Slider as RdxSlider, Tooltip} from "radix-ui"
+import {Slider as RdxSlider} from "radix-ui"
 import "./slider.scss"
-import Link from "next/link"
-import {wuGeneral} from "@yanikkendler/web-utils"
-import {House} from "lucide-react"
 import React from "react"
+import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 
 export default function Slider({
     name,
@@ -23,8 +21,7 @@ export default function Slider({
     onChange: (value: number) => void
 }){
     return (
-        <Tooltip.Root delayDuration={1000}>
-            <Tooltip.Trigger asChild>
+            <SimpleTooltip text={"Double click to reset"} delay={1000}>
                 <RdxSlider.Root
                     className="SliderRoot"
                     value={[value]}
@@ -55,13 +52,6 @@ export default function Slider({
                         aria-label={name}
                     />
                 </RdxSlider.Root>
-            </Tooltip.Trigger>
-            <Tooltip.Portal>
-                <Tooltip.Content className={"TooltipContent"}>
-                    <Tooltip.Arrow/>
-                    <p>Double click to reset</p>
-                </Tooltip.Content>
-            </Tooltip.Portal>
-        </Tooltip.Root>
+            </SimpleTooltip>
     )
 }

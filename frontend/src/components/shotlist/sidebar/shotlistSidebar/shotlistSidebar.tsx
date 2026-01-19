@@ -18,6 +18,7 @@ import {SelectedScene} from "@/app/shotlist/[id]/page"
 import {UserMinimalDTO} from "@/service/ShotlistSyncService"
 import {SceneAttributeRef} from "@/components/shotlist/sidebar/sceneAttribute/sceneAttribute"
 import Skeleton from "react-loading-skeleton"
+import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 
 export interface ShotlistSidebarRef {
     getScene: (position: number) => SceneDto | null
@@ -334,19 +335,13 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
         <>
             <div className="content">
                 <div className="top">
-                    <Tooltip.Root>
-                        <Tooltip.Trigger className={"noPadding"} asChild>
-                            <Link href={`../dashboard`}>
-                                <House strokeWidth={2.5} size={20}/>
-                            </Link>
-                        </Tooltip.Trigger>
-                        <Tooltip.Portal>
-                            <Tooltip.Content className={"TooltipContent"}>
-                                <Tooltip.Arrow/>
-                                <p><span className="bold">Click</span> to go back to the Dashboard</p>
-                            </Tooltip.Content>
-                        </Tooltip.Portal>
-                    </Tooltip.Root>
+                    <SimpleTooltip
+                        content={<p><span className="bold">Click</span> to go back to the Dashboard</p>}
+                    >
+                        <Link href={`../dashboard`}>
+                            <House strokeWidth={2.5} size={20}/>
+                        </Link>
+                    </SimpleTooltip>
                     <p>/</p>
                     <input
                         type="text"

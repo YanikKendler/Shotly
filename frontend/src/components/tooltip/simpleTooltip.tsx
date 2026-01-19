@@ -6,6 +6,7 @@ import "./simpleTooltip.scss"
 export default function SimpleTooltip({
     children,
     text,
+    content,
     fontSize = 0.9,
     offset = 2,
     hoverAreaExpansion,
@@ -14,7 +15,8 @@ export default function SimpleTooltip({
     delay = 500
 }: {
     children: ReactNode
-    text: string
+    text?: string
+    content?: ReactNode
     fontSize?: number
     offset?: number
     hoverAreaExpansion?: number
@@ -45,7 +47,8 @@ export default function SimpleTooltip({
             <Tooltip.Portal>
                 <Tooltip.Content className="tooltipContent" sideOffset={offset} style={{fontSize: fontSize + "rem"}}>
                     <div className="scrollArea">
-                        {text}
+                        {text ?? text}
+                        {content ?? content}
                     </div>
                     <Tooltip.Arrow className="tooltipArrow"/>
                 </Tooltip.Content>

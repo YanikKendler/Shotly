@@ -39,6 +39,7 @@ import {wuConstants} from "@yanikkendler/web-utils/dist"
 import Config from "@/util/Config"
 import HelpLink from "@/components/helpLink/helpLink"
 import Separator from "@/components/separator/separator"
+import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 
 
 export default function DashboardLayout({children}: { children: React.ReactNode }) {
@@ -119,6 +120,10 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                 }
                                 collaborationState
                                 collaborationType
+                            }
+                            currentUser {
+                                name
+                                email
                             }
                         }`,
                     fetchPolicy: "no-cache"
@@ -239,23 +244,17 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                 >
                     <div className="content">
                         <div className="top">
-                            <Tooltip.Root>
-                                <Tooltip.Trigger className={"noPadding"} asChild>
-                                    <Link href={`/dashboard`} onClick={e => {
-                                        wuGeneral.onNthClick(() => {
-                                            window.open("https://orteil.dashnet.org/cookieclicker", '_blank')?.focus()
-                                        }, e.nativeEvent, 10)
-                                    }}>
-                                        <House strokeWidth={2.5} size={20}/>
-                                    </Link>
-                                </Tooltip.Trigger>
-                                <Tooltip.Portal>
-                                    <Tooltip.Content className={"TooltipContent"}>
-                                        <Tooltip.Arrow/>
-                                        <p><span className="bold">Click</span> to go back to the Dashboard</p>
-                                    </Tooltip.Content>
-                                </Tooltip.Portal>
-                            </Tooltip.Root>
+                            <SimpleTooltip
+                                content={<p><span className="bold">Click</span> to go back to the Dashboard</p>}
+                            >
+                                <Link href={`/dashboard`} onClick={e => {
+                                    wuGeneral.onNthClick(() => {
+                                        window.open("https://orteil.dashnet.org/cookieclicker", '_blank')?.focus()
+                                    }, e.nativeEvent, 10)
+                                }}>
+                                    <House strokeWidth={2.5} size={20}/>
+                                </Link>
+                            </SimpleTooltip>
                             <p>/</p>
                             <h1>Dashboard</h1>
                         </div>
@@ -368,12 +367,21 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                 </button>
                                 {/*always visible*/}
                                 <Popover.Root>
-                                    <Popover.Trigger>
+                                    <Popover.Trigger className={"collaborationRequestsTrigger"}>
                                         Collab-Requests
                                         <Inbox size={18}/>
+                                        {
+                                            pendingCollaborations.data.pendingCollaborations && pendingCollaborations.data.pendingCollaborations.length > 0 &&
+                                            <span className={"badge"}>{pendingCollaborations.data.pendingCollaborations.length}</span>
+                                        }
                                     </Popover.Trigger>
                                     <Popover.Portal>
-                                        <Popover.Content className={"PopoverContent CollaborationRequests"} side={"top"} align={"start"}>
+                                        <Popover.Content
+                                            className={"PopoverContent CollaborationRequests"}
+                                            side={"top"}
+                                            align={"start"}
+                                            onOpenAutoFocus={e => e.preventDefault()}
+                                        >
                                             {
                                                 pendingCollaborations.loading ? <>
                                                     <Skeleton height={"2rem"}/>
@@ -385,18 +393,22 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                                         <p>
                                                             <span className={"bold"}>{collab.owner?.name}</span> has invited you to the shotlist <span className={"bold"}>{collab.shotlist?.name || "Unnamed"}</span>
                                                         </p>
-                                                        <button
-                                                            className={"accent"}
-                                                            onClick={() => acceptOrDeclineCollaboration(collab.id || "", CollaborationState.Accepted)}
-                                                        >
-                                                            <Check size={16} strokeWidth={2.5}/>
-                                                        </button>
-                                                        <button
-                                                            className={"accent"}
-                                                            onClick={() => acceptOrDeclineCollaboration(collab.id || "", CollaborationState.Declined)}
-                                                        >
-                                                            <X size={16} strokeWidth={2.5}/>
-                                                        </button>
+                                                        <SimpleTooltip text="Accept collaboration">
+                                                            <button
+                                                                className={"accent"}
+                                                                onClick={() => acceptOrDeclineCollaboration(collab.id || "", CollaborationState.Accepted)}
+                                                            >
+                                                                <Check size={16} strokeWidth={2.5}/>
+                                                            </button>
+                                                        </SimpleTooltip>
+                                                        <SimpleTooltip text="Decline collaboration">
+                                                            <button
+                                                                className={"accent"}
+                                                                onClick={() => acceptOrDeclineCollaboration(collab.id || "", CollaborationState.Declined)}
+                                                            >
+                                                                <X size={16} strokeWidth={2.5}/>
+                                                            </button>
+                                                        </SimpleTooltip>
                                                     </div>
                                                 ))
                                             }
