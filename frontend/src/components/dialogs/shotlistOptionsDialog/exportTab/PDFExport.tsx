@@ -86,8 +86,6 @@ const styles = StyleSheet.create({
     },
 })
 
-//TODO add nice comments
-
 // Create Document Component
 export default function PDFExport({data}: { data: ShotlistDto | null }) {
     if(!data) return (
@@ -102,14 +100,17 @@ export default function PDFExport({data}: { data: ShotlistDto | null }) {
         <Document>
             <Page size="A4" orientation="landscape" style={styles.page}>
                 <View style={styles.container}>
+                    {/*Scene attribute definitions heading*/}
                     <View style={[styles.row, styles.sceneDefinitions]}>
                         <Text style={[styles.cell, styles.number, styles.small]}>Scene</Text>
                         {(data.sceneAttributeDefinitions as AnySceneAttributeDefinition[]).map((attribute) => (
                             <Text style={[styles.cell]} key={attribute.id}>{attribute.name || "Unnamed"}</Text>
                         ))}
                     </View>
+
                     {(data.scenes as SceneDto[]).map((scene: SceneDto) => (
                         <View key={scene.id}>
+                            {/*Shot attribute values / "scene heading" */}
                             <View style={[styles.row, styles.heading]}>
                                 <View style={[styles.cell, styles.bigCell, styles.number]}>
                                     <Text>{scene.position+1}</Text>
@@ -120,6 +121,8 @@ export default function PDFExport({data}: { data: ShotlistDto | null }) {
                                     </View>
                                 )}
                             </View>
+
+                            {/*Shot attribute definitions heading*/}
                             <View style={[styles.row, styles.shotDefinitions]}>
                                 <View style={[styles.cell, styles.number]}>
                                     <Text>Shot</Text>
@@ -130,6 +133,8 @@ export default function PDFExport({data}: { data: ShotlistDto | null }) {
                                     </View>
                                 ))}
                             </View>
+
+                            {/*Shot attribute values*/}
                             {(scene.shots as ShotDto[])?.map((shot, index) =>
                                 <View style={[styles.row , index%2==0 ? styles.rowOdd : {}]} key={shot.id}>
                                     <View style={[styles.cell, styles.number]}>
@@ -145,6 +150,8 @@ export default function PDFExport({data}: { data: ShotlistDto | null }) {
                         </View>
                     ))}
                 </View>
+
+                {/*Footer*/}
                 <View style={styles.bottom} fixed>
                     <View style={[styles.bottomBox, {justifyContent: 'flex-start'}]}>
                         <Text style={styles.bottomText}>{data?.name || "Unnamed Shotlist"}</Text>

@@ -28,8 +28,6 @@ export interface RowProps {
     children: ReactNode
 }
 
-//TODO options open after drag
-
 /**
  * Represents a single row in the spreadsheet aka a shot
  * @param children

@@ -86,7 +86,7 @@ public class ShotlistWebsocketService {
 
             broadcast(shotlistId, update.userId(), json);
         } catch (Exception e) {
-            //TODO
+            LOGGER.errorf("Could not broadcast update %s to shotlist %s because of error: %s", update.toString(), shotlistId, e.toString());
             throw new RuntimeException(e);
         }
     }
@@ -111,7 +111,7 @@ public class ShotlistWebsocketService {
                 conn.sendTextAndAwait(json);
             }
         } catch (Exception e) {
-            //TODO
+            LOGGER.errorf("Could not broadcast update %s to shotlist %s because of error: %s", json, shotlistId, e.toString());
             throw new RuntimeException(e);
         }
     }
@@ -156,7 +156,7 @@ public class ShotlistWebsocketService {
             //is sent to the connection that was passed along (the newly connected user)
             connection.sendTextAndAwait(json);
         } catch (Exception e) {
-            //TODO
+            LOGGER.errorf("Could not send present collaborators to shotlist %s because of error: %s", shotlistId, e.toString());
             throw new RuntimeException(e);
         }
     }
