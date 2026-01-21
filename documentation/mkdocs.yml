@@ -3,6 +3,7 @@ site_url: https://docs.shotly.at/
 theme:
   name: material
   palette:
+    scheme: slate
     primary: custom
     accent: custom
   favicon: /assets/logo/shotly-docs-iconmark_o2.png

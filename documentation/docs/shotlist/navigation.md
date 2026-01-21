@@ -20,3 +20,7 @@ The shotlist supports the following keybinds:
     - a value can be selected by pressing `Enter`
     - can be closed using `Esc`
 - A new shot can be created using `Control + Enter` or `Alt + N`.
+
+## The save indicator
+
+A save indicator is located in the bottom left of the shotlist, most of the time this will be a checkmark. Whenever you make changes to the shotlist it switches to a spinning circle, indicating that the changes are being saved. Once the changes are saved, it switches back to a checkmark. If there is an error while saving, it switches to a red exclamation mark. Hovering over the icon will give you more information about the current state.
