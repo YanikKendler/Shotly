@@ -16,6 +16,8 @@ import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.scene.Scene;
 import me.kendler.yanik.model.scene.attributeDefinitions.*;
 import me.kendler.yanik.model.scene.attributes.SceneAttributeBase;
+import me.kendler.yanik.model.scene.attributes.SceneMultiSelectAttribute;
+import me.kendler.yanik.model.scene.attributes.SceneSingleSelectAttribute;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotAttributeDefinitionBase;
 import me.kendler.yanik.repositories.ShotlistRepository;
 
@@ -30,6 +32,9 @@ public class SceneAttributeDefinitionRepository implements PanacheRepository<Sce
 
     @Inject
     SceneAttributeRepository sceneAttributeRepository;
+
+    @Inject
+    SceneSelectAttributeOptionDefinitionRepository sceneSelectAttributeOptionDefinitionRepository;
 
     public List<SceneAttributeDefinitionBaseDTO> listAllForShotlist(UUID shotlistId) {
         Shotlist shotlist = shotlistRepository.findByIdValidated(shotlistId);
@@ -166,16 +171,33 @@ public class SceneAttributeDefinitionRepository implements PanacheRepository<Sce
                 .setParameter("definitionId", id)
                 .getResultList();
 
+        List<SceneSelectAttributeOptionDefinition> relevantOptions = getEntityManager()
+                .createQuery("select o from SceneSelectAttributeOptionDefinition o where o.sceneAttributeDefinition.id = :definitionId", SceneSelectAttributeOptionDefinition.class)
+                .setParameter("definitionId", id)
+                .getResultList();
+
         List<Scene> relevantScenes = getEntityManager()
                 .createQuery("select s from Scene s join s.attributes sab where sab.definition.id = :definitionId", Scene.class)
                 .setParameter("definitionId", id)
                 .getResultList();
+
+        relevantAttributes.forEach(a -> {
+            if (a instanceof SceneSingleSelectAttribute ssa) {
+                ssa.value = null;
+            } else if (a instanceof SceneMultiSelectAttribute msa) {
+                msa.value.clear();
+            }
+        });
 
         relevantScenes.forEach(scene -> {
             relevantAttributes.forEach(a -> {
                 scene.attributes.remove(a);
                 a.definition = null;
             });
+        });
+
+        relevantOptions.forEach(o -> {
+            sceneSelectAttributeOptionDefinitionRepository.delete(o.id);
         });
 
         Shotlist relevantShotlist = getShotlistByDefinitionId(id);

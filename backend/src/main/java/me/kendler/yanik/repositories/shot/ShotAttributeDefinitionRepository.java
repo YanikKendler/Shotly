@@ -15,6 +15,8 @@ import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.shot.Shot;
 import me.kendler.yanik.model.shot.attributeDefinitions.*;
 import me.kendler.yanik.model.shot.attributes.ShotAttributeBase;
+import me.kendler.yanik.model.shot.attributes.ShotMultiSelectAttribute;
+import me.kendler.yanik.model.shot.attributes.ShotSingleSelectAttribute;
 import me.kendler.yanik.repositories.ShotlistRepository;
 import org.jboss.logging.Logger;
 
@@ -28,6 +30,9 @@ public class ShotAttributeDefinitionRepository implements PanacheRepository<Shot
 
     @Inject
     ShotAttributeRepository shotAttributeRepository;
+
+    @Inject
+    ShotSelectAttributeOptionDefinitionRepository shotSelectAttributeOptionDefinitionRepository;
 
     private static final Logger LOGGER = Logger.getLogger(ShotAttributeDefinitionRepository.class);
 
@@ -169,16 +174,33 @@ public class ShotAttributeDefinitionRepository implements PanacheRepository<Shot
                 .setParameter("definitionId", id)
                 .getResultList();
 
+        List<ShotSelectAttributeOptionDefinition> relevantOptions = getEntityManager()
+                .createQuery("select o from ShotSelectAttributeOptionDefinition o where o.shotAttributeDefinition.id = :definitionId", ShotSelectAttributeOptionDefinition.class)
+                .setParameter("definitionId", id)
+                .getResultList();
+
         List<Shot> relevantShots = getEntityManager()
                 .createQuery("select s from Shot s join s.attributes sab where sab.definition.id = :definitionId", Shot.class)
                 .setParameter("definitionId", id)
                 .getResultList();
+
+        relevantAttributes.forEach(a -> {
+            if (a instanceof ShotSingleSelectAttribute ssa) {
+                ssa.value = null;
+            } else if (a instanceof ShotMultiSelectAttribute msa) {
+                msa.value.clear();
+            }
+        });
 
         relevantShots.forEach(shot -> {
             relevantAttributes.forEach(a -> {
                 shot.attributes.remove(a);
                 a.definition = null;
             });
+        });
+
+        relevantOptions.forEach(o -> {
+            shotSelectAttributeOptionDefinitionRepository.delete(o.id);
         });
 
         Shotlist relevantShotlist = getShotlistByDefinitionId(id);

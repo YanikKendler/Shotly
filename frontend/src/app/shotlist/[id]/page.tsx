@@ -293,11 +293,10 @@ export default function Shotlist() {
 
         if(result.errors) {
             handleShotlistError({
-                locationKey: "createShotMultiSelectOption",
+                locationKey: "loadShotlist",
                 message: "Failed to load Shotlist.",
                 cause: result.errors
             })
-            setSaveState("createShotMultiSelectOption", "error")
             return
         }
 
