@@ -1,4 +1,4 @@
-@media screen and (max-width: 600px){
+@media screen and (max-width: 500px){
   .headerContainer:not(.template){
     display: none !important;
   }
@@ -23,8 +23,12 @@ main.overview{
       grid-template-columns: 1fr 1fr 1fr;
     }
 
-    @media (max-width: 850px){
+    @media (max-width: 950px){
       grid-template-columns: 1fr 1fr;
+    }
+
+    @media (max-width: 700px){
+      grid-template-columns: 1fr;
     }
 
     .gridItem{

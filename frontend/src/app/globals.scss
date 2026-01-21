@@ -380,7 +380,7 @@ span.wrap{
   }
 
   &.collapse{
-    @media screen and (max-width: 600px){
+    @media screen and (max-width: 500px){
       position: absolute;
       top: 0;
       bottom: 0;
@@ -543,7 +543,7 @@ span.wrap{
   }
 }
 
-@media screen and (max-width: 600px){
+@media screen and (max-width: 500px){
   .PanelResizeHandle.sidebarResize{
     display: none;
   }

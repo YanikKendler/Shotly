@@ -6,6 +6,10 @@ main.home{
   flex-direction: column;
 
   .sidebar{
+    @media screen and (max-width: 500px){
+      --sidebar-width: 100vw;
+    }
+
     >.content{
       gap: .5rem;
 
@@ -22,7 +26,7 @@ main.home{
             border-color: var(--accent);
             display: none;
 
-            @media screen and (max-width: 600px) {
+            @media screen and (max-width: 500px) {
               display: flex;
             }
           }
@@ -120,7 +124,7 @@ main.home{
       padding: .3rem .5rem;
       gap: .5rem;
 
-      @media screen and (max-width: 600px){
+      @media screen and (max-width: 500px){
         display: none;
       }
 
@@ -177,7 +181,7 @@ main.home{
       padding: .6rem;
       display: none;
 
-      @media screen and (max-width: 600px) {
+      @media screen and (max-width: 500px) {
         display: flex;
       }
     }

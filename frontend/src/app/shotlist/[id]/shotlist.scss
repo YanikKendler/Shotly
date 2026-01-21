@@ -33,7 +33,7 @@ main.shotlist{
         display: none; /*Chrome, Safari and Opera */
       }
 
-      @media screen and (max-width: 600px){
+      @media screen and (max-width: 500px){
         padding-inline: 1.5rem .5rem;
       }
 
@@ -52,7 +52,7 @@ main.shotlist{
           left: 0;
           background-color: var(--sidebar-bg);
 
-          @media screen and (max-width: 600px){
+          @media screen and (max-width: 500px){
             left: -1.5rem;
           }
         }
@@ -97,7 +97,7 @@ main.shotlist{
       padding: .6rem;
       display: none;
 
-      @media screen and (max-width: 600px){
+      @media screen and (max-width:500px){
         display: flex;
       }
     }
