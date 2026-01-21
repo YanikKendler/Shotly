@@ -58,7 +58,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false)
     const [collaborationReloadAllowed, setCollaborationReloadAllowed] = useState<boolean>(true)
 
-    const [sharedShotlistsOpen, setSharedShotlistsOpen] = useState<boolean>(false)
+    const [sharedShotlistsOpen, setSharedShotlistsOpen] = useState<boolean>(true)
 
     useEffect(() => {
         if(!auth.isAuthenticated()){
@@ -269,8 +269,8 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                 >
                                     {
                                         query.loading ? <>
-                                            <Skeleton/>
-                                            <Skeleton/>
+                                            <Skeleton height={"1.5rem"}/>
+                                            <Skeleton height={"1.5rem"}/>
                                         </> :
                                         !query.data.shotlists?.personal || query.data.shotlists.personal.length === 0 ? (
                                             <button onClick={openCreateShotlistDialog} className={"create"}>
@@ -292,6 +292,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                 className={"CollapsibleRoot dashboardSidebar"}
                                 open={sharedShotlistsOpen}
                                 onOpenChange={setSharedShotlistsOpen}
+                                defaultOpen={true}
                             >
                                 <Collapsible.Trigger className={"noClickFx"}>
                                     Shared Shotlists <ChevronDown size={18} className={"chevron"}/>
@@ -301,8 +302,8 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                 >
                                     {
                                         query.loading ? <>
-                                            <Skeleton/>
-                                            <Skeleton/>
+                                            <Skeleton height={"1.5rem"}/>
+                                            <Skeleton height={"1.5rem"}/>
                                         </> :
                                         !query.data.shotlists?.shared || query.data.shotlists.shared.length <= 0 ? (
                                             <p className={"empty"}>No shared shotlist yet</p>
@@ -329,8 +330,8 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                 >
                                     {
                                         query.loading ? <>
-                                            <Skeleton/>
-                                            <Skeleton/>
+                                            <Skeleton height={"1.5rem"}/>
+                                            <Skeleton height={"1.5rem"}/>
                                         </> :
                                         !query.data.templates || query.data.templates.length === 0 ? (
                                             <p className="empty">Nothing here yet</p>

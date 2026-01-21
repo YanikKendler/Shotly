@@ -422,8 +422,25 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         })
     }
 
+    if(!shotAttributeDefinitions || (!isReadOnly && shotAttributeDefinitions.length == 0)) {
+        return <div className="sheetManager">
+            <p className={"empty"}>
+                {"Add a "}
+                <button
+                    className="inline noPadding accent noShotAttributes"
+                    onClick={() => shotlistContext.openShotlistOptionsDialog({
+                        main: ShotlistOptionsDialogPage.attributes,
+                        sub: ShotlistOptionsDialogSubPage.shot
+                    })}
+                >
+                    shot attribute
+                </button>
+                {" to get started"}
+            </p>
+        </div>
+    }
 
-    if(query.loading || !shotAttributeDefinitions) {
+    if(query.loading) {
         return <div className="sheetManager">
             <Skeleton count={5} height="38px"/>
         </div>
@@ -463,23 +480,6 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                 </p>
             </div>
         }
-    }
-    if(!isReadOnly && shotAttributeDefinitions.length == 0) {
-        return <div className="sheetManager">
-            <p className={"empty"}>
-                {"Add a "}
-                <button
-                    className="inline noPadding accent noShotAttributes"
-                    onClick={() => shotlistContext.openShotlistOptionsDialog({
-                        main: ShotlistOptionsDialogPage.attributes,
-                        sub: ShotlistOptionsDialogSubPage.shot
-                    })}
-                >
-                    shot attribute
-                </button>
-                {" to get started"}
-            </p>
-        </div>
     }
 
     return (
