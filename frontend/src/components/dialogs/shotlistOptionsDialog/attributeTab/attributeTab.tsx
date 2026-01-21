@@ -283,7 +283,7 @@ export default function AttributeTab(
                             <Popover.Root>
                                 <Popover.Trigger className={"add"}>Add attribute <Plus size={20}/></Popover.Trigger>
                                 <Popover.Portal>
-                                    <Popover.Content className="PopoverContent addAttributeDefinitionPopup" sideOffset={5} align={"start"}>
+                                    <Popover.Content className="popoverContent addAttributeDefinitionPopup" sideOffset={5} align={"start"}>
                                         <button onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneTextAttribute)}><Type size={16}/>Text</button>
                                         <button onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneSingleSelectAttribute)}><ChevronDown size={16}/>Single select</button>
                                         <button onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneMultiSelectAttribute)}><List size={16}/>Multi select</button>
@@ -341,7 +341,7 @@ export default function AttributeTab(
                             <Popover.Root>
                                 <Popover.Trigger className={"add"}>Add attribute <Plus size={20}/></Popover.Trigger>
                                 <Popover.Portal>
-                                    <Popover.Content className="PopoverContent addAttributeDefinitionPopup" sideOffset={5} align={"start"}>
+                                    <Popover.Content className="popoverContent addAttributeDefinitionPopup" sideOffset={5} align={"start"}>
                                         <button onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotTextAttribute)}><Type size={16}/>Text</button>
                                         <button onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotSingleSelectAttribute)}><ChevronDown size={16}/>Single select</button>
                                         <button onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotMultiSelectAttribute)}><List size={16}/>Multi select</button>

@@ -446,7 +446,7 @@ export default function Template (){
                         <Info size={18}/>
                     </Popover.Trigger>
                     <Popover.Portal>
-                        <Popover.Content className="PopoverContent templateInfo" sideOffset={5}>
+                        <Popover.Content className="popoverContent templateInfo" sideOffset={5}>
                             <p>
                                 <span className="dark">Templates can be selected when creating a shotlist so that you don't have to create the same attributes over and over again.</span>
                                 <br/>
@@ -495,7 +495,7 @@ export default function Template (){
                 <Popover.Root>
                     <Popover.Trigger className={"add"}>Add shot attribute <Plus size={20}/></Popover.Trigger>
                     <Popover.Portal>
-                        <Popover.Content className="PopoverContent addAttributeTemplatePopup" sideOffset={5}
+                        <Popover.Content className="popoverContent addAttributeTemplatePopup" sideOffset={5}
                                          align={"start"}>
                             <button onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotTextAttribute)}><Type
                                 size={16} strokeWidth={3}/>Text
@@ -544,7 +544,7 @@ export default function Template (){
                 <Popover.Root>
                     <Popover.Trigger className={"add"}>Add scene attribute <Plus size={20}/></Popover.Trigger>
                     <Popover.Portal>
-                        <Popover.Content className="PopoverContent addAttributeTemplatePopup" sideOffset={5}
+                        <Popover.Content className="popoverContent addAttributeTemplatePopup" sideOffset={5}
                                          align={"start"}>
                             <button onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneTextAttribute)}>
                                 <Type size={16} strokeWidth={3}/>Text

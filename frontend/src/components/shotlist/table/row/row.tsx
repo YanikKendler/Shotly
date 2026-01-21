@@ -115,7 +115,7 @@ const RowBase = forwardRef<RowRef, RowProps>(({
                         <GripVertical/>
                     </Popover.Trigger>
                     <Popover.Portal>
-                        <Popover.Content className="PopoverContent shotContextOptionsPopup" align={"center"}>
+                        <Popover.Content className="popoverContent shotContextOptionsPopup" align={"center"}>
                             <Popover.Close asChild><button disabled={true}><CornerDownRight size={18}/> Make Subshot</button></Popover.Close>
                             <Popover.Close asChild><button disabled={true}><NotepadText size={18}/> Notes</button></Popover.Close>
                             <Popover.Close asChild><button className={"bad"} onClick={deleteShot}><Trash size={18}/> Delete</button></Popover.Close>

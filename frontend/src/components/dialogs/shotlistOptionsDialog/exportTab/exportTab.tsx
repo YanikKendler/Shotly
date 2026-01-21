@@ -582,7 +582,7 @@ export default function ExportTab(
                         Add filter <Plus size={20}/>
                     </Popover.Trigger>
                     <Popover.Portal>
-                        <Popover.Content className="PopoverContent addFilterPopup" sideOffset={5} align={"start"}>
+                        <Popover.Content className="popoverContent addFilterPopup" sideOffset={5} align={"start"}>
                                 <h3>Scene</h3>
                                 {
                                     !customSceneFilterCandidates || customSceneFilterCandidates?.length <= 0 ?

@@ -1,9 +1,9 @@
-import {Popover} from "radix-ui"
 import {Info} from "lucide-react"
 import React, {useCallback, useEffect, useRef, useState} from "react"
 import "./textField.scss"
 import {wuGeneral} from "@yanikkendler/web-utils/dist"
 import Skeleton from "react-loading-skeleton"
+import SimplePopover from "@/components/popover/simplePopover"
 
 /**
  * simple input wrapper for use in static UIs like settings pages
@@ -149,17 +149,9 @@ export default function TextField(
                 </div>
                 {
                     info &&
-                    <Popover.Root>
-                        <Popover.Trigger className={"noPadding"}>
-                            <Info/>
-                        </Popover.Trigger>
-                        <Popover.Portal>
-                            <Popover.Content className={"PopoverContent"} side={"top"}>
-                                {/*<Popover.Arrow/>*/}
-                                <p>{info}</p>
-                            </Popover.Content>
-                        </Popover.Portal>
-                    </Popover.Root>
+                    <SimplePopover text={info}>
+                        <Info/>
+                    </SimplePopover>
                 }
             </div>
         </div>

@@ -184,11 +184,11 @@ main.home{
   }
 }
 
-[data-theme="dark"] .PopoverContent.CollaborationRequests{
+[data-theme="dark"] .popoverContent.CollaborationRequests{
   --reloadButtonBg: hsl(0, 0%, 8%);
 }
 
-.PopoverContent.CollaborationRequests{
+.popoverContent.CollaborationRequests{
   --reloadButtonBg: hsl(0, 0%, 95%);
 
   min-width: var(--radix-popover-trigger-width);

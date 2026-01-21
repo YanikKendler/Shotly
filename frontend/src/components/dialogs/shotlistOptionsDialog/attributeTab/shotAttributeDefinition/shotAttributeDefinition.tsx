@@ -214,7 +214,7 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
                 <Popover.Root modal={true}>
                     <Popover.Trigger><span>Edit options</span> <ListCollapse size={18}/></Popover.Trigger>
                     <Popover.Portal>
-                        <Popover.Content className="PopoverContent editShotAttributeOptionsPopup" sideOffset={5} align={"start"}>
+                        <Popover.Content className="popoverContent editShotAttributeOptionsPopup" sideOffset={5} align={"start"}>
                             {((definition as ShotSingleSelectAttributeDefinitionDto).options as ShotSelectAttributeOptionDefinition[])?.map((option, index) => (
                                 <div className="option" key={option.id}>
                                     <p>{index + 1}</p>

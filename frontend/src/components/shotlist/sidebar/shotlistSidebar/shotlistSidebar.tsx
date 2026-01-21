@@ -19,6 +19,7 @@ import {UserMinimalDTO} from "@/service/ShotlistSyncService"
 import {SceneAttributeRef} from "@/components/shotlist/sidebar/sceneAttribute/sceneAttribute"
 import Skeleton from "react-loading-skeleton"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
+import SimplePopover from "@/components/popover/simplePopover"
 
 export interface ShotlistSidebarRef {
     getScene: (position: number) => SceneDto | null
@@ -394,31 +395,24 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                     <div className="bottom">
                         {
                             presentCollaborators && presentCollaborators.length > 0 && (
-                                <Popover.Root>
-                                    <Popover.Trigger
-                                        className="collaborators"
-                                    >
-                                        {
-                                            presentCollaborators.map(user => (
-                                                <div key={user.id} className={"collaborator"}>
+                                <SimplePopover
+                                    content={
+                                        Array.from(presentCollaborators).map(user => (
+                                            <p key={user.id}>{user.name}</p>
+                                        ))
+                                    }
+                                    className={"collaborators"}
+                                >
+                                    <>
+                                        {presentCollaborators.map(user => (
+                                            <div key={user.id} className={"collaborator"}>
                                                 <span>
                                                     {user.name.at(0)?.toUpperCase() || "?"}
                                                 </span>
-                                                </div>
-                                            ))
-                                        }
-                                    </Popover.Trigger>
-                                    <Popover.Portal>
-                                        <Popover.Content className={"PopoverContent"} side={"top"}>
-                                            {/*<Popover.Arrow/>*/}
-                                            {
-                                                Array.from(presentCollaborators).map(user => (
-                                                    <p key={user.id}>{user.name}</p>
-                                                ))
-                                            }
-                                        </Popover.Content>
-                                    </Popover.Portal>
-                                </Popover.Root>
+                                            </div>
+                                        ))}
+                                    </>
+                                </SimplePopover>
                             )
                         }
                         <button

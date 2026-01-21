@@ -378,7 +378,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                     </Popover.Trigger>
                                     <Popover.Portal>
                                         <Popover.Content
-                                            className={"PopoverContent CollaborationRequests"}
+                                            className={"popoverContent CollaborationRequests"}
                                             side={"top"}
                                             align={"start"}
                                             onOpenAutoFocus={e => e.preventDefault()}

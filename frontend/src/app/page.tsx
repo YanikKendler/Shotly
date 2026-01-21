@@ -24,6 +24,7 @@ import ThemeSwitcher from "@/components/utility/themeSwitcher/themeSwitcher"
 import Skeleton from "react-loading-skeleton"
 import Config from "@/util/Config"
 import Separator from "@/components/separator/separator"
+import SimplePopover from "@/components/popover/simplePopover"
 
 export default function Landing() {
     const pageRef = useRef<HTMLDivElement>(null);
@@ -226,24 +227,23 @@ export default function Landing() {
                                 <p className="name">Basic</p>
                                 <div className="price">
                                     <p className={"cost"}>Free forever</p>
-                                    <Popover.Root>
-                                        <Popover.Trigger className={"noPadding info"}>
-                                            <Info size={20}/>
-                                        </Popover.Trigger>
-                                        <Popover.Portal>
-                                            <Popover.Content className={"PopoverContent left"} side={"top"}>
-                                                {/*<Popover.Arrow/>*/}
+                                    <SimplePopover
+                                        content={
+                                            <>
                                                 <p>
-                                                    Shotly's basic tier will always stay free, and you will always be
-                                                    able to export your data.
+                                                Shotly's basic tier will always stay free, and you will always be
+                                                able to export your data.
                                                 </p>
                                                 <p>
-                                                    Servers cost money though and this app is a lot of work, so if you
-                                                    end up using Shotly a lot, please consider the pro tier.
+                                                Servers cost money though and this app is a lot of work, so if you
+                                                end up using Shotly a lot, please consider the pro tier.
                                                 </p>
-                                            </Popover.Content>
-                                        </Popover.Portal>
-                                    </Popover.Root>
+                                            </>
+                                        }
+                                        className={"noPadding info"}
+                                    >
+                                        <Info size={20}/>
+                                    </SimplePopover>
                                 </div>
                             </div>
                             <Separator/>

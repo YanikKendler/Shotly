@@ -230,7 +230,7 @@ export default function CollaboratorsTab(
                         <Popover.Root>
                             <Popover.Trigger className={"optionsTrigger"}><Ellipsis size={18}/></Popover.Trigger>
                             <Popover.Portal>
-                                <Popover.Content className="PopoverContent collaboratorOptionsPopup" sideOffset={5} align={"start"}>
+                                <Popover.Content className="popoverContent collaboratorOptionsPopup" sideOffset={5} align={"start"}>
                                     <SimpleSelect
                                         name={"role"}
                                         onChange={(newValue) => updateCollaborationType(collab.id || "", newValue as CollaborationType)}

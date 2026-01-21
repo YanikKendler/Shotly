@@ -641,7 +641,7 @@ span.wrap{
 
 // Style radix tooltip and popover
 
-.tooltipContent, .PopoverContent {
+.tooltipContent, .popoverContent {
   background-color: var(--contrast);
   padding: .4rem;
   font-size: .9rem;
@@ -670,9 +670,13 @@ span.wrap{
   }
 }
 
-.PopoverContent{
+.popoverContent{
   overflow-y: auto;
   scrollbar-width: thin;
+
+  &.noScroll{
+    overflow-y: initial;
+  }
 }
 
 @keyframes slideUpAndFade {

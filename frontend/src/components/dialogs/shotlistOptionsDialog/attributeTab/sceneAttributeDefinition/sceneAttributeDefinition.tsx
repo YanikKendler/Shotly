@@ -206,7 +206,7 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
                 <Popover.Root modal={true}>
                     <Popover.Trigger><span>Edit options</span> <ListCollapse size={18}/></Popover.Trigger>
                     <Popover.Portal>
-                        <Popover.Content className="PopoverContent editSceneAttributeOptionsPopup" sideOffset={5} align={"start"}>
+                        <Popover.Content className="popoverContent editSceneAttributeOptionsPopup" sideOffset={5} align={"start"}>
                             {((definition as SceneSingleOrMultiSelectAttributeDefinition).options as SceneSelectAttributeOptionDefinition[])?.map((option, index) => (
                                 <div className="option" key={option.id}>
                                     <p>{index + 1}</p>

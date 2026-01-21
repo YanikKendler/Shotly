@@ -201,7 +201,7 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
                 <Popover.Root>
                     <Popover.Trigger className={"editOptions"}>Edit options <Pencil size={16}/></Popover.Trigger>
                     <Popover.Portal>
-                        <Popover.Content className="PopoverContent editAttributeOptionTemplatesPopup" sideOffset={5}
+                        <Popover.Content className="popoverContent editAttributeOptionTemplatesPopup" sideOffset={5}
                                          align={"start"}>
                             {((attribute as SceneSingleOrMultiSelectAttributeTemplate).options as SceneSelectAttributeOptionTemplate[])?.map((option, index) => (
                                 <div className="option" key={option?.id}>

@@ -157,7 +157,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                             <GripVertical size={expanded ? 22 : 20}/>
                         </Popover.Trigger>
                         <Popover.Portal>
-                            <Popover.Content className="PopoverContent sceneContextOptionsPopup" align={"start"}
+                            <Popover.Content className="popoverContent sceneContextOptionsPopup" align={"start"}
                                              side={"right"} sideOffset={12} alignOffset={-10}>
                                 <button className={"bad"} onClick={(e) => {
                                     e.stopPropagation();
