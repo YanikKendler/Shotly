@@ -414,6 +414,7 @@ main.landing{
     display: grid;
     place-items: center;
     padding: 5rem 2rem;
+    padding-bottom: 1rem;
     background-color: var(--contrast);
 
     .content{
@@ -538,6 +539,16 @@ main.landing{
             color: var(--accent-55);
           }
         }
+      }
+    }
+
+    .freeForStudents{
+      margin-top: 4rem;
+      color: var(--text-50);
+      text-decoration: underline;
+
+      &:hover{
+        color: var(--text-20);
       }
     }
   }

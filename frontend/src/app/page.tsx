@@ -276,6 +276,7 @@ export default function Landing() {
                             <button className="select filled" onClick={() => Auth.loginForPro()}>Choose Pro</button>
                         </div>
                     </div>
+                    <a href="/freeForStudents" className={"freeForStudents"}>Shotly for Students</a>
                 </section>
                 <footer>
                     <div className={"credits"}>

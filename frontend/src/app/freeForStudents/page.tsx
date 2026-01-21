@@ -4,7 +4,7 @@ import Link from "next/link"
 export default function freeForStudents(){
     return (
         <SimplePage>
-            <h1>Free for Students</h1>
+            <h1>Shotly for Students</h1>
             <p>Are you a student? Shotly is available to you completely free of charge!</p>
             <p>
                 Shotly was born when I was a Student myself and did not want to pay wild amounts for other shotlist tools.
