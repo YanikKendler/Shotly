@@ -639,7 +639,7 @@ export default function ExportTab(
                         <Dialog.Content className="dialogContent pdfPreviewDialogContent">
                             <Dialog.Title>PDF preview <span>(the final export will be: {selectedFileType})</span></Dialog.Title>
                             <PDFViewer showToolbar={false}>
-                                <PDFExport data={shotlistPreviewCache.data.shotlist as ShotlistDto}/>
+                                <PDFExport data={filterData(shotlistPreviewCache)}/>
                             </PDFViewer>
                             <Dialog.Close asChild>
                                 <button
