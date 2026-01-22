@@ -190,7 +190,7 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
             >
                 <GripVertical/>
             </div>
-            <Icon size={20} strokeWidth={3}/>
+            <Icon size={18} strokeWidth={3}/>
             <TextField
                 defaultValue={attribute.name || ""}
                 valueChange={debouncedUpdateDefinition}

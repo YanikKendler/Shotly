@@ -240,6 +240,7 @@ export default function Template (){
                         id
                         name
                         position
+                        type
                     }
                 }
             `,
@@ -325,6 +326,7 @@ export default function Template (){
                         id
                         name
                         position
+                        type
                     }
                 }
             `,
@@ -334,6 +336,8 @@ export default function Template (){
             console.error(errors);
             return;
         }
+
+        console.log(data)
 
         setQuery({
             ...query,
@@ -486,8 +490,11 @@ export default function Template (){
                             query.data.template && query.data.template.sceneAttributes && query.data.template.sceneAttributes.length > 0 &&
                             (<div className="attributeTemplates">
                                 {(query.data.template.sceneAttributes as SceneAttributeTemplateBase[]).map(attr =>
-                                    <SceneAttributeTemplate attributeTemplate={attr} onDelete={removeSceneAttributeTemplate}
-                                                            key={attr.id}/>
+                                    <SceneAttributeTemplate
+                                        attributeTemplate={attr}
+                                        onDelete={removeSceneAttributeTemplate}
+                                        key={attr.id}
+                                    />
                                 )}
                             </div>)
                     }

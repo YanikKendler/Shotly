@@ -1,9 +1,11 @@
 [data-theme="dark"] main.template{
   --attribute-hover-border: hsl(0, 0%, 30%);
+  --attribute-bg: hsl(0, 0%, 12%);
 }
 
 main.template{
   --attribute-hover-border: hsl(0, 0%, 70%);
+  --attribute-bg: hsl(0, 0%, 94%);
 
   .top{
     display: flex;

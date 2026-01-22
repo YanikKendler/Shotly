@@ -3,9 +3,8 @@ div.shotAttributeTemplate{
   gap: .3rem;
   padding: .3rem;
   border-radius: .5rem;
-  border: 2px solid var(--default-interactable-border);
   align-items: center;
-  background-color: var(--contrast);
+  background-color: var(--attribute-bg);
 
   &:hover{
     border-color: var(--attribute-hover-border);
@@ -29,13 +28,16 @@ div.shotAttributeTemplate{
 
   .nameInput{
     padding-block: .5rem;
-    border-width: .1rem;
     outline: 1px solid transparent;
     font-weight: 500;
-    border-color: var(--default-interactable-border);
+    border: 2px solid var(--default-interactable-border);
+
+    &::placeholder{
+      font-weight: normal;
+    }
 
     &:focus-visible{
-      outline: 1px solid var(--accent);
+      outline-color: var(--accent);
     }
   }
 

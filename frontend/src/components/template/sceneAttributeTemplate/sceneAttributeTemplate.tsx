@@ -39,7 +39,7 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
         setAttribute(attributeTemplate)
     }, [attributeTemplate])
 
-    async function updateDefinition(newName: string) {
+    async function updateTemplate(newName: string) {
         const {data, errors} = await client.mutate({
             mutation: gql`
                 mutation updateSceneAttributeTemplateName($id: BigInteger!, $name: String!) {
@@ -61,11 +61,11 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
         })
     }
 
-    const debouncedUpdateDefinition = wuGeneral.debounce(updateDefinition)
+    const debouncedUpdateTemplate = wuGeneral.debounce(updateTemplate)
 
     const deleteAttributeTemplate = async () => {
         if(!await confirm({
-            message: `The attribute definition "${attribute.name || 'unnamed'}" will be deleted. This will not affect any existing scenelists or their scenes.`,
+            message: `The attribute definition template "${attribute.name || 'unnamed'}" will be deleted. This will not affect any existing shotlists or their scenes.`,
             buttons: {confirm: {className: "bad"}}}
         )) return
 
@@ -190,10 +190,10 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
             >
                 <GripVertical/>
             </div>
-            <Icon size={20} strokeWidth={3}/>
+            <Icon size={18} strokeWidth={3}/>
             <TextField
                 defaultValue={attribute.name || ""}
-                valueChange={debouncedUpdateDefinition}
+                valueChange={debouncedUpdateTemplate}
                 placeholder={"Attribute name"}
                 inputClass={"nameInput"}
             />
