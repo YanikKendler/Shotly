@@ -1,5 +1,5 @@
 import {ShotlistDto, UserDto} from "../../../../../lib/graphql/generated"
-import React from "react"
+import React, {useState} from "react"
 import gql from "graphql-tag"
 import {wuGeneral, wuTime} from "@yanikkendler/web-utils"
 import {useApolloClient} from "@apollo/client"
@@ -9,6 +9,7 @@ import "./generalTab.scss"
 import TextField from "@/components//inputs/textField/textField"
 import Loader from "@/components/feedback/loader/loader"
 import Separator from "@/components/separator/separator"
+import DotLoader from "@/components/DotLoader"
 
 export default function GeneralTab({
     shotlist,
@@ -26,6 +27,8 @@ export default function GeneralTab({
     const client = useApolloClient()
     const { confirm, ConfirmDialog } = useConfirmDialog();
     const router = useRouter()
+
+    const [deleting, setDeleting] = useState(false)
 
     const updateShotlistName = async (name: string) => {
         if(!shotlist) return
@@ -77,6 +80,8 @@ export default function GeneralTab({
 
         if(!decision) return
 
+        setDeleting(true)
+
         const { errors } = await client.mutate({
             mutation: gql`
                 mutation deleteShotlist($id: String!) {
@@ -89,7 +94,9 @@ export default function GeneralTab({
         });
 
         if(errors) {
+            //TODO notify
             console.error(errors)
+            setDeleting(false)
         }
         else{
             router.push("/dashboard")
@@ -97,6 +104,10 @@ export default function GeneralTab({
     }
 
     if(!shotlist) return (<Loader/>)
+
+    if(deleting) return <div className={"shotlistOptionsDialogGeneralTab"}>
+        <Loader text={"Deleting shotlist..."}/>
+    </div>
 
     return (
         <div className={"shotlistOptionsDialogGeneralTab"}>

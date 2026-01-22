@@ -132,21 +132,30 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
     public ShotlistDTO delete(UUID id) {
         Shotlist shotlist = findById(id);
         if (shotlist != null) {
-            for (Scene scene : shotlist.scenes) {
-                sceneRepository.delete(scene.id);
-            }
-            for (Collaboration collab : shotlist.collaborations){
+            // copies to avoid ConcurrentModificationException
+            List<Scene> scenesToDelete = List.copyOf(shotlist.scenes);
+            List<Collaboration> collabsToDelete = List.copyOf(shotlist.collaborations);
+            List<ShotAttributeDefinitionBase> shotDefsToDelete = List.copyOf(shotlist.shotAttributeDefinitions);
+            List<SceneAttributeDefinitionBase> sceneDefsToDelete = List.copyOf(shotlist.sceneAttributeDefinitions);
+
+            // fyi: the order of these loops matters to avoid one deleting something the next still needs
+            // like scenes deleting shots which errors the ShotAttributeDefinition
+            for (Collaboration collab : collabsToDelete) {
                 collaborationRepository.delete(collab.id);
             }
-            for (ShotAttributeDefinitionBase definition : shotlist.shotAttributeDefinitions) {
+            for (ShotAttributeDefinitionBase definition : shotDefsToDelete) {
                 shotAttributeDefinitionRepository.delete(definition.id);
             }
-            for (SceneAttributeDefinitionBase definition : shotlist.sceneAttributeDefinitions) {
+            for (SceneAttributeDefinitionBase definition : sceneDefsToDelete) {
                 sceneAttributeDefinitionRepository.delete(definition.id);
+            }
+            for (Scene scene : scenesToDelete) {
+                sceneRepository.delete(scene.id);
             }
             delete(shotlist);
             return shotlist.toDTO();
         }
         return null;
     }
+
 }
