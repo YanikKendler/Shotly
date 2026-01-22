@@ -92,13 +92,15 @@ main.home{
 
       button.create{
         margin-left: .4rem;
+        margin-top: .2rem;
         width: calc(100% - .4rem);
         font-size: .9rem;
         justify-content: center;
         color: var(--accent);
+        background-color: var(--hover-bg-accent-10);
 
         &:hover{
-          background-color: var(--hover-bg-accent-10);
+          background-color: var(--hover-bg-accent-20);
           color: var(--accent-55);
         }
       }

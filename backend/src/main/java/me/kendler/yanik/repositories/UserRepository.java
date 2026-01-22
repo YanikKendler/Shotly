@@ -12,6 +12,7 @@ import me.kendler.yanik.error.ShotlyErrorCode;
 import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.*;
 import me.kendler.yanik.model.template.Template;
+import me.kendler.yanik.model.template.sceneAttributes.SceneSingleSelectAttributeTemplate;
 import me.kendler.yanik.model.template.sceneAttributes.SceneTextAttributeTemplate;
 import me.kendler.yanik.model.template.shotAttributes.ShotTextAttributeTemplate;
 import me.kendler.yanik.repositories.template.SceneAttributeTemplateRepository;
@@ -80,7 +81,7 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
             motive.name = "Motive";
             shotAttributeTemplateRepository.persist(motive);
 
-            SceneTextAttributeTemplate location = new SceneTextAttributeTemplate(defaultTemplate);
+            SceneSingleSelectAttributeTemplate location = new SceneSingleSelectAttributeTemplate(defaultTemplate);
             location.name = "Location";
             sceneAttributeTemplateRepository.persist(location);
 

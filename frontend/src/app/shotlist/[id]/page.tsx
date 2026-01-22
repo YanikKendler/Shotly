@@ -656,7 +656,7 @@ export default function Shotlist() {
         }
 
         //the current user only has view access to the shotlist
-        (query.data.shotlist?.collaborations as CollaborationDto[]).forEach((collab: CollaborationDto) => {
+        (query.data.shotlist?.collaborations as CollaborationDto[])?.forEach((collab: CollaborationDto) => {
             if(collab?.user?.id == query.data.currentUser?.id && collab.collaborationType == CollaborationType.View) {
                 newState = {
                     isReadOnly: true,

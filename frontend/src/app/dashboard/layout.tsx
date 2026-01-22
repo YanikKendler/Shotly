@@ -389,7 +389,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                                 </> :
                                                 pendingCollaborations.data.pendingCollaborations && pendingCollaborations.data.pendingCollaborations.length <= 0 ?
                                                 <p className={"empty"}>No open collaboration requests</p> :
-                                                (pendingCollaborations.data.pendingCollaborations as CollaborationDto[]).map((collab) => (
+                                                (pendingCollaborations.data.pendingCollaborations as CollaborationDto[])?.map((collab) => (
                                                     <div key={collab.id} className={"collaborationRequest"}>
                                                         <p>
                                                             <span className={"bold"}>{collab.owner?.name}</span> has invited you to the shotlist <span className={"bold"}>{collab.shotlist?.name || "Unnamed"}</span>
