@@ -60,7 +60,7 @@ export default function ShotlistOptionsDialog({
     const [stringifiedAttributeData, setStringifiedAttributeData] = useState<string>("");
     const [dataChanged, setDataChanged] = useState(false);
     const [selectedMainPage, setSelectedMainPage] = useState<ShotlistOptionsDialogPage>(ShotlistOptionsDialogPage.general);
-    const [selectedSubPage, setSelectedSubPage] = useState<ShotlistOptionsDialogSubPage>(ShotlistOptionsDialogSubPage.shot);
+    const [selectedSubPage, setSelectedSubPage] = useState<ShotlistOptionsDialogSubPage>(ShotlistOptionsDialogSubPage.scene);
 
     const client = useApolloClient()
     const router = useRouter()

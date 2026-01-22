@@ -32,7 +32,7 @@ export default function AttributeTab(
         setShotAttributeDefinitions,
         sceneAttributeDefinitions,
         setSceneAttributeDefinitions,
-        selectedPage = ShotlistOptionsDialogSubPage.shot,
+        selectedPage = ShotlistOptionsDialogSubPage.scene,
         setSelectedPage,
         dataChanged
     }

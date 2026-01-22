@@ -66,9 +66,14 @@
           font-size: .9rem;
           font-weight: 600;
 
+          &:hover{
+            background-color: var(--hover-bg-accent-10);
+            color: var(--accent-15);
+          }
+
           &[data-state="active"] {
-            background-color: var(--accent-90);
-            color: var(--accent-30);
+            background-color: var(--accent-80);
+            color: var(--accent-10);
           }
         }
       }
