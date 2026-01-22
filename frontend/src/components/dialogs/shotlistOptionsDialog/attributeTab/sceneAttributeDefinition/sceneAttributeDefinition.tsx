@@ -35,6 +35,9 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
     const { confirm, ConfirmDialog } = useConfirmDialog();
     const client = useApolloClient()
 
+    const [markAsDeleted, setMarkAsDeleted] = useState(false)
+    const [deletingOptionIds, setDeletingOptionIds] = useState<number[]>([])
+
     useEffect(() => {
         setDefiniton(attributeDefinition)
     }, [attributeDefinition])
@@ -52,7 +55,9 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
             variables: {id: definition.id, name: newName},
         });
         if (errors) {
+            //TODO notify
             console.error(errors)
+            return
         }
 
         setDefiniton({
@@ -66,12 +71,12 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
     const debouncedUpdateDefinition = wuGeneral.debounce(updateDefinition)
 
     const deleteDefinition = async () => {
-
-
         if(!await confirm({
             message: `The attribute definition "${definition.name || 'unnamed'}" will be deleted. All scenes in this shotlist will lose the column "${definition.name || 'unnamed'}" and with that: all the values in that column.`,
             buttons: {confirm: {className: "bad"}}}
         )) return
+
+        setMarkAsDeleted(true)
 
         const { errors } = await client.mutate({
             mutation: gql`
@@ -85,11 +90,13 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
         });
 
         if(errors) {
+            //TODO notify
+            setMarkAsDeleted(false)
             console.error(errors)
+            return
         }
-        else{
-            onDelete(definition.id)
-        }
+
+        onDelete(definition.id)
     }
 
     const createSelectOption = async () => {
@@ -108,6 +115,7 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
         });
 
         if (errors) {
+            //TODO notify
             console.error(errors);
             return;
         }
@@ -126,6 +134,8 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
     }
 
     const deleteSelectOption = async (optionId: number) => {
+        setDeletingOptionIds(v => [...v, optionId])
+
         const { errors } = await client.mutate({
             mutation: gql`
                 mutation deleteSceneSelectAttributeOption($optionId: BigInteger!) {
@@ -138,7 +148,10 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
         });
 
         if(errors) {
+            //TODO notify
             console.error(errors)
+            setDeletingOptionIds(v => v.filter(id => id !== optionId))
+            return
         }
 
         let newOptions: SceneSelectAttributeOptionDefinition[] = (definition as SceneSingleOrMultiSelectAttributeDefinition)?.options?.filter(option => option?.id != optionId) as SceneSelectAttributeOptionDefinition[] || []
@@ -164,7 +177,9 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
             variables: {id: optionId, name: newName},
         });
         if(errors) {
+            //TODO notify
             console.error(errors)
+            return
         }
 
         let currentOptions = (definition as SceneSingleOrMultiSelectAttributeDefinition).options as SceneSelectAttributeOptionDefinition[]
@@ -191,7 +206,7 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
     if(!definition || !definition.id) return (<p>Loading...</p>)
 
     return (
-        <div className={"sceneAttributeDefinition"} ref={setNodeRef} style={style}>
+        <div className={`sceneAttributeDefinition ${markAsDeleted && "deleting"}`} ref={setNodeRef} style={style}>
             <div
                 className="grip"
                 ref={setActivatorNodeRef}
@@ -208,7 +223,7 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
                     <Popover.Portal>
                         <Popover.Content className="popoverContent editSceneAttributeOptionsPopup" sideOffset={5} align={"start"}>
                             {((definition as SceneSingleOrMultiSelectAttributeDefinition).options as SceneSelectAttributeOptionDefinition[])?.map((option, index) => (
-                                <div className="option" key={option.id}>
+                                <div className={`option ${deletingOptionIds.includes(option.id) && "deleting"}`} key={option.id}>
                                     <p>{index + 1}</p>
                                     <input
                                         type="text"

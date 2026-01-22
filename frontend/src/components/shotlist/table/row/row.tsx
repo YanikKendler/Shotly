@@ -47,7 +47,7 @@ const RowBase = forwardRef<RowRef, RowProps>(({
 
     const [isBeingEdited, setIsBeingEdited] = useState(false)
 
-    const [markAsDeletedInProgress, setMarkAsDeletedInProgress] = useState(false)
+    const [markAsDeleted, setMarkAsDeleted] = useState(false)
 
     useImperativeHandle(ref, () => ({
         closePopover
@@ -59,7 +59,7 @@ const RowBase = forwardRef<RowRef, RowProps>(({
 
     async function deleteShot(){
         shotlistContext.setSaveState("deleteShot", "saving")
-        setMarkAsDeletedInProgress(true)
+        setMarkAsDeleted(true)
 
         const { errors } = await client.mutate({
             mutation: gql`
@@ -79,7 +79,7 @@ const RowBase = forwardRef<RowRef, RowProps>(({
                 cause: errors
             })
             shotlistContext.setSaveState("deleteShot", "error")
-            setMarkAsDeletedInProgress(false)
+            setMarkAsDeleted(false)
             return
         }
 
@@ -90,7 +90,7 @@ const RowBase = forwardRef<RowRef, RowProps>(({
 
     return (
     <div
-        className={`sheetRow ${isBeingEdited && "active"} ${markAsDeletedInProgress && "deleting"}`}
+        className={`sheetRow ${isBeingEdited && "active"} ${markAsDeleted && "deleting"}`}
         data-shot-id={shot.id}
     >
         <Cell

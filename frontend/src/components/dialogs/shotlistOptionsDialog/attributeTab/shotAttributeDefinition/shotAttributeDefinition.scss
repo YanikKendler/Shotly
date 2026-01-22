@@ -11,6 +11,12 @@ div.shotAttributeDefinition{
   align-items: center;
   gap: .5rem;
 
+  &.deleting{
+    opacity: .4;
+    pointer-events: none;
+    user-select: none;
+  }
+
   .grip{
     cursor: pointer;
     color: var(--grip-color);
@@ -82,6 +88,12 @@ div.shotAttributeDefinition{
     align-items: center;
     gap: .5rem;
     padding-block: .25rem;
+
+    &.deleting{
+      opacity: .4;
+      pointer-events: none;
+      user-select: none;
+    }
 
     p{
       width: 2ch;

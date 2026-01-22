@@ -40,6 +40,9 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
     const { confirm, ConfirmDialog } = useConfirmDialog();
     const client = useApolloClient()
 
+    const [markAsDeleted, setMarkAsDeleted] = useState(false)
+    const [deletingOptionIds, setDeletingOptionIds] = useState<number[]>([])
+
     useEffect(() => {
         setDefinition(attributeDefinition)
     }, [attributeDefinition])
@@ -57,7 +60,9 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
             variables: {id: definition.id, name: newName},
         });
         if (errors) {
+            //TODO notify
             console.error(errors)
+            return
         }
 
         setDefinition({
@@ -76,6 +81,8 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
             buttons: {confirm: {className: "bad"}}}
         )) return
 
+        setMarkAsDeleted(true)
+
         const { errors } = await client.mutate({
             mutation: gql`
                 mutation deleteShotAttributeDefinition($definitionId: BigInteger!) {
@@ -88,11 +95,13 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
         });
 
         if(errors) {
+            //TODO notify
+            setMarkAsDeleted(false)
             console.error(errors)
+            return
         }
-        else{
-            onDelete(definition.id)
-        }
+
+        onDelete(definition.id)
     }
 
     const createSelectOption = async () => {
@@ -111,6 +120,7 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
         });
 
         if (errors) {
+            //TODO notify
             console.error(errors);
             return;
         }
@@ -129,6 +139,8 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
     }
 
     const deleteSelectOption = async (optionId: number) => {
+        setDeletingOptionIds(v => [...v, optionId])
+
         const { errors } = await client.mutate({
             mutation: gql`
                 mutation deleteShotSelectAttributeOption($optionId: BigInteger!) {
@@ -141,7 +153,10 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
         });
 
         if(errors) {
+            //TODO notify
             console.error(errors)
+            setDeletingOptionIds(v => v.filter(id => id !== optionId))
+            return
         }
 
         let newOptions: ShotSelectAttributeOptionDefinition[] = (definition as ShotSingleOrMultiSelectAttributeDefinition)?.options?.filter(option => option?.id != optionId) as ShotSelectAttributeOptionDefinition[] || []
@@ -167,7 +182,9 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
             variables: {id: optionId, name: newName},
         });
         if(errors) {
+            //TODO notify
             console.error(errors)
+            return
         }
 
         let currentOptions = (definition as ShotSingleOrMultiSelectAttributeDefinition).options as ShotSelectAttributeOptionDefinition[]
@@ -194,7 +211,7 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
     if(!definition || !definition.id) return (<p>Loading...</p>)
 
     return (
-        <div className={"shotAttributeDefinition"} ref={setNodeRef} style={style}>
+        <div className={`shotAttributeDefinition ${markAsDeleted && "deleting"}`} ref={setNodeRef} style={style}>
             <div
                 className="grip"
                 ref={setActivatorNodeRef}
@@ -216,7 +233,7 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
                     <Popover.Portal>
                         <Popover.Content className="popoverContent editShotAttributeOptionsPopup" sideOffset={5} align={"start"}>
                             {((definition as ShotSingleSelectAttributeDefinitionDto).options as ShotSelectAttributeOptionDefinition[])?.map((option, index) => (
-                                <div className="option" key={option.id}>
+                                <div className={`option ${deletingOptionIds.includes(option.id) && "deleting"}`} key={option.id}>
                                     <p>{index + 1}</p>
                                     <input
                                         type="text"

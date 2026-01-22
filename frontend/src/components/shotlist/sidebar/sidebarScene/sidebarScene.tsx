@@ -59,6 +59,8 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
 
     const attributeRefs = useRef<Map<number, SceneAttributeRef | null>>(new Map())
 
+    const [markAsDeleted, setMarkAsDeleted] = useState(false)
+
     useImperativeHandle(ref, () => ({
         closePopover: () => setEditMenuIsOpen(false),
         position: position,
@@ -90,6 +92,8 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
 
         shotlistContext.setSaveState("deleteScene", "saving")
 
+        setMarkAsDeleted(true)
+
         const { errors } = await client.mutate({
             mutation: gql`
                 mutation deleteScene($sceneId: String!) {
@@ -102,6 +106,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
         })
 
         if(errors) {
+            setMarkAsDeleted(false)
             shotlistContext.handleError({
                 locationKey: "deleteScene",
                 message: "Failed to the delete the scene.",
@@ -121,7 +126,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
 
     return (
         <div
-            className={`sidebarScene ${expanded ? 'expanded' : ''} ${editMenuIsOpen && "menuOpen"}`}
+            className={`sidebarScene ${expanded ? 'expanded' : ''} ${editMenuIsOpen && "menuOpen"} ${markAsDeleted && "deleting"}`}
             onClick={() => {
                 if(!shotlistContext.elementIsBeingDragged && !expanded)
                     onSelect(scene.id as string, position)

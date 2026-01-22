@@ -18,6 +18,12 @@
   transition: border .2s, color .2s;
   background-color: var(--sidebar-bg);
 
+  &.deleting{
+    opacity: .4;
+    user-select: none;
+    pointer-events: none;
+  }
+
   &:not(.expanded) {
     .name {
       color: var(--text-30);
