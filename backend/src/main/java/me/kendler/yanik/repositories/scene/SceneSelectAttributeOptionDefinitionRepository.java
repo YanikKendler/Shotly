@@ -74,8 +74,8 @@ public class SceneSelectAttributeOptionDefinitionRepository implements PanacheRe
         switch (sceneSelectAttributeOptionDefinition.sceneAttributeDefinition){
             case SceneMultiSelectAttributeDefinition attributeDefinition: {
                 List<SceneMultiSelectAttribute> relevantAttributes = getEntityManager()
-                        .createQuery("select sa from SceneMultiSelectAttribute sa where sa.definition = :definition", SceneMultiSelectAttribute.class)
-                        .setParameter("definition", attributeDefinition)
+                        .createQuery("select sa from SceneMultiSelectAttribute sa where :option MEMBER OF sa.value", SceneMultiSelectAttribute.class)
+                        .setParameter("option", sceneSelectAttributeOptionDefinition)
                         .getResultList();
 
                 for (SceneMultiSelectAttribute relevantAttribute : relevantAttributes) {
@@ -85,8 +85,8 @@ public class SceneSelectAttributeOptionDefinitionRepository implements PanacheRe
                 break;
             }
             case SceneSingleSelectAttributeDefinition attributeDefinition: {
-                getEntityManager().createQuery("update SceneSingleSelectAttribute sa set sa.value = null where sa.definition = :definition")
-                        .setParameter("definition", attributeDefinition)
+                getEntityManager().createQuery("update SceneSingleSelectAttribute sa set sa.value = null where sa.value = :option")
+                        .setParameter("option", sceneSelectAttributeOptionDefinition)
                         .executeUpdate();
                 break;
             }

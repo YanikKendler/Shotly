@@ -85,8 +85,8 @@ public class ShotSelectAttributeOptionDefinitionRepository implements PanacheRep
         switch (shotSelectAttributeOptionDefinition.shotAttributeDefinition){
             case ShotMultiSelectAttributeDefinition attributeDefinition: {
                 List<ShotMultiSelectAttribute> relevantAttributes = getEntityManager()
-                        .createQuery("select sa from ShotMultiSelectAttribute sa where sa.definition = :definition", ShotMultiSelectAttribute.class)
-                        .setParameter("definition", attributeDefinition)
+                        .createQuery("select sa from ShotMultiSelectAttribute sa where :option MEMBER OF sa.value", ShotMultiSelectAttribute.class)
+                        .setParameter("option", shotSelectAttributeOptionDefinition)
                         .getResultList();
 
                 for (ShotMultiSelectAttribute relevantAttribute : relevantAttributes) {
@@ -95,8 +95,8 @@ public class ShotSelectAttributeOptionDefinitionRepository implements PanacheRep
                 break;
             }
             case ShotSingleSelectAttributeDefinition attributeDefinition: {
-                getEntityManager().createQuery("update ShotSingleSelectAttribute sa set sa.value = null where sa.definition = :definition")
-                        .setParameter("definition", attributeDefinition)
+                getEntityManager().createQuery("update ShotSingleSelectAttribute sa set sa.value = null where sa.value = :option")
+                        .setParameter("option", shotSelectAttributeOptionDefinition)
                         .executeUpdate();
                 break;
             }
