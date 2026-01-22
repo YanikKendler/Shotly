@@ -42,18 +42,20 @@ const CellTextInput = forwardRef<CellInputRef, CellTextInputProps>(
         }
     }))
 
-    const setFocus = () => {
+    const setFocus = (fromClick:boolean = false) => {
         if(!inputRef.current) return
 
         inputRef.current.focus()
 
-        //set the cursor to the end of the text
-        const range = document.createRange()
-        range.selectNodeContents(inputRef.current)
-        range.collapse(false)
-        const sel = window.getSelection()
-        sel?.removeAllRanges()
-        sel?.addRange(range)
+        if(!fromClick){
+            //set the cursor to the end of the text
+            const range = document.createRange()
+            range.selectNodeContents(inputRef.current)
+            range.collapse(false)
+            const sel = window.getSelection()
+            sel?.removeAllRanges()
+            sel?.addRange(range)
+        }
     }
 
     const updateTextValue = () => {
@@ -178,7 +180,7 @@ const CellTextInput = forwardRef<CellInputRef, CellTextInputProps>(
     return (
         <div
             className="cellInput"
-            onClick={setFocus}
+            onClick={() => setFocus(true)}
         >
             <p
                 className={"text"}

@@ -25,7 +25,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
                 forceUpdate()
         } catch (err: any) {
             if (err.error === 'login_required') {
-                auth.login();
+                auth.logout();
                 return;
             }
             console.error('Silent auth error:', err.error);
