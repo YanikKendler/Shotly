@@ -181,4 +181,12 @@ main.template{
     color: var(--text-20);
     font-weight: 500;
   }
+
+  a{
+    text-decoration: underline;
+
+    &:hover{
+      color: var(--accent-40);
+    }
+  }
 }

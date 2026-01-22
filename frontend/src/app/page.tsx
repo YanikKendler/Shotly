@@ -210,13 +210,13 @@ export default function Landing() {
                             </div>
                             <h2>Source Available</h2>
                             <p>All the code is public on GitHub - self host your shotlists or add your own features.</p>
-                            <a
+                            <Link
                                 href="https://github.com/YanikKendler/Shotly/blob/main/README.md##License"
                                 className={"noPadding"}
                                 target={"_blank"}
                             >
                                 Learn more
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </section>
@@ -276,7 +276,7 @@ export default function Landing() {
                             <button className="select filled" onClick={() => Auth.loginForPro()}>Choose Pro</button>
                         </div>
                     </div>
-                    <a href="/freeForStudents" className={"freeForStudents"}>Shotly for Students</a>
+                    <Link href="/freeForStudents" className={"freeForStudents"}>Shotly for Students</Link>
                 </section>
                 <footer>
                     <div className={"credits"}>

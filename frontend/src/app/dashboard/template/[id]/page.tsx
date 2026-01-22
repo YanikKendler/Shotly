@@ -43,6 +43,7 @@ import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialog
 import {driver} from "driver.js"
 import Skeleton from "react-loading-skeleton"
 import auth from "@/Auth"
+import SimplePopover from "@/components/popover/simplePopover"
 
 export default function Template (){
     const params = useParams<{ id: string }>()
@@ -67,7 +68,7 @@ export default function Template (){
         allowClose: true,
         steps: [
             { popover: { title: 'Templates', description: 'Templates store any number of attributes for scenes and shotlists. A template can be selected when creating a new shotlist.' } },
-            { element: '.attributeTemplates', popover: { title: 'Shot Attributes', description: `Every shotlist that is created based on this template will automatically have a "${query.data.template?.shotAttributes?.at(0)?.name}" column.`, side: "left", align: 'center' }},
+            { element: '.attributeTemplates', popover: { title: 'Shot Attributes', description: `Every shotlist that is created based on this template will automatically have all the attributes that are defined here.`, side: "left", align: 'center' }},
             { element: '.infoTrigger', popover: { title: 'More info', description: 'You can always click here to read up on templates.', side: "bottom", align: 'center' }},
             { element: 'button.add', popover: { description: 'Click here to add a new shot attribute to this template.', side: "bottom", align: 'center' }},
         ]
@@ -440,30 +441,82 @@ export default function Template (){
                     }
                 </h2>
 
-                <Popover.Root defaultOpen={false}>
-                    <Popover.Trigger className={"noClickFx default infoTrigger"}>
-                        <span>More on templates</span>
-                        <Info size={18}/>
-                    </Popover.Trigger>
-                    <Popover.Portal>
-                        <Popover.Content className="popoverContent templateInfo" sideOffset={5}>
-                            <p>
-                                <span className="dark">Templates can be selected when creating a shotlist so that you don't have to create the same attributes over and over again.</span>
-                                <br/>
-                                <br/>
-                                None of the changes made to this templated will be reflected in existing shotlists.
-                                Every shotlist manages its own attributes, only those that are created based on this
-                                template <i>after</i> it has been edited will use the updated attributes.
-                            </p>
-                        </Popover.Content>
-                    </Popover.Portal>
-                </Popover.Root>
+                <SimplePopover
+                    content={
+                        <p>
+                            <span className="dark">Templates can be selected when creating a shotlist so that you don't have to create the same attributes over and over again.</span>
+                            <br/>
+                            <br/>
+                            None of the changes made to this templated will be reflected in existing shotlists.
+                            Every shotlist manages its own attributes, only those that are created based on this
+                            template <i>after</i> it has been edited will use the updated attributes.
+                            <br/>
+                            <br/>
+                            <Link href={"https://docs.shotly.at/templates"} target={"_blank"} className={"inline"}>Template Documentation</Link>
+                        </p>
+                    }
+                    className={"noClickFx default infoTrigger"}
+                    contentClassName={"popoverContent templateInfo"}
+                >
+                    <span>More on templates</span>
+                    <Info size={18}/>
+                </SimplePopover>
 
                 <button className="delete bad" onClick={deleteTemplate}>
                     <span>Delete template</span>
                     <Trash size={18}/>
                 </button>
             </div>
+
+            <h3>Scene attributes</h3>
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleSceneDragEnd}
+            >
+                <SortableContext
+                    items={query.data.template?.sceneAttributes?.map(def => def!.id) || []}
+                    strategy={verticalListSortingStrategy}
+                >
+                    {
+                        query.loading ?
+                            <div style={{display: 'flex', flexDirection: 'column'}}>
+                                <Skeleton height="2rem" count={2}/>
+                            </div> :
+                            query.data.template && query.data.template.sceneAttributes && query.data.template.sceneAttributes.length > 0 &&
+                            (<div className="attributeTemplates">
+                                {(query.data.template.sceneAttributes as SceneAttributeTemplateBase[]).map(attr =>
+                                    <SceneAttributeTemplate attributeTemplate={attr} onDelete={removeSceneAttributeTemplate}
+                                                            key={attr.id}/>
+                                )}
+                            </div>)
+                    }
+                </SortableContext>
+            </DndContext>
+            {
+                query.loading ?
+                    <Skeleton height="2rem" count={2}/> :
+                    <Popover.Root>
+                        <Popover.Trigger className={"add"}>Add scene attribute <Plus size={20}/></Popover.Trigger>
+                        <Popover.Portal>
+                            <Popover.Content className="popoverContent addAttributeTemplatePopup" sideOffset={5}
+                                             align={"start"}>
+                                <button onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneTextAttribute)}>
+                                    <Type size={16} strokeWidth={3}/>Text
+                                </button>
+                                <button
+                                    onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneSingleSelectAttribute)}>
+                                    <ChevronDown size={16} strokeWidth={3}/>Single select
+                                </button>
+                                <button
+                                    onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneMultiSelectAttribute)}>
+                                    <List size={16} strokeWidth={3}/>Multi select
+                                </button>
+                            </Popover.Content>
+                        </Popover.Portal>
+                    </Popover.Root>
+            }
+
             <h3>Shot attributes</h3>
             <DndContext
                 sensors={sensors}
@@ -513,54 +566,6 @@ export default function Template (){
                 </Popover.Root>
             }
 
-            <h3>Scene attributes</h3>
-            <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleSceneDragEnd}
-            >
-                <SortableContext
-                    items={query.data.template?.sceneAttributes?.map(def => def!.id) || []}
-                    strategy={verticalListSortingStrategy}
-                >
-                    {
-                        query.loading ?
-                        <div style={{display: 'flex', flexDirection: 'column'}}>
-                            <Skeleton height="2rem" count={2}/>
-                        </div> :
-                        query.data.template && query.data.template.sceneAttributes && query.data.template.sceneAttributes.length > 0 &&
-                        (<div className="attributeTemplates">
-                            {(query.data.template.sceneAttributes as SceneAttributeTemplateBase[]).map(attr =>
-                                <SceneAttributeTemplate attributeTemplate={attr} onDelete={removeSceneAttributeTemplate}
-                                                        key={attr.id}/>
-                            )}
-                        </div>)
-                    }
-                </SortableContext>
-            </DndContext>
-            {
-                query.loading ?
-                <Skeleton height="2rem" count={2}/> :
-                <Popover.Root>
-                    <Popover.Trigger className={"add"}>Add scene attribute <Plus size={20}/></Popover.Trigger>
-                    <Popover.Portal>
-                        <Popover.Content className="popoverContent addAttributeTemplatePopup" sideOffset={5}
-                                         align={"start"}>
-                            <button onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneTextAttribute)}>
-                                <Type size={16} strokeWidth={3}/>Text
-                            </button>
-                            <button
-                                onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneSingleSelectAttribute)}>
-                                <ChevronDown size={16} strokeWidth={3}/>Single select
-                            </button>
-                            <button
-                                onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneMultiSelectAttribute)}>
-                                <List size={16} strokeWidth={3}/>Multi select
-                            </button>
-                        </Popover.Content>
-                    </Popover.Portal>
-                </Popover.Root>
-                }
             {ConfirmDialog}
         </main>
     )

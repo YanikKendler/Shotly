@@ -11,6 +11,7 @@ import {TemplateDto, UserDto, UserTier} from "../../../../lib/graphql/generated"
 import SimpleSelect from "@/components/inputs/simpleSelect/simpleSelect"
 import {SelectOption} from "@/util/Types"
 import {useRouter} from "next/navigation"
+import Link from "next/link"
 
 export function useCreateShotlistDialog() {
     const [isOpen, setIsOpen] = useState(false);
@@ -113,7 +114,7 @@ export function useCreateShotlistDialog() {
                 >
                     cancel
                 </button>
-                <a className={"accent confirm"} href="/pro">Choose Pro</a>
+                <Link className={"accent confirm"} href="/pro">Choose Pro</Link>
             </div>
         </>
     else if (isCreating)

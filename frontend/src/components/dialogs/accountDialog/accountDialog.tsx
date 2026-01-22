@@ -277,7 +277,7 @@ export function useAccountDialog() {
                                 query.data.currentUser?.tier == UserTier.Basic ?
                                     query.data.currentUser?.hasCancelled == true ?
                                         <button onClick={PaymentService.manageSubscription}>Renew subscription</button> :
-                                        <a className={"accent"} href={"/pro"}>Upgrade to Pro</a> :
+                                        <Link className={"accent"} href={"/pro"}>Upgrade to Pro</Link> :
                                     query.data.currentUser?.tier == UserTier.Pro ?
                                         <button onClick={PaymentService.manageSubscription}>Manage subscription</button> :
                                         query.data.currentUser?.tier == UserTier.ProStudent ?

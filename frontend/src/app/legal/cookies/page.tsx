@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 export default function Cookies(){
     return (
         <>
@@ -30,8 +32,8 @@ export default function Cookies(){
                     color: "var(--text-60)",
                     textAlign: "center"
                 }}>
-                    Cookie by Hilmy Abiyyu Asad from <a className={"inline"} style={{color: "var(--text-50)"}} href="https://thenounproject.com/browse/icons/term/cookie/" target="_blank" title="cookie Icons">Noun Project</a> (CC BY 3.0)<br/>
-                    Cookie added for <a className={"inline"} style={{color: "var(--text-50)"}} href="https://https://michael.leisch.me/">Michael Leisch</a> from Austria :3
+                    Cookie by Hilmy Abiyyu Asad from <Link className={"inline"} style={{color: "var(--text-50)"}} href="https://thenounproject.com/browse/icons/term/cookie/" target="_blank" title="cookie Icons">Noun Project</Link> (CC BY 3.0)<br/>
+                    Cookie added for <Link className={"inline"} style={{color: "var(--text-50)"}} href="https://https://michael.leisch.me/">Michael Leisch</Link> from Austria :3
                 </p>
             </div>
         </>
