@@ -22,6 +22,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -31,6 +32,9 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
 
     @Inject
     TemplateRepository templateRepository;
+
+    @Inject
+    CollaborationRepository collaborationRepository;
 
     @Inject
     ShotAttributeTemplateRepository shotAttributeTemplateRepository;
@@ -73,6 +77,8 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         } else {
             User newUser = new User(auth0Sub, jwt.getClaim("name"), jwt.getClaim("email"));
             persist(newUser);
+            flush();
+
             LOGGER.infof("Created new user: %s", newUser.toString());
             Template defaultTemplate = new Template(newUser, "Default");
             templateRepository.persist(defaultTemplate);
@@ -114,15 +120,27 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     @Transactional
     public User delete(JsonWebToken jwt) {
         User user = findOrCreateByJWT(jwt);
+
         LOGGER.infof("Deleting user: %s", user.toString());
-        auth0Service.deleteUser(user.auth0Sub);
+
+        List<Collaboration> relevantCollaborations = collaborationRepository.find("user.id = ?1", user.id).list();
+
         for (Shotlist shotlist : user.shotlists) {
             shotlistRepository.delete(shotlist.id);
         }
         for (Template template : user.templates) {
             templateRepository.delete(template.id);
         }
-        delete(user);
+        for (Collaboration collaboration : relevantCollaborations) {
+            collaborationRepository.delete(collaboration.id);
+        }
+
+        getEntityManager().createNativeQuery("DELETE FROM app_user WHERE id = ?1")
+                .setParameter(1, user.id)
+                .executeUpdate();
+
+        auth0Service.deleteUser(user.auth0Sub);
+
         return user;
     }
 
