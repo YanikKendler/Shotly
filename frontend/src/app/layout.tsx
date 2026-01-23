@@ -5,10 +5,11 @@ import {ApolloWrapper} from "@/components/wrapper/ApolloWrapper"
 import {Inter} from 'next/font/google'
 import {Toast, Tooltip} from "radix-ui"
 import AuthWrapper from "@/components/wrapper/AuthWrapper"
-import NotificationWrapper from "@/components/wrapper/NotificationWrapper"
 import Config from "@/util/Config"
 import {Metadata, Viewport} from "next"
 import {SkeletonTheme} from "react-loading-skeleton"
+import {Toaster} from "react-hot-toast"
+import {CircleAlert, CircleCheck} from "lucide-react"
 
 export const metadata: Metadata = {
     title: "Shotly | Shotlist creation made easy",
@@ -109,23 +110,34 @@ export default function RootLayout({
             })()`}}/>
         </head>
         <body>
-            <Toast.Provider>
-                <div className="root">
-                    {(Config.mode === "dev-deployment") && <div className="infoBanner">You are currently viewing a dev deployment</div>}
-                    <AuthWrapper> {/*should be the outermost*/}
-                        <ApolloWrapper> {/*should also be out*/}
-                            <NotificationWrapper>
-                                <Tooltip.Provider>
-                                    <SkeletonTheme baseColor="var(--skelleton-base-color)" highlightColor="var(--skelleton-highlight-color)">
-                                        {children}
-                                    </SkeletonTheme>
-                                </Tooltip.Provider>
-                            </NotificationWrapper>
-                        </ApolloWrapper>
-                    </AuthWrapper>
-                </div>
-                <Toast.Viewport className="ToastViewport" />
-            </Toast.Provider>
+            <div className="root">
+                {(Config.mode === "dev-deployment") && <div className="infoBanner">You are currently viewing a dev deployment</div>}
+                <AuthWrapper> {/*should be the outermost*/}
+                    <ApolloWrapper> {/*should also be out*/}
+                        <Tooltip.Provider>
+                            <SkeletonTheme baseColor="var(--skelleton-base-color)" highlightColor="var(--skelleton-highlight-color)">
+                                {children}
+                            </SkeletonTheme>
+                        </Tooltip.Provider>
+                    </ApolloWrapper>
+                </AuthWrapper>
+            </div>
+            <Toaster
+                position={"bottom-center"}
+                containerStyle={{fontSize: ".9rem"}}
+                toastOptions={{
+                    className: "toast",
+                    error: {
+                        className: "toast error",
+                        icon: <CircleAlert/>,
+                        duration: 10000
+                    },
+                    success: {
+                        className: "toast success",
+                        icon: <CircleCheck />
+                    },
+                }}
+            />
         </body>
         </html>
     )

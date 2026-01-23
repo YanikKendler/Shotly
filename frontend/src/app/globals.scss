@@ -27,6 +27,7 @@
   --bad-70: hsl(0, 70%, 75%);
   --bad-80: hsl(0, 80%, 82%);
   --bad-90: hsl(0, 80%, 90%);
+  --bad-95: hsl(0, 90%, 95%);
 
   --good-10: hsl(120, 25%, 10%);
   --good-20: hsl(120, 25%, 20%);
@@ -87,6 +88,7 @@
   --switch-knob-focused-bg: hsl(0, 0%, 30%);
   --switch-knob-hover-bg: hsl(0, 0%, 15%);
 
+  --toast-bg: hsl(0, 0%, 100%);
 
   --sidebar-width: 400px;
   --shotAttribute-width: calc(10rem * var(--shotlist-scale));
@@ -114,6 +116,7 @@
   --collaborator: hsl(48, 90%, 65%);
   --collaborator-text: hsl(48, 20%, 70%);
 
+  --bad-95: hsl(0, 90%, 5%);
   --bad-90: hsl(0, 85%, 10%);
   --bad-80: hsl(0, 80%, 20%);
   --bad-70: hsl(0, 75%, 35%);
@@ -182,6 +185,8 @@
   --switch-knob-bg: hsl(0, 0%, 80%);
   --switch-knob-focused-bg: hsl(0, 0%, 100%);
   --switch-knob-hover-bg: hsl(0, 0%, 100%);
+
+  --toast-bg: hsl(0, 0%, 0%);
 
   color-scheme: dark;
 }
@@ -863,6 +868,46 @@ body button.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot {
     &:not([data-state="checked"]) .SwitchThumb{
       background-color: var(--switch-knob-hover-bg);
     }
+  }
+}
+
+// style react-hot-toast
+
+
+body .toast{
+  background-color: var(--toast-bg);
+  color: var(--text);
+
+  &.error{
+    background-color: var(--bad-95);
+
+    svg{
+      color: var(--bad);
+    }
+  }
+
+  &.success{
+    background-color: var(--good-80);
+
+    svg{
+      color: var(--good);
+    }
+  }
+
+  .title{
+    font-weight: bold;
+  }
+
+  .message{
+    font-size: .8rem;
+    color: var(--text-40);
+  }
+
+  .sub{
+    font-size: .8rem;
+    color: var(--text-20);
+    margin-top: .2rem;
+    font-weight: bold;
   }
 }
 

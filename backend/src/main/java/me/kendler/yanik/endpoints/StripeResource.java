@@ -44,7 +44,7 @@ public class StripeResource {
             session = stripeService.createCheckoutSession(req.lookupKey(), jwt);
             return Response.ok(new StripeSessionResponse(session.getUrl())).build();
         } catch (ShotlyException e) {
-            return Response.serverError().build();
+            return Response.serverError().entity(e).build();
         }
     }
 
@@ -57,7 +57,7 @@ public class StripeResource {
             return Response.ok(new StripeSessionResponse(portal.getUrl())).build();
         }
         catch (ShotlyException e){
-            return Response.serverError().build();
+            return Response.serverError().entity(e).build();
         }
     }
 

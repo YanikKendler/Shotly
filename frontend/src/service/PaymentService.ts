@@ -1,33 +1,32 @@
 import Config from "@/util/Config"
 import Auth from "@/Auth"
-
-//TODO error handling and user notifications
+import {errorNotification} from "@/service/NotificationService"
 
 export default class PaymentService {
-    static manageSubscription() {
-        fetch(`${Config.backendURL}/stripe/create-portal-session`, {
+    static async manageSubscription() {
+        const res = await fetch(`${Config.backendURL}/stripe/create-portal-session`, {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${Auth.getIdToken()}`
             }
         })
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error(`Server returned status ${res.status}`);
-                }
-                return res.json();
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            errorNotification({
+                message: data.message,
+                title: "Could not redirect to billing portal",
+                sub: "Please contact yanik.kendler@gmail.com."
             })
-            .then(data => {
-                window.location.href = data.url;
-            })
-            .catch(err => {
-                //TODO notification
-                console.error("Error:", err)
-            });
+            return
+        }
+
+        window.location.href = data.url
     }
 
-    static subscribeToPro() {
-        fetch(`${Config.backendURL}/stripe/create-checkout-session`, {
+    static async subscribeToPro() {
+        const res = await fetch(`${Config.backendURL}/stripe/create-checkout-session`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -38,18 +37,18 @@ export default class PaymentService {
                 lookupKey: "shotly_pro_monthly"
             }),
         })
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error(`Server returned status ${res.status}`);
-                }
-                return res.json();
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            errorNotification({
+                message: data.message,
+                title: "Could not redirect to billing portal",
+                sub: "Please contact yanik.kendler@gmail.com."
             })
-            .then(data => {
-                window.location.href = data.url;
-            })
-            .catch(err => {
-                //TODO notification
-                console.error("Error:", err)
-            });
+            return
+        }
+
+        window.location.href = data.url
     }
 }

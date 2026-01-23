@@ -12,7 +12,6 @@ import {RadioGroup, Switch, VisuallyHidden} from "radix-ui"
 import TextField from "@/components/inputs/textField/textField"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
 import Loader from "@/components/feedback/loader/loader"
-import {NotificationContext} from "@/context/NotificationContext"
 import Link from "next/link"
 import PaymentService from "@/service/PaymentService"
 import Config from "@/util/Config"
@@ -24,6 +23,7 @@ import Separator from "@/components/separator/separator";
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import {wuTime} from "@yanikkendler/web-utils"
 import Utils from "@/util/Utils"
+import toast from "react-hot-toast"
 
 export interface UserSettings {
     saveExportSettingsInLocalstorage: boolean
@@ -35,7 +35,6 @@ export interface UserSettings {
 export function useAccountDialog() {
     const client = useApolloClient()
     const {confirm, ConfirmDialog} = useConfirmDialog()
-    const notificationContext = useContext(NotificationContext)
 
     const [isOpen, setIsOpen] = useState(false);
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult);
@@ -164,10 +163,7 @@ export function useAccountDialog() {
             return;
         }
 
-        notificationContext.notify({
-            title: "Password reset request sent",
-            message: `Please check your email: "${query.data.currentUser?.email}" for a link to reset your password.`,
-        })
+        toast(`Please check your email: "${query.data.currentUser?.email}" for a link to reset your password.`)
 
         setTimeout(() => {
             setPasswordResetDisabled(false)

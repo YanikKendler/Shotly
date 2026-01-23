@@ -12,7 +12,7 @@ import {
     UserTier
 } from "../../../../lib/graphql/generated"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
-import {Check, House, LoaderCircle, Menu, X} from "lucide-react"
+import {Check, CircleAlert, House, LoaderCircle, Menu, X} from "lucide-react"
 import './shotlist.scss'
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import {ShotlistContext} from "@/context/ShotlistContext"
@@ -39,11 +39,11 @@ import {
     UserMinimalDTO,
     UserPayload
 } from "@/service/ShotlistSyncService"
-import {NotificationContext} from "@/context/NotificationContext"
 import HelpLink from "@/components/helpLink/helpLink"
 import Link from "next/link"
 import DotLoader from "@/components/DotLoader"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
+import toast from "react-hot-toast"
 
 export interface SelectedScene {
     id: string | null
@@ -61,7 +61,6 @@ export default function Shotlist() {
     const client = useApolloClient()
     const router = useRouter()
     const syncService = useRef<ShotlistSyncService | null>(null)
-    const notificationContext = useContext(NotificationContext)
     const searchParams = useSearchParams()
     const params = useParams<{ id: string }>()
 
@@ -310,11 +309,12 @@ export default function Shotlist() {
     const handleShotlistError = (error: GenericError) => {
         console.error(error)
 
-        notificationContext.notify({
-            type: "error",
-            title: `Oh no, an error occurred at "${error.locationKey}".`,
-            message: error.message,
-        })
+        toast.error((t) => (
+            <div>
+                <p className="title">{`Oh no, an error occurred at "${error.locationKey}".`}</p>
+                <p className="message">{error.message}</p>
+            </div>
+        ))
     }
 
     const setSaveState = (key: string, state: SaveState) => {
