@@ -24,6 +24,7 @@ import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import {wuTime} from "@yanikkendler/web-utils"
 import Utils from "@/util/Utils"
 import toast from "react-hot-toast"
+import {errorNotification} from "@/service/NotificationService"
 
 export interface UserSettings {
     saveExportSettingsInLocalstorage: boolean
@@ -126,12 +127,13 @@ export function useAccountDialog() {
         })
 
         if(result.error) {
-            //TODO notify
+            errorNotification({
+                title: "Failed to load user data",
+                tryAgainLater: true
+            })
             console.error("Error fetching current user:", result.error)
             return
         }
-
-        console.log(result.data.currentUser)
 
         setQuery(result)
     }
@@ -158,6 +160,10 @@ export function useAccountDialog() {
         )
 
         if(errors) {
+            errorNotification({
+                title: "Failed to send password reset request",
+                tryAgainLater: true
+            })
             console.error("Error resetting password:", errors);
             setPasswordResetDisabled(false)
             return;
@@ -197,6 +203,10 @@ export function useAccountDialog() {
         )
 
         if(errors) {
+            errorNotification({
+                title: "Failed to delete account",
+                tryAgainLater: true
+            })
             console.error("Error deleting account:", errors);
             return;
         }
@@ -222,7 +232,10 @@ export function useAccountDialog() {
         )
 
         if(errors) {
-            //TODO notify
+            errorNotification({
+                title: "Failed to update username",
+                tryAgainLater: true
+            })
             console.error("Error updating usename:", errors);
             return;
         }

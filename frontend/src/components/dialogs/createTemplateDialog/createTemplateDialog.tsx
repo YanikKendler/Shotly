@@ -9,6 +9,7 @@ import auth from "@/Auth"
 import {useRouter} from "next/navigation"
 import TextField from "@/components//inputs/textField/textField"
 import Loader from "@/components/feedback/loader/loader"
+import {errorNotification} from "@/service/NotificationService"
 
 export function useCreateTemplateDialog() {
     const [isOpen, setIsOpen] = useState(false);
@@ -43,6 +44,16 @@ export function useCreateTemplateDialog() {
                 variables: {name: name}
             },
         )
+
+        if(errors){
+            errorNotification({
+                title: "Failed to create template",
+                tryAgainLater: true
+            })
+            console.error(errors)
+            return
+        }
+
         router.push(`/dashboard/template/${data.createTemplate.id}`)
         promiseResolver?.(true)
     }

@@ -10,6 +10,7 @@ import TextField from "@/components//inputs/textField/textField"
 import Loader from "@/components/feedback/loader/loader"
 import Separator from "@/components/separator/separator"
 import DotLoader from "@/components/DotLoader"
+import {errorNotification} from "@/service/NotificationService"
 
 export default function GeneralTab({
     shotlist,
@@ -49,6 +50,10 @@ export default function GeneralTab({
         });
 
         if (errors) {
+            errorNotification({
+                title: "Failed to update shotlist name",
+                tryAgainLater: true
+            })
             console.error(errors);
             return;
         }
@@ -94,7 +99,10 @@ export default function GeneralTab({
         });
 
         if(errors) {
-            //TODO notify
+            errorNotification({
+                title: "Failed to delete shotlist",
+                tryAgainLater: true
+            })
             console.error(errors)
             setDeleting(false)
         }

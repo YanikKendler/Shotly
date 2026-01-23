@@ -16,6 +16,7 @@ import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import Config from "@/util/Config"
 import Separator from "@/components/separator/separator"
 import {wuTime} from "@yanikkendler/web-utils"
+import {errorNotification} from "@/service/NotificationService"
 
 export default function Pro(){
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -55,6 +56,10 @@ export default function Pro(){
         })
 
         if(result.error || !result.data.currentUser || !result.data.currentUser.id) {
+            errorNotification({
+                title: "Failed to load user data",
+                tryAgainLater: true
+            })
             console.error("Error fetching current user:", result.error);
             router.push("/");
             Auth.logout();

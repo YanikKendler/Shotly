@@ -44,6 +44,7 @@ import Link from "next/link"
 import DotLoader from "@/components/DotLoader"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import toast from "react-hot-toast"
+import {errorNotification} from "@/service/NotificationService"
 
 export interface SelectedScene {
     id: string | null
@@ -309,12 +310,10 @@ export default function Shotlist() {
     const handleShotlistError = (error: GenericError) => {
         console.error(error)
 
-        toast.error((t) => (
-            <div>
-                <p className="title">{`Oh no, an error occurred at "${error.locationKey}".`}</p>
-                <p className="message">{error.message}</p>
-            </div>
-        ))
+        errorNotification({
+            title: `Oh no, an error occurred at "${error.locationKey}".`,
+            message: error.message
+        })
     }
 
     const setSaveState = (key: string, state: SaveState) => {
@@ -392,7 +391,10 @@ export default function Shotlist() {
             let updateDTO = JSON.parse(message.data) as ShotlistUpdateDTO
 
             if(!updateDTO) {
-                //TODO notify user
+                errorNotification({
+                    title: "Could not sync incoming changes.",
+                    sub: "Try refreshing the page to fix the issue",
+                })
                 return
             }
 

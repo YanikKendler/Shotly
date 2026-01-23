@@ -1,5 +1,6 @@
 import auth0, {Auth0DecodedHash, Auth0ParseHashError, WebAuth} from 'auth0-js';
 import Config from "@/util/Config"
+import {errorNotification} from "@/service/NotificationService"
 
 export interface AuthUser {
     email: string;
@@ -89,17 +90,29 @@ class Auth {
         return new Promise<string>((resolve, reject) => {
             this.auth0.parseHash({ hash: window.location.hash }, (error: Auth0ParseHashError | null, authResult: CustomAuthResult | null) => {
                 if (error) {
-                    reject(error)
                     console.error(error)
+                    errorNotification({
+                        title: "Authentication failed",
+                        sub: "Please reload the page and log in again."
+                    })
+                    reject(error)
                 }
 
                 if(!authResult) {
+                    errorNotification({
+                        title: "Authentication failed",
+                        sub: "Please reload the page and log in again."
+                    })
                     return reject("authResult is null")
                 }
 
                 this.setSession(authResult)
 
                 if(!authResult.accessToken) {
+                    errorNotification({
+                        title: "Authentication failed",
+                        sub: "Please reload the page and log in again."
+                    })
                     return reject("missing accessToken")
                 }
 
@@ -113,12 +126,20 @@ class Auth {
     setSession(authResult: Auth0DecodedHash) {
         if(!authResult || !authResult.idToken) {
             console.error("missing id token")
+            errorNotification({
+                title: "Authentication failed",
+                sub: "Please reload the page and log in again."
+            })
             return
         }
         this.idToken = authResult.idToken;
 
         if(!authResult.idTokenPayload.sub || !authResult.idTokenPayload.email || !authResult.idTokenPayload.name){
             console.error("missing data in id token payload")
+            errorNotification({
+                title: "Authentication failed",
+                sub: "Please reload the page and log in again."
+            })
             return
         }
 
@@ -131,13 +152,23 @@ class Auth {
     }
 
     silentAuth() {
-        if(!this.isAuthenticated()) return null
+        if(!this.isAuthenticated()) {
+            errorNotification({
+                title: "Silent authentication failed",
+                sub: "Please reload the page and log in again."
+            })
+            return null
+        }
 
         return new Promise<Auth0DecodedHash>((resolve, reject) => {
             this.auth0.checkSession({}, (err, authResult) => {
                 if (err) {
                     console.error(err)
                     localStorage.removeItem(Config.localStorageKey.isLoggedIn);
+                    errorNotification({
+                        title: "Silent authentication failed",
+                        sub: "Please reload the page and log in again."
+                    })
                     return reject(err);
                 }
                 this.setSession(authResult);

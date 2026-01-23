@@ -98,7 +98,7 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
         }
 
         if(currentUser.tier == UserTier.BASIC && shotlist.collaborations.size() >= 5){
-            throw new ShotlyException("Basic users can only have one shotlist", ShotlyErrorCode.COLLABORATOR_LIMIT_REACHED);
+            throw new ShotlyException("Basic users can only have 5 collaborators", ShotlyErrorCode.COLLABORATOR_LIMIT_REACHED);
         }
 
         List<UUID> existingCollaboratorIds = shotlist.collaborations.stream().map(c -> c.user.id).toList();

@@ -12,6 +12,7 @@ import SimpleSelect from "@/components/inputs/simpleSelect/simpleSelect"
 import {SelectOption} from "@/util/Types"
 import {useRouter} from "next/navigation"
 import Link from "next/link"
+import {errorNotification} from "@/service/NotificationService"
 
 export function useCreateShotlistDialog() {
     const [isOpen, setIsOpen] = useState(false);
@@ -26,7 +27,7 @@ export function useCreateShotlistDialog() {
     const client = useApolloClient()
 
     async function loadData() {
-        let {data} = await client.query({
+        let {data, errors} = await client.query({
             query: gql`
                 query createShotlistData {
                     templates {
@@ -41,6 +42,15 @@ export function useCreateShotlistDialog() {
             `,
             fetchPolicy: "no-cache"
         })
+
+        if(errors){
+            errorNotification({
+                title: "Failed to load creation data",
+                tryAgainLater: true
+            })
+            console.error(errors)
+            return
+        }
 
         setCurrentUser(data.currentUser)
 
@@ -85,6 +95,16 @@ export function useCreateShotlistDialog() {
                 variables: {name: name, templateId: templateId}
             },
         )
+
+        if(errors){
+            errorNotification({
+                title: "Failed to create shotlist",
+                tryAgainLater: true
+            })
+            console.error(errors)
+            return
+        }
+
         router.push(`/shotlist/${data.createShotlist.id}`)
         promiseResolver?.(true)
     }

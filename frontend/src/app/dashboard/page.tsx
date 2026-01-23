@@ -27,6 +27,7 @@ import auth from "@/Auth"
 import {DashboardContext} from "@/context/DashboardContext"
 import TextField from "@/components/inputs/textField/textField"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
+import {errorNotification} from "@/service/NotificationService"
 
 export default function Overview() {
     const client = useApolloClient()
@@ -129,7 +130,10 @@ export default function Overview() {
         )
 
         if(errors) {
-            //TODO notify
+            errorNotification({
+                title: "Failed to update Username",
+                sub: "Please contact yanik.kendler@gmail.com or try again later"
+            })
             console.error("Error updating username:", errors);
             return;
         }

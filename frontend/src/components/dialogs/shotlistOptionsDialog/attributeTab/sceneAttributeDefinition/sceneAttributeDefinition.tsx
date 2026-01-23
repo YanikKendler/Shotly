@@ -18,6 +18,7 @@ import { Popover } from "radix-ui"
 import {useEffect, useRef, useState} from "react"
 import {wuGeneral} from "@yanikkendler/web-utils"
 import Skeleton from "react-loading-skeleton"
+import {errorNotification} from "@/service/NotificationService"
 
 export default function SceneAttributeDefinition({attributeDefinition, onDelete, dataChanged}: {attributeDefinition: AnySceneAttributeDefinition, onDelete: (id: number) => void, dataChanged: () => void}) {
 
@@ -64,7 +65,10 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
             variables: {id: definition.id, name: newName},
         });
         if (errors) {
-            //TODO notify
+            errorNotification({
+                title: "Failed to update attribute definition",
+                tryAgainLater: true
+            })
             console.error(errors)
             return
         }
@@ -99,7 +103,10 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
         });
 
         if(errors) {
-            //TODO notify
+            errorNotification({
+                title: "Failed to delete attribute definition",
+                tryAgainLater: true
+            })
             setMarkAsDeleted(false)
             console.error(errors)
             return
@@ -126,7 +133,10 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
         });
 
         if (errors) {
-            //TODO notify
+            errorNotification({
+                title: "Failed to create select option",
+                tryAgainLater: true
+            })
             console.error(errors);
             setCreationLoaderVisibility(false)
             return;
@@ -162,7 +172,10 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
         });
 
         if(errors) {
-            //TODO notify
+            errorNotification({
+                title: "Failed to delete select option",
+                tryAgainLater: true
+            })
             console.error(errors)
             setDeletingOptionIds(v => v.filter(id => id !== optionId))
             return
@@ -191,7 +204,10 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
             variables: {id: optionId, name: newName},
         });
         if(errors) {
-            //TODO notify
+            errorNotification({
+                title: "Failed to update select option",
+                tryAgainLater: true
+            })
             console.error(errors)
             return
         }

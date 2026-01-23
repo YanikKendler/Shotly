@@ -90,8 +90,8 @@ const inter = Inter({
 })
 
 export default function RootLayout({
-                                       children,
-                                   }: Readonly<{
+   children,
+}: Readonly<{
     children: React.ReactNode
 }>) {
     return (

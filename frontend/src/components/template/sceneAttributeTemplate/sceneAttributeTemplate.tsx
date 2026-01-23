@@ -18,6 +18,7 @@ import {wuGeneral} from "@yanikkendler/web-utils/dist"
 import {Popover} from "radix-ui"
 import "./sceneAttributeTemplate.scss"
 import TextField from "@/components//inputs/textField/textField"
+import {errorNotification} from "@/service/NotificationService"
 
 export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { attributeTemplate: SceneAttributeTemplateBaseDto, onDelete: (id: number) => void }) {
     const [attribute, setAttribute] = useState<AnySceneAttributeTemplate>({} as AnySceneAttributeTemplate)
@@ -39,7 +40,7 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
         setAttribute(attributeTemplate)
     }, [attributeTemplate])
 
-    async function updateTemplate(newName: string) {
+    async function updateAttributeTemplate(newName: string) {
         const {data, errors} = await client.mutate({
             mutation: gql`
                 mutation updateSceneAttributeTemplateName($id: BigInteger!, $name: String!) {
@@ -52,7 +53,12 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
             variables: {id: attribute.id, name: newName},
         });
         if (errors) {
+            errorNotification({
+                title: "Failed to update attribute template",
+                tryAgainLater: true
+            })
             console.error(errors)
+            return
         }
 
         setAttribute({
@@ -61,7 +67,7 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
         })
     }
 
-    const debouncedUpdateTemplate = wuGeneral.debounce(updateTemplate)
+    const debouncedUpdateTemplate = wuGeneral.debounce(updateAttributeTemplate)
 
     const deleteAttributeTemplate = async () => {
         if(!await confirm({
@@ -81,7 +87,12 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
         });
 
         if(errors) {
+            errorNotification({
+                title: "Failed to delete attribute template",
+                tryAgainLater: true
+            })
             console.error(errors)
+            return
         }
         else{
             onDelete(attribute.id)
@@ -102,6 +113,10 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
         })
 
         if (errors) {
+            errorNotification({
+                title: "Failed to create select option template",
+                tryAgainLater: true
+            })
             console.error(errors);
             return;
         }
@@ -130,7 +145,12 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
         });
 
         if(errors) {
+            errorNotification({
+                title: "Failed to delete select option template",
+                tryAgainLater: true
+            })
             console.error(errors)
+            return
         }
 
         let newOptions: SceneSelectAttributeOptionTemplate[] =
@@ -158,7 +178,12 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
             variables: {id: optionId, name: newName},
         });
         if(errors) {
+            errorNotification({
+                title: "Failed to update select option template",
+                tryAgainLater: true
+            })
             console.error(errors)
+            return
         }
 
         let currentOptions = (attribute as SceneSingleOrMultiSelectAttributeTemplate).options as SceneSelectAttributeOptionTemplate[]

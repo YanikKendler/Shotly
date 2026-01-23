@@ -19,6 +19,7 @@ import AttributeTab from "@/components/dialogs/shotlistOptionsDialog/attributeTa
 import CollaboratorsTab from "@/components/dialogs/shotlistOptionsDialog/collaboratorsTab/collaboratorsTab"
 import Separator from "@/components/separator/separator"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
+import {errorNotification} from "@/service/NotificationService"
 
 export enum ShotlistOptionsDialogPage {
     general = "general",
@@ -191,6 +192,15 @@ export default function ShotlistOptionsDialog({
             },
         )
 
+        if(result.errors){
+            errorNotification({
+                title: "Failed to load shotlist data",
+                tryAgainLater: true
+            })
+            console.error(result.errors)
+            return
+        }
+
         setSceneAttributeDefinitions(result.data.sceneAttributeDefinitions)
         setShotAttributeDefinitions(result.data.shotAttributeDefinitions)
         setShotlist(result.data.shotlist)
@@ -231,7 +241,10 @@ export default function ShotlistOptionsDialog({
         })
 
         if(result.errors){
-            //TODO notify user
+            errorNotification({
+                title: "Failed to leave collaboration",
+                tryAgainLater: true
+            })
             console.error("Error leaving collaboration:", result.errors)
             return
         }

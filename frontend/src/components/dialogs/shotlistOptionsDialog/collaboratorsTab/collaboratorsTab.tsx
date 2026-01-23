@@ -14,6 +14,7 @@ import GoogleLogo from "@/components/googleLogo"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import Config from "@/util/Config"
 import HelpLink from "@/components/helpLink/helpLink"
+import {errorNotification} from "@/service/NotificationService"
 
 export default function CollaboratorsTab(
     {
@@ -58,6 +59,10 @@ export default function CollaboratorsTab(
                 variables: {shotlistId: shotlistId, email: inputValue},
             })
             if (result.errors) {
+                errorNotification({
+                    title: "Could not add this email as a collaborator",
+                    sub: "Please try a different email"
+                })
                 setEmailInvalid(true)
                 console.error(result.errors);
                 return;
@@ -92,7 +97,10 @@ export default function CollaboratorsTab(
             variables: {collaborationId, collaborationType: newType},
         })
         if (result.errors) {
-            //TODO notify user
+            errorNotification({
+                title: "Failed to update collaboration type",
+                tryAgainLater: true
+            })
             console.error(result.errors);
             return;
         }
@@ -135,7 +143,10 @@ export default function CollaboratorsTab(
             variables: {collaborationId},
         })
         if (result.errors) {
-            //TODO notify user
+            errorNotification({
+                title: "Failed to remove collaborator",
+                tryAgainLater: true
+            })
             console.error(result.errors);
             return;
         }
@@ -157,7 +168,10 @@ export default function CollaboratorsTab(
             variables: {collaborationId},
         })
         if (result.errors) {
-            //TODO notify user
+            errorNotification({
+                title: "Failed to resend Collaboration",
+                tryAgainLater: true
+            })
             console.error(result.errors);
             return;
         }

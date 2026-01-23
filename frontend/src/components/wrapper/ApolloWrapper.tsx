@@ -48,6 +48,7 @@ export function makeClient() {
             const error = graphQLErrors[0];
 
             if (error?.extensions?.type != 'SHOTLY_EXCEPTION') {
+                //TODO check how to do this properly
                 console.log("unkown exception - going to error page", error)
                 //redirectToServerError()
             } else {

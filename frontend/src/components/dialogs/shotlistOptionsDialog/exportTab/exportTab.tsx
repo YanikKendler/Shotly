@@ -39,6 +39,7 @@ import Skeleton from "react-loading-skeleton"
 import ExportFilter from "@/components/dialogs/shotlistOptionsDialog/exportTab/exportFilter"
 import Separator from "@/components/separator/separator"
 import DotLoader from "@/components/DotLoader"
+import {errorNotification} from "@/service/NotificationService"
 
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full"
 
@@ -81,7 +82,7 @@ export default function ExportTab(
         loadSettingsFromLocalStorage(shotlist.id)
         extractSceneOptions()
 
-        loadData().then(data => {
+        loadDataForExport().then(data => {
             if(!data) return
 
             setShotlistPreviewCache(data)
@@ -127,14 +128,14 @@ export default function ExportTab(
     }
 
     const loadFilteredData = async () => {
-        const queryResult = await loadData()
+        const queryResult = await loadDataForExport()
 
         if(!queryResult) return null;
 
         return filterData(queryResult)
     }
 
-    async function loadData() {
+    async function loadDataForExport() {
         if(!shotlist) return null;
 
         const result = await client.query({
@@ -198,9 +199,13 @@ export default function ExportTab(
             }
         )
 
-        //TODO error handling and notification
-
-
+        if(result.errors){
+            console.error(result.errors)
+            errorNotification({
+                title: "Failed to load shotlist data",
+                tryAgainLater: true
+            })
+        }
 
         return result
     }
@@ -314,9 +319,7 @@ export default function ExportTab(
         const data: ShotlistDto | null = await loadFilteredData()
 
         if (!data) {
-            //TODO notification
-            console.error("No data found for export");
-            return;
+            return
         }
 
         setExportRunning(true)

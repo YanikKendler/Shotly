@@ -44,6 +44,7 @@ import {driver} from "driver.js"
 import Skeleton from "react-loading-skeleton"
 import auth from "@/Auth"
 import SimplePopover from "@/components/popover/simplePopover"
+import {errorNotification} from "@/service/NotificationService"
 
 export default function Template (){
     const params = useParams<{ id: string }>()
@@ -150,6 +151,15 @@ export default function Template (){
             variables: {id: id},
             fetchPolicy: noCache ? "no-cache" : "cache-first"})
 
+            if(result.errors){
+                console.error(result.errors)
+                errorNotification({
+                    title: "Failed to load template data",
+                    tryAgainLater: true
+                })
+                return
+            }
+
             setQuery(result)
 
             console.log("loaded template:", result)
@@ -177,6 +187,10 @@ export default function Template (){
         });
 
         if (errors) {
+            errorNotification({
+                title: "Failed to update template name",
+                tryAgainLater: true
+            })
             console.error(errors);
             return;
         }
@@ -225,6 +239,10 @@ export default function Template (){
         });
 
         if (errors) {
+            errorNotification({
+                title: "Failed to delete template",
+                tryAgainLater: true
+            })
             console.error(errors);
             return;
         }
@@ -247,6 +265,10 @@ export default function Template (){
             variables: {templateId: id, attributeType: type},
         });
         if (errors) {
+            errorNotification({
+                title: "Failed to create shot attribute definition",
+                tryAgainLater: true
+            })
             console.error(errors);
             return;
         }
@@ -266,7 +288,7 @@ export default function Template (){
         });
     }
 
-    function handleShotDragEnd(event: any) {
+    function handleShotDefinitionDragEnd(event: any) {
         const {active, over} = event;
 
         if (active.id !== over.id && query.data.template && query.data.template.shotAttributes) {
@@ -286,6 +308,14 @@ export default function Template (){
                     }
                 `,
                 variables: {id: active.id, position: newIndex},
+            }).then((result) => {
+                if(result.errors){
+                    errorNotification({
+                        title: "Failed to move shot attribute definition",
+                        tryAgainLater: true
+                    })
+                    console.error(result.errors)
+                }
             })
 
             setQuery({
@@ -301,10 +331,12 @@ export default function Template (){
         }
     }
 
-    function removeShotAttributeTemplate(id: number) {
+    function onRemoveShotAttributeTemplate(id: number) {
         if(!query.data.template || !query.data.template.shotAttributes || query.data.template.shotAttributes.length == 0) return
 
-        let newShotAttributes: AnyShotAttributeTemplate[] = (query.data.template.shotAttributes as AnyShotAttributeTemplate[]).filter((shotTemplate) => shotTemplate.id != id)
+        let newShotAttributes: AnyShotAttributeTemplate[] =
+            (query.data.template.shotAttributes as AnyShotAttributeTemplate[])
+                .filter((shotTemplate) => shotTemplate.id != id)
 
         setQuery({
             ...query,
@@ -333,6 +365,10 @@ export default function Template (){
             variables: {templateId: id, attributeType: type},
         });
         if (errors) {
+            errorNotification({
+                title: "Failed to create scene attribute definition",
+                tryAgainLater: true
+            })
             console.error(errors);
             return;
         }
@@ -351,7 +387,7 @@ export default function Template (){
         });
     }
 
-    function handleSceneDragEnd(event: any) {
+    function handleSceneAttributeDragEnd(event: any) {
         const {active, over} = event;
 
         if (active.id !== over.id && query.data.template && query.data.template.sceneAttributes) {
@@ -371,6 +407,14 @@ export default function Template (){
                     }
                 `,
                 variables: {id: active.id, position: newIndex},
+            }).then((result) => {
+                if(result.errors){
+                    errorNotification({
+                        title: "Failed to move scene attribute definition",
+                        tryAgainLater: true
+                    })
+                    console.error(result.errors)
+                }
             })
 
             setQuery({
@@ -386,10 +430,11 @@ export default function Template (){
         }
     }
 
-    function removeSceneAttributeTemplate(id: number) {
+    function onRemoveSceneAttributeTemplate(id: number) {
         if(!query.data.template || !query.data.template.sceneAttributes || query.data.template.sceneAttributes.length == 0) return
 
-        let newSceneTemplates: AnyShotAttributeTemplate[] = (query.data.template.sceneAttributes as AnyShotAttributeTemplate[]).filter((sceneTemplate) => sceneTemplate.id != id)
+        let newSceneTemplates: AnyShotAttributeTemplate[] = (query.data.template.sceneAttributes as AnyShotAttributeTemplate[])
+            .filter((sceneTemplate) => sceneTemplate.id != id)
 
         setQuery({
             ...query,
@@ -476,7 +521,7 @@ export default function Template (){
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
-                onDragEnd={handleSceneDragEnd}
+                onDragEnd={handleSceneAttributeDragEnd}
             >
                 <SortableContext
                     items={query.data.template?.sceneAttributes?.map(def => def!.id) || []}
@@ -492,7 +537,7 @@ export default function Template (){
                                 {(query.data.template.sceneAttributes as SceneAttributeTemplateBase[]).map(attr =>
                                     <SceneAttributeTemplate
                                         attributeTemplate={attr}
-                                        onDelete={removeSceneAttributeTemplate}
+                                        onDelete={onRemoveSceneAttributeTemplate}
                                         key={attr.id}
                                     />
                                 )}
@@ -528,7 +573,7 @@ export default function Template (){
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
-                onDragEnd={handleShotDragEnd}
+                onDragEnd={handleShotDefinitionDragEnd}
             >
                 <SortableContext
                     items={query.data.template?.shotAttributes?.map(def => def!.id) || []}
@@ -542,7 +587,7 @@ export default function Template (){
                         query.data.template && query.data.template.shotAttributes && query.data.template.shotAttributes.length > 0 &&
                         (<div className="attributeTemplates">
                             {(query.data.template.shotAttributes as ShotAttributeTemplateBase[]).map(attr =>
-                                <ShotAttributeTemplate attributeTemplate={attr} onDelete={removeShotAttributeTemplate}
+                                <ShotAttributeTemplate attributeTemplate={attr} onDelete={onRemoveShotAttributeTemplate}
                                                        key={attr.id}/>
                             )}
                         </div>)

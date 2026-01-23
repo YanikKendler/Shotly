@@ -40,6 +40,7 @@ import Config from "@/util/Config"
 import HelpLink from "@/components/helpLink/helpLink"
 import Separator from "@/components/separator/separator"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
+import {errorNotification} from "@/service/NotificationService"
 
 
 export default function DashboardLayout({children}: { children: React.ReactNode }) {
@@ -135,6 +136,10 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             setSharedShotlistsOpen(result.data.shotlists?.shared && result.data.shotlists.shared.length > 0)
         }
         catch (error) {
+            errorNotification({
+                title: "Failed to load dashboard data",
+                tryAgainLater: true
+            })
             setQuery({...query, error: error as ApolloError})
         }
     }
@@ -171,7 +176,10 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             setPendingCollaborations(result)
         }
         catch (error) {
-            //todo notify user
+            errorNotification({
+                title: "Failed to load collaboration requests",
+                tryAgainLater: true
+            })
         }
     }
 
@@ -197,7 +205,10 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             variables: {collaborationId: collaborationId, newState: newState},
         })
         if (result.errors) {
-            //TODO notify user
+            errorNotification({
+                title: `Failed to ${newState} collaboration`,
+                tryAgainLater: true
+            })
             console.error(result.errors);
             return;
         }

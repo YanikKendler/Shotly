@@ -24,6 +24,7 @@ import {apolloClient} from "@/components/wrapper/ApolloWrapper"
 import Loader from "@/components/feedback/loader/loader"
 import HelpLink from "@/components/helpLink/helpLink"
 import Skeleton from "react-loading-skeleton"
+import {errorNotification} from "@/service/NotificationService"
 
 export default function AttributeTab(
     {
@@ -108,7 +109,10 @@ export default function AttributeTab(
             variables: {shotlistId: shotlistId, attributeType: type},
         });
         if (errors) {
-            //TODO notify user
+            errorNotification({
+                title: "Failed to create attribute definition",
+                tryAgainLater: true
+            })
             console.error(errors);
             setCreationLoaderVisibility("shot", false)
             return;
@@ -122,7 +126,7 @@ export default function AttributeTab(
         setCreationLoaderVisibility("shot", false)
     }
 
-    function handleShotDragEnd(event: any) {
+    function handleShotAttributeDefinitionDragEnd(event: any) {
         const {active, over} = event;
 
         if (active.id !== over.id && shotAttributeDefinitions) {
@@ -142,7 +146,17 @@ export default function AttributeTab(
                     }
                 `,
                 variables: {id: active.id, position: newIndex},
+            }).then((result) => {
+                if(result.errors) {
+                    errorNotification({
+                        title: "Failed to move shot attribute definition",
+                        tryAgainLater: true
+                    })
+
+                    console.error(result.errors)
+                }
             })
+
 
             setShotAttributeDefinitions(arrayMove(shotAttributeDefinitions, oldIndex, newIndex))
         }
@@ -176,6 +190,10 @@ export default function AttributeTab(
             variables: {shotlistId: shotlistId, attributeType: type},
         });
         if (errors) {
+            errorNotification({
+                title: "Failed to create attribute definition",
+                tryAgainLater: true
+            })
             console.error(errors);
             setCreationLoaderVisibility("scene", false)
             return;
@@ -189,7 +207,7 @@ export default function AttributeTab(
         setCreationLoaderVisibility("scene", false)
     }
 
-    function handleSceneDragEnd(event: any) {
+    function handleSceneAttributeDefinitionDragEnd(event: any) {
         const {active, over} = event;
 
         if (active.id !== over.id && sceneAttributeDefinitions) {
@@ -209,7 +227,16 @@ export default function AttributeTab(
                     }
                 `,
                 variables: {id: active.id, position: newIndex},
+            }).then(result => {
+                if(result.errors) {
+                    errorNotification({
+                        title: "Failed to move scene attribute definition",
+                        tryAgainLater: true
+                    })
+                    console.error(result.errors)
+                }
             })
+
 
             setSceneAttributeDefinitions(arrayMove(sceneAttributeDefinitions, oldIndex, newIndex))
         }
@@ -249,7 +276,7 @@ export default function AttributeTab(
                             <DndContext
                                 sensors={sensors}
                                 collisionDetection={closestCenter}
-                                onDragEnd={handleSceneDragEnd}
+                                onDragEnd={handleSceneAttributeDefinitionDragEnd}
                             >
                                 <SortableContext
                                     items={sceneAttributeDefinitions?.map(def => def.id) || []}
@@ -309,7 +336,7 @@ export default function AttributeTab(
                             <DndContext
                                 sensors={sensors}
                                 collisionDetection={closestCenter}
-                                onDragEnd={handleShotDragEnd}
+                                onDragEnd={handleShotAttributeDefinitionDragEnd}
                             >
                                 <SortableContext
                                     items={shotAttributeDefinitions?.map(def => def.id) || []}

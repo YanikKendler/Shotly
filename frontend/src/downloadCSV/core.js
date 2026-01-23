@@ -1,3 +1,7 @@
+/*
+ * based on https://github.com/ayush-shta/download-csv which is a fork of https://github.com/react-csv/react-csv
+ */
+
 /**
  * Simple safari detection based on user agent test
  */

@@ -23,6 +23,7 @@ import { Popover } from "radix-ui"
 import {useEffect, useRef, useState} from "react"
 import {wuGeneral} from "@yanikkendler/web-utils/dist"
 import Skeleton from "react-loading-skeleton"
+import {errorNotification} from "@/service/NotificationService"
 
 export default function ShotAttributeDefinition({attributeDefinition, onDelete, dataChanged}: {attributeDefinition: AnyShotAttributeDefinition, onDelete: (id: number) => void, dataChanged: () => void}) {
 
@@ -69,7 +70,10 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
             variables: {id: definition.id, name: newName},
         });
         if (errors) {
-            //TODO notify
+            errorNotification({
+                title: "Could not update attribute definition",
+                tryAgainLater: true
+            })
             console.error(errors)
             return
         }
@@ -104,7 +108,10 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
         });
 
         if(errors) {
-            //TODO notify
+            errorNotification({
+                title: "Could not delete attribute definition",
+                tryAgainLater: true
+            })
             setMarkAsDeleted(false)
             console.error(errors)
             return
@@ -131,7 +138,10 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
         });
 
         if (errors) {
-            //TODO notify
+            errorNotification({
+                title: "Failed to create select option",
+                tryAgainLater: true
+            })
             console.error(errors);
             setCreationLoaderVisibility(false)
             return;
@@ -167,7 +177,10 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
         });
 
         if(errors) {
-            //TODO notify
+            errorNotification({
+                title: "Failed to delete select option",
+                tryAgainLater: true
+            })
             console.error(errors)
             setDeletingOptionIds(v => v.filter(id => id !== optionId))
             return
@@ -196,7 +209,10 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
             variables: {id: optionId, name: newName},
         });
         if(errors) {
-            //TODO notify
+            errorNotification({
+                title: "Could not update select option",
+                tryAgainLater: true
+            })
             console.error(errors)
             return
         }

@@ -18,6 +18,7 @@ import {wuGeneral} from "@yanikkendler/web-utils/dist"
 import {Popover} from "radix-ui"
 import "./shotAttributeTemplate.scss"
 import TextField from "@/components//inputs/textField/textField"
+import {errorNotification} from "@/service/NotificationService"
 
 export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { attributeTemplate: ShotAttributeTemplateBaseDto, onDelete: (id: number) => void }) {
     const [attribute, setAttribute] = useState<AnyShotAttributeTemplate>({} as AnyShotAttributeTemplate)
@@ -39,7 +40,7 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
         setAttribute(attributeTemplate)
     }, [attributeTemplate])
 
-    async function updateDefinition(newName: string) {
+    async function updateAttributeDefinition(newName: string) {
         const {data, errors} = await client.mutate({
             mutation: gql`
                 mutation updateShotAttributeTemplateName($id: BigInteger!, $name: String!) {
@@ -52,7 +53,12 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
             variables: {id: attribute.id, name: newName},
         });
         if (errors) {
+            errorNotification({
+                title: "Failed to update attribute definition template",
+                tryAgainLater: true
+            })
             console.error(errors)
+            return
         }
 
         setAttribute({
@@ -61,7 +67,7 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
         })
     }
 
-    const debouncedUpdateDefinition = wuGeneral.debounce(updateDefinition)
+    const debouncedUpdateDefinition = wuGeneral.debounce(updateAttributeDefinition)
 
     const deleteAttributeTemplate = async () => {
         if(!await confirm({
@@ -81,11 +87,15 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
         });
 
         if(errors) {
+            errorNotification({
+                title: "Failed to delete attribute definition template",
+                tryAgainLater: true
+            })
             console.error(errors)
+            return
         }
-        else{
-            onDelete(attribute.id)
-        }
+
+        onDelete(attribute.id)
     }
 
     const createSelectOption = async () => {
@@ -102,7 +112,11 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
         })
 
         if (errors) {
-            console.error(errors);
+            console.error(errors)
+            errorNotification({
+                title: "Failed to create select option template",
+                tryAgainLater: true
+            })
             return;
         }
 
@@ -131,6 +145,11 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
 
         if(errors) {
             console.error(errors)
+            errorNotification({
+                title: "Failed to delete select option template",
+                tryAgainLater: true
+            })
+            return
         }
 
         let newOptions: ShotSelectAttributeOptionTemplate[] =
@@ -158,7 +177,12 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
             variables: {id: optionId, name: newName},
         });
         if(errors) {
+            errorNotification({
+                title: "Failed to update select option template",
+                tryAgainLater: true
+            })
             console.error(errors)
+            return
         }
 
         let currentOptions = (attribute as ShotSingleOrMultiSelectAttributeTemplate).options as ShotSelectAttributeOptionTemplate[]
@@ -209,7 +233,7 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
                                     <TextField
                                         defaultValue={option?.name || ""}
                                         placeholder="Option name"
-                                        valueChange={(value) => updateOptionName(option.id, value)}
+                                        valueChange={(value) => debouncedUpdateOptionName(option.id, value)}
                                         debounceValueChange={true}
                                     />
                                     <button className="bad" onClick={() => deleteSelectOption(option.id)}><Trash size={18}/></button>
