@@ -15,8 +15,9 @@ import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialog
 import {useApolloClient} from "@apollo/client"
 import {SceneDto, SceneSelectAttributeOptionDefinition} from "../../../../../../lib/graphql/generated"
 import { Popover } from "radix-ui"
-import {useEffect, useState} from "react"
+import {useEffect, useRef, useState} from "react"
 import {wuGeneral} from "@yanikkendler/web-utils"
+import Skeleton from "react-loading-skeleton"
 
 export default function SceneAttributeDefinition({attributeDefinition, onDelete, dataChanged}: {attributeDefinition: AnySceneAttributeDefinition, onDelete: (id: number) => void, dataChanged: () => void}) {
 
@@ -38,9 +39,17 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
     const [markAsDeleted, setMarkAsDeleted] = useState(false)
     const [deletingOptionIds, setDeletingOptionIds] = useState<number[]>([])
 
+    const creationLoaderRef = useRef<HTMLDivElement>(null);
+
     useEffect(() => {
         setDefiniton(attributeDefinition)
     }, [attributeDefinition])
+
+    const setCreationLoaderVisibility = (visible:boolean) => {
+        if(!creationLoaderRef.current) return
+
+        creationLoaderRef.current.style.display = visible ? "flex" : "none"
+    }
 
     async function updateDefinition(newName: string) {
         const {data, errors} = await client.mutate({
@@ -100,6 +109,8 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
     }
 
     const createSelectOption = async () => {
+        setCreationLoaderVisibility(true)
+
         const { data, errors } = await client.mutate({
             mutation: gql`
                 mutation createSceneSelectAttributeOption($definitionId: BigInteger!) {
@@ -117,6 +128,7 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
         if (errors) {
             //TODO notify
             console.error(errors);
+            setCreationLoaderVisibility(false)
             return;
         }
 
@@ -131,6 +143,8 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
         })
 
         dataChanged()
+
+        setCreationLoaderVisibility(false)
     }
 
     const deleteSelectOption = async (optionId: number) => {
@@ -234,6 +248,10 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
                                     <button className="bad" onClick={() => deleteSelectOption(option.id)}><Trash size={18}/></button>
                                 </div>
                             ))}
+                            <div className={"option"} ref={creationLoaderRef} style={{display: "none"}}>
+                                <p>#</p>
+                                <Skeleton height={"2rem"} width={"25ch"}/>
+                            </div>
                             <button onClick={createSelectOption}><Plus size={18}/>Add option</button>
                         </Popover.Content>
                     </Popover.Portal>
