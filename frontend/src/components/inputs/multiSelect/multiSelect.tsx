@@ -55,7 +55,6 @@ export default function MultiSelect(
     const [actualMinWidth, setActualMinWidth] = useState<string>(minWidth);
 
     useEffect(() => {
-        console.log("minWidth changed to: ", minWidth, "window.innerWidth: ", window.innerWidth)
         if(window.innerWidth < 600)
             setActualMinWidth("0")
         else

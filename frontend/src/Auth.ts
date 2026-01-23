@@ -153,10 +153,6 @@ class Auth {
 
     silentAuth() {
         if(!this.isAuthenticated()) {
-            errorNotification({
-                title: "Silent authentication failed",
-                sub: "Please reload the page and log in again."
-            })
             return null
         }
 

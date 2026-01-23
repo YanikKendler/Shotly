@@ -54,7 +54,6 @@ export default function Landing() {
 
         //reset tour local storage on call
         if(url.searchParams.get("rtl") == "1"){
-            console.log("resetting localstorage")
             localStorage.setItem(Config.localStorageKey.shotlistTourCompleted,"false")
             localStorage.setItem(Config.localStorageKey.dashboardTourCompleted,"false")
             localStorage.setItem(Config.localStorageKey.templateTourCompleted,"false")

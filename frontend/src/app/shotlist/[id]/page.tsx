@@ -319,8 +319,6 @@ export default function Shotlist() {
     const setSaveState = (key: string, state: SaveState) => {
         saveStateMap.current.set(key, state)
 
-        console.log(`new save state map, after updating: ${key}`, saveStateMap.current)
-
         let newFinalState: SaveState = "saved"
 
         const values = Array.from(saveStateMap.current.values() || [])
@@ -367,8 +365,6 @@ export default function Shotlist() {
             }
         }
 
-        console.log("updating selection", updateDTO)
-
         websocketRef.current?.send(JSON.stringify(updateDTO))
     }
 
@@ -384,7 +380,7 @@ export default function Shotlist() {
         websocketRef.current = websocket
 
         websocket.onopen = () => {
-            console.log('Connected to WebSocket server')
+            console.info('Connected to WebSocket server')
             websocketRetriesRef.current = 0
         }
         websocket.onmessage = (message) => {
@@ -397,8 +393,6 @@ export default function Shotlist() {
                 })
                 return
             }
-
-            console.log(updateDTO)
 
             if(!syncService.current) {
                 console.error("syncService not initialized")
@@ -468,7 +462,6 @@ export default function Shotlist() {
                     }
                     break
                 case "presentCollaborators":
-                    console.log("present collaborators", updateDTO.payload.collaborators)
                     const collabMap = new Map<string, UserMinimalDTO>()
                     updateDTO.payload.collaborators.forEach(user => collabMap.set(user.id, user))
                     setPresentCollaborators(collabMap)
@@ -503,7 +496,6 @@ export default function Shotlist() {
                 case "empty":
                     switch (updateDTO.type) {
                         case ShotlistUpdateType.SHOTLIST_OPTIONS_UPDATED:
-                            console.log("refreshing")
                             refreshShotlistFunction.current()
                             break
                     }
@@ -512,7 +504,7 @@ export default function Shotlist() {
         }
 
         websocket.onclose = (event) => {
-            console.log('Disconnected from WebSocket server')
+            console.info('Disconnected from WebSocket server')
 
             if (event.code !== 1000) {
                 reconnectWebsocket()
@@ -526,34 +518,21 @@ export default function Shotlist() {
 
     const reconnectWebsocket = () => {
         // Don't reconnect if we don't have a user yet
-        if (!currentUserRef.current?.id) {
-            console.log("Skipping reconnect - user not loaded yet");
+        if (!currentUserRef.current?.id || !query?.data?.shotlist?.id) {
+            console.info("Skipping reconnect - not loaded yet");
             return;
         }
 
-        if(!query?.data?.shotlist?.id) {
-            console.log("Skipping reconnect - shotlist not loaded yet");
-        }
-
-        // Don't reconnect if already connected
-        if (websocketRef.current?.readyState === WebSocket.OPEN) {
-            console.log("Skipping reconnect - already connected");
-            return;
-        }
-
-        // Don't reconnect if already connecting
-        if (websocketRef.current?.readyState === WebSocket.CONNECTING) {
-            console.log("Skipping reconnect - already connecting");
+        if (websocketRef.current?.readyState === WebSocket.OPEN || websocketRef.current?.readyState === WebSocket.CONNECTING) {
+            console.info("Skipping reconnect - already connected");
             return;
         }
 
         const delay = Math.min(1000 * 2 ** websocketRetriesRef.current, 30000);
 
-        console.log(`Scheduling reconnect attempt ${websocketRetriesRef.current + 1} in ${delay}ms`);
-
         setTimeout(() => {
             websocketRetriesRef.current++;
-            console.log("Attempting reconnect, attempt", websocketRetriesRef.current, "with user id", currentUserRef.current?.id);
+            console.info("Attempting reconnect, attempt", websocketRetriesRef.current, "with user id", currentUserRef.current?.id);
             if(currentUserRef.current?.id)
                 joinShotlistWebsocket(currentUserRef.current?.id);
         }, delay);
@@ -677,8 +656,6 @@ export default function Shotlist() {
             id: id,
             position: position,
         })
-
-        console.log("now selected", id, position)
 
         const url = new URL(window.location.href)
         url.searchParams.set("sid", id || "")

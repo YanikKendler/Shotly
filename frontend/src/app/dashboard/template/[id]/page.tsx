@@ -99,75 +99,67 @@ export default function Template (){
     }, [id]);
 
     const loadTemplate = async (noCache: boolean = false) => {
-        try{
-            const result = await client.query({query: gql`
-                query template($id: String!){
-                    template(id: $id) {
+        const result = await client.query({query: gql`
+            query template($id: String!){
+                template(id: $id) {
+                    id
+                    name
+                    shotAttributes {
                         id
                         name
-                        shotAttributes {
-                            id
-                            name
-                            position
-                            type
-    
-    
-                            ... on ShotSingleSelectAttributeTemplateDTO {
-                                options {
-                                    id
-                                    name
-                                }
-                            }
-    
-                            ... on ShotMultiSelectAttributeTemplateDTO {
-                                options {
-                                    id
-                                    name
-                                }
+                        position
+                        type
+
+
+                        ... on ShotSingleSelectAttributeTemplateDTO {
+                            options {
+                                id
+                                name
                             }
                         }
-                        sceneAttributes {
-                            id
-                            name
-                            position
-                            type
-                            
-                            ... on SceneSingleSelectAttributeTemplateDTO {
-                                options {
-                                    id
-                                    name
-                                }
-                            }
-                            
-                            ... on SceneMultiSelectAttributeTemplateDTO {
-                                options {
-                                    id
-                                    name
-                                }
+
+                        ... on ShotMultiSelectAttributeTemplateDTO {
+                            options {
+                                id
+                                name
                             }
                         }
                     }
-                }`,
-            variables: {id: id},
-            fetchPolicy: noCache ? "no-cache" : "cache-first"})
+                    sceneAttributes {
+                        id
+                        name
+                        position
+                        type
+                        
+                        ... on SceneSingleSelectAttributeTemplateDTO {
+                            options {
+                                id
+                                name
+                            }
+                        }
+                        
+                        ... on SceneMultiSelectAttributeTemplateDTO {
+                            options {
+                                id
+                                name
+                            }
+                        }
+                    }
+                }
+            }`,
+        variables: {id: id},
+        fetchPolicy: noCache ? "no-cache" : "cache-first"})
 
-            if(result.errors){
-                console.error(result.errors)
-                errorNotification({
-                    title: "Failed to load template data",
-                    tryAgainLater: true
-                })
-                return
-            }
-
-            setQuery(result)
-
-            console.log("loaded template:", result)
+        if(result.errors){
+            console.error(result.errors)
+            errorNotification({
+                title: "Failed to load template data",
+                tryAgainLater: true
+            })
+            return
         }
-        catch (e){
-            console.log("error was caught", e)
-            setQuery({...query, errors: [e as ApolloError]})
-        }
+
+        setQuery(result)
     }
 
     const updateTemplateName = async (name: string) => {
@@ -372,8 +364,6 @@ export default function Template (){
             console.error(errors);
             return;
         }
-
-        console.log(data)
 
         setQuery({
             ...query,

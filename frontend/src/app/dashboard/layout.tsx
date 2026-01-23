@@ -59,8 +59,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false)
     const [collaborationReloadAllowed, setCollaborationReloadAllowed] = useState<boolean>(true)
 
-    const [sharedShotlistsOpen, setSharedShotlistsOpen] = useState<boolean>(true)
-
     useEffect(() => {
         if(!auth.isAuthenticated()){
             router.replace('/')
@@ -75,73 +73,72 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     }, [])
 
     const loadData = async () => {
-        try {
-            const result = await client.query({
-                    query: gql`
-                        query home{
-                            shotlists{
-                                personal {
-                                    id
-                                    name
-                                    sceneCount
-                                    shotCount
-                                    editedAt
-                                    owner {
-                                        name
-                                    }
-                                }
-                                shared {
-                                    id
-                                    name
-                                    sceneCount
-                                    shotCount
-                                    editedAt
-                                    owner {
-                                        name
-                                    }
-                                }
-                            }
-                            templates {
+        const result = await client.query({
+                query: gql`
+                    query home{
+                        shotlists{
+                            personal {
                                 id
                                 name
-                                shotAttributeCount
-                                sceneAttributeCount
+                                sceneCount
+                                shotCount
+                                editedAt
                                 owner {
                                     name
                                 }
                             }
-                            pendingCollaborations{
+                            shared {
                                 id
-                                user {
-                                    id
-                                    name
-                                }
-                                shotlist {
-                                    name
-                                }
-                                collaborationState
-                                collaborationType
-                            }
-                            currentUser {
                                 name
-                                email
+                                sceneCount
+                                shotCount
+                                editedAt
+                                owner {
+                                    name
+                                }
                             }
-                        }`,
-                    fetchPolicy: "no-cache"
-                },
-            )
+                        }
+                        templates {
+                            id
+                            name
+                            shotAttributeCount
+                            sceneAttributeCount
+                            owner {
+                                name
+                            }
+                        }
+                        pendingCollaborations{
+                            id
+                            user {
+                                id
+                                name
+                            }
+                            shotlist {
+                                name
+                            }
+                            collaborationState
+                            collaborationType
+                        }
+                        currentUser {
+                            name
+                            email
+                        }
+                    }`,
+                fetchPolicy: "no-cache"
+            },
+        )
 
-            setQuery(result)
 
-            setSharedShotlistsOpen(result.data.shotlists?.shared && result.data.shotlists.shared.length > 0)
-        }
-        catch (error) {
+        if(result.errors){
+            console.error(result.errors)
             errorNotification({
                 title: "Failed to load dashboard data",
                 tryAgainLater: true
             })
-            setQuery({...query, error: error as ApolloError})
+            return
         }
+
+        setQuery(result)
     }
 
     const loadPendingCollaborations = async () => {
@@ -166,8 +163,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                     }`,
                 fetchPolicy: "no-cache"
             })
-
-            console.log(result)
 
             setTimeout(()=> {
                 setCollaborationReloadAllowed(true)
@@ -303,8 +298,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
                             <Collapsible.Root
                                 className={"CollapsibleRoot dashboardSidebar"}
-                                open={sharedShotlistsOpen}
-                                onOpenChange={setSharedShotlistsOpen}
                                 defaultOpen={true}
                             >
                                 <Collapsible.Trigger className={"noClickFx"}>

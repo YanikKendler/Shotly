@@ -104,8 +104,6 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                 forceFallback: true,
                 fallbackTolerance: 5,
                 onStart: (event) => {
-                    console.log("drag started")
-
                     if(event.oldIndex === undefined) return
 
                     shotlistContext.elementIsBeingDragged = true
@@ -113,7 +111,6 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                     sceneRefs.current.get(event.oldIndex)?.closePopover()
                 },
                 onEnd: (event) => {
-                    console.log("drag end")
                     //so that the drag ghost is hidden before re-rendering otherwise it hangs in the air for half a second
                     requestAnimationFrame(() => {
                         if(!event.item || event.oldIndex === undefined || event.newIndex === undefined) return

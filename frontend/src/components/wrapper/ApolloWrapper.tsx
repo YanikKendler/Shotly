@@ -49,7 +49,7 @@ export function makeClient() {
 
             if (error?.extensions?.type != 'SHOTLY_EXCEPTION') {
                 //TODO check how to do this properly
-                console.log("unkown exception - going to error page", error)
+                console.error("unkown exception - going to error page?", error)
                 //redirectToServerError()
             } else {
                 switch (error?.extensions?.code as ShotlyErrorCode) {

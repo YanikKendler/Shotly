@@ -244,8 +244,6 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
             (cellRefs.current.get(newRow)?.size || 1) - 1
         )
 
-        console.log("moving focus to", newRow, newColumn)
-
         shotlistContext.setFocusedCell(newRow, newColumn)
 
         getCellRef(newRow, newColumn)?.setFocus()

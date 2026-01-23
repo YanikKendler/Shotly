@@ -301,7 +301,7 @@ export function useAccountDialog() {
                     </>
                 }
 
-                <Separator/>
+                <Separator text={"Settings"}/>
 
                 <div className="row">
                     <p>Appearance</p>
@@ -407,7 +407,7 @@ export function useAccountDialog() {
                     </>
                 }
 
-                <Separator/>
+                <Separator text={"Support"}/>
 
                 <div className="row">
                     <p>Visit the Documentation</p>
@@ -418,7 +418,7 @@ export function useAccountDialog() {
                     <Link href={"https://github.com/YanikKendler/shotly/issues/new/choose"} target={"_blank"}>New issue</Link>
                 </div>
 
-                <Separator/>
+                <Separator text={"Account"}/>
 
                 <div className="row">
                     <p>Use another account</p>
