@@ -59,12 +59,12 @@
   --hover-bg-accent-10: hsla(20, 100%, 50%, 10%);
   --hover-bg-accent-20: hsla(20, 100%, 50%, 20%);
 
-  --sidebar-bg: hsl(20, 20%, 96%);
+  --sidebar-bg: hsl(20, 20%, 95%);
   --home-button-bg: hsl(14, 21%, 92%);
   --home-button-border: hsl(0, 0%, 60%);
   --home-button-hover-border: hsl(0, 0%, 20%);
   --sidebar-bottom-button-bg: hsl(12, 9%, 92%);
-  --sidebar-bottom-button-border: hsl(0, 0%, 74%);
+  --sidebar-bottom-button-border: hsl(0, 0%, 65%);
 
   --popup-border: hsl(0, 0%, 82%);
   --select-menu-border: hsl(0, 0%, 75%);
@@ -83,9 +83,9 @@
   --skelleton-highlight-color: hsl(0, 0%, 100%);
 
   --switch-bg: hsl(0, 0%, 80%);
-  --switch-knob-bg: hsl(0, 0%, 30%);
+  --switch-knob-bg: hsl(0, 0%, 35%);
   --switch-knob-focused-bg: hsl(0, 0%, 30%);
-  --switch-knob-hover-bg: hsl(0, 0%, 10%);
+  --switch-knob-hover-bg: hsl(0, 0%, 15%);
 
 
   --sidebar-width: 400px;
@@ -358,6 +358,14 @@ span.italic, i{
 
 span.wrap{
   white-space: wrap;
+}
+
+span.truncate{
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .flex{
@@ -810,7 +818,7 @@ body button.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot {
   align-items: center;
   padding: 0;
   width: 2.3rem;
-  height: 1.3rem;
+  height: 1rem;
   background-color: var(--switch-bg);
   border-radius: 9999px;
   position: relative;
@@ -818,6 +826,14 @@ body button.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot {
 
   &[data-state="checked"] {
     background-color: var(--accent);
+  }
+
+  //expand hover area
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -.5rem;
+    border-radius: 9999px;
   }
 
   .SwitchThumb {
@@ -839,13 +855,13 @@ body button.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot {
   &:hover{
     &[data-state="checked"] {
       background-color: var(--accent-60);
+
+      &.SwitchThumb{
+        background-color: var(--accent-10);
+      }
     }
     &:not([data-state="checked"]) .SwitchThumb{
       background-color: var(--switch-knob-hover-bg);
-    }
-
-    .SwitchThumb{
-      box-shadow: 0 0 4px 4px var(--hover-bg-accent-20);
     }
   }
 }

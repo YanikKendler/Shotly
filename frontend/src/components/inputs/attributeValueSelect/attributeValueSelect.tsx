@@ -13,8 +13,9 @@ import {
     ValueContainerProps
 } from "react-select"
 import {Pen} from "lucide-react"
-import {reactSelectTheme} from "@/util/Utils"
+import Utils, {reactSelectTheme} from "@/util/Utils"
 import CreatableSelect from "react-select/creatable"
+import {wuConstants} from "@yanikkendler/web-utils/dist"
 
 export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBase<SelectOption>> = {
     option: (baseStyles, state) => ({
@@ -251,17 +252,28 @@ function AttributeValueSelect({
             }
     }
 
+    let selectValue = undefined
+
+    if(value){
+        if(isMulti){
+            selectValue = (value as SelectOption[]).map(Utils.optionToUnnamedIfEmpty)
+        }
+        else{
+            selectValue = Utils.optionToUnnamedIfEmpty(value as SelectOption)
+        }
+    }
+
     return (
         <CreatableSelect
             /*key={`${definitionId}-${refreshMap[`${shotOrScene}-${definitionId}`] || 0}`}*/
-            value={value}
+            value={selectValue}
             onChange={onChange}
             onMenuOpen={() => menuIsOpen.current = true}
             onMenuClose={() => menuIsOpen.current = false}
             isMulti={isMulti}
             isClearable={false}
             onCreateOption={onCreate}
-            options={options}
+            options={options.map(Utils.optionToUnnamedIfEmpty)}
             isLoading={isLoading}
             placeholder={placeholder || ""}
             openMenuOnFocus={false}

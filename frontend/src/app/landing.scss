@@ -75,13 +75,14 @@ main.landing{
 
         a, button{
           padding: .3rem 1rem;
+          font-weight: 600;
 
           &.filled{
             background-color: var(--accent);
             color: var(--contrast);
 
             &:hover{
-              background-color: var(--accent-40);
+              background-color: var(--accent-60);
             }
           }
 

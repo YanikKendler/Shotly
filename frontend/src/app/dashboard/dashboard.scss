@@ -76,9 +76,16 @@ main.overview{
         h3{
           font-size: 1.15rem;
           font-weight: 600;
-          color: var(--text-10);
           color: var(--accent);
-          white-space: wrap;
+          display: inline-block;
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+
+          &:hover{
+            color: var(--accent-55);
+          }
 
           span.italic{
             font-style: italic;

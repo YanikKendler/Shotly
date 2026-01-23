@@ -1,6 +1,6 @@
-import {wuText} from "@yanikkendler/web-utils/dist"
+import {wuConstants, wuText} from "@yanikkendler/web-utils/dist"
 import {ThemeConfig} from "react-select"
-import {ShotlistOrTemplate} from "@/util/Types"
+import {SelectOption, ShotlistOrTemplate} from "@/util/Types"
 import {ShotlistDto} from "../../lib/graphql/generated"
 import {NetworkStatus} from "@apollo/client"
 import {UserSettings} from "@/components/dialogs/accountDialog/accountDialog"
@@ -122,6 +122,12 @@ export default class Utils {
             shotNumberingAfterZ: "repeating",
             shotlistScale: 1
         }
+    }
+
+    static optionToUnnamedIfEmpty (o: SelectOption) {
+        if(!o.label || wuConstants.Regex.empty.test(o.label))
+            return {...o, label: "<unnamed>"}
+        return o
     }
 }
 

@@ -117,6 +117,9 @@ export default function ShotlistOptionsDialog({
                     shotlist(id: $shotlistId){
                         id
                         name
+                        template {
+                            name
+                        }
                         sceneCount
                         shotCount
                         editedAt

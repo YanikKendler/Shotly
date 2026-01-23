@@ -278,11 +278,13 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                             </button>
                                         ) :
                                         (query.data.shotlists.personal as ShotlistDto[]).sort(Utils.orderShotlistsOrTemplatesByName).map((shotlist) => (
-                                            <Link key={shotlist.id} href={`/shotlist/${shotlist.id}`}>
-                                                <NotepadText size={18}/>
-                                                {shotlist.name ? <span className={"wrap"}>{shotlist.name}</span> : (
-                                                    <span className={"italic"}>Unnamed</span>)}
-                                            </Link>
+                                            <SimpleTooltip text={shotlist.name || "Unnamed"} key={shotlist.id}>
+                                                <Link href={`/shotlist/${shotlist.id}`}>
+                                                    <NotepadText size={18}/>
+                                                    {shotlist.name ? <span className={"truncate"}>{shotlist.name}</span> : (
+                                                        <span className={"italic"}>Unnamed</span>)}
+                                                </Link>
+                                            </SimpleTooltip>
                                         ))
                                     }
                                 </Collapsible.Content>
@@ -309,11 +311,13 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                             <p className={"empty"}>No shared shotlist yet</p>
                                         ) :
                                         (query.data.shotlists.shared as ShotlistDto[]).sort(Utils.orderShotlistsOrTemplatesByName).map((shotlist) => (
-                                            <Link key={shotlist.id} href={`/shotlist/${shotlist.id}`}>
-                                                <NotepadText size={18}/>
-                                                {shotlist.name ? <span className={"wrap"}>{shotlist.name}</span> : (
-                                                    <span className={"italic"}>Unnamed</span>)}
-                                            </Link>
+                                            <SimpleTooltip text={shotlist.name || "Unnamed"} key={shotlist.id}>
+                                                <Link href={`/shotlist/${shotlist.id}`}>
+                                                    <NotepadText size={18}/>
+                                                    {shotlist.name ? <span className={"truncate"}>{shotlist.name}</span> : (
+                                                        <span className={"italic"}>Unnamed</span>)}
+                                                </Link>
+                                            </SimpleTooltip>
                                         ))
                                     }
                                 </Collapsible.Content>
@@ -337,12 +341,14 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                             <p className="empty">Nothing here yet</p>
                                         ) :
                                         (query.data.templates as TemplateDto[]).sort(Utils.orderShotlistsOrTemplatesByName).map((template) => (
-                                            <Link key={template.id} href={`/dashboard/template/${template.id}`}
-                                                  className={"template"}>
-                                                <Blocks size={18}/>
-                                                {template.name ? <span className={"wrap"}>{template.name}</span> : (
-                                                    <span className={"italic"}>Unnamed</span>)}
-                                            </Link>
+                                            <SimpleTooltip text={template.name || "Unnamed"} key={template.id}>
+                                                <Link href={`/dashboard/template/${template.id}`}
+                                                      className={"template"}>
+                                                    <Blocks size={18}/>
+                                                    {template.name ? <span className={"truncate"}>{template.name}</span> : (
+                                                        <span className={"italic"}>Unnamed</span>)}
+                                                </Link>
+                                            </SimpleTooltip>
                                         ))
                                     }
                                 </Collapsible.Content>

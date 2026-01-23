@@ -26,6 +26,7 @@ import Skeleton from "react-loading-skeleton"
 import auth from "@/Auth"
 import {DashboardContext} from "@/context/DashboardContext"
 import TextField from "@/components/inputs/textField/textField"
+import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 
 export default function Overview() {
     const client = useApolloClient()
@@ -177,10 +178,12 @@ export default function Overview() {
             <div className="grid">
                 {shotlists.map((shotlist: ShotlistDto) => (
                     <Link href={`/shotlist/${shotlist.id}`} key={shotlist.id} className="gridItem shotlist">
-                        <div className="top">
-                            <NotepadText size={18}/>
-                            <h3>{shotlist.name || <span className='italic'>Unnamed</span>}</h3>
-                        </div>
+                        <SimpleTooltip text={shotlist.name || "Unnamed"}>
+                            <div className="top">
+                                <NotepadText size={18}/>
+                                <h3>{shotlist.name || <span className='italic'>Unnamed</span>}</h3>
+                            </div>
+                        </SimpleTooltip>
                         <p className={"bold"}>
                             {shotlist.sceneCount} scene{shotlist.sceneCount && shotlist.sceneCount === 1 ? "" : "s"}
                             {" • "}
@@ -201,10 +204,12 @@ export default function Overview() {
             <div className="grid">
                 {templates.sort(Utils.orderShotlistsOrTemplatesByName).map((template: TemplateDto) => (
                     <Link href={`dashboard/template/${template.id}`} key={template.id} className="gridItem template">
-                        <div className="top">
-                            <Blocks size={18}/>
-                            <h3>{template.name || <span className='italic'>Unnamed</span>}</h3>
-                        </div>
+                        <SimpleTooltip text={template.name || "Unnamed"}>
+                            <div className="top">
+                                <Blocks size={18}/>
+                                <h3>{template.name || <span className='italic'>Unnamed</span>}</h3>
+                            </div>
+                        </SimpleTooltip>
                         <p>
                             {"Scenes: "}
                             <span className={"bold"}>
