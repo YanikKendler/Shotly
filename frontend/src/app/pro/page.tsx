@@ -82,7 +82,7 @@ export default function Pro(){
             <SimplePage className={"pro"}>
                 <h1>You already own Shotly Pro!</h1>
                 <p>
-                    I hope you are enjoying Shotly, if you run into any issues or have a feature request, feel free to reach out at <Link className={"noPadding inline"} href={"mailto:yanik.kendler@gmail.com"}>yanik.kendler@gmail.com</Link> or <Link className={"noPadding inline"} href={"https://github.com/YanikKendler/shotly/issues/new/choose"}>create a new Issue on GitHub</Link>.
+                    I hope you are enjoying Shotly, if you run into any issues or have a feature request, feel free to reach out to <Link className={"noPadding inline"} href={"mailto:yanik.kendler@gmail.com"}>yanik.kendler@gmail.com</Link> or <Link className={"noPadding inline"} href={"https://github.com/YanikKendler/shotly/issues/new/choose"}>create a new Issue on GitHub</Link>.
                 </p>
                 <p>Thank you for supporting my work :D</p>
 
