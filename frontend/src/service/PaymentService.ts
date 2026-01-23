@@ -11,12 +11,19 @@ export default class PaymentService {
                 "Authorization": `Bearer ${Auth.getIdToken()}`
             }
         })
-            .then(res => res.json())
-            .then(data => {
-                console.log(data);
-                //window.location.href = data.url;
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`Server returned status ${res.status}`);
+                }
+                return res.json();
             })
-            .catch(err => console.error("Error:", err));
+            .then(data => {
+                window.location.href = data.url;
+            })
+            .catch(err => {
+                //TODO notification
+                console.error("Error:", err)
+            });
     }
 
     static subscribeToPro() {
@@ -31,10 +38,18 @@ export default class PaymentService {
                 lookupKey: "shotly_pro_monthly"
             }),
         })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`Server returned status ${res.status}`);
+                }
+                return res.json();
+            })
             .then(data => {
                 window.location.href = data.url;
             })
-            .catch(err => console.error("Error:", err));
+            .catch(err => {
+                //TODO notification
+                console.error("Error:", err)
+            });
     }
 }

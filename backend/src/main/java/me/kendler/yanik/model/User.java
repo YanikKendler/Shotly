@@ -37,6 +37,9 @@ public class User extends PanacheEntityBase {
     public boolean hasCancelled = false;
     public boolean isActive = true;
     public LocalDate revokeProAfter;
+    //for blocking and retrying actions if user version is outdated
+    @Version
+    public Long version;
 
     public User() {
         this.createdAt = ZonedDateTime.now(ZoneOffset.UTC);

@@ -96,7 +96,7 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
     public ShotlistDTO create(ShotlistCreateDTO createDTO, JsonWebToken jwt){
         User user = userRepository.findOrCreateByJWT(jwt);
 
-        if(user.tier == UserTier.BASIC && user.shotlists.size() >= 1){
+        if(user.tier == UserTier.BASIC && !user.shotlists.isEmpty()){
             throw new ShotlyException("Basic users can only have one shotlist", ShotlyErrorCode.SHOTLIST_LIMIT_REACHED);
         }
 

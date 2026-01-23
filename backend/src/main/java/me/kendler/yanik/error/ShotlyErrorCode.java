@@ -13,7 +13,7 @@ public enum ShotlyErrorCode {
     ACCOUNT_DEACTIVATED,
     NO_STRIPE_CUSTOMER_ID,
     ALREADY_SUBSCRIBED,
-    PRICE_NOT_FOUND,
+    CHECKOUT_FAILED,
 
     INVALID_INPUT, // generic error for invalid input data
     IMPOSSIBLE_INPUT // input that should never be possible and suggest a bug or designed misuse

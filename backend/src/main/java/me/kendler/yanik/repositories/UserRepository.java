@@ -93,6 +93,7 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     public UserDTO getCurrentUserDTO(JsonWebToken jwt) {
         User user = findOrCreateByJWT(jwt);
         if(user.tier != UserTier.BASIC && user.revokeProAfter != null && user.revokeProAfter.isBefore(LocalDate.now())){
+            LOGGER.infof("Revoking %s from user %s due to subscription expiration", user.tier.name(), user.toString());
             user.tier = UserTier.BASIC;
             persist(user);
         }

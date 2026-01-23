@@ -119,6 +119,13 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-websockets-next</artifactId>
         </dependency>
+
+        <!-- ERROR HANDLING mainly for @Retry at the moment -->
+
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-fault-tolerance</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

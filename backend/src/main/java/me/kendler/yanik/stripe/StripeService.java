@@ -1,6 +1,7 @@
 package me.kendler.yanik.stripe;
 
 import com.stripe.Stripe;
+import com.stripe.exception.InvalidRequestException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
 import com.stripe.model.checkout.Session;
@@ -42,10 +43,18 @@ public class StripeService {
         Stripe.apiKey = apiKey;
     }
 
-    public Session createCheckoutSession(String lookupKey, JsonWebToken jwt) throws StripeException {
-        PriceCollection prices = Price.list(PriceListParams.builder().addLookupKey(lookupKey).build());
+    public Session createCheckoutSession(String lookupKey, JsonWebToken jwt) {
+        PriceCollection prices;
+
+        try{
+            prices = Price.list(PriceListParams.builder().addLookupKey(lookupKey).build());
+        }catch (StripeException e){
+            LOGGER.error("Error retrieving price for lookup key: " + lookupKey + ". Error: " + e.getMessage());
+            throw new ShotlyException("Error retrieving price from Stripe.", ShotlyErrorCode.NOT_FOUND);
+        }
+
         if (prices.getData().isEmpty()) {
-            throw new ShotlyException("No price found for lookup key: " + lookupKey, ShotlyErrorCode.PRICE_NOT_FOUND);
+            throw new ShotlyException("No price found for lookup key: " + lookupKey, ShotlyErrorCode.NOT_FOUND);
         }
         String priceId = prices.getData().get(0).getId();
 
@@ -58,15 +67,21 @@ public class StripeService {
                     .setPrice(priceId)
                     .build();
 
-            SubscriptionCollection subscriptions = Subscription.list(listParams);
+            SubscriptionCollection subscriptions;
+
+            try{
+                subscriptions = Subscription.list(listParams);
+            }catch (StripeException e){
+                LOGGER.error("Error retrieving subscriptions for user " + user.name + " with Stripe Customer ID: " + user.stripeCustomerId + ". Error: " + e.getMessage());
+                throw new ShotlyException("Error retrieving subscriptions from Stripe.", ShotlyErrorCode.NOT_FOUND);
+            }
 
             for (Subscription sub : subscriptions.getData()) {
                 // Check for active-like statuses
                 if (sub.getStatus().equals("active") ||
                         sub.getStatus().equals("trialing") ||
                         sub.getStatus().equals("past_due")) {
-                    LOGGER.warn("User " + user.name + " (Stripe Customer ID: " + user.stripeCustomerId +
-                            ") is already actively subscribed to price " + priceId);
+                    LOGGER.warn("User " + user.name + " (Stripe Customer ID: " + user.stripeCustomerId + ") is already actively subscribed to price " + priceId);
                     throw new ShotlyException("User is already subscribed to this product.", ShotlyErrorCode.ALREADY_SUBSCRIBED);
                 }
             }
@@ -97,10 +112,19 @@ public class StripeService {
             sessionBuilder.setCustomer(user.stripeCustomerId);
         }
 
-        return Session.create(sessionBuilder.build());
+        Session session;
+
+        try {
+            session = Session.create(sessionBuilder.build());
+        }catch (StripeException e){
+            LOGGER.error("Error creating checkout session for user " + user.name + ". Error: " + e.getMessage());
+            throw new ShotlyException("Error creating checkout session.", ShotlyErrorCode.CHECKOUT_FAILED);
+        }
+
+        return session;
     }
 
-    public com.stripe.model.billingportal.Session createPortalSession(JsonWebToken jwt) throws StripeException {
+    public com.stripe.model.billingportal.Session createPortalSession(JsonWebToken jwt) {
         User user = userRepository.findOrCreateByJWT(jwt);
 
         //edge case where the DB lost the user's stripeCustomerId
@@ -109,12 +133,22 @@ public class StripeService {
             throw new ShotlyException("User does not have a Stripe Customer ID.", ShotlyErrorCode.NO_STRIPE_CUSTOMER_ID);
         }
 
-        return com.stripe.model.billingportal.Session.create(
-                com.stripe.param.billingportal.SessionCreateParams.builder()
-                        .setCustomer(user.stripeCustomerId)
-                        .setReturnUrl(frontendUrl + "/dashboard")
-                        .build()
-        );
+        com.stripe.model.billingportal.Session session;
+
+        try {
+            session = com.stripe.model.billingportal.Session.create(
+                    com.stripe.param.billingportal.SessionCreateParams.builder()
+                            .setCustomer(user.stripeCustomerId)
+                            .setReturnUrl(frontendUrl + "/dashboard")
+                            .build()
+            );
+        }
+        catch (StripeException e){
+            LOGGER.error("Error creating portal session for user " + user.name + ". Error: " + e.getMessage());
+            throw new ShotlyException("Error creating portal session.", ShotlyErrorCode.CHECKOUT_FAILED);
+        }
+
+        return session;
     }
 
     @Transactional
@@ -185,14 +219,17 @@ public class StripeService {
                     case "customer.subscription.updated":
                         LOGGER.info("Subscription updated for user: " + user.name + ", status: " + sub.getStatus());
                         if (sub.getCancelAtPeriodEnd()) {
+                            LOGGER.info("User: " + user.name + " has cancelled his subscription.");
                             user.hasCancelled = true;
-                            userRepository.persist(user);
                         }
-                        if(sub.getStatus().equals("active") || sub.getStatus().equals("trialing")) {
+                        if(sub.getStatus().equals("active")) {
+                            LOGGER.info("User: " + user.name + " remains as PRO.");
                             user.tier = UserTier.PRO;
                         } else if (sub.getStatus().equals("canceled") || sub.getStatus().equals("unpaid")) {
+                            LOGGER.info("User: " + user.name + " subscription is no longer active. Downgrading to BASIC.");
                             user.tier = UserTier.BASIC;
                         }
+                        userRepository.persist(user);
                         break;
                     case "customer.subscription.deleted":
                         LOGGER.info("Subscription deleted for user: " + user.name + ", ID: " + sub.getId());
