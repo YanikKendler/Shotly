@@ -132,7 +132,7 @@ export default function Overview() {
         if(errors) {
             errorNotification({
                 title: "Failed to update Username",
-                sub: "Please contact yanik.kendler@gmail.com or try again later"
+                sub: "Please contact yanik@shotly.at or try again later"
             })
             console.error("Error updating username:", errors);
             return;

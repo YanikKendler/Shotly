@@ -9,7 +9,7 @@ export default function freeForStudents(){
             <p>
                 Shotly was born when I was a Student myself and did not want to pay wild amounts for other shotlist tools.
                 If you feel that the free Tier is not enough for your needs and you genuinely cannot afford Shotly Pro,
-                please reach out to me at <Link className={"inline"} href={"mailto:yanik.kendler@gmail.com"}>yanik.kendler@gmail.com</Link>
+                please reach out to me at <Link className={"inline"} href={"mailto:yanik@shotly.at"}>yanik@shotly.at</Link>
             </p>
 
             <p>Your email should include the following:</p>

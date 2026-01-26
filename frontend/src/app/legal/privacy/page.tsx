@@ -9,7 +9,7 @@ export default function Privacy(){
                 Pfennigmayrstraße 8<br/>
                 4641 Steinhaus<br/>
                 Austria<br/>
-                Email: yanik.kendler@gmail.com</p>
+                Email: yanik@shotly.at</p>
 
             <h2>2. Collection and Processing of Personal Data</h2>
             <p>The following personal data is processed when using Shotly:</p>
@@ -56,12 +56,12 @@ export default function Privacy(){
                 withdraw consent at any time.
             </p>
             <p>
-                For complaints or questions: <Link className={"inline"} href="mailto:yanik.kendler@gmail.com">yanik.kendler@gmail.com</Link>
+                For complaints or questions: <Link className={"inline"} href="mailto:yanik@shotly.at">yanik@shotly.at</Link>
             </p>
 
             <h2>8. Contact for Data Protection Issues</h2>
             <p>
-                Email: <Link className={"inline"} href="mailto:yanik.kendler@gmail.com">yanik.kendler@gmail.com</Link>
+                Email: <Link className={"inline"} href="mailto:yanik@shotly.at">yanik@shotly.at</Link>
             </p>
         </>
     )

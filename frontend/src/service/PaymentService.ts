@@ -17,7 +17,7 @@ export default class PaymentService {
             errorNotification({
                 message: data.message,
                 title: "Could not redirect to billing portal",
-                sub: "Please contact yanik.kendler@gmail.com."
+                sub: "Please contact yanik@shotly.at."
             })
             return
         }
@@ -44,7 +44,7 @@ export default class PaymentService {
             errorNotification({
                 message: data.message,
                 title: "Could not redirect to billing portal",
-                sub: "Please contact yanik.kendler@gmail.com."
+                sub: "Please contact yanik@shotly.at."
             })
             return
         }

@@ -11,7 +11,7 @@ export default function LegalNotice() {
                 4641 Steinhaus<br/>
                 Austria
             </p>
-            <p>Email: <Link className={"inline"} href="mailto:yanik.kendler@gmail.com">yanik.kendler@gmail.com</Link></p>
+            <p>Email: <Link className={"inline"} href="mailto:yanik@shotly.at">yanik@shotly.at</Link></p>
             <p>
                 <strong>Activity:</strong>
                 Provision of the "Shotly" web application for creating and managing shot lists

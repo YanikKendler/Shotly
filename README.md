@@ -3,7 +3,7 @@ A freemium, source available, no-ai, clean yet powerful shotlist creation tool f
 
 ## License
 
-This project is licensed under the [PolyForm Noncommercial License 1.0.0](./LICENSE.md). For commercial use permissions, please contact [Yanik Kendler](mailto:yanik.kendler@gmail.com).
+This project is licensed under the [PolyForm Noncommercial License 1.0.0](./LICENSE.md). For commercial use permissions, please contact [Yanik Kendler](mailto:yanik@shotly.at).
 
 This project was originally released open source under the [MIT License](https://opensource.org/license/mit). To prevent corporations from profiting from this work without contributing back or obtaining explicit permission, I have transitioned the project to the [PolyForm Noncommercial License](https://polyformproject.org/licenses/noncommercial/1.0.0) effective **January 18, 2026**.
 

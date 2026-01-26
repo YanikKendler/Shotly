@@ -7,7 +7,7 @@ export default function NotAllowed() {
             description="Shotly is experiencing technical difficulties. Please inform me about the issue and try again later."
             link={[
                 {
-                    href: "mailto:yanik.kendler@gmail.com",
+                    href: "mailto:yanik@shotly.at",
                     text: "Contact me",
                 },
                 {
