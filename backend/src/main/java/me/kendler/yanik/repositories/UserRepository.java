@@ -4,6 +4,7 @@ import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
+import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.auth0.Auth0Service;
 import me.kendler.yanik.dto.user.UserDTO;
@@ -50,36 +51,29 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     @Transactional
     @ActivateRequestContext // gpt said to do this because of "RequestScoped context was not active" error
     public User findOrCreateByJWT(JsonWebToken jwt) {
+
         String auth0Sub = jwt.getClaim("sub");
-        if (auth0Sub == null) {
-            LOGGER.errorf("Tried to find user by JWT %s, but JWT does not contain 'sub' claim", jwt.toString());
-            throw new ShotlyException("JWT does not contain 'sub' claim", ShotlyErrorCode.INVALID_INPUT);
+
+        User user = findByAuth0SubWithFetch(auth0Sub);
+        if (user != null) {
+            if (!user.isActive) {
+                throw new ShotlyException("User account is deactivated",
+                        ShotlyErrorCode.ACCOUNT_DEACTIVATED);
+            }
+            return user;
         }
 
-        //required because lazy loading :3
-        User user = getEntityManager().createQuery("""
-                        SELECT DISTINCT u FROM User u
-                        LEFT JOIN FETCH u.shotlists
-                        LEFT JOIN FETCH u.templates
-                        WHERE u.auth0Sub = :auth0Sub
-                        """, User.class)
-                .setParameter("auth0Sub", auth0Sub)
-                .getResultStream()
-                .findFirst()
-                .orElse(null);
+        User newUser = new User(
+                auth0Sub,
+                jwt.getClaim("name"),
+                jwt.getClaim("email")
+        );
 
-        if (user != null) {
-            if(!user.isActive){
-                throw new ShotlyException("User account is deactivated", ShotlyErrorCode.ACCOUNT_DEACTIVATED);
-            }else{
-                return user;
-            }
-        } else {
-            User newUser = new User(auth0Sub, jwt.getClaim("name"), jwt.getClaim("email"));
-            persist(newUser);
-            flush();
+        try {
+            createUser(newUser);
 
-            LOGGER.infof("Created new user: %s", newUser.toString());
+            LOGGER.infof("Created new user: %s", newUser);
+
             Template defaultTemplate = new Template(newUser, "Default");
             templateRepository.persist(defaultTemplate);
 
@@ -92,7 +86,31 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
             sceneAttributeTemplateRepository.persist(location);
 
             return newUser;
+
+        } catch (PersistenceException e) {
+            LOGGER.info("Duplicate user detected, refetching");
+            return findByAuth0SubWithFetch(auth0Sub);
         }
+    }
+
+    public User findByAuth0SubWithFetch(String auth0Sub) {
+        return getEntityManager().createQuery("""
+            SELECT DISTINCT u FROM User u
+            LEFT JOIN FETCH u.shotlists
+            LEFT JOIN FETCH u.templates
+            WHERE u.auth0Sub = :auth0Sub
+            """, User.class)
+                .setParameter("auth0Sub", auth0Sub)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public User createUser(User user) {
+        persist(user);
+        flush();
+        return user;
     }
 
     @Transactional

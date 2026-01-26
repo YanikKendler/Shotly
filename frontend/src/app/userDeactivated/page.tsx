@@ -1,10 +1,10 @@
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 
-export default function NotAllowed() {
+export default function UserDeactivated() {
     return (
         <ErrorPage
             title="Acount Deactivated"
-            description="Your account has been specifically deactivated by an administrator."
+            description="Your account has been purposefully deactivated by an administrator."
             noLink
         />
     )
