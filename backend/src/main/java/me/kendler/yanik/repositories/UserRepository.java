@@ -19,6 +19,7 @@ import me.kendler.yanik.model.template.shotAttributes.ShotTextAttributeTemplate;
 import me.kendler.yanik.repositories.template.SceneAttributeTemplateRepository;
 import me.kendler.yanik.repositories.template.ShotAttributeTemplateRepository;
 import me.kendler.yanik.repositories.template.TemplateRepository;
+import me.kendler.yanik.stripe.StripeService;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
 
@@ -46,15 +47,18 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     @Inject
     Auth0Service auth0Service;
 
+    @Inject
+    StripeService stripeService;
+
     private static final Logger LOGGER = Logger.getLogger(UserRepository.class);
 
     @Transactional
     @ActivateRequestContext // gpt said to do this because of "RequestScoped context was not active" error
     public User findOrCreateByJWT(JsonWebToken jwt) {
-
         String auth0Sub = jwt.getClaim("sub");
 
         User user = findByAuth0SubWithFetch(auth0Sub);
+
         if (user != null) {
             if (!user.isActive) {
                 throw new ShotlyException("User account is deactivated",
@@ -156,6 +160,8 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         getEntityManager().createNativeQuery("DELETE FROM app_user WHERE id = ?1")
                 .setParameter(1, user.id)
                 .executeUpdate();
+
+        stripeService.cancelAllSubscriptions(user);
 
         auth0Service.deleteUser(user.auth0Sub);
 

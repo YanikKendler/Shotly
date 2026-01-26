@@ -6,6 +6,7 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.*;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.PriceListParams;
+import com.stripe.param.SubscriptionCancelParams;
 import com.stripe.param.SubscriptionListParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.annotation.PostConstruct;
@@ -149,6 +150,41 @@ public class StripeService {
         }
 
         return session;
+    }
+
+    public void cancelAllSubscriptions(User user) {
+        if(user == null){
+            throw new ShotlyException("User not found.", ShotlyErrorCode.NOT_FOUND);
+        }
+
+        if(user.stripeCustomerId == null || user.stripeCustomerId.isEmpty()){
+            LOGGER.info("User " + user.name + " does not have a Stripe Customer ID. No subscriptions to cancel.");
+            return;
+        }
+
+        SubscriptionListParams listParams = SubscriptionListParams.builder()
+                .setCustomer(user.stripeCustomerId)
+                .build();
+
+        SubscriptionCollection subscriptions;
+
+        try{
+            subscriptions = Subscription.list(listParams);
+        }catch (StripeException e){
+            LOGGER.error("Error retrieving subscriptions for user " + user.name + " with Stripe Customer ID: " + user.stripeCustomerId + ". Error: " + e.getMessage());
+            throw new ShotlyException("Error retrieving subscriptions from Stripe.", ShotlyErrorCode.NOT_FOUND);
+        }
+
+        SubscriptionCancelParams params = SubscriptionCancelParams.builder().build();
+
+        for (Subscription sub : subscriptions.getData()) {
+            try{
+                sub.cancel(params);
+            } catch (StripeException e){
+                LOGGER.error("Error cancelling subscription " + sub.getId() + " for user " + user.name + ". Error: " + e.getMessage());
+                throw new ShotlyException("Error cancelling subscription.", ShotlyErrorCode.CANCELLATION_FAILED);
+            }
+        }
     }
 
     @Transactional

@@ -297,6 +297,7 @@ export default function Shotlist() {
                 message: "Failed to load Shotlist.",
                 cause: result.errors
             })
+            setQuery(result)
             return
         }
 

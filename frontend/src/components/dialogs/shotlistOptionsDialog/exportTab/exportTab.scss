@@ -113,6 +113,11 @@ div.shotlistOptionsDialogExportTab{
           border-color: var(--default-interactable-hover-border);
           color: var(--text);
         }
+
+        @media (pointer: coarse){
+          //TODO hacky hotfix
+          display: none;
+        }
       }
     }
 

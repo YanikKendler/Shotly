@@ -86,8 +86,7 @@ public class ShotlistWebsocketService {
 
             broadcast(shotlistId, update.userId(), json);
         } catch (Exception e) {
-            LOGGER.errorf("Could not broadcast update %s to shotlist %s because of error: %s", update.toString(), shotlistId, e.toString());
-            throw new RuntimeException(e);
+            LOGGER.warnf("Could not broadcast update %s to shotlist %s because of error: %s", update.toString(), shotlistId, e.toString());
         }
     }
 

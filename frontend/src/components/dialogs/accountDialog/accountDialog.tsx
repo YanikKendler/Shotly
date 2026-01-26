@@ -179,7 +179,7 @@ export function useAccountDialog() {
     async function deleteAccount() {
         let decision = await confirm({
             title: "Are you sure?",
-            message: `This will delete your account and all associated data. The following shotlist(s) will be deleted: ${query.data.currentUser?.shotlists?.map(s => `"${s!.name}"`).join(", ")}. This action cannot be undone.`,
+            message: `This will delete your account and all associated data. The following shotlist(s) will be deleted: ${query.data.currentUser?.shotlists?.map(s => `"${s!.name}"`).join(", ")}. All running subscriptions will be canceled. This action cannot be undone.`,
             checkbox: true,
             buttons: {
                 confirm: {

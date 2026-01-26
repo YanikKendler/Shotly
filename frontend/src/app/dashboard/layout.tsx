@@ -135,7 +135,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                 title: "Failed to load dashboard data",
                 tryAgainLater: true
             })
-            return
         }
 
         setQuery(result)
