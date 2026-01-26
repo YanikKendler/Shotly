@@ -4,6 +4,16 @@
   display: grid;
   place-items: center;
 
+  .header{
+    position: absolute;
+    top: 0;
+    padding: .5rem;
+
+    .wordmark{
+      height: 2rem;
+    }
+  }
+
   .content{
     width: 90%;
     max-width: 650px;
@@ -12,6 +22,10 @@
     gap: 2rem;
     translate: -2rem 0;
     align-items: center;
+
+    @media screen and (max-width: 900px) {
+      translate: 0;
+    }
 
     .main{
       h1{
@@ -50,9 +64,13 @@
     .smiley{
       font-size: 15rem;
       z-index: -1;
-      color: var(--text-90);
+      color: var(--text-80);
       width: fit-content;
       white-space: nowrap;
+
+      @media screen and (max-width: 900px) {
+        display: none;
+      }
     }
 
     .buttons{

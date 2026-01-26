@@ -103,6 +103,10 @@
         color: var(--text-20);
         background-color: var(--hover-bg-10);
       }
+
+      @media (pointer: coarse){
+        opacity: 1;
+      }
     }
   }
 

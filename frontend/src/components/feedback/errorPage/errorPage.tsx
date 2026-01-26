@@ -4,6 +4,7 @@ import "./errorPage.scss"
 import React from "react"
 import Link from "next/link"
 import Utils from "@/util/Utils"
+import Wordmark from "@/components/wordmark"
 
 export default function ErrorPage(
     {
@@ -26,6 +27,9 @@ export default function ErrorPage(
 ) {
     return (
         <div className={"errorPage"}>
+            <div className={"header"}>
+                <Link href={"/"}><Wordmark/></Link>
+            </div>
             <div className="content">
                 <span className="smiley">:(</span>
                 <div className="main">
