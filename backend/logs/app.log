@@ -1,6 +1,0 @@
-2025-05-19 10:51:54 INFO  [runtime.devui.OidcDevUiRecorder] OIDC Dev Console: discovering the provider metadata at https://dev-pvlm4i5qpteni14h.us.auth0.com/.well-known/openid-configuration
-2025-05-19 10:51:54 INFO  [kendler.yanik.StartupListener] Initializing demo data...
-2025-05-19 10:51:54 INFO  [io.quarkus] backend 1.0-SNAPSHOT on JVM (powered by Quarkus 3.19.4) started in 3.371s. Listening on: http://localhost:8080
-2025-05-19 10:51:54 INFO  [io.quarkus] Profile dev activated. Live Coding activated.
-2025-05-19 10:51:54 INFO  [io.quarkus] Installed features: [agroal, cdi, hibernate-orm, hibernate-orm-panache, hibernate-validator, jdbc-postgresql, narayana-jta, oidc, rest, rest-jackson, security, smallrye-context-propagation, smallrye-graphql, smallrye-openapi, swagger-ui, vertx]
-2025-05-19 10:51:54 INFO  [deployment.dev.RuntimeUpdatesProcessor] Live reload total time: 3.407s 
