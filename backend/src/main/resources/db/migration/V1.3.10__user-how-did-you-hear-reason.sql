@@ -1,1 +1,1 @@
-ALTER TABLE app_user ADD COLUMN how_did_you_hear_reason VARCHAR(255);
+ALTER TABLE app_user ADD COLUMN howdidyouhearreason VARCHAR(255);
