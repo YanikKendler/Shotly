@@ -53,6 +53,7 @@ export function useAccountDialog() {
     const [settingsLoaded, setSettingsLoaded] = useState(false)
     
     useEffect(() => {
+        //load appearance from localstorage
         const appearance = localStorage.getItem(Config.localStorageKey.theme)
         if(appearance != null) {
             setSelectedAppearance(appearance)
@@ -61,16 +62,18 @@ export function useAccountDialog() {
             setSelectedAppearance("system")
         }
 
+        //load user settings from localstorage
         const userSettingsString = localStorage.getItem(Config.localStorageKey.userSettings)
-        if(userSettingsString != null) {
-            const newSettings = JSON.parse(userSettingsString) as UserSettings
-            setUserSettings(newSettings)
-            document.documentElement.style.setProperty("--shotlist-scale", newSettings.shotlistScale?.toString() || "1");
-        }
-        else{
+        if(userSettingsString == null || userSettingsString == ""){
             //nothing in localstorage currently, so write the default settings
             writeSettingsToLocalStorage()
             document.documentElement.style.setProperty("--shotlist-scale", "1");
+        }
+        else {
+            const newSettings = JSON.parse(userSettingsString) as UserSettings
+            setUserSettings(newSettings)
+            console.log(newSettings)
+            document.documentElement.style.setProperty("--shotlist-scale", newSettings.shotlistScale?.toString() || "1");
         }
 
         setSettingsLoaded(true)
@@ -99,7 +102,7 @@ export function useAccountDialog() {
         }
     }, [selectedAppearance])
 
-    //load settings from localstorage
+    //write settings to localstorage
     useEffect(() => {
         if(settingsLoaded == false) return
 
@@ -193,14 +196,14 @@ export function useAccountDialog() {
         setDeleting(true)
 
         const {data, errors} = await client.mutate({
-                mutation: gql`
-                    mutation deleteUser{
-                        deleteUser {
-                            id
-                        }
-                    }`
-            },
-        )
+            mutation: gql`
+                mutation deleteUser{
+                    deleteUser {
+                        id
+                    }
+                }
+            `
+        },)
 
         if(errors) {
             errorNotification({
@@ -416,6 +419,10 @@ export function useAccountDialog() {
                 <div className="row">
                     <p>Report a bug or request a feature</p>
                     <Link href={"https://github.com/YanikKendler/shotly/issues/new/choose"} target={"_blank"}>New issue</Link>
+                </div>
+                <div className="row">
+                    <p>Contact me via email</p>
+                    <Link href={"mailto:yanik@shotly.at"} target={"_blank"}>yanik@shotly.at</Link>
                 </div>
 
                 <Separator text={"Account"}/>

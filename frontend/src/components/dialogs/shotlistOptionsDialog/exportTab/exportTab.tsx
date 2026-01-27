@@ -79,6 +79,8 @@ export default function ExportTab(
     useEffect(() => {
         if(!shotlist || !shotlist.id) return
 
+        if(!Utils.getUserSettingsFromLocalStorage().saveExportSettingsInLocalstorage) return
+
         loadSettingsFromLocalStorage(shotlist.id)
         extractSceneOptions()
 

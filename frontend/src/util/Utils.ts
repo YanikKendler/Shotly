@@ -112,13 +112,19 @@ export default class Utils {
 
     static getUserSettingsFromLocalStorage(): UserSettings {
         const settingsString = localStorage.getItem(Config.localStorageKey.userSettings)
+
         if(settingsString) {
-            return JSON.parse(settingsString)
+            try{
+                return JSON.parse(settingsString)
+            }
+            catch (e) {
+                console.error("Error parsing user settings from localStorage:", e)
+            }
         }
 
         return {
             displaySceneNumbersNextToShotNumbers: false,
-            saveExportSettingsInLocalstorage: false,
+            saveExportSettingsInLocalstorage: true,
             shotNumberingAfterZ: "repeating",
             shotlistScale: 1
         }
