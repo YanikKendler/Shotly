@@ -37,6 +37,7 @@ public class User extends PanacheEntityBase {
     public boolean hasCancelled = false;
     public boolean isActive = true;
     public LocalDate revokeProAfter;
+    public String howDidYouHearReason;
     //for blocking and retrying actions if user version is outdated
     @Version
     public Long version;
@@ -81,7 +82,8 @@ public class User extends PanacheEntityBase {
                 tier,
                 stripeCustomerId,
                 hasCancelled,
-                revokeProAfter
+                revokeProAfter,
+                howDidYouHearReason
         );
     }
 

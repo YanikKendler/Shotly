@@ -28,6 +28,8 @@ import {DashboardContext} from "@/context/DashboardContext"
 import TextField from "@/components/inputs/textField/textField"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import {errorNotification} from "@/service/NotificationService"
+import { RadioGroup } from "radix-ui"
+import Radio from "@/components/inputs/radio/radio"
 
 export default function Overview() {
     const client = useApolloClient()
@@ -36,13 +38,6 @@ export default function Overview() {
 
     const [shotlists, setShotlists] = useState<ShotlistDto[]>([])
     const [templates, setTemplates] = useState<TemplateDto[]>([])
-
-    const searchParams = useSearchParams()
-    const justBoughtPro = searchParams?.get('jbp') === 'true'
-    const [justBoughtProDialogOpen, setJustBoughtProDialogOpen] = useState<boolean>(justBoughtPro)
-
-    const [enterNameDialogOpen, setEnterNameDialogOpen] = useState(false)
-    const [newName, setNewName] = useState<string>("")
 
     const { openCreateShotlistDialog, CreateShotlistDialog } = useCreateShotlistDialog()
     const { openCreateTemplateDialog, CreateTemplateDialog } = useCreateTemplateDialog()
@@ -72,16 +67,9 @@ export default function Overview() {
     })
 
     useEffect(() => {
-        if (justBoughtPro) {
-            setJustBoughtProDialogOpen(true)
-        }
-    }, []);
-
-    useEffect(() => {
         const email = dashboardContext.query.data.currentUser?.email
         const name = dashboardContext.query.data.currentUser?.name
         if(name && email && name == email){
-            setEnterNameDialogOpen(true)
             return
         }
 
@@ -107,58 +95,26 @@ export default function Overview() {
         }
     }
 
-    const handleJustBoughtProDialogOpenChange = (newOpen: boolean)=> {
-        setJustBoughtProDialogOpen(newOpen)
-        router.replace("/dashboard")
-    }
-
-    const handleNewUserName = async () => {
-        if(wuConstants.Regex.empty.test(newName)) return
-
-        const {data, errors} = await client.mutate({
-                mutation: gql`
-                    mutation updateUser($name: String!){
-                        updateUser(editDTO: {
-                            name: $name
-                        }) {
-                            id
-                            name
-                        }
-                    }`,
-                variables: {name: newName.trim()},
-            },
-        )
-
-        if(errors) {
-            errorNotification({
-                title: "Failed to update Username",
-                sub: "Please contact yanik@shotly.at or try again later"
-            })
-            console.error("Error updating username:", errors);
-            return;
-        }
-
-        setEnterNameDialogOpen(false)
-
-        checkAndShowIntroduction()
-    }
-
     if(dashboardContext.query.error) return (
-        <ErrorPage
-            title='Data could not be loaded'
-            description={dashboardContext.query.error.message}
-            reload
-            noLink
-        />
+        <main className="overview dashboardContent">
+            <ErrorPage
+                title='Data could not be loaded'
+                description={dashboardContext.query.error.message}
+                reload
+                noLink
+            />
+        </main>
     )
 
     if(dashboardContext.query.errors) return (
-        <ErrorPage
-            title='Data could not be loaded'
-            description={dashboardContext.query.errors.map(e => e.message).join(", ")}
-            reload
-            noLink
-        />
+        <main className="overview dashboardContent">
+            <ErrorPage
+                title='Data could not be loaded'
+                description={dashboardContext.query.errors.map(e => e.message).join(", ")}
+                reload
+                noLink
+            />
+        </main>
     )
 
     if(dashboardContext.query.loading) return (
@@ -233,55 +189,6 @@ export default function Overview() {
                     <span><Plus/>New Template</span>
                 </button>
             </div>
-
-            <Dialog.Root open={justBoughtProDialogOpen} onOpenChange={handleJustBoughtProDialogOpenChange}>
-                <Dialog.Portal>
-                    <Dialog.Overlay className={"dialogOverlay"}/>
-                    <Dialog.Content
-                        aria-describedby={"just bought pro dialog"}
-                        className={"justBoughtProDialogContent dialogContent"}
-
-                    >
-                        <Dialog.Title className={"title"}>Thank you for subscribing to Shotly Pro!</Dialog.Title>
-                        <p className={"financing"}>You are financing the development and server costs of Shotly, I am very grateful for that.</p>
-                        <p className={"issues"}>I hope you are satisfied with your Purchase! If you do however encounter any problems, please open an issue via the account tab.</p>
-                        <button onClick={() => handleJustBoughtProDialogOpenChange(false)}>Start creating</button>
-                    </Dialog.Content>
-                </Dialog.Portal>
-            </Dialog.Root>
-
-            <Dialog.Root open={enterNameDialogOpen}>
-                <Dialog.Portal>
-                    <Dialog.Overlay className={"dialogOverlay"}/>
-                    <Dialog.Content
-                        aria-describedby={"enter name dialog"}
-                        className={"enterNameDialogContent dialogContent"}
-                    >
-                        <Dialog.Title className={"title"}>Welcome to Shotly!</Dialog.Title>
-                        <p>
-                            <span className="bold">Please enter your name (or nickname) to continue.</span>
-                            <br/>
-                            <span className="gray">This name will be visible to all collaborators and can not be used to log in.</span>
-                        </p>
-                        <TextField
-                            value={newName}
-                            valueChange={setNewName}
-                            label={"Your name"}
-                            maxWidth={"100%"}
-                            placeholder={"Quentin Tarantino"}
-                            color={"accent"}
-                        />
-                        <p className={"small"}>You can always change your name in the Account settings.</p>
-
-                        <button
-                            disabled={wuConstants.Regex.empty.test(newName)}
-                            onClick={handleNewUserName}
-                        >
-                            Done
-                        </button>
-                    </Dialog.Content>
-                </Dialog.Portal>
-            </Dialog.Root>
 
             {CreateShotlistDialog}
             {CreateTemplateDialog}

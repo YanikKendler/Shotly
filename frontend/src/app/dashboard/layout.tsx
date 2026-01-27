@@ -22,11 +22,18 @@ import {
     RefreshCw,
     LoaderCircle
 } from "lucide-react"
-import {CollaborationDto, CollaborationState, Query, ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
-import {Collapsible, Popover, Tooltip} from "radix-ui"
+import {
+    CollaborationDto,
+    CollaborationState,
+    Query,
+    ShotlistDto,
+    TemplateDto,
+    UserDto
+} from "../../../lib/graphql/generated"
+import {Collapsible, Dialog, Popover, Tooltip} from "radix-ui"
 import {wuGeneral} from "@yanikkendler/web-utils"
 import auth from "@/Auth"
-import {usePathname, useRouter} from "next/navigation"
+import {usePathname, useRouter, useSearchParams} from "next/navigation"
 import {useCreateShotlistDialog} from "@/components/dialogs/createShotlistDialog/createShotlistDialog"
 import {useAccountDialog} from "@/components/dialogs/accountDialog/accountDialog"
 import Utils from "@/util/Utils"
@@ -41,6 +48,9 @@ import HelpLink from "@/components/helpLink/helpLink"
 import Separator from "@/components/separator/separator"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import {errorNotification} from "@/service/NotificationService"
+import TextField from "@/components/inputs/textField/textField"
+import {driver} from "driver.js"
+import Radio, {RadioResult} from "@/components/inputs/radio/radio"
 
 
 export default function DashboardLayout({children}: { children: React.ReactNode }) {
@@ -58,6 +68,42 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false)
     const [collaborationReloadAllowed, setCollaborationReloadAllowed] = useState<boolean>(true)
+
+    const searchParams = useSearchParams()
+    const justBoughtPro = searchParams?.get('jbp') === 'true'
+    const [justBoughtProDialogOpen, setJustBoughtProDialogOpen] = useState<boolean>(justBoughtPro)
+
+    const [enterNameDialogOpen, setEnterNameDialogOpen] = useState(false)
+    const [newName, setNewName] = useState<string>("")
+
+    const [howDidYouHearReason, setHowDidYouHearReason] = useState("")
+    const [howDidYouHearText, setHowDidYouHearText] = useState("")
+
+    const [howDidYouHearDialogOpen, setHowDidYouHearDialogOpen] = useState(false)
+
+    useEffect(() => {
+        if (justBoughtPro) {
+            setJustBoughtProDialogOpen(true)
+        }
+    }, []);
+
+    useEffect(() => {
+        if(!query.data.currentUser) return
+        
+        const email = query.data.currentUser?.email
+        const name = query.data.currentUser?.name
+
+        if(name && email && name == email){
+            setEnterNameDialogOpen(true)
+            return
+        }
+
+        const howDidYouHearReason = query.data.currentUser?.howDidYouHearReason
+
+        if(!howDidYouHearReason || wuConstants.Regex.empty.test(howDidYouHearReason)){
+            setHowDidYouHearDialogOpen(true)
+        }
+    }, [query.data.currentUser]);
 
     useEffect(() => {
         if(!auth.isAuthenticated()){
@@ -122,6 +168,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                         currentUser {
                             name
                             email
+                            howDidYouHearReason
                         }
                     }`,
                 fetchPolicy: "no-cache"
@@ -220,6 +267,84 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                 pendingCollaborations: newCollaborations
             }
         })
+    }
+
+    const handleJustBoughtProDialogOpenChange = (newOpen: boolean)=> {
+        setJustBoughtProDialogOpen(newOpen)
+        router.replace("/dashboard")
+    }
+
+    const handleNewUserName = async () => {
+        if(wuConstants.Regex.empty.test(newName)) return
+
+        const {data, errors} = await client.mutate({
+                mutation: gql`
+                    mutation updateUser($name: String!){
+                        updateUser(editDTO: {
+                            name: $name
+                        }) {
+                            id
+                            name
+                        }
+                    }`,
+                variables: {name: newName.trim()},
+            },
+        )
+
+        if(errors) {
+            errorNotification({
+                title: "Failed to update Username",
+                sub: "Please contact yanik@shotly.at or try again later"
+            })
+            console.error("Error updating username:", errors);
+            return;
+        }
+
+        setQuery({
+            ...query,
+            data: {
+                ...query.data,
+                currentUser: {
+                    ...query.data.currentUser as UserDto,
+                    name: data.updateUser.name
+                }
+            }
+        })
+
+        setEnterNameDialogOpen(false)
+    }
+
+    const handleHowDidYouHearReasonChange = (result: RadioResult) => {
+        setHowDidYouHearReason(result.value || "")
+        if(result.value == "other")
+            setHowDidYouHearText(result.otherText)
+    }
+
+    const handleHowDidYouHearReasonSubmit = async () => {
+        let reason = howDidYouHearReason
+        if(howDidYouHearReason == "other")
+            reason = howDidYouHearText
+
+        const {errors} = await client.mutate({
+            mutation: gql`
+                mutation setHowDidYourHearReason($reason: String!){
+                    howDidYourHearReason(reason: $reason) {
+                        id
+                    }
+                }
+            `,
+            variables: {reason: reason}
+        })
+
+        if(errors){
+            console.error(errors)
+            errorNotification({
+                title: "Failed to submit feedback",
+            })
+            //no return on purpose
+        }
+
+        setHowDidYouHearDialogOpen(false)
     }
 
     if(query.error) return <ErrorPage
@@ -480,6 +605,84 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             {CreateShotlistDialog}
             {CreateTemplateDialog}
             {AccountDialog}
+
+            <Dialog.Root open={justBoughtProDialogOpen} onOpenChange={handleJustBoughtProDialogOpenChange}>
+                <Dialog.Portal>
+                    <Dialog.Overlay className={"dialogOverlay"}/>
+                    <Dialog.Content
+                        aria-describedby={"just bought pro dialog"}
+                        className={"justBoughtProDialogContent dialogContent"}
+
+                    >
+                        <Dialog.Title className={"title"}>Thank you for subscribing to Shotly Pro!</Dialog.Title>
+                        <p className={"financing"}>You are financing the development and server costs of Shotly, I am very grateful for that.</p>
+                        <p className={"issues"}>I hope you are satisfied with your Purchase! If you do however encounter any problems, please open an issue via the account tab.</p>
+                        <button onClick={() => handleJustBoughtProDialogOpenChange(false)}>Start creating</button>
+                    </Dialog.Content>
+                </Dialog.Portal>
+            </Dialog.Root>
+
+            <Dialog.Root open={enterNameDialogOpen}>
+                <Dialog.Portal>
+                    <Dialog.Overlay className={"dialogOverlay"}/>
+                    <Dialog.Content
+                        aria-describedby={"enter name dialog"}
+                        className={"enterNameDialogContent dialogContent"}
+                    >
+                        <Dialog.Title className={"title"}>Welcome to Shotly!</Dialog.Title>
+                        <p>
+                            <span className="bold">Please enter your name (or nickname) to continue.</span>
+                            <br/>
+                            <span className="gray">This name will be visible to all collaborators and can not be used to log in.</span>
+                        </p>
+                        <TextField
+                            value={newName}
+                            valueChange={setNewName}
+                            label={"Your name"}
+                            maxWidth={"100%"}
+                            placeholder={"Quentin Tarantino"}
+                            color={"accent"}
+                        />
+                        <p className={"small"}>You can always change your name in the Account settings.</p>
+
+                        <button
+                            disabled={wuConstants.Regex.empty.test(newName)}
+                            onClick={handleNewUserName}
+                        >
+                            Done
+                        </button>
+                    </Dialog.Content>
+                </Dialog.Portal>
+            </Dialog.Root>
+
+            {
+                howDidYouHearDialogOpen &&
+                <div className="howDidYouHear">
+                    <h3>How did you hear about Shotly?</h3>
+                    <Radio
+                        options={[
+                            {value: "friend", label: "A friend"},
+                            {value: "work", label: "Work or colleagues"},
+                            {value: "reddit", label: "A Reddit post"},
+                            {value: "search", label: "A search engine (Google, Bing, etc.)"},
+                            {value: "ai", label: "An AI (GPT, Gemini, etc.)"},
+                        ]}
+                        value={howDidYouHearReason}
+                        onValueChange={handleHowDidYouHearReasonChange}
+                        textOption={true}
+                    />
+                    <button
+                        disabled={
+                            (howDidYouHearReason == "") ||
+                            (howDidYouHearReason == "other" && howDidYouHearText.length < 4)
+                        }
+                        onClick={handleHowDidYouHearReasonSubmit}
+                        className={"done"}
+                    >
+                        Send
+                    </button>
+                </div>
+            }
         </main>
         </DashboardContext.Provider>
     );

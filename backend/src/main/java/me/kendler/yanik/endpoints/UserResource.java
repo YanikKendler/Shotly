@@ -37,4 +37,9 @@ public class UserResource {
     public String triggerPasswordReset() {
         return userRepository.triggerPasswordReset(jwt);
     }
+
+    @Mutation
+    public User setHowDidYourHearReason(String reason) {
+        return userRepository.setHowDidYourHearReason(jwt, reason);
+    }
 }

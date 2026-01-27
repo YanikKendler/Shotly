@@ -25,5 +25,6 @@ public record UserDTO (
         UserTier tier,
         String stripeCustomerId,
         boolean hasCancelled,
-        LocalDate revokeProAfter
+        LocalDate revokeProAfter,
+        String howDidYouHearReason
 ) { }

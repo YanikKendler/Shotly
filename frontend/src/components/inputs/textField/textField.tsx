@@ -37,25 +37,27 @@ export default function TextField(
         debounceValueChange = false,
         autoComplete = true,
         loading = false,
-        color = "gray"
+        color = "gray",
+        visible = true
     }
     :
     {
-        label?: string;
-        value?: string | null;
-        defaultValue?: string;
-        valueChange?: (value: string) => void;
-        placeholder?: string;
-        info?: string;
-        disabled?: boolean;
-        maxLength?: number;
-        maxWidth?: string;
-        inputClass?: string;
-        showLengthError?: boolean;
-        debounceValueChange?: boolean;
-        autoComplete?: boolean;
-        loading?: boolean;
+        label?: string
+        value?: string | null
+        defaultValue?: string
+        valueChange?: (value: string) => void
+        placeholder?: string
+        info?: string
+        disabled?: boolean
+        maxLength?: number
+        maxWidth?: string
+        inputClass?: string
+        showLengthError?: boolean
+        debounceValueChange?: boolean
+        autoComplete?: boolean
+        loading?: boolean
         color?: "gray" | "accent"
+        visible?: boolean
     }
 ) {
     const [currentValue, setCurrentValue] = useState<string>(value || defaultValue);
@@ -120,7 +122,7 @@ export default function TextField(
     } : {};
 
     return (
-        <div className={`textField ${color}`}>
+        <div className={`textField ${color}`} style={{display: visible ? "flex" : "none"}}>
             {
                 label &&
                 <label htmlFor={label}>{label}</label>
