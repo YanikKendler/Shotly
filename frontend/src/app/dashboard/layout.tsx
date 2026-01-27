@@ -284,15 +284,15 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                 }
             `,
             variables: {reason: reason}
+        }).then(({errors}) => {
+            if(errors){
+                console.error(errors)
+                errorNotification({
+                    title: "Failed to submit feedback",
+                })
+            }
         })
 
-        if(errors){
-            console.error(errors)
-            errorNotification({
-                title: "Failed to submit feedback",
-            })
-            //no return on purpose
-        }
 
         setHowDidYouHearDialogOpen(false)
         incrementDialogStep()

@@ -37,7 +37,7 @@ export default function EnterNameDialog(){
     const handleNewUserName = async () => {
         if(wuConstants.Regex.empty.test(newName)) return
 
-        const {data, errors} = await client.mutate({
+        client.mutate({
                 mutation: gql`
                     mutation updateUser($name: String!){
                         updateUser(editDTO: {
@@ -49,16 +49,15 @@ export default function EnterNameDialog(){
                     }`,
                 variables: {name: newName.trim()},
             },
-        )
-
-        if(errors) {
-            errorNotification({
-                title: "Failed to update Username",
-                tryAgainLater: true
-            })
-            console.error("Error updating username:", errors);
-            //no return on purpose, will show up again on next visit
-        }
+        ).then(({errors}) => {
+            if(errors) {
+                errorNotification({
+                    title: "Failed to update Username",
+                    tryAgainLater: true
+                })
+                console.error("Error updating username:", errors);
+            }
+        })
 
         setDialogOpen(false)
         dashboardContext.incrementDialogStep()
