@@ -104,7 +104,7 @@ export default function Pro(){
                 <p>Since you are a student living off student money and stuff :D</p>
                 <p>Lets hope you are not american.. then you would be living off student debt :(</p>
                 <br/>
-                <p>Your pro subscription will be revoked after {wuTime.toDateString(currentUser.revokeProAfter) || "Unkown"}.</p>
+                <p>Your pro subscription will be revoked after {wuTime.toDateString(currentUser.revokeProAfter) || "unkown"}.</p>
 
                 <div className="buttons">
                     <Link className={"filled"} href={"/dashboard"}>To your Dashboard</Link>
@@ -120,7 +120,7 @@ export default function Pro(){
                 <br/>
                 {
                     currentUser.revokeProAfter &&
-                    <p>Your pro subscription will be revoked after {wuTime.toDateString(currentUser.revokeProAfter) || "Unkown"}.</p>
+                    <p>Your pro subscription will be revoked after {wuTime.toDateString(currentUser.revokeProAfter) || "unkown"}.</p>
                 }
 
                 <div className="buttons">
@@ -133,7 +133,7 @@ export default function Pro(){
             return (
                 <SimplePage className={"pro"}>
                     <h1>Thank you for choosing Shotly Pro!</h1>
-                    <p>You will get access to <span>unlimited Shotlists</span> and <span>unlimited Collaborators</span>.
+                    <p>You will regain access to <span>unlimited Shotlists</span> and <span>unlimited Collaborators</span>.
                     </p>
                     <p>All of your existing shotlists will no longer be read-only!</p>
                     <div className="buttons">
@@ -160,7 +160,7 @@ export default function Pro(){
             return (
                 <SimplePage className={"pro"}>
                     <h1>Thank you for choosing Shotly Pro!</h1>
-                    <p>You will get access to <span>unlimited Shotlists</span> and <span>unlimited Collaborators</span>.
+                    <p>You will get access to <span>unlimited Shotlists</span> and <span>unlimited Collaborators</span> for <span>2.99€</span>/month.
                     </p>
                     <p>And thanks for supporting my work :D</p>
                     <div className="buttons">
