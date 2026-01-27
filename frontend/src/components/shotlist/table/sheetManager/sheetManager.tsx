@@ -39,6 +39,7 @@ export interface SheetManagerRef {
 
 export interface SheetManagerProps {
     selectedScene: SelectedScene
+    pageLoading: boolean
     shotAttributeDefinitions: ShotAttributeDefinitionBase[] | null
     isReadOnly: boolean
     shotlistHeaderRef: RefObject<HTMLDivElement | null>
@@ -50,6 +51,7 @@ export interface SheetManagerProps {
  */
 const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     selectedScene,
+    pageLoading,
     shotAttributeDefinitions,
     isReadOnly,
     shotlistHeaderRef
@@ -420,7 +422,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         })
     }
 
-    if(!shotAttributeDefinitions || (!isReadOnly && shotAttributeDefinitions.length == 0)) {
+    if(!pageLoading && (!shotAttributeDefinitions || (!isReadOnly && shotAttributeDefinitions.length == 0))) {
         return <div className="sheetManager">
             <p className={"empty"}>
                 {"Add a "}
@@ -438,7 +440,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         </div>
     }
 
-    if(query.loading) {
+    if(pageLoading || query.loading) {
         return <div className="sheetManager">
             <Skeleton count={5} height="38px"/>
         </div>
@@ -471,7 +473,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         return <div className="sheetManager"><ErrorDisplay title={query.error.message}/></div>
 
     if(isReadOnly){
-        if((query.data.shots && query.data.shots.length <= 0) || shotAttributeDefinitions.length == 0){
+        if((query.data.shots && query.data.shots.length <= 0)){
             return <div className="sheetManager">
                 <p className={"empty"}>
                     No Shots here yet ¯\(o_o)/¯
@@ -528,7 +530,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
             <div ref={creationLoaderRef} style={{display: "none"}} className={"sheetRow"}>
                 <Cell row={-1} column={-1} type={["number", "loader"]}><Skeleton/></Cell>
 
-                {shotAttributeDefinitions.map((shotAttributeDefinition, index) => {
+                {shotAttributeDefinitions?.map((shotAttributeDefinition, index) => {
                     return (
                         <Cell
                             row={-1}
@@ -547,7 +549,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                 <div className={"sheetRow"}>
                     <Cell row={-1} column={-1} type={["number", "create"]}><span>#</span></Cell>
 
-                    {shotAttributeDefinitions.map((shotAttributeDefinition, index) => {
+                    {shotAttributeDefinitions?.map((shotAttributeDefinition, index) => {
                         let Icon = ShotAttributeDefinitionParser.toIcon(shotAttributeDefinition as AnyShotAttributeDefinition)
                         return (
                             <Cell
