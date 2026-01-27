@@ -41,17 +41,16 @@ import Iconmark from "@/components/iconmark"
 import {useCreateTemplateDialog} from "@/components/dialogs/createTemplateDialog/createTemplateDialog"
 import Skeleton from "react-loading-skeleton"
 import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
-import { DashboardContext } from "@/context/DashboardContext"
+import {DashboardContext, DialogStep} from "@/context/DashboardContext"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
 import Config from "@/util/Config"
 import HelpLink from "@/components/helpLink/helpLink"
 import Separator from "@/components/separator/separator"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import {errorNotification} from "@/service/NotificationService"
-import TextField from "@/components/inputs/textField/textField"
-import {driver} from "driver.js"
 import Radio, {RadioResult} from "@/components/inputs/radio/radio"
-
+import JustBoughtProDialog from "@/components/dialogs/justBoughtProDialog/justBoughtProDialog"
+import EnterNameDialog from "@/components/dialogs/enterNameDialog/enterNameDialog"
 
 export default function DashboardLayout({children}: { children: React.ReactNode }) {
     const client = useApolloClient()
@@ -64,46 +63,31 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
+    const [dialogStep, setDialogStep] = useState(DialogStep.LOADING)
+
     const [pendingCollaborations, setPendingCollaborations] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false)
     const [collaborationReloadAllowed, setCollaborationReloadAllowed] = useState<boolean>(true)
 
-    const searchParams = useSearchParams()
-    const justBoughtPro = searchParams?.get('jbp') === 'true'
-    const [justBoughtProDialogOpen, setJustBoughtProDialogOpen] = useState<boolean>(justBoughtPro)
-
-    const [enterNameDialogOpen, setEnterNameDialogOpen] = useState(false)
-    const [newName, setNewName] = useState<string>("")
-
+    const [howDidYouHearDialogOpen, setHowDidYouHearDialogOpen] = useState(false)
     const [howDidYouHearReason, setHowDidYouHearReason] = useState("")
     const [howDidYouHearText, setHowDidYouHearText] = useState("")
 
-    const [howDidYouHearDialogOpen, setHowDidYouHearDialogOpen] = useState(false)
-
-    useEffect(() => {
-        if (justBoughtPro) {
-            setJustBoughtProDialogOpen(true)
-        }
-    }, []);
-
     useEffect(() => {
         if(!query.data.currentUser) return
-        
-        const email = query.data.currentUser?.email
-        const name = query.data.currentUser?.name
 
-        if(name && email && name == email){
-            setEnterNameDialogOpen(true)
-            return
-        }
+        if(dialogStep != DialogStep.HOW_DID_YOU_HEAR) return
 
         const howDidYouHearReason = query.data.currentUser?.howDidYouHearReason
 
         if(!howDidYouHearReason || wuConstants.Regex.empty.test(howDidYouHearReason)){
             setHowDidYouHearDialogOpen(true)
         }
-    }, [query.data.currentUser]);
+        else{
+            incrementDialogStep()
+        }
+    }, [dialogStep])
 
     useEffect(() => {
         if(!auth.isAuthenticated()){
@@ -117,6 +101,13 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         loadPendingCollaborations()
         setCollaborationReloadAllowed(true)
     }, [])
+
+    useEffect(() => {
+        if(!query.loading && dialogStep == DialogStep.LOADING) {
+            setDialogStep(1)
+            console.log("incrementing dialog step to", 1)
+        }
+    }, [query.loading])
 
     const loadData = async () => {
         const result = await client.query({
@@ -185,6 +176,10 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         }
 
         setQuery(result)
+    }
+
+    const incrementDialogStep = () => {
+        setDialogStep(step => step + 1)
     }
 
     const loadPendingCollaborations = async () => {
@@ -269,51 +264,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         })
     }
 
-    const handleJustBoughtProDialogOpenChange = (newOpen: boolean)=> {
-        setJustBoughtProDialogOpen(newOpen)
-        router.replace("/dashboard")
-    }
-
-    const handleNewUserName = async () => {
-        if(wuConstants.Regex.empty.test(newName)) return
-
-        const {data, errors} = await client.mutate({
-                mutation: gql`
-                    mutation updateUser($name: String!){
-                        updateUser(editDTO: {
-                            name: $name
-                        }) {
-                            id
-                            name
-                        }
-                    }`,
-                variables: {name: newName.trim()},
-            },
-        )
-
-        if(errors) {
-            errorNotification({
-                title: "Failed to update Username",
-                sub: "Please contact yanik@shotly.at or try again later"
-            })
-            console.error("Error updating username:", errors);
-            return;
-        }
-
-        setQuery({
-            ...query,
-            data: {
-                ...query.data,
-                currentUser: {
-                    ...query.data.currentUser as UserDto,
-                    name: data.updateUser.name
-                }
-            }
-        })
-
-        setEnterNameDialogOpen(false)
-    }
-
     const handleHowDidYouHearReasonChange = (result: RadioResult) => {
         setHowDidYouHearReason(result.value || "")
         if(result.value == "other")
@@ -345,6 +295,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         }
 
         setHowDidYouHearDialogOpen(false)
+        incrementDialogStep()
     }
 
     if(query.error) return <ErrorPage
@@ -362,7 +313,9 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             query: query,
             setQuery: setQuery,
             pendingCollaborations: pendingCollaborations,
-            setPendingCollaborations: setPendingCollaborations
+            setPendingCollaborations: setPendingCollaborations,
+            dialogStep: dialogStep,
+            incrementDialogStep: incrementDialogStep
         }}>
         <main className="home">
             <PanelGroup autoSaveId={"shotly-dashboard-sidebar-width"} direction="horizontal" className={"PanelGroup"}>
@@ -606,54 +559,8 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             {CreateTemplateDialog}
             {AccountDialog}
 
-            <Dialog.Root open={justBoughtProDialogOpen} onOpenChange={handleJustBoughtProDialogOpenChange}>
-                <Dialog.Portal>
-                    <Dialog.Overlay className={"dialogOverlay"}/>
-                    <Dialog.Content
-                        aria-describedby={"just bought pro dialog"}
-                        className={"justBoughtProDialogContent dialogContent"}
-
-                    >
-                        <Dialog.Title className={"title"}>Thank you for subscribing to Shotly Pro!</Dialog.Title>
-                        <p className={"financing"}>You are financing the development and server costs of Shotly, I am very grateful for that.</p>
-                        <p className={"issues"}>I hope you are satisfied with your Purchase! If you do however encounter any problems, please open an issue via the account tab.</p>
-                        <button onClick={() => handleJustBoughtProDialogOpenChange(false)}>Start creating</button>
-                    </Dialog.Content>
-                </Dialog.Portal>
-            </Dialog.Root>
-
-            <Dialog.Root open={enterNameDialogOpen}>
-                <Dialog.Portal>
-                    <Dialog.Overlay className={"dialogOverlay"}/>
-                    <Dialog.Content
-                        aria-describedby={"enter name dialog"}
-                        className={"enterNameDialogContent dialogContent"}
-                    >
-                        <Dialog.Title className={"title"}>Welcome to Shotly!</Dialog.Title>
-                        <p>
-                            <span className="bold">Please enter your name (or nickname) to continue.</span>
-                            <br/>
-                            <span className="gray">This name will be visible to all collaborators and can not be used to log in.</span>
-                        </p>
-                        <TextField
-                            value={newName}
-                            valueChange={setNewName}
-                            label={"Your name"}
-                            maxWidth={"100%"}
-                            placeholder={"Quentin Tarantino"}
-                            color={"accent"}
-                        />
-                        <p className={"small"}>You can always change your name in the Account settings.</p>
-
-                        <button
-                            disabled={wuConstants.Regex.empty.test(newName)}
-                            onClick={handleNewUserName}
-                        >
-                            Done
-                        </button>
-                    </Dialog.Content>
-                </Dialog.Portal>
-            </Dialog.Root>
+            <JustBoughtProDialog/>
+            <EnterNameDialog/>
 
             {
                 howDidYouHearDialogOpen &&

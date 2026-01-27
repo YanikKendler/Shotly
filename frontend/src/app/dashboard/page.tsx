@@ -1,39 +1,23 @@
 'use client'
 
-import gql from "graphql-tag"
 import Link from "next/link"
-import {ApolloError, ApolloQueryResult, useApolloClient, useQuery, useSuspenseQuery} from "@apollo/client"
 import "./dashboard.scss"
-import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 import React, {useContext, useEffect, useState} from "react"
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
-import {
-    Blocks,
-    NotepadText,
-    Plus,
-} from "lucide-react"
-import {Query, ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
-import {wuConstants, wuGeneral, wuTime} from "@yanikkendler/web-utils"
-import {useRouter, useSearchParams} from "next/navigation"
+import {Blocks, NotepadText, Plus,} from "lucide-react"
+import {ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
+import {wuTime} from "@yanikkendler/web-utils"
 import {useCreateShotlistDialog} from "@/components/dialogs/createShotlistDialog/createShotlistDialog"
 import Utils from "@/util/Utils"
 import Config from "@/util/Config"
 import {useCreateTemplateDialog} from "@/components/dialogs/createTemplateDialog/createTemplateDialog"
-import * as Dialog from "@radix-ui/react-dialog"
 import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
 import Skeleton from "react-loading-skeleton"
-import auth from "@/Auth"
-import {DashboardContext} from "@/context/DashboardContext"
-import TextField from "@/components/inputs/textField/textField"
+import {DashboardContext, DialogStep} from "@/context/DashboardContext"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
-import {errorNotification} from "@/service/NotificationService"
-import { RadioGroup } from "radix-ui"
-import Radio from "@/components/inputs/radio/radio"
 
 export default function Overview() {
-    const client = useApolloClient()
-    const router = useRouter()
     const dashboardContext = useContext(DashboardContext)
 
     const [shotlists, setShotlists] = useState<ShotlistDto[]>([])
@@ -63,18 +47,25 @@ export default function Overview() {
             { element: '.sidebar .template', popover: { description: 'You can use it when creating your first shotlist to start with a default attribute for shots and scenes.', side: "right", align: 'center' }},
 */
             { element: '.gridItem.add.shotlist', popover: { description: 'Click here to create a new Shotlist.', side: "bottom", align: 'center' }},
-        ]
+        ],
+        onDestroyed: () => {
+            dashboardContext.incrementDialogStep()
+        },
     })
 
+    //dashboard tour
     useEffect(() => {
-        const email = dashboardContext.query.data.currentUser?.email
-        const name = dashboardContext.query.data.currentUser?.name
-        if(name && email && name == email){
-            return
-        }
+        if(dashboardContext.dialogStep != DialogStep.TOUR) return;
 
-        checkAndShowIntroduction()
-    }, [dashboardContext.query.data.currentUser]);
+        if(localStorage.getItem(Config.localStorageKey.dashboardTourCompleted) != "true") {
+            localStorage.setItem(Config.localStorageKey.dashboardTourCompleted, "true")
+            driverObj.drive()
+        }
+        else{
+            dashboardContext.incrementDialogStep()
+            console.log("skipping dashboard tour dialog")
+        }
+    }, [dashboardContext.dialogStep])
 
     useEffect(() => {
         if(!dashboardContext.query || !dashboardContext.query.data || !dashboardContext.query.data.shotlists) return;
@@ -87,13 +78,6 @@ export default function Overview() {
         setShotlists((newShotlists as ShotlistDto[]).sort(Utils.oderShotlistsByChangeDate))
         setTemplates(dashboardContext.query.data.templates as TemplateDto[])
     }, [dashboardContext.query]);
-
-    const checkAndShowIntroduction = () => {
-        if(localStorage.getItem(Config.localStorageKey.dashboardTourCompleted) != "true") {
-            localStorage.setItem(Config.localStorageKey.dashboardTourCompleted, "true")
-            driverObj.drive()
-        }
-    }
 
     if(dashboardContext.query.error) return (
         <main className="overview dashboardContent">

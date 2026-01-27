@@ -1,0 +1,30 @@
+.dialogContent.justBoughtProDialogContent{
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+
+  h2{
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: .5rem;
+  }
+
+  p.financing{
+    font-weight: 500;
+    color: var(--text-20);
+  }
+
+  p.issues{
+    color: var(--text-50);
+  }
+
+  button{
+    width: 100%;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    margin-top: 1rem;
+    background-color: var(--accent);
+  }
+}
