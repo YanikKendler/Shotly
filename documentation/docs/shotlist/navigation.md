@@ -1,5 +1,7 @@
 # Navigation
 
+## General
+
 The shotlist is broken up into scenes, which are located in the sidebar. When a scene is selected, its shots are loaded and displayed in the table on the right.
 
 At the bottom of the sidebar, the `Collab-Requests` button is replaced with the `Shotlist Options` button. This button opens a dialog that allows you to rename the shotlist, [edit the attributes](./attributes.md), [manage collaborators](./collaboration.md), and [filter and export the shotlist](./export.md). 
@@ -23,4 +25,4 @@ The shotlist supports the following keybinds:
 
 ## The save indicator
 
-A save indicator is located in the bottom left of the shotlist, most of the time this will be a checkmark. Whenever you make changes to the shotlist it switches to a spinning circle, indicating that the changes are being saved. Once the changes are saved, it switches back to a checkmark. If there is an error while saving, it switches to a red exclamation mark. Hovering over the icon will give you more information about the current state.
+A save indicator is located in the bottom right of the shotlist, most of the time this will be a checkmark. Whenever you make changes to the shotlist it switches to a spinning circle, indicating that the changes are being saved. Once the changes are saved, it switches back to a checkmark. If there is an error while saving, it switches to a red exclamation mark. Hovering over the icon will give you more information about the current state.
