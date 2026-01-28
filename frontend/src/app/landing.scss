@@ -79,10 +79,10 @@ main.landing{
 
           &.filled{
             background-color: var(--accent);
-            color: var(--contrast);
+            color: var(--text-100);
 
             &:hover{
-              background-color: var(--accent-60);
+              background-color: var(--accent-55);
             }
           }
 
@@ -170,7 +170,7 @@ main.landing{
 
         &:hover{
           background-color: var(--accent);
-          color: var(--contrast);
+          color: var(--text-100);
           scale: 1.05;
           rotate: 1deg;
         }
@@ -524,7 +524,7 @@ main.landing{
 
         &.filled{
           background-color: var(--accent);
-          color: var(--contrast);
+          color: var(--text-100);
           border: .1rem solid var(--accent);
 
           &:hover{

@@ -289,15 +289,15 @@ export function useAccountDialog() {
                                     query.data.currentUser?.hasCancelled == true ?
                                         <button onClick={PaymentService.manageSubscription}>Renew subscription</button> :
                                         <Link className={"accent"} href={"/pro"}>Upgrade to Pro</Link> :
-                                    query.data.currentUser?.tier == UserTier.Pro ?
-                                        <button onClick={PaymentService.manageSubscription}>Manage subscription</button> :
-                                        query.data.currentUser?.tier == UserTier.ProStudent ?
-                                            <SimpleTooltip
-                                                text={`Your Subscription is active until ${wuTime.toDateString(new Date(query.data.currentUser.revokeProAfter)) || "Unkown"}.`}>
-                                                <p>Pro for students {"<3"}</p></SimpleTooltip> :
-                                            query.data.currentUser?.tier == UserTier.ProFree ?
-                                                <p>( ͡° ͜ʖ ͡°)</p> :
-                                                <p>Unknown</p>
+                                query.data.currentUser?.tier == UserTier.Pro ?
+                                    <button onClick={PaymentService.manageSubscription}>Manage subscription</button> :
+                                query.data.currentUser?.tier == UserTier.ProStudent ?
+                                    <Link href={"/pro"}>Pro for students {"<3"}</Link>:
+                                query.data.currentUser?.tier == UserTier.ProFree ?
+                                    <Link href={"/pro"}>( ͡° ͜ʖ ͡°)</Link> :
+                                    <SimpleTooltip text={"This is an error - please contact me at: yanik@shotly.at"} delay={0}>
+                                        <p className={"value error"}>Unknown</p>
+                                    </SimpleTooltip>
                             }
                         </div>
                     </>

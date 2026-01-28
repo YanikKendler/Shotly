@@ -1,20 +1,31 @@
 @echo off
-REM Windows batch - ignoriert Fehler und fährt fort
 
-set IMAGE=%~1
-if "%IMAGE%"=="" echo IMAGE NAME NOT PROVIDED & exit /b 1
+set VERSION=%~1
+if "%VERSION%"=="" echo VERSION NAME NOT PROVIDED & exit /b 1
+
+set IMAGE=yanikkendler/shotly-backend:%VERSION%
 
 REM Maven (verwende mvnw.cmd auf Windows falls vorhanden)
 if exist mvnw.cmd (
-  call mvnw.cmd clean package || echo MAVEN BUILD FAILED - continuing
+    call mvnw.cmd clean package || (
+        echo MAVEN BUILD FAILED
+        exit /b 0
+    )
 ) else (
-  .\mvnw clean package || echo MAVEN BUILD FAILED - continuing
+    .\mvnw clean package || (
+        echo MAVEN BUILD FAILED
+        exit /b 0
+    )
 )
 
-REM Docker build (ignoriert Fehler)
-docker build -t %IMAGE% . || echo DOCKER BUILD FAILED - continuing
+docker build -t %IMAGE% . || (
+    echo DOCKER BUILD FAILED
+    exit /b 0
+)
 
-REM Docker push (ignoriert Fehler)
-docker push %IMAGE% || echo DOCKER PUSH FAILED - continuing
+docker push %IMAGE% || (
+    echo DOCKER PUSH FAILED
+    exit /b 0
+)
 
 exit /b 0

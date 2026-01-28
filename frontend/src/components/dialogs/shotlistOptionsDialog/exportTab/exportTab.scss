@@ -182,18 +182,18 @@ div.shotlistOptionsDialogExportTab{
     aspect-ratio: 1.414;
   }
 
-  .export {
+  button.export {
     padding: .5rem .8rem;
     font-size: .95rem;
     width: fit-content;
     margin-top: .5rem;
 
     font-weight: bold;
-    color: var(--contrast);
-    background-color: var(--accent);
+    color: var(--text-100);
+    background-color: var(--accent-55);
 
     &:hover {
-      background-color: var(--accent-55);
+      background-color: var(--accent);
     }
   }
 

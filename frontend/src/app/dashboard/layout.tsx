@@ -250,12 +250,12 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             setHowDidYouHearText(result.otherText)
     }
 
-    const handleHowDidYouHearReasonSubmit = async () => {
+    const handleHowDidYouHearReasonSubmit = () => {
         let reason = howDidYouHearReason
         if(howDidYouHearReason == "other")
             reason = howDidYouHearText
 
-        await client.mutate({
+        client.mutate({
             mutation: gql`
                 mutation setHowDidYourHearReason($reason: String!){
                     howDidYourHearReason(reason: $reason) {

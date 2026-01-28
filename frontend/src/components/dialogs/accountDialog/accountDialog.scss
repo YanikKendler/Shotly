@@ -23,6 +23,16 @@
     p{
       color: var(--text-20);
       font-size: .95rem;
+
+      &.value{
+        color: var(--text-30);
+        font-weight: bold;
+
+        &.error{
+          color: var(--bad);
+          text-decoration: underline;
+        }
+      }
     }
 
     &:not(.legal) {
@@ -35,8 +45,14 @@
         font-size: .95rem;
 
         &.accent {
-          color: var(--accent-30);
-          border-color: var(--accent);
+          color: var(--text-100);
+          border: none;
+          font-weight: bold;
+          background-color: var(--accent);
+
+          &:hover {
+            background-color: var(--accent-55);
+          }
         }
 
         &.bad:hover{
@@ -44,16 +60,10 @@
           color: var(--bad-10);
         }
 
-        &:not([disabled]):not(.bad):hover {
+        &:not([disabled]):not(.bad):not(.accent):hover {
           background-color: var(--hover-bg-10);
           color: var(--text);
           border-color: var(--default-interactable-border-hover);
-
-          &.accent {
-            background-color: var(--hover-bg-accent-10);
-            color: var(--accent-40);
-            border-color: var(--accent-60);
-          }
         }
       }
     }
@@ -74,14 +84,6 @@
 
     &.bottom{
       padding-inline: .5rem;
-    }
-
-    &.subscription p:nth-of-type(2){
-      color: var(--accent-40);
-      font-weight: bold;
-      background-color: var(--accent-92);
-      padding: .5rem;
-      border-radius: .3rem;
     }
   }
 

@@ -31,7 +31,7 @@ export default function EnterNameDialog(){
         }
     }, [dashboardContext.dialogStep, dashboardContext.query.data.currentUser])
 
-    const handleNewUserName = async () => {
+    const handleNewUserName = () => {
         if(wuConstants.Regex.empty.test(newName)) return
 
         client.mutate({
