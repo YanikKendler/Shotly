@@ -20,7 +20,7 @@ export const DashboardContext = createContext<{
     pendingCollaborations: ApolloQueryResult<Query>
     setPendingCollaborations: (query: ApolloQueryResult<Query>) => void,
     dialogStep: DialogStep,
-    incrementDialogStep: () => void,
+    incrementDialogStep: (currentStep: DialogStep) => void,
 }>({
     query: Utils.defaultQueryResult,
     setQuery: () => {},

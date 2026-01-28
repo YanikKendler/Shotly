@@ -2,38 +2,17 @@
 
 import gql from "graphql-tag"
 import Link from "next/link"
-import {ApolloError, ApolloQueryResult, useApolloClient, useQuery, useSuspenseQuery} from "@apollo/client"
+import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import "./layout.scss"
 import React, {useEffect, useState} from "react"
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
-import {
-    ChevronDown,
-    House,
-    Menu,
-    NotepadText,
-    Blocks,
-    Plus,
-    User,
-    Info,
-    Inbox,
-    Check,
-    X,
-    RefreshCw,
-    LoaderCircle
-} from "lucide-react"
-import {
-    CollaborationDto,
-    CollaborationState,
-    Query,
-    ShotlistDto,
-    TemplateDto,
-    UserDto
-} from "../../../lib/graphql/generated"
-import {Collapsible, Dialog, Popover, Tooltip} from "radix-ui"
+import {Blocks, Check, ChevronDown, House, Inbox, Menu, NotepadText, Plus, RefreshCw, User, X} from "lucide-react"
+import {CollaborationDto, CollaborationState, Query, ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
+import {Collapsible, Popover} from "radix-ui"
 import {wuGeneral} from "@yanikkendler/web-utils"
 import auth from "@/Auth"
-import {usePathname, useRouter, useSearchParams} from "next/navigation"
+import {usePathname, useRouter} from "next/navigation"
 import {useCreateShotlistDialog} from "@/components/dialogs/createShotlistDialog/createShotlistDialog"
 import {useAccountDialog} from "@/components/dialogs/accountDialog/accountDialog"
 import Utils from "@/util/Utils"
@@ -85,9 +64,9 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             setHowDidYouHearDialogOpen(true)
         }
         else{
-            incrementDialogStep()
+            incrementDialogStep(DialogStep.HOW_DID_YOU_HEAR)
         }
-    }, [dialogStep])
+    }, [dialogStep, query.data.currentUser])
 
     useEffect(() => {
         if(!auth.isAuthenticated()){
@@ -105,7 +84,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     useEffect(() => {
         if(!query.loading && dialogStep == DialogStep.LOADING) {
             setDialogStep(1)
-            console.log("incrementing dialog step to", 1)
         }
     }, [query.loading])
 
@@ -178,8 +156,10 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         setQuery(result)
     }
 
-    const incrementDialogStep = () => {
-        setDialogStep(step => step + 1)
+    const incrementDialogStep = (currentStep: DialogStep) => {
+        if(dialogStep !== currentStep) return
+
+        setDialogStep(currentStep + 1)
     }
 
     const loadPendingCollaborations = async () => {
@@ -275,7 +255,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         if(howDidYouHearReason == "other")
             reason = howDidYouHearText
 
-        const {errors} = await client.mutate({
+        await client.mutate({
             mutation: gql`
                 mutation setHowDidYourHearReason($reason: String!){
                     howDidYourHearReason(reason: $reason) {
@@ -293,9 +273,8 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             }
         })
 
-
         setHowDidYouHearDialogOpen(false)
-        incrementDialogStep()
+        incrementDialogStep(DialogStep.HOW_DID_YOU_HEAR)
     }
 
     if(query.error) return <ErrorPage

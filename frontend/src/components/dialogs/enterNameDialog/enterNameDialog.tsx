@@ -2,7 +2,7 @@ import {Dialog} from "radix-ui";
 import TextField from "@/components/inputs/textField/textField"
 import React, {useContext, useEffect, useState} from "react"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
-import {ApolloQueryResult, useApolloClient} from "@apollo/client"
+import {useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import {errorNotification} from "@/service/NotificationService"
 import "./enterNameDialog.scss"
@@ -20,8 +20,6 @@ export default function EnterNameDialog(){
 
         if(dashboardContext.dialogStep !== DialogStep.NAME) return
 
-        console.log("inspecting need for enter name dialog")
-
         const email = dashboardContext.query.data.currentUser?.email
         const name = dashboardContext.query.data.currentUser?.name
 
@@ -29,10 +27,9 @@ export default function EnterNameDialog(){
             setDialogOpen(true)
         }
         else{
-            dashboardContext.incrementDialogStep()
-            console.log("skipping enter name dialog")
+            dashboardContext.incrementDialogStep(DialogStep.NAME)
         }
-    }, [dashboardContext.dialogStep, dashboardContext.query.data])
+    }, [dashboardContext.dialogStep, dashboardContext.query.data.currentUser])
 
     const handleNewUserName = async () => {
         if(wuConstants.Regex.empty.test(newName)) return
@@ -60,7 +57,7 @@ export default function EnterNameDialog(){
         })
 
         setDialogOpen(false)
-        dashboardContext.incrementDialogStep()
+        dashboardContext.incrementDialogStep(DialogStep.NAME)
     }
 
     return (

@@ -72,7 +72,6 @@ export function useAccountDialog() {
         else {
             const newSettings = JSON.parse(userSettingsString) as UserSettings
             setUserSettings(newSettings)
-            console.log(newSettings)
             document.documentElement.style.setProperty("--shotlist-scale", newSettings.shotlistScale?.toString() || "1");
         }
 
@@ -431,10 +430,14 @@ export function useAccountDialog() {
                     <p>Use another account</p>
                     <button className={"logout"} onClick={() => Auth.logout()}>Sign out</button>
                 </div>
-                <div className="row">
-                    <p>Delete your account</p>
-                    <button className={"delete bad"} onClick={deleteAccount}>Delete account</button>
-                </div>
+                {
+                    query.loading ?
+                    <Skeleton height={"2.5rem"}/> :
+                    <div className="row">
+                        <p>Delete your account</p>
+                        <button className={"delete bad"} onClick={deleteAccount}>Delete account</button>
+                    </div>
+                }
 
                 <Separator/>
 

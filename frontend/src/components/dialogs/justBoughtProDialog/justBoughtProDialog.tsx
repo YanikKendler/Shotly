@@ -13,28 +13,25 @@ export default function JustBoughtProDialog(){
     const [justBoughtProDialogOpen, setJustBoughtProDialogOpen] = useState<boolean>(justBoughtPro)
 
     useEffect(() => {
-        if(dashboardContext.dialogStep != DialogStep.PRO) return
+        if(dashboardContext.dialogStep !== DialogStep.PRO) return
 
         if (justBoughtPro) {
             setJustBoughtProDialogOpen(true)
         }
         else{
-            dashboardContext.incrementDialogStep()
-            console.log("skipping just bought pro dialog")
+            dashboardContext.incrementDialogStep(DialogStep.PRO)
         }
     }, [dashboardContext.dialogStep])
 
-    const handleJustBoughtProDialogOpenChange = (newOpen: boolean)=> {
-        setJustBoughtProDialogOpen(newOpen)
+    const closeJustBoughtProDialog = ()  => {
+        setJustBoughtProDialogOpen(false)
 
-        if(newOpen == false) {
-            router.replace("/dashboard")
-            dashboardContext.incrementDialogStep()
-        }
+        router.replace("/dashboard")
+        dashboardContext.incrementDialogStep(DialogStep.PRO)
     }
 
     return (
-        <Dialog.Root open={justBoughtProDialogOpen} onOpenChange={handleJustBoughtProDialogOpenChange}>
+        <Dialog.Root open={justBoughtProDialogOpen}>
             <Dialog.Portal>
                 <Dialog.Overlay className={"dialogOverlay"}/>
                 <Dialog.Content
@@ -45,7 +42,7 @@ export default function JustBoughtProDialog(){
                     <Dialog.Title className={"title"}>Thank you for subscribing to Shotly Pro!</Dialog.Title>
                     <p className={"financing"}>You are financing the development and server costs of Shotly, I am very grateful for that.</p>
                     <p className={"issues"}>I hope you are satisfied with your Purchase! If you do however encounter any problems, please open an issue via the account tab.</p>
-                    <button onClick={() => handleJustBoughtProDialogOpenChange(false)}>Start creating</button>
+                    <button onClick={closeJustBoughtProDialog}>Start creating</button>
                 </Dialog.Content>
             </Dialog.Portal>
         </Dialog.Root>

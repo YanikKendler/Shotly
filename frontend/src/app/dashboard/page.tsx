@@ -49,21 +49,20 @@ export default function Overview() {
             { element: '.gridItem.add.shotlist', popover: { description: 'Click here to create a new Shotlist.', side: "bottom", align: 'center' }},
         ],
         onDestroyed: () => {
-            dashboardContext.incrementDialogStep()
+            dashboardContext.incrementDialogStep(DialogStep.TOUR)
         },
     })
 
     //dashboard tour
     useEffect(() => {
-        if(dashboardContext.dialogStep != DialogStep.TOUR) return;
+        if(dashboardContext.dialogStep !== DialogStep.TOUR) return
 
         if(localStorage.getItem(Config.localStorageKey.dashboardTourCompleted) != "true") {
             localStorage.setItem(Config.localStorageKey.dashboardTourCompleted, "true")
             driverObj.drive()
         }
         else{
-            dashboardContext.incrementDialogStep()
-            console.log("skipping dashboard tour dialog")
+            dashboardContext.incrementDialogStep(DialogStep.TOUR)
         }
     }, [dashboardContext.dialogStep])
 

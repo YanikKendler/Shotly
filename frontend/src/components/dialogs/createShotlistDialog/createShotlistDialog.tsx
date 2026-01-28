@@ -141,8 +141,7 @@ export function useCreateShotlistDialog() {
         content = <>
             <Dialog.Title className={"title center"}>Creating shotlist "{name}"</Dialog.Title>
             <div className={"loading"}>
-                <Loader/>
-                <p>You will be redirected shortly</p>
+                <Loader text={"You will be redirected shortly.."}/>
             </div>
         </>
     else

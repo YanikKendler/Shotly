@@ -4,8 +4,8 @@
 }
 
 main.template{
-  --attribute-hover-border: hsl(0, 0%, 70%);
-  --attribute-bg: hsl(0, 0%, 96%);
+  --attribute-hover-border: hsl(0, 0%, 70%); //unused
+  --attribute-bg: hsl(0, 0%, 97%);
 
   .top{
     display: flex;
