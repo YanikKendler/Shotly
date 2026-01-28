@@ -161,6 +161,13 @@ export default function Landing() {
                             </div>
                             <h2>Customizable</h2>
                             <p>Select which attributes you want per shot and per scene.</p>
+                            <Link
+                                href="https://docs.shotly.at/attributes"
+                                className={"noPadding"}
+                                target={"_blank"}
+                            >
+                                Learn more
+                            </Link>
                         </div>
                         <div className="feature">
                             <div className="icon">
@@ -168,6 +175,13 @@ export default function Landing() {
                             </div>
                             <h2>Easy Export</h2>
                             <p>Export to PDF/CSV for print or distribution. Use filters to get only what you need.</p>
+                            <Link
+                                href="https://docs.shotly.at/shotlist/export"
+                                className={"noPadding"}
+                                target={"_blank"}
+                            >
+                                Learn more
+                            </Link>
                         </div>
                         <div className="feature">
                             <div className="icon">
@@ -195,6 +209,13 @@ export default function Landing() {
                             </div>
                             <h2>Live Collaboration</h2>
                             <p>Share your shotlist with friends or colleagues and create together.</p>
+                            <Link
+                                href="https://docs.shotly.at/shotlist/collaboration"
+                                className={"noPadding"}
+                                target={"_blank"}
+                            >
+                                Learn more
+                            </Link>
                         </div>
                         <div className="feature">
                             <div className="icon">
@@ -202,6 +223,13 @@ export default function Landing() {
                             </div>
                             <h2>Templates</h2>
                             <p>Save your preferred Attributes and Layouts and reuse them for future Shotlists.</p>
+                            <Link
+                                href="https://docs.shotly.at/templates"
+                                className={"noPadding"}
+                                target={"_blank"}
+                            >
+                                Learn more
+                            </Link>
                         </div>
                         <div className="feature">
                             <div className="icon">
