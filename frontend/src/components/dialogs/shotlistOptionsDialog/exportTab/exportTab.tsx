@@ -1,4 +1,4 @@
-import {ChevronDown, Download, File, List, ListOrdered, Plus, Trash, Type, X} from "lucide-react"
+import {ChevronDown, Download, File, List, ListOrdered, Plus, Square, SquareCheck, Trash, Type, X} from "lucide-react"
 import React, {Fragment, useEffect, useRef, useState} from "react"
 import gql from "graphql-tag"
 import {pdf, PDFViewer} from "@react-pdf/renderer"
@@ -32,7 +32,7 @@ import {
 } from "@/util/AttributeParser"
 //@ts-ignore
 import {downloadCSV} from "@/downloadCSV"
-import {Dialog, Popover} from "radix-ui"
+import {Checkbox, Dialog, Popover, Switch} from "radix-ui"
 import {MultiValue} from "react-select"
 import HelpLink from "@/components/helpLink/helpLink"
 import Skeleton from "react-loading-skeleton"
@@ -40,11 +40,13 @@ import ExportFilter from "@/components/dialogs/shotlistOptionsDialog/exportTab/e
 import Separator from "@/components/separator/separator"
 import DotLoader from "@/components/DotLoader"
 import {errorNotification} from "@/service/NotificationService"
+import LabeledCheckbox from "@/components/inputs/labeledCheckbox/labeledCheckbox"
 
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full"
 
 interface ExportSettingsLocalStorage {
     selectedFileType?: SelectedFileTypes
+    showCheckboxes?: boolean
     selectedScenes?: MultiValue<SelectOption>
     customShotFilters?: [number, MultiValue<SelectOption>][]
     customSceneFilters?: [number, MultiValue<SelectOption>][]
@@ -65,6 +67,7 @@ export default function ExportTab(
     const [sceneOptions, setSceneOptions] = useState<SelectOption[]>([{value: "this is bad", label: "1"}])
 
     const [selectedFileType, setSelectedFileType] = useState<SelectedFileTypes>("PDF")
+    const [showCheckboxes, setShowCheckboxes] = useState(false)
     const [selectedScenes, setSelectedScenes] = useState<MultiValue<SelectOption>>([])
     const [customSceneFilters, setCustomSceneFilters] = useState<Map<number, MultiValue<SelectOption>>>(new Map())
     const [customShotFilters, setCustomShotFilters] = useState<Map<number, MultiValue<SelectOption>>>(new Map())
@@ -97,13 +100,14 @@ export default function ExportTab(
 
         const settingsObject: ExportSettingsLocalStorage = {
             selectedFileType: selectedFileType,
+            showCheckboxes: showCheckboxes,
             selectedScenes: selectedScenes,
             customShotFilters: Array.from(customShotFilters),
             customSceneFilters: Array.from(customSceneFilters)
         }
         const settingsString = JSON.stringify(settingsObject)
         localStorage.setItem(Config.localStorageKey.exportSettings(shotlist.id), settingsString)
-    }, [selectedFileType, selectedScenes, customShotFilters, customSceneFilters]);
+    }, [selectedFileType, showCheckboxes, selectedScenes, customShotFilters, customSceneFilters]);
 
     const loadSettingsFromLocalStorage = (shotlistId: string) => {
         const settingsString = localStorage.getItem(Config.localStorageKey.exportSettings(shotlistId))
@@ -113,6 +117,8 @@ export default function ExportTab(
 
         if(settingsObject.selectedFileType)
             setSelectedFileType(settingsObject.selectedFileType)
+        if(settingsObject.showCheckboxes)
+            setShowCheckboxes(settingsObject.showCheckboxes)
         if(settingsObject.selectedScenes && settingsObject.selectedScenes.length > 0)
             setSelectedScenes(settingsObject.selectedScenes)
         if(settingsObject.customShotFilters && settingsObject.customShotFilters.length > 0)
@@ -400,7 +406,7 @@ export default function ExportTab(
     }
 
     const exportPDF = async (data: ShotlistDto) => {
-        const blob = await pdf(<PDFExport data={data}/>).toBlob()
+        const blob = await pdf(<PDFExport data={data} showCheckboxes={showCheckboxes}/>).toBlob()
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href = url
@@ -497,6 +503,23 @@ export default function ExportTab(
                             fontSize={".9rem"}
                         />
                     </div>
+                    {
+                        selectedFileType == "PDF" &&
+                        <div className="filter">
+                            <div className="left">
+                                <SquareCheck size={22}/>
+                                <p>Add checkboxes</p>
+                            </div>
+
+                            <Switch.Root
+                                className="SwitchRoot"
+                                checked={showCheckboxes}
+                                onCheckedChange={setShowCheckboxes}
+                            >
+                                <Switch.Thumb className="SwitchThumb"/>
+                            </Switch.Root>
+                        </div>
+                    }
                     <div className="filter">
                         <div className="left">
                             <ListOrdered size={22}/>
@@ -629,7 +652,7 @@ export default function ExportTab(
                 >
                     {
                         exportRunning ?
-                        <span>{"exporting"}<DotLoader/></span> :
+                        <span>{"Exporting"}<DotLoader/></span> :
                         <>{"Download shotlist"}<Download size={16} strokeWidth={3}/></>
                     }
                 </button>
@@ -644,7 +667,7 @@ export default function ExportTab(
                         <Dialog.Content className="dialogContent pdfPreviewDialogContent">
                             <Dialog.Title>PDF preview <span>(the final export will be: {selectedFileType})</span></Dialog.Title>
                             <PDFViewer showToolbar={false}>
-                                <PDFExport data={filterData(shotlistPreviewCache)}/>
+                                <PDFExport data={filterData(shotlistPreviewCache)} showCheckboxes={selectedFileType == "PDF" && showCheckboxes}/>
                             </PDFViewer>
                             <Dialog.Close asChild>
                                 <button

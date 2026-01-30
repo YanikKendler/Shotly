@@ -23,6 +23,8 @@ div.shotlistOptionsDialogExportTab{
       justify-content: space-between;
       align-items: center;
       gap: 1rem;
+      width: 100%;
+      min-height: 2.5rem;
 
       .left{
         display: flex;
@@ -51,6 +53,11 @@ div.shotlistOptionsDialogExportTab{
             border-color: var(--bad);
           }
         }
+
+      }
+
+      button.SwitchRoot{
+        margin-right: .3rem !important;
       }
     }
 

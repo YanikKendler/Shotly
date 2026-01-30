@@ -1,9 +1,7 @@
 "use client"
 
-import React, {useEffect, useState} from 'react';
-import {Document, Page, StyleSheet, Text, View} from '@react-pdf/renderer';
-import {useApolloClient, useQuery} from "@apollo/client"
-import gql from "graphql-tag"
+import React from 'react';
+import {Document, Page, StyleSheet, Text, View, Checkbox} from '@react-pdf/renderer';
 import {SceneDto, ShotDto, ShotlistDto} from "../../../../../lib/graphql/generated"
 import {
     AnySceneAttribute,
@@ -12,8 +10,6 @@ import {
     AnyShotAttributeDefinition
 } from "@/util/Types"
 import {SceneAttributeParser, ShotAttributeParser} from "@/util/AttributeParser"
-import {makeClient} from "@/components/wrapper/ApolloWrapper"
-import {wuText} from "@yanikkendler/web-utils/dist"
 import Utils from "@/util/Utils"
 
 // Create styles
@@ -66,6 +62,13 @@ const styles = StyleSheet.create({
         maxWidth: 30,
         justifyContent: 'center',
     },
+    numberAndCheckBox: {
+        maxWidth: 44
+    },
+    checkBox: {
+        width: 14,
+        maxWidth: 14
+    },
     small: {
         fontSize: 9,
     },
@@ -87,7 +90,7 @@ const styles = StyleSheet.create({
 })
 
 // Create Document Component
-export default function PDFExport({data}: { data: ShotlistDto | null }) {
+export default function PDFExport({data, showCheckboxes = false}: { data: ShotlistDto | null, showCheckboxes: boolean }) {
     if(!data) return (
         <Document>
             <Page size="A4" orientation="landscape" style={styles.page}>
@@ -124,7 +127,7 @@ export default function PDFExport({data}: { data: ShotlistDto | null }) {
 
                             {/*Shot attribute definitions heading*/}
                             <View style={[styles.row, styles.shotDefinitions]}>
-                                <View style={[styles.cell, styles.number]}>
+                                <View style={[styles.cell, styles.number, showCheckboxes ? styles.numberAndCheckBox : {}]}>
                                     <Text>Shot</Text>
                                 </View>
                                 {(data.shotAttributeDefinitions as AnyShotAttributeDefinition[]).map((attribute) => (
@@ -137,6 +140,9 @@ export default function PDFExport({data}: { data: ShotlistDto | null }) {
                             {/*Shot attribute values*/}
                             {(scene.shots as ShotDto[])?.map((shot, index) =>
                                 <View style={[styles.row , index%2==0 ? styles.rowOdd : {}]} key={shot.id}>
+                                    {showCheckboxes &&
+                                        <View style={[styles.cell, styles.checkBox]}/>
+                                    }
                                     <View style={[styles.cell, styles.number]}>
                                         <Text>{Utils.numberToShotLetter(shot.position, scene.position)}</Text>
                                     </View>

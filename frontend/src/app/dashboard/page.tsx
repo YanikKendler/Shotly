@@ -104,13 +104,13 @@ export default function Overview() {
         <main className="overview dashboardContent">
             <h2>Shotlists</h2>
             <div className="grid">
-                <Skeleton height={130}/>
-                <Skeleton height={130}/>
+                <Skeleton height={125}/>
+                <Skeleton height={125}/>
             </div>
             <h2>Templates</h2>
             <div className="grid">
-                <Skeleton height={130}/>
-                <Skeleton height={130}/>
+                <Skeleton height={125}/>
+                <Skeleton height={125}/>
             </div>
         </main>
     )
