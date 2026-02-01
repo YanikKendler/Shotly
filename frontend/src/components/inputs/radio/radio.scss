@@ -26,7 +26,7 @@
     font-size: inherit;
 
     &:hover, &:focus-visible {
-      background-color: var(--hover-bg-10);
+      background-color: var(--transparent-gray-10);
       outline: none;
 
       .radioCheck {

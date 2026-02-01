@@ -61,7 +61,7 @@
         }
 
         &:not([disabled]):not(.bad):not(.accent):hover {
-          background-color: var(--hover-bg-10);
+          background-color: var(--transparent-gray-10);
           color: var(--text);
           border-color: var(--default-interactable-border-hover);
         }

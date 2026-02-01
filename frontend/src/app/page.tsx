@@ -80,12 +80,12 @@ export default function Landing() {
                 <div className="right">
                     <AuthSwitcher
                         authenticated={
-                            <Link className={"filled"} href={"/dashboard"}>Your Dashboard</Link>
+                            <Link className={"main"} href={"/dashboard"}>Your Dashboard</Link>
                         }
                         unauthenticated={
                             <>
-                                <button className={"outlined"} onClick={() => Auth.register()}>Sign up</button>
-                                <button className={"filled"} onClick={() => Auth.login()}>Log in</button>
+                                <button className={"secondary"} onClick={() => Auth.register()}>Sign up</button>
+                                <button className={"main"} onClick={() => Auth.login()}>Log in</button>
                             </>
                         }
                     />
@@ -280,7 +280,7 @@ export default function Landing() {
                                 <li><Check size={20} strokeWidth={3}/>unlimited scenes</li>
                                 <li><Check size={20} strokeWidth={3}/>unlimited shots</li>
                             </ul>
-                            <button className="select outlined" onClick={() => Auth.login()}>Get started</button>
+                            <button className="select secondary" onClick={() => Auth.login()}>Get started</button>
                         </div>
 
                         <div className="tier">
@@ -300,7 +300,7 @@ export default function Landing() {
                                 <li className={"gray"}><CalendarCheck size={20} strokeWidth={2.5}/>cancel any time</li>
                                 <li className={"gray"}><Heart size={20} strokeWidth={3}/>support this project</li>
                             </ul>
-                            <button className="select filled" onClick={() => Auth.loginForPro()}>Choose Pro</button>
+                            <button className="select main" onClick={() => Auth.loginForPro()}>Choose Pro</button>
                         </div>
                     </div>
                     <Link href="/freeForStudents" className={"freeForStudents"}>Shotly for Students</Link>

@@ -68,7 +68,7 @@ main.home{
         padding: .3rem;
 
         &:hover{
-          background-color: var(--hover-bg-10);
+          background-color: var(--transparent-gray-10);
           color: var(--text);
         }
 
@@ -86,7 +86,7 @@ main.home{
         font-weight: 500;
 
         &:hover{
-          background-color: var(--hover-bg-10);
+          background-color: var(--transparent-gray-10);
           text-decoration: underline;
           color: var(--text);
         }
@@ -103,10 +103,10 @@ main.home{
         font-size: .9rem;
         justify-content: center;
         color: var(--accent);
-        background-color: var(--hover-bg-accent-10);
+        background-color: var(--transparent-accent-10);
 
         &:hover{
-          background-color: var(--hover-bg-accent-20);
+          background-color: var(--transparent-accent-20);
           color: var(--accent-55);
         }
       }
@@ -152,13 +152,11 @@ main.home{
 
         &.template{
           font-weight: 600;
-          border: 2px solid var(--accent);
-          color: var(--accent-40);
+          color: var(--accent);
+          background-color: var(--transparent-accent-10);
 
-          &:hover{
-            background-color: var(--hover-bg-accent-10);
-            color: var(--accent);
-            border-color: var(--accent-60);
+          &:hover {
+            background-color: var(--transparent-accent-20);
           }
         }
       }
@@ -254,10 +252,10 @@ main.home{
 
         &.secondary {
           color: var(--accent);
-          background-color: var(--hover-bg-accent-10);
+          background-color: var(--transparent-accent-10);
 
           &:hover {
-            background-color: var(--hover-bg-accent-20);
+            background-color: var(--transparent-accent-20);
           }
         }
       }

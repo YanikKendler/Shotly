@@ -26,13 +26,12 @@ main.simplePage{
     }
 
     a:not(.middle){
-      background-color: var(--accent-90);
-      color: var(--accent-40);
+      background-color: var(--transparent-accent-10);
+      color: var(--accent);
       font-weight: 500;
 
       &:hover{
-        color: var(--accent-20);
-        background-color: var(--accent-80);
+        background-color: var(--transparent-accent-20);
       }
 
       .iconmark{
@@ -125,7 +124,7 @@ main.simplePage{
           border: 2px solid var(--accent);
 
           &:hover{
-            background-color: var(--hover-bg-accent-10);
+            background-color: var(--transparent-accent-10);
             color: var(--accent-40);
           }
         }
@@ -135,7 +134,7 @@ main.simplePage{
           color: var(--accent);
 
           &:hover{
-            background-color: var(--hover-bg-accent-10);
+            background-color: var(--transparent-accent-10);
             color: var(--accent-40);
           }
         }

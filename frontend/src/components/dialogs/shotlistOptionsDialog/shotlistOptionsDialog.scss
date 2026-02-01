@@ -67,7 +67,7 @@
           font-weight: 600;
 
           &:hover{
-            background-color: var(--hover-bg-accent-10);
+            background-color: var(--transparent-accent-10);
             color: var(--accent-15);
           }
 
@@ -166,7 +166,7 @@
     justify-content: left;
 
     &:hover{
-      background-color: var(--hover-bg-10);
+      background-color: var(--transparent-gray-10);
     }
   }
 }

@@ -26,12 +26,12 @@
 
       &:not([disabled]) {
         &:where(:hover) {
-          background-color: var(--hover-bg-10);
+          background-color: var(--transparent-gray-10);
         }
       }
 
       &.confirm.bad{
-        background-color: var(--hover-bg-bad-10);
+        background-color: var(--transparent-bad-10);
         color: var(--bad-40);
 
         &:not([disabled]) {

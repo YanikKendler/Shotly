@@ -173,8 +173,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const incrementDialogStep = (currentStep: DialogStep) => {
         if(dialogStep !== currentStep) return
 
-        console.log("new step", currentStep + 1)
-
         setDialogStep(currentStep + 1)
     }
 

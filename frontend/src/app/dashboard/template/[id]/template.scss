@@ -44,10 +44,10 @@ main.template{
 
     input.templateName{
       &:hover{
-        background-color: var(--hover-bg-10);
+        background-color: var(--transparent-gray-10);
       }
       &:focus{
-        background-color: var(--hover-bg-accent-10);
+        background-color: var(--transparent-accent-10);
       }
     }
 
@@ -105,7 +105,7 @@ main.template{
 
     &:hover{
       color: var(--text);
-      background-color: var(--hover-bg-10);
+      background-color: var(--transparent-gray-10);
     }
   }
 }
@@ -121,7 +121,7 @@ main.template{
     }
 
     &:hover{
-      background-color: var(--hover-bg-10);
+      background-color: var(--transparent-gray-10);
       color: var(--text);
     }
   }
@@ -164,7 +164,7 @@ main.template{
     }
 
     &:hover{
-      background-color: var(--hover-bg-10);
+      background-color: var(--transparent-gray-10);
       color: var(--text);
       svg{
         color: var(--text);

@@ -101,7 +101,7 @@
 
       &:hover{
         color: var(--text-20);
-        background-color: var(--hover-bg-10);
+        background-color: var(--transparent-gray-10);
       }
 
       @media (pointer: coarse){
@@ -162,7 +162,7 @@
     }
 
     &:not(.bad):not([disabled]):hover{
-      background-color: var(--hover-bg-10);
+      background-color: var(--transparent-gray-10);
       color: var(--text);
 
       svg{

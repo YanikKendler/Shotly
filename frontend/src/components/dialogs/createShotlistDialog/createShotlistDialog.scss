@@ -29,7 +29,7 @@
       justify-content: center;
 
       &:where(:not([disabled]):hover){
-        background-color: var(--hover-bg-10);
+        background-color: var(--transparent-gray-10);
       }
 
       &.confirm{

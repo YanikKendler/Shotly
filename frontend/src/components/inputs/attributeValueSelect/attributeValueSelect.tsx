@@ -23,7 +23,7 @@ export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBas
         cursor: 'pointer',
         borderRadius: ".3rem",
         paddingInline: ".5rem",
-        backgroundColor: state.isFocused ? 'var(--hover-bg-accent-10)' : 'transparent',
+        backgroundColor: state.isFocused ? 'var(--transparent-accent-10)' : 'transparent',
         color: "var(--text)",
         fontSize: "0.85rem",
     }),
@@ -114,7 +114,7 @@ export const selectSceneStyles: StylesConfig<SelectOption, boolean, GroupBase<Se
         borderRadius: ".3rem",
         paddingInline: ".5rem",
         fontSize: ".85rem",
-        backgroundColor: state.isFocused ? 'var(--hover-bg-accent-10)' : 'transparent',
+        backgroundColor: state.isFocused ? 'var(--transparent-accent-10)' : 'transparent',
         color: "var(--text)",
     }),
 }

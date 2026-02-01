@@ -66,7 +66,7 @@
 
   &:hover, &[data-highlighted], &:focus-visible {
     outline: none;
-    background-color: var(--hover-bg-10);
+    background-color: var(--transparent-gray-10);
     color: var(--text);
   }
 }
