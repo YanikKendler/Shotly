@@ -57,7 +57,7 @@ export default function Overview() {
     useEffect(() => {
         if(dashboardContext.dialogStep !== DialogStep.TOUR) return
 
-        if(localStorage.getItem(Config.localStorageKey.dashboardTourCompleted) != "true") {
+        if(localStorage.getItem(Config.localStorageKey.dashboardTourCompleted) != "true" || Config.OVERRIDE_INTRO_CHECKS){
             localStorage.setItem(Config.localStorageKey.dashboardTourCompleted, "true")
             driverObj.drive()
         }

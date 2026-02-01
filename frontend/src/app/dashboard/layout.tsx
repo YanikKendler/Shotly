@@ -29,7 +29,7 @@ import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import {errorNotification} from "@/service/NotificationService"
 import Radio, {RadioResult} from "@/components/inputs/radio/radio"
 import JustBoughtProDialog from "@/components/dialogs/justBoughtProDialog/justBoughtProDialog"
-import EnterNameDialog from "@/components/dialogs/enterNameDialog/enterNameDialog"
+import TextField from "@/components/inputs/textField/textField"
 
 export default function DashboardLayout({children}: { children: React.ReactNode }) {
     const client = useApolloClient()
@@ -49,22 +49,35 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false)
     const [collaborationReloadAllowed, setCollaborationReloadAllowed] = useState<boolean>(true)
 
+    const [enterNameDialogOpen, setEnterNameDialogOpen] = useState(false)
+    const [newName, setNewName] = useState<string>("")
+
     const [howDidYouHearDialogOpen, setHowDidYouHearDialogOpen] = useState(false)
     const [howDidYouHearReason, setHowDidYouHearReason] = useState("")
     const [howDidYouHearText, setHowDidYouHearText] = useState("")
 
+    const [analyticsDialogOpen, setAnalyticsDialogOpen] = useState(false)
+
     useEffect(() => {
         if(!query.data.currentUser) return
 
-        if(dialogStep != DialogStep.HOW_DID_YOU_HEAR) return
+        if(dialogStep != DialogStep.QUESTIONS) return
 
         const howDidYouHearReason = query.data.currentUser?.howDidYouHearReason
 
-        if(!howDidYouHearReason || wuConstants.Regex.empty.test(howDidYouHearReason)){
+        if(!howDidYouHearReason || wuConstants.Regex.empty.test(howDidYouHearReason) || Config.OVERRIDE_INTRO_CHECKS){
             setHowDidYouHearDialogOpen(true)
         }
-        else{
-            incrementDialogStep(DialogStep.HOW_DID_YOU_HEAR)
+
+        const email = query.data.currentUser?.email
+        const name = query.data.currentUser?.name
+
+        if((name && email && name == email) || Config.OVERRIDE_INTRO_CHECKS){
+            setEnterNameDialogOpen(true)
+        }
+
+        if(Config.OVERRIDE_INTRO_CHECKS){
+            setAnalyticsDialogOpen(true)
         }
     }, [dialogStep, query.data.currentUser])
 
@@ -244,6 +257,34 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         })
     }
 
+    const handleNewUserNameSubmit = () => {
+        if(wuConstants.Regex.empty.test(newName)) return
+
+        client.mutate({
+                mutation: gql`
+                    mutation updateUser($name: String!){
+                        updateUser(editDTO: {
+                            name: $name
+                        }) {
+                            id
+                            name
+                        }
+                    }`,
+                variables: {name: newName.trim()},
+            },
+        ).then(({errors}) => {
+            if(errors) {
+                errorNotification({
+                    title: "Failed to update Username",
+                    tryAgainLater: true
+                })
+                console.error("Error updating username:", errors);
+            }
+        })
+
+        setEnterNameDialogOpen(false)
+    }
+
     const handleHowDidYouHearReasonChange = (result: RadioResult) => {
         setHowDidYouHearReason(result.value || "")
         if(result.value == "other")
@@ -274,7 +315,30 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         })
 
         setHowDidYouHearDialogOpen(false)
-        incrementDialogStep(DialogStep.HOW_DID_YOU_HEAR)
+    }
+
+    const handleAnalyticsSubmit = (decision: boolean) => {
+        //TODO
+
+        /*client.mutate({
+            mutation: gql`
+                mutation setHowDidYourHearReason($reason: String!){
+                    howDidYourHearReason(reason: $reason) {
+                        id
+                    }
+                }
+            `,
+            variables: {reason: decision}
+        }).then(({errors}) => {
+            if(errors){
+                console.error(errors)
+                errorNotification({
+                    title: "Failed to submit feedback",
+                })
+            }
+        })*/
+
+        setAnalyticsDialogOpen(false)
     }
 
     if(query.error) return <ErrorPage
@@ -539,36 +603,94 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             {AccountDialog}
 
             <JustBoughtProDialog/>
-            <EnterNameDialog/>
 
-            {
-                howDidYouHearDialogOpen &&
-                <div className="howDidYouHear">
-                    <h3>How did you hear about Shotly?</h3>
-                    <Radio
-                        options={[
-                            {value: "friend", label: "A friend"},
-                            {value: "work", label: "Work or colleagues"},
-                            {value: "reddit", label: "A Reddit post"},
-                            {value: "search", label: "A search engine (Google, Bing, etc.)"},
-                            {value: "ai", label: "An AI (GPT, Gemini, etc.)"},
-                        ]}
-                        value={howDidYouHearReason}
-                        onValueChange={handleHowDidYouHearReasonChange}
-                        textOption={true}
-                    />
-                    <button
-                        disabled={
-                            (howDidYouHearReason == "") ||
-                            (howDidYouHearReason == "other" && howDidYouHearText.length < 4)
-                        }
-                        onClick={handleHowDidYouHearReasonSubmit}
-                        className={"done"}
-                    >
-                        Send
-                    </button>
-                </div>
-            }
+            <div className={"introQuestions"}>
+                {
+                    enterNameDialogOpen &&
+                    <div className="enterName">
+                        <h3>Welcome</h3>
+                        <p>
+                            <span className="bold">Please enter your name (or nickname).</span>
+                            <br/>
+                            <span className="gray">This name will be visible to all collaborators and can not be used to log in.</span>
+                        </p>
+                        <TextField
+                            value={newName}
+                            valueChange={setNewName}
+                            label={"Your name"}
+                            maxWidth={"100%"}
+                            placeholder={"Quentin Tarantino"}
+                            color={"accent"}
+                        />
+                        <p className={"small"}>You can always change your name in the Account settings.</p>
+
+                        <button
+                            disabled={wuConstants.Regex.empty.test(newName)}
+                            onClick={handleNewUserNameSubmit}
+                            className={"main"}
+                        >
+                            Done
+                        </button>
+                    </div>
+                }
+                {
+                    howDidYouHearDialogOpen &&
+                    <div className="howDidYouHear">
+                        <h3>How did you hear about Shotly?</h3>
+                        <Radio
+                            options={[
+                                {value: "friend", label: "A friend"},
+                                {value: "work", label: "Work or colleagues"},
+                                {value: "reddit", label: "A Reddit post"},
+                                {value: "search", label: "A search engine (Google, Bing, etc.)"},
+                                {value: "ai", label: "An AI (GPT, Gemini, etc.)"},
+                            ]}
+                            value={howDidYouHearReason}
+                            onValueChange={handleHowDidYouHearReasonChange}
+                            textOption={true}
+                        />
+                        <button
+                            disabled={
+                                (howDidYouHearReason == "") ||
+                                (howDidYouHearReason == "other" && howDidYouHearText.length < 4)
+                            }
+                            onClick={handleHowDidYouHearReasonSubmit}
+                            className={"main"}
+                        >
+                            Send
+                        </button>
+                    </div>
+                }
+                {
+                    analyticsDialogOpen &&
+                    <div className="howDidYouHear">
+                        <h3>Analytics</h3>
+                        <p>
+                            To improve Shotly, I would like to collect non personal analytics data.
+                            <br/>
+                            Like what features of Shotly (Templates, Export, etc.) you use.
+                            Or how actively you use Shotly.
+                        </p>
+                        <p className="small">
+                            You can always opt out again via the Account settings.
+                        </p>
+                        <div className="buttons">
+                            <button
+                                className={"secondary"}
+                                onClick={() => handleAnalyticsSubmit(false)}
+                            >
+                                Decline
+                            </button>
+                            <button
+                                className={"main"}
+                                onClick={() => handleAnalyticsSubmit(true)}
+                            >
+                                Accept
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
         </main>
         </DashboardContext.Provider>
     );

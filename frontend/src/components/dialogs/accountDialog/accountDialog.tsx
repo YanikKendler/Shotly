@@ -439,13 +439,15 @@ export function useAccountDialog() {
                     </div>
                 }
 
+                {/*TODO add toggle for analytics here*/}
+
                 <Separator/>
 
                 <div className="row legal">
-                    <Link href={"./legal/cookies"} target={"_blank"}>Cookies</Link>
-                    <Link href={"./legal/privacy"} target={"_blank"}>Privacy</Link>
-                    <Link href={"./legal/legalNotice"} target={"_blank"}>Legal notice</Link>
-                    <Link href={"./legal/termsOfUse"} target={"_blank"}>Terms of use</Link>
+                    <Link href={"/legal/cookies"} target={"_blank"}>Cookies</Link>
+                    <Link href={"/legal/privacy"} target={"_blank"}>Privacy</Link>
+                    <Link href={"/legal/legalNotice"} target={"_blank"}>Legal notice</Link>
+                    <Link href={"/legal/termsOfUse"} target={"_blank"}>Terms of use</Link>
                 </div>
 
                 <div className="row bottom">

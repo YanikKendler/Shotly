@@ -3,6 +3,7 @@ import React, {useContext, useEffect, useState} from "react"
 import {Dialog} from "radix-ui"
 import "./justBoughtProDialog.scss"
 import {DashboardContext, DialogStep} from "@/context/DashboardContext"
+import Config from "@/util/Config"
 
 export default function JustBoughtProDialog(){
     const router = useRouter()
@@ -15,7 +16,7 @@ export default function JustBoughtProDialog(){
     useEffect(() => {
         if(dashboardContext.dialogStep !== DialogStep.PRO) return
 
-        if (justBoughtPro) {
+        if (justBoughtPro || Config.OVERRIDE_INTRO_CHECKS) {
             setJustBoughtProDialogOpen(true)
         }
         else{
@@ -41,7 +42,7 @@ export default function JustBoughtProDialog(){
                 >
                     <Dialog.Title className={"title"}>Thank you for subscribing to Shotly Pro!</Dialog.Title>
                     <p className={"financing"}>You are financing the development and server costs of Shotly, I am very grateful for that.</p>
-                    <p className={"issues"}>I hope you are satisfied with your Purchase! If you do however encounter any problems, please open an issue via the account tab.</p>
+                    <p className={"issues"}>I hope you are satisfied with your purchase! If you do however encounter any problems, please open an issue via the account tab.</p>
                     <button onClick={closeJustBoughtProDialog}>Start creating</button>
                 </Dialog.Content>
             </Dialog.Portal>

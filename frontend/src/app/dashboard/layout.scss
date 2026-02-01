@@ -195,35 +195,76 @@ main.home{
     }
   }
 
-  .howDidYouHear{
+  .introQuestions{
     position: absolute;
     right: .5rem;
     bottom: .5rem;
-    background-color: var(--howDidYouhearBg);
-    padding: 1rem;
-    border-radius: .5rem;
-    box-shadow: 5px 5px 15px 5px hsla(0, 0%, 0%, 20%);
+    z-index: 10;
     width: 400px;
     max-width: calc(100vw - 1rem);
-    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
 
-    h3{
-      margin-bottom: 1rem;
-      font-weight: bold;
-    }
-
-    .radio{
-      font-size: .9rem;
-    }
-
-    button.done{
-      margin-top: 1rem;
-      background-color: var(--accent);
+    > div{
+      background-color: var(--howDidYouhearBg);
+      padding: 1rem;
+      border-radius: .5rem;
+      box-shadow: 5px 5px 15px 5px hsla(0, 0%, 0%, 20%);
       width: 100%;
-      justify-content: center;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
 
-      &:hover{
-        background-color: var(--accent-60);
+      h3{
+        font-weight: bold;
+      }
+
+      p{
+        color: var(--text-20);
+        font-size: .9rem;
+        line-height: 125%;
+
+        &.small {
+          font-size: .85rem;
+          color: var(--text-40);
+        }
+
+        span.gray{
+          color: var(--text-40);
+        }
+      }
+
+      .textField{
+        font-size: .9rem;
+      }
+
+      > button, .buttons button {
+        width: 100%;
+        justify-content: center;
+        font-size: .9rem;
+
+        &.main {
+          background-color: var(--accent);
+
+          &:hover {
+            background-color: var(--accent-60);
+          }
+        }
+
+        &.secondary {
+          color: var(--accent);
+          background-color: var(--hover-bg-accent-10);
+
+          &:hover {
+            background-color: var(--hover-bg-accent-20);
+          }
+        }
+      }
+
+      div.buttons{
+        display: flex;
+        gap: .5rem;
       }
     }
   }

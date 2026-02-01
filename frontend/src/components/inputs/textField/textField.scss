@@ -15,7 +15,7 @@ div.textField{
   }
 
   label{
-    font-size: .9rem;
+    font-size: .9em;
     color: var(--text-40);
     margin-bottom: .2rem;
     margin-left: .2rem;
@@ -63,6 +63,7 @@ div.textField{
     padding: .5rem .3rem;
     max-width: 40ch;
     width: 100%;
+    font-size: inherit;
 
     &:not([disabled]):not(:focus-visible):hover{
       border-color: var(--border-hover);

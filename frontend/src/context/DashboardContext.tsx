@@ -7,11 +7,9 @@ import Utils from "@/util/Utils"
 
 export enum DialogStep {
     LOADING,
-    NAME,
     PRO,
     TOUR,
-    HOW_DID_YOU_HEAR,
-    FINISHED
+    QUESTIONS
 }
 
 export const DashboardContext = createContext<{

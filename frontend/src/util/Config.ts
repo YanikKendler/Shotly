@@ -8,26 +8,30 @@ export default class Config {
                 "prod-deployment" :
                 "dev-deployment"
 
+    //for testing intro dialogs
+    static readonly OVERRIDE_INTRO_CHECKS = true && this.mode != "prod-deployment"
+
     static readonly backendURL =
         Config.mode == "dev" ?
             "http://localhost:8080" :
             Config.mode == "prod-deployment" ?
                 "https://api.shotly.at" :
-                "https://shotly-backend-development-566625943723.europe-west1.run.app";
+                "https://shotly-backend-development-566625943723.europe-west1.run.app"
 
     static readonly websocketURL =
         Config.mode == "dev" ?
             "ws://localhost:8080" :
             Config.mode == "prod-deployment" ?
                 "wss://api.shotly.at/" :
-                "wss://shotly-backend-development-566625943723.europe-west1.run.app/";
+                "wss://shotly-backend-development-566625943723.europe-west1.run.app/"
 
     static readonly frontendURL =
         Config.mode == "dev" ?
             "http://localhost:3000" :
             Config.mode == "prod-deployment" ?
                 "https://shotly.at" :
-                "https://shotly-frontend-development-566625943723.europe-west1.run.app";
+                "https://shotly-frontend-development-566625943723.europe-west1.run.app"
+
 
     static readonly localStorageKey = {
         theme: "shotly-theme",
