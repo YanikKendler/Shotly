@@ -9,7 +9,7 @@ export default class Config {
                 "dev-deployment"
 
     //for testing intro dialogs
-    static readonly OVERRIDE_INTRO_CHECKS = true && this.mode != "prod-deployment"
+    static readonly OVERRIDE_INTRO_CHECKS = false && this.mode != "prod-deployment"
 
     static readonly backendURL =
         Config.mode == "dev" ?

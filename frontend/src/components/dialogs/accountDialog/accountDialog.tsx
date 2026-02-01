@@ -123,6 +123,7 @@ export function useAccountDialog() {
                             name
                         }
                         revokeProAfter
+                        allowAnalytics
                     }
                 }`,
             fetchPolicy: "no-cache"
@@ -241,6 +242,38 @@ export function useAccountDialog() {
             console.error("Error updating usename:", errors);
             return;
         }
+    }
+
+    const setAllowAnalytics = (decision: boolean) => {
+        client.mutate({
+            mutation: gql`
+                mutation setAllowAnalytics($allow: Boolean!){
+                    allowAnalytics(allow: $allow) {
+                        id
+                    }
+                }
+            `,
+            variables: {allow: decision}
+        }).then(({errors}) => {
+            if(errors){
+                console.error(errors)
+                errorNotification({
+                    title: "Failed to set analytics preference",
+                    tryAgainLater: true
+                })
+            }
+        })
+
+        setQuery({
+            ...query,
+            data: {
+                ...query.data,
+                currentUser: {
+                    ...query.data.currentUser as UserDto,
+                    allowAnalytics: decision
+                }
+            }
+        })
     }
 
     let dialogContent
@@ -439,7 +472,16 @@ export function useAccountDialog() {
                     </div>
                 }
 
-                {/*TODO add toggle for analytics here*/}
+                <div className="row">
+                    <p>Allow collection of non-personal analytics data</p>
+                    <Switch.Root
+                        className="SwitchRoot"
+                        checked={query.data.currentUser?.allowAnalytics || false}
+                        onCheckedChange={setAllowAnalytics}
+                    >
+                        <Switch.Thumb className="SwitchThumb"/>
+                    </Switch.Root>
+                </div>
 
                 <Separator/>
 

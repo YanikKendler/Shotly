@@ -25,12 +25,14 @@ export default function JustBoughtProDialog(){
     }, [dashboardContext.dialogStep])
 
     const closeJustBoughtProDialog = ()  => {
+        dashboardContext.incrementDialogStep(DialogStep.PRO)
+
         setJustBoughtProDialogOpen(false)
 
         router.replace("/dashboard")
-        dashboardContext.incrementDialogStep(DialogStep.PRO)
     }
 
+    //not using onOpenChange because esc behaves weirdly
     return (
         <Dialog.Root open={justBoughtProDialogOpen}>
             <Dialog.Portal>

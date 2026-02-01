@@ -76,7 +76,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             setEnterNameDialogOpen(true)
         }
 
-        if(Config.OVERRIDE_INTRO_CHECKS){
+        if(query.data.currentUser.allowAnalytics == null || Config.OVERRIDE_INTRO_CHECKS){
             setAnalyticsDialogOpen(true)
         }
     }, [dialogStep, query.data.currentUser])
@@ -151,6 +151,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                             name
                             email
                             howDidYouHearReason
+                            allowAnalytics
                         }
                     }`,
                 fetchPolicy: "no-cache"
@@ -171,6 +172,8 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
     const incrementDialogStep = (currentStep: DialogStep) => {
         if(dialogStep !== currentStep) return
+
+        console.log("new step", currentStep + 1)
 
         setDialogStep(currentStep + 1)
     }
@@ -318,25 +321,23 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     }
 
     const handleAnalyticsSubmit = (decision: boolean) => {
-        //TODO
-
-        /*client.mutate({
+        client.mutate({
             mutation: gql`
-                mutation setHowDidYourHearReason($reason: String!){
-                    howDidYourHearReason(reason: $reason) {
+                mutation setAllowAnalytics($allow: Boolean!){
+                    allowAnalytics(allow: $allow) {
                         id
                     }
                 }
             `,
-            variables: {reason: decision}
+            variables: {allow: decision}
         }).then(({errors}) => {
             if(errors){
                 console.error(errors)
                 errorNotification({
-                    title: "Failed to submit feedback",
+                    title: "Failed to set analytics preference",
                 })
             }
-        })*/
+        })
 
         setAnalyticsDialogOpen(false)
     }
@@ -612,7 +613,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                         <p>
                             <span className="bold">Please enter your name (or nickname).</span>
                             <br/>
-                            <span className="gray">This name will be visible to all collaborators and can not be used to log in.</span>
+                            <span className="gray">This name will be visible to others and can not be used to log in.</span>
                         </p>
                         <TextField
                             value={newName}

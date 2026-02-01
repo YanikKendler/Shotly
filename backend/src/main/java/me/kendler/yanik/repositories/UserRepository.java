@@ -182,6 +182,15 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         return user;
     }
 
+    @Transactional
+    public User setAllowAnalytics(JsonWebToken jwt, boolean allow) {
+        User user = findOrCreateByJWT(jwt);
+
+        user.allowAnalytics = allow;
+
+        return user;
+    }
+
     // SHOTLIST
 
     @Transactional

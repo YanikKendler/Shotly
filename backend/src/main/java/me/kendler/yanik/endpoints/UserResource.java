@@ -42,4 +42,9 @@ public class UserResource {
     public User setHowDidYourHearReason(String reason) {
         return userRepository.setHowDidYourHearReason(jwt, reason);
     }
+
+    @Mutation
+    public User setAllowAnalytics(boolean allow){
+        return userRepository.setAllowAnalytics(jwt, allow);
+    }
 }

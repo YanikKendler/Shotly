@@ -38,6 +38,7 @@ public class User extends PanacheEntityBase {
     public boolean isActive = true;
     public LocalDate revokeProAfter;
     public String howDidYouHearReason;
+    public Boolean allowAnalytics = null;
     //for blocking and retrying actions if user version is outdated
     @Version
     public Long version;
@@ -83,7 +84,8 @@ public class User extends PanacheEntityBase {
                 stripeCustomerId,
                 hasCancelled,
                 revokeProAfter,
-                howDidYouHearReason
+                howDidYouHearReason,
+                allowAnalytics
         );
     }
 

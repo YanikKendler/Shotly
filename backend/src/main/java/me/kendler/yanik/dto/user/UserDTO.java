@@ -19,12 +19,13 @@ public record UserDTO (
         String email,
         Set<Shotlist> shotlists,
         Set<Template> templates,
-        int shotlistCount,
-        int templateCount,
+        Integer shotlistCount,
+        Integer templateCount,
         ZonedDateTime createdAt,
         UserTier tier,
         String stripeCustomerId,
-        boolean hasCancelled,
+        Boolean hasCancelled,
         LocalDate revokeProAfter,
-        String howDidYouHearReason
+        String howDidYouHearReason,
+        Boolean allowAnalytics
 ) { }
