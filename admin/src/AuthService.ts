@@ -1,6 +1,5 @@
 import auth0, {Auth0DecodedHash, Auth0ParseHashError, WebAuth} from 'auth0-js';
-import Config from "@/util/Config"
-import {errorNotification} from "@/service/NotificationService"
+import Config from './Config'
 
 export interface AuthUser {
     email: string;
@@ -14,7 +13,7 @@ interface CustomAuthResult extends Auth0DecodedHash {
     };
 }
 
-class Auth {
+class AuthService {
     private auth0: WebAuth
     private idToken: string = "no-token"
     private authUser: AuthUser | null = null
@@ -37,6 +36,7 @@ class Auth {
         this.logout = this.logout.bind(this)
         this.handleAuthentication = this.handleAuthentication.bind(this)
         this.isAuthenticated = this.isAuthenticated.bind(this)
+        this.getTokenSilently = this.getTokenSilently.bind(this)
         this.silentAuth = this.silentAuth.bind(this)
     }
 
@@ -56,10 +56,13 @@ class Auth {
         });
     }
 
-    logout() {
+    logout(noAdmin = false) {
         localStorage.setItem(Config.localStorageKey.isLoggedIn, JSON.stringify(false));
+
+        const returnToUrl = noAdmin ? Config.frontendURL + '/notAnAdmin' : Config.frontendURL;
+
         this.auth0.logout({
-            returnTo: Config.frontendURL,
+            returnTo: returnToUrl,
         });
     }
 
@@ -71,34 +74,42 @@ class Auth {
         return this.authUser
     }
 
+    async getTokenSilently() {
+        return new Promise((resolve, reject) => {
+            this.auth0.checkSession({},(err, authResult) => {
+                if (err) {
+                    console.error("Silent auth error", err)
+                    return reject(err)
+                }
+
+                this.setSession(authResult)
+                resolve(authResult.accessToken)
+            })
+        })
+    }
+
     handleAuthentication() {
         return new Promise<string>((resolve, reject) => {
             this.auth0.parseHash({ hash: window.location.hash }, (error: Auth0ParseHashError | null, authResult: CustomAuthResult | null) => {
                 if (error) {
                     console.error(error)
-                    errorNotification({
-                        title: "Authentication failed",
-                        sub: "Please reload the page and log in again."
-                    })
                     reject(error)
                 }
 
                 if(!authResult) {
-                    errorNotification({
-                        title: "Authentication failed",
-                        sub: "Please reload the page and log in again."
-                    })
                     return reject("authResult is null")
                 }
 
                 this.setSession(authResult)
 
                 if(!authResult.accessToken) {
-                    errorNotification({
-                        title: "Authentication failed",
-                        sub: "Please reload the page and log in again."
-                    })
                     return reject("missing accessToken")
+                }
+
+                const roles = authResult.idTokenPayload['https://shotly.at/roles'] as string[] || []
+
+                if(!roles.includes("Admin")){
+                    return reject("not an admin")
                 }
 
                 this.auth0.client.userInfo(authResult.accessToken, (err, user) => {
@@ -111,10 +122,6 @@ class Auth {
     setSession(authResult: Auth0DecodedHash) {
         if(!authResult || !authResult.idToken) {
             console.error("missing id token")
-            errorNotification({
-                title: "Authentication failed",
-                sub: "Please reload the page and log in again."
-            })
             return
         }
 
@@ -122,10 +129,6 @@ class Auth {
 
         if(!authResult.idTokenPayload.sub || !authResult.idTokenPayload.email || !authResult.idTokenPayload.name){
             console.error("missing data in id token payload")
-            errorNotification({
-                title: "Authentication failed",
-                sub: "Please reload the page and log in again."
-            })
             return
         }
 
@@ -139,6 +142,7 @@ class Auth {
 
     silentAuth() {
         if(!this.isAuthenticated()) {
+            this.logout()
             return null
         }
 
@@ -147,10 +151,6 @@ class Auth {
                 if (err) {
                     console.error(err)
                     localStorage.removeItem(Config.localStorageKey.isLoggedIn);
-                    errorNotification({
-                        title: "Silent authentication failed",
-                        sub: "Please reload the page and log in again."
-                    })
                     return reject(err);
                 }
                 this.setSession(authResult);
@@ -164,6 +164,6 @@ class Auth {
     }
 }
 
-const auth = new Auth();
+const auth = new AuthService();
 
 export default auth;

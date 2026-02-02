@@ -1,0 +1,33 @@
+<!doctype html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Shotly Admin</title>
+
+    <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+    <script src="node_modules/lit/polyfill-support.js"></script>
+
+    <script type="module" src="/build/login-button.js"></script>
+
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        padding: 2rem;
+        background-color: hsl(0, 0%, 10%);
+        color: hsl(0, 0%, 90%);
+      }
+
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Shotly Admin Tool</h1>
+    <p>Only for internal use</p>
+    <login-button></login-button>
+  </body>
+</html>
