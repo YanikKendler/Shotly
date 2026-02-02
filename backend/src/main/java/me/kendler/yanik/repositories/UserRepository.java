@@ -4,6 +4,8 @@ import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonString;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.auth0.Auth0Service;
@@ -190,6 +192,26 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
 
         return user;
     }*/
+
+    // ADMIN
+
+    public boolean isAdmin(JsonWebToken jwt) {
+        Object rolesClaim = jwt.getClaim("https://shotly.at/roles");
+
+        if (rolesClaim instanceof JsonArray jsonArray) {
+            return jsonArray.getValuesAs(JsonString.class)
+                    .stream()
+                    .anyMatch(js -> js.getString().equalsIgnoreCase("Admin"));
+        }
+
+        return false;
+    }
+
+    public void checkAdmin(JsonWebToken jwt) {
+        if (!isAdmin(jwt)) {
+            throw new ShotlyException("You are not allowed to access this resource", ShotlyErrorCode.NOT_ALLOWED);
+        }
+    }
 
     // SHOTLIST
 

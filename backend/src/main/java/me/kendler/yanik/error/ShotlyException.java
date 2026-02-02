@@ -30,7 +30,6 @@ public class ShotlyException extends RuntimeException implements GraphQLError {
 
     @Override
     public ErrorClassification getErrorType() {
-        // DataFetchingException is the standard type for runtime errors in resolvers
         return ErrorType.DataFetchingException;
     }
 }

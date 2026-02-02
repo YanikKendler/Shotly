@@ -8,7 +8,6 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public interface Auth0ManagementClient {
-
     @DELETE
     @Path("/api/v2/users/{id}")
     void deleteUserById(

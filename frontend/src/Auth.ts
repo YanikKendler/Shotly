@@ -132,6 +132,7 @@ class Auth {
             })
             return
         }
+
         this.idToken = authResult.idToken;
 
         if(!authResult.idTokenPayload.sub || !authResult.idTokenPayload.email || !authResult.idTokenPayload.name){
