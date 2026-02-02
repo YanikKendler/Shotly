@@ -56,7 +56,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const [howDidYouHearReason, setHowDidYouHearReason] = useState("")
     const [howDidYouHearText, setHowDidYouHearText] = useState("")
 
-    const [analyticsDialogOpen, setAnalyticsDialogOpen] = useState(false)
+    //const [analyticsDialogOpen, setAnalyticsDialogOpen] = useState(false)
 
     useEffect(() => {
         if(!query.data.currentUser) return
@@ -76,9 +76,9 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             setEnterNameDialogOpen(true)
         }
 
-        if(query.data.currentUser.allowAnalytics == null || Config.OVERRIDE_INTRO_CHECKS){
+        /*if(query.data.currentUser.allowAnalytics == null || Config.OVERRIDE_INTRO_CHECKS){
             setAnalyticsDialogOpen(true)
-        }
+        }*/
     }, [dialogStep, query.data.currentUser])
 
     useEffect(() => {
@@ -151,7 +151,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                             name
                             email
                             howDidYouHearReason
-                            allowAnalytics
                         }
                     }`,
                 fetchPolicy: "no-cache"
@@ -318,7 +317,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         setHowDidYouHearDialogOpen(false)
     }
 
-    const handleAnalyticsSubmit = (decision: boolean) => {
+    /*const handleAnalyticsSubmit = (decision: boolean) => {
         client.mutate({
             mutation: gql`
                 mutation setAllowAnalytics($allow: Boolean!){
@@ -338,7 +337,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         })
 
         setAnalyticsDialogOpen(false)
-    }
+    }*/
 
     if(query.error) return <ErrorPage
         title='Data could not be loaded'
@@ -660,7 +659,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                         </button>
                     </div>
                 }
-                {
+                {/*
                     analyticsDialogOpen &&
                     <div className="howDidYouHear">
                         <h3>Analytics</h3>
@@ -688,7 +687,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                             </button>
                         </div>
                     </div>
-                }
+                */}
             </div>
         </main>
         </DashboardContext.Provider>

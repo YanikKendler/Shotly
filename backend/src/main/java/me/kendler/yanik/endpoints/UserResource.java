@@ -43,8 +43,8 @@ public class UserResource {
         return userRepository.setHowDidYourHearReason(jwt, reason);
     }
 
-    @Mutation
+    /*@Mutation
     public User setAllowAnalytics(boolean allow){
         return userRepository.setAllowAnalytics(jwt, allow);
-    }
+    }*/
 }

@@ -123,7 +123,6 @@ export function useAccountDialog() {
                             name
                         }
                         revokeProAfter
-                        allowAnalytics
                     }
                 }`,
             fetchPolicy: "no-cache"
@@ -244,7 +243,7 @@ export function useAccountDialog() {
         }
     }
 
-    const setAllowAnalytics = (decision: boolean) => {
+    /*const setAllowAnalytics = (decision: boolean) => {
         client.mutate({
             mutation: gql`
                 mutation setAllowAnalytics($allow: Boolean!){
@@ -274,7 +273,7 @@ export function useAccountDialog() {
                 }
             }
         })
-    }
+    }*/
 
     let dialogContent
 
@@ -472,7 +471,7 @@ export function useAccountDialog() {
                     </div>
                 }
 
-                <div className="row">
+                {/*<div className="row">
                     <p>Allow collection of non-personal analytics data</p>
                     <Switch.Root
                         className="SwitchRoot"
@@ -481,7 +480,7 @@ export function useAccountDialog() {
                     >
                         <Switch.Thumb className="SwitchThumb"/>
                     </Switch.Root>
-                </div>
+                </div>*/}
 
                 <Separator/>
 

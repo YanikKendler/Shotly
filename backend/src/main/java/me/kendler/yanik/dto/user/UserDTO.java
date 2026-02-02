@@ -26,6 +26,5 @@ public record UserDTO (
         String stripeCustomerId,
         Boolean hasCancelled,
         LocalDate revokeProAfter,
-        String howDidYouHearReason,
-        Boolean allowAnalytics
+        String howDidYouHearReason
 ) { }
