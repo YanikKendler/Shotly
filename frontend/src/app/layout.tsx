@@ -138,6 +138,18 @@ export default function RootLayout({
                     },
                 }}
             />
+            {/* 100% privacy-first analytics by simple analytics*/}
+            {
+                Config.mode == "prod-deployment" ?
+                <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script> :
+                Config.mode == "dev-deployment" ?
+                <script
+                    async
+                    data-hostname="shotly-frontend-development-566625943723.europe-west1.run.app"
+                    src="https://scripts.simpleanalyticscdn.com/latest.dev.js"
+                ></script> :
+                <script async src="https://scripts.simpleanalyticscdn.com/latest.dev.js"></script>
+            }
         </body>
         </html>
     )
