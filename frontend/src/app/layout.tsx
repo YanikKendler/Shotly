@@ -10,6 +10,7 @@ import {Metadata, Viewport} from "next"
 import {SkeletonTheme} from "react-loading-skeleton"
 import {Toaster} from "react-hot-toast"
 import {CircleAlert, CircleCheck} from "lucide-react"
+import Analytics from "@/components/utility/Analytics"
 
 export const metadata: Metadata = {
     title: "Shotly | Shotlist creation made easy",
@@ -108,6 +109,9 @@ export default function RootLayout({
                     document.documentElement.setAttribute('data-theme', userPreference);
                 }
             })()`}}/>
+            <script>
+                {`window.sa_event=window.sa_event||function(){var a=[].slice.call(arguments);window.sa_event.q?window.sa_event.q.push(a):window.sa_event.q=[a]};`}
+            </script>
         </head>
         <body>
             <div className="root">
@@ -138,18 +142,8 @@ export default function RootLayout({
                     },
                 }}
             />
-            {/* 100% privacy-first analytics by simple analytics*/}
-            {
-                Config.mode == "prod-deployment" ?
-                <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script> :
-                Config.mode == "dev-deployment" ?
-                <script
-                    async
-                    data-hostname="shotly-frontend-development-566625943723.europe-west1.run.app"
-                    src="https://scripts.simpleanalyticscdn.com/latest.dev.js"
-                ></script> :
-                <script async src="https://scripts.simpleanalyticscdn.com/latest.dev.js"></script>
-            }
+
+            <Analytics/>
         </body>
         </html>
     )

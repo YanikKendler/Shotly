@@ -629,7 +629,10 @@ export default function Shotlist() {
             query.data.shotlist &&
             query.data.shotlist.owner &&
             query.data.shotlist.owner.tier == UserTier.Basic &&
-            query.data.shotlist.owner.shotlistCount > 1
+            (
+                !query.data.shotlist.owner.shotlistCount ||
+                query.data.shotlist.owner.shotlistCount > 1
+            )
         ) {
             newState = {
                 isReadOnly: true,

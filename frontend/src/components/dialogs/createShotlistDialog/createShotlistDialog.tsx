@@ -13,6 +13,7 @@ import {SelectOption} from "@/util/Types"
 import {useRouter} from "next/navigation"
 import Link from "next/link"
 import {errorNotification} from "@/service/NotificationService"
+import { trackEvent } from "@simpleanalytics/react";
 
 export function useCreateShotlistDialog() {
     const [isOpen, setIsOpen] = useState(false);
@@ -68,6 +69,8 @@ export function useCreateShotlistDialog() {
     }
 
     function openCreateShotlistDialog(): Promise<boolean> {
+        trackEvent("OPENED_CREATE_SHOTLIST_DIALOG")
+
         setIsOpen(true)
         setIsCreating(false)
         loadData()
@@ -121,7 +124,7 @@ export function useCreateShotlistDialog() {
             <Dialog.Title className={"title center"}>Create Shotlist</Dialog.Title>
             <Loader scale={0.75}/>
         </>
-    else if(currentUser.tier == UserTier.Basic && currentUser?.shotlistCount >= 1)
+    else if(currentUser.tier == UserTier.Basic && currentUser.shotlistCount && currentUser.shotlistCount >= 1)
         content = <>
             <Dialog.Title className={"title center"}>Sorry, you have reached the maximum number of Shotlists.</Dialog.Title>
             <p>Your account is on the basic tier, that means you are limited to a single shotlist. Please consider going Pro for 2.99€ / month.</p>
