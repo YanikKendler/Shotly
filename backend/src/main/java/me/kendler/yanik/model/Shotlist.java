@@ -110,10 +110,13 @@ public class Shotlist extends PanacheEntityBase {
                     .collect(Collectors.toList()),
             this.scenes.size(),
             this.scenes.stream().map(scene -> scene.shots.size()).reduce(0, Integer::sum),
+            this.sceneAttributeDefinitions.size(),
+            this.shotAttributeDefinitions.size(),
             this.collaborations.stream()
                     .sorted(Comparator.comparing( c -> c.user.name))
                     .map(Collaboration::toDTO)
                     .collect(Collectors.toList()),
+            this.collaborations.size(),
             this.name,
             this.createdAt,
             this.editedAt

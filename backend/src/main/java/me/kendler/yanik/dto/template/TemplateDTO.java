@@ -17,6 +17,7 @@ public record TemplateDTO (
         List<SceneAttributeTemplateBaseDTO> sceneAttributes,
         List<ShotAttributeTemplateBaseDTO> shotAttributes,
         ZonedDateTime createdAt,
+        ZonedDateTime editedAt,
         Integer sceneAttributeCount,
         Integer shotAttributeCount
 ){ }

@@ -1,5 +1,6 @@
 package me.kendler.yanik.endpoints;
 
+import io.quarkus.panache.common.Sort;
 import jakarta.inject.Inject;
 import me.kendler.yanik.dto.shotlist.ShotlistCollection;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationCreateDTO;
@@ -46,6 +47,13 @@ public class ShotlistResource {
     @Query
     public ShotlistCollection getShotlists() {
         return shotlistRepository.findAllForUser(jwt);
+    }
+
+    @Query
+    public List<ShotlistDTO> getAllShotlists() {
+        userRepository.checkAdmin(jwt);
+
+        return shotlistRepository.findAll(Sort.descending("name")).list().stream().map(Shotlist::toDTO).toList();
     }
 
     @Query

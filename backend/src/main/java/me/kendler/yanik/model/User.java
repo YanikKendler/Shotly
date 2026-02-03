@@ -31,6 +31,7 @@ public class User extends PanacheEntityBase {
     @BatchSize(size = 5)
     public Set<Template> templates = new HashSet<>();
     public ZonedDateTime createdAt;
+    public ZonedDateTime lastActiveAt;
     @Enumerated(EnumType.STRING)
     public UserTier tier = UserTier.BASIC;
     public String stripeCustomerId;
@@ -45,6 +46,7 @@ public class User extends PanacheEntityBase {
 
     public User() {
         this.createdAt = ZonedDateTime.now(ZoneOffset.UTC);
+        this.lastActiveAt = ZonedDateTime.now(ZoneOffset.UTC);
     }
 
     public User(String auth0Sub, String name, String email) {
@@ -75,11 +77,13 @@ public class User extends PanacheEntityBase {
                 auth0Sub,
                 name,
                 email,
+                isActive,
                 shotlists,
                 templates,
                 shotlists.size(),
                 templates.size(),
                 createdAt,
+                lastActiveAt,
                 tier,
                 stripeCustomerId,
                 hasCancelled,

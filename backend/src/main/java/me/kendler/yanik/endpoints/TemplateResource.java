@@ -1,6 +1,8 @@
 package me.kendler.yanik.endpoints;
 
+import io.quarkus.panache.common.Sort;
 import jakarta.inject.Inject;
+import me.kendler.yanik.dto.shotlist.ShotlistDTO;
 import me.kendler.yanik.dto.template.TemplateCreateDTO;
 import me.kendler.yanik.dto.template.TemplateDTO;
 import me.kendler.yanik.dto.template.TemplateEditDTO;
@@ -8,6 +10,8 @@ import me.kendler.yanik.dto.template.sceneAttributes.SceneAttributeTemplateBaseD
 import me.kendler.yanik.dto.template.sceneAttributes.SceneAttributeTemplateCreateDTO;
 import me.kendler.yanik.dto.template.sceneAttributes.SceneAttributeTemplateEditDTO;
 import me.kendler.yanik.dto.template.shotAttributes.*;
+import me.kendler.yanik.model.Shotlist;
+import me.kendler.yanik.model.template.Template;
 import me.kendler.yanik.model.template.sceneAttributes.SceneSelectAttributeOptionTemplate;
 import me.kendler.yanik.model.template.shotAttributes.ShotSelectAttributeOptionTemplate;
 import me.kendler.yanik.repositories.UserRepository;
@@ -34,6 +38,13 @@ public class TemplateResource {
     @Query
     public List<TemplateDTO> getTemplates() {
         return templateRepository.findAllForUser(jwt);
+    }
+
+    @Query
+    public List<TemplateDTO> getAllTemplates() {
+        userRepository.checkAdmin(jwt);
+
+        return templateRepository.findAll(Sort.descending("name")).list().stream().map(Template::toDTO).toList();
     }
 
     @Query

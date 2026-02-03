@@ -20,7 +20,10 @@ public record ShotlistDTO(
     List<ShotAttributeDefinitionBaseDTO> shotAttributeDefinitions,
     Integer sceneCount,
     Integer shotCount,
+    Integer sceneAttributeDefinitionCount,
+    Integer shotAttributeDefinitionCount,
     List<CollaborationDTO> collaborations,
+    Integer collaboratorCount,
     String name,
     ZonedDateTime createdAt,
     ZonedDateTime editedAt
