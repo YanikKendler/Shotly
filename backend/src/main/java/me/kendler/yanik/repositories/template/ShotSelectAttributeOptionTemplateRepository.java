@@ -38,6 +38,8 @@ public class ShotSelectAttributeOptionTemplateRepository implements PanacheRepos
 
         persist(shotSelectAttributeOptionTemplate);
 
+        shotAttributeTemplate.template.registerEdit();
+
         return shotSelectAttributeOptionTemplate;
     }
 
@@ -47,6 +49,8 @@ public class ShotSelectAttributeOptionTemplateRepository implements PanacheRepos
             throw new ShotlyException("ShotSelectAttributeOptionTemplate not found", ShotlyErrorCode.NOT_FOUND);
         }
         option.name = editDTO.name();
+
+        option.shotAttributeTemplate.template.registerEdit();
 
         return option;
     }
@@ -69,6 +73,8 @@ public class ShotSelectAttributeOptionTemplateRepository implements PanacheRepos
         }
 
         delete(shotSelectAttributeOptionTemplate);
+
+        shotSelectAttributeOptionTemplate.shotAttributeTemplate.template.registerEdit();
 
         return shotSelectAttributeOptionTemplate;
     }

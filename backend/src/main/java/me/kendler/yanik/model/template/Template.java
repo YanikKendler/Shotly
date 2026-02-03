@@ -29,9 +29,11 @@ public class Template extends PanacheEntityBase {
     public Set<ShotAttributeTemplateBase> shotAttributes = new HashSet<>();
     public String name;
     public ZonedDateTime createdAt;
+    public ZonedDateTime editedAt;
 
     public Template() {
         this.createdAt = ZonedDateTime.now(ZoneOffset.UTC);
+        this.editedAt = ZonedDateTime.now(ZoneOffset.UTC);
     }
 
     public Template(User owner, String name) {
@@ -48,8 +50,13 @@ public class Template extends PanacheEntityBase {
             sceneAttributes.stream().sorted(Comparator.comparingInt(attr -> attr.position)).map(SceneAttributeTemplateBase::toDTO).toList(),
             shotAttributes.stream().sorted(Comparator.comparingInt(attr -> attr.position)).map(ShotAttributeTemplateBase::toDTO).toList(),
             createdAt,
+            editedAt,
             sceneAttributes.size(),
             shotAttributes.size()
         );
+    }
+
+    public void registerEdit() {
+        this.editedAt = ZonedDateTime.now(ZoneOffset.UTC);
     }
 }

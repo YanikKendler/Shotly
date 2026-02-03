@@ -29,6 +29,8 @@ public class SceneSelectAttributeOptionTemplateRepository implements PanacheRepo
 
         persist(sceneSelectAttributeOptionTemplate);
 
+        sceneAttributeTemplate.template.registerEdit();
+
         return sceneSelectAttributeOptionTemplate;
     }
 
@@ -38,6 +40,8 @@ public class SceneSelectAttributeOptionTemplateRepository implements PanacheRepo
             throw new ShotlyException("SceneSelectAttributeOptionTemplate not found", ShotlyErrorCode.NOT_FOUND);
         }
         option.name = editDTO.name();
+
+        option.sceneAttributeTemplate.template.registerEdit();
 
         return option;
     }
@@ -60,6 +64,8 @@ public class SceneSelectAttributeOptionTemplateRepository implements PanacheRepo
         }
 
         delete(sceneSelectAttributeOptionTemplate);
+
+        sceneSelectAttributeOptionTemplate.sceneAttributeTemplate.template.registerEdit();
 
         return sceneSelectAttributeOptionTemplate;
     }

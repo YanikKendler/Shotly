@@ -64,6 +64,8 @@ public class ShotAttributeTemplateRepository implements PanacheRepository<ShotAt
 
         persist(attributeTemplate);
 
+        template.registerEdit();
+
         return attributeTemplate.toDTO();
     }
 
@@ -94,6 +96,9 @@ public class ShotAttributeTemplateRepository implements PanacheRepository<ShotAt
 
             attribute.position = editDTO.position();
         }
+
+        attribute.template.registerEdit();
+
         return attribute.toDTO();
     }
 
@@ -111,6 +116,9 @@ public class ShotAttributeTemplateRepository implements PanacheRepository<ShotAt
             .forEach(a -> a.position--);
 
         delete(attribute);
+
+        attribute.template.registerEdit();
+
         return attribute.toDTO();
     }
 }

@@ -45,6 +45,7 @@ public class SceneAttributeTemplateRepository implements PanacheRepository<Scene
         SceneAttributeTemplateBase attributeTemplate = null;
         Template template = templateRepository.findById(createDTO.templateId());
 
+
         //create different definition type based on selected type in create DTO
         switch (createDTO.type()) {
             case SceneSingleSelectAttribute -> {
@@ -63,6 +64,8 @@ public class SceneAttributeTemplateRepository implements PanacheRepository<Scene
         }
 
         persist(attributeTemplate);
+
+        template.registerEdit();
 
         return attributeTemplate.toDTO();
     }
@@ -94,6 +97,9 @@ public class SceneAttributeTemplateRepository implements PanacheRepository<Scene
 
             attribute.position = editDTO.position();
         }
+
+        attribute.template.registerEdit();
+
         return attribute.toDTO();
     }
 
@@ -111,6 +117,9 @@ public class SceneAttributeTemplateRepository implements PanacheRepository<Scene
             .forEach(a -> a.position--);
 
         delete(attribute);
+
+        attribute.template.registerEdit();
+
         return attribute.toDTO();
     }
 }
