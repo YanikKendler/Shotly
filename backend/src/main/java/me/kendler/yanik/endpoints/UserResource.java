@@ -1,6 +1,8 @@
 package me.kendler.yanik.endpoints;
 
+import io.quarkus.panache.common.Sort;
 import jakarta.inject.Inject;
+import me.kendler.yanik.dto.user.UserAdminUpdateDTO;
 import me.kendler.yanik.dto.user.UserDTO;
 import me.kendler.yanik.dto.user.UserEditDTO;
 import me.kendler.yanik.model.User;
@@ -56,8 +58,15 @@ public class UserResource {
     public List<UserDTO> getUsers(){
         userRepository.checkAdmin(jwt);
 
-        List<User> users = userRepository.findAll().stream().toList();
+        List<User> users = userRepository.findAll(Sort.descending("name")).stream().toList();
 
         return users.stream().map(User::toDTO).toList();
+    }
+
+    @Mutation
+    public UserDTO adminUpdateUser(UserAdminUpdateDTO updateDTO){
+        userRepository.checkAdmin(jwt);
+
+        return userRepository.adminUserUpdate(updateDTO);
     }
 }

@@ -44,7 +44,7 @@
         "packages/labs/ssr/src/lib/util/parse5-utils.ts"
       ],
       "rules": {
-        "@typescript-eslint/no-explicit-any": "off"
+        "@typescript-eslint/no-explicit-any": "on"
       }
     }
   ]

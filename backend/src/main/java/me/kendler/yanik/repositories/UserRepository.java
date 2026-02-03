@@ -9,6 +9,7 @@ import jakarta.json.JsonString;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.auth0.Auth0Service;
+import me.kendler.yanik.dto.user.UserAdminUpdateDTO;
 import me.kendler.yanik.dto.user.UserDTO;
 import me.kendler.yanik.dto.user.UserEditDTO;
 import me.kendler.yanik.error.ShotlyErrorCode;
@@ -26,6 +27,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -62,6 +64,8 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         User user = findByAuth0SubWithFetch(auth0Sub);
 
         if (user != null) {
+            updateLastActiveById(user.id);
+
             if (!user.isActive) {
                 throw new ShotlyException("User account is deactivated",
                         ShotlyErrorCode.ACCOUNT_DEACTIVATED);
@@ -97,6 +101,15 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
             LOGGER.info("Duplicate user detected, refetching");
             return findByAuth0SubWithFetch(auth0Sub);
         }
+    }
+
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public void updateLastActiveById(UUID userId) {
+        getEntityManager()
+                .createQuery("UPDATE User u SET u.lastActiveAt = :now WHERE u.id = :id")
+                .setParameter("now", ZonedDateTime.now())
+                .setParameter("id", userId)
+                .executeUpdate();
     }
 
     public User findByAuth0SubWithFetch(String auth0Sub) {
@@ -192,6 +205,28 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
 
         return user;
     }*/
+
+    @Transactional
+    public UserDTO adminUserUpdate(UserAdminUpdateDTO updateDTO) {
+        User user = findById(updateDTO.id());
+
+        System.out.println(updateDTO.toString());
+
+        if(user == null)
+            throw new ShotlyException("User not found", ShotlyErrorCode.NOT_FOUND);
+
+        if(updateDTO.isActive() != null)
+            user.isActive = updateDTO.isActive();
+
+        if(updateDTO.tier() != null)
+            user.tier = updateDTO.tier();
+        
+        user.revokeProAfter = updateDTO.revokeProAfter();
+
+        persist(user);
+
+        return user.toDTO();
+    }
 
     // ADMIN
 

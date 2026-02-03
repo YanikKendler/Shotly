@@ -16,7 +16,7 @@
         "analyze:watch": "cem analyze --litelement --globs \"src/**/*.ts\" --watch",
         "serve": "wds --watch -p 3000",
         "serve:prod": "MODE=prod npm run serve",
-        "codegen": "node scripts/GraphQLCodeGenerator.cjs"
+        "codegen": "graphql-codegen --config codegen.ts"
     },
     "keywords": [
         "web-components",
@@ -27,15 +27,22 @@
     "author": "Google LLC",
     "license": "BSD-3-Clause",
     "dependencies": {
+        "@yanikkendler/web-utils": "^1.4.6",
         "auth0-js": "^9.30.0",
         "graphql-http": "^1.22.4",
-        "lit": "^3.2.0"
+        "lit": "^3.2.0",
+        "notyf": "^3.10.0"
     },
     "devDependencies": {
         "@custom-elements-manifest/analyzer": "^0.6.3",
+        "@graphql-codegen/cli": "^5.0.5",
+        "@graphql-codegen/typescript": "^4.1.6",
+        "@graphql-codegen/typescript-operations": "^4.6.0",
+        "@graphql-codegen/typescript-react-apollo": "^4.3.2",
         "@open-wc/testing": "^4.0.0",
         "@types/auth0-js": "^9.21.6",
         "@types/nanographql": "^2.0.3",
+        "@types/toastify-js": "^1.12.4",
         "@typescript-eslint/eslint-plugin": "^8.54.0",
         "@typescript-eslint/parser": "^8.54.0",
         "@web/dev-server": "^0.4.6",
