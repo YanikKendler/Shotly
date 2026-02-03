@@ -23,7 +23,7 @@ class AuthService {
             domain: 'login.shotly.at',
             clientID: '4FPKDtlCQjAToOwAEiG6ZrL0eW2UXlx4',
             responseType: 'id_token token',
-            redirectUri: Config.frontendURL + '/callback',
+            redirectUri: Config.frontendURL + '/callback/',
             audience: 'https://dev-pvlm4i5qpteni14h.us.auth0.com/api/v2/',
             scope: 'openid profile email',
             overrides: {

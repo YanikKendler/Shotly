@@ -1,6 +1,8 @@
 package me.kendler.yanik.repositories;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
+import io.quarkus.vertx.http.runtime.CurrentVertxRequest;
+import io.vertx.core.http.HttpServerRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
@@ -55,6 +57,12 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     @Inject
     StripeService stripeService;
 
+    @Inject
+    HttpServerRequest request;
+
+    @Inject
+    CurrentVertxRequest currentVertxRequest;
+
     private static final Logger LOGGER = Logger.getLogger(UserRepository.class);
 
     @Transactional
@@ -62,14 +70,17 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     public User findOrCreateByJWT(JsonWebToken jwt) {
         String auth0Sub = jwt.getClaim("sub");
 
+        if(auth0Sub == null || auth0Sub.isBlank()) {
+            throw new ShotlyException("Invalid JWT: missing 'sub' claim", ShotlyErrorCode.INVALID_INPUT);
+        }
+
         User user = findByAuth0SubWithFetch(auth0Sub);
 
         if (user != null) {
             updateLastActiveById(user.id);
 
             if (!user.isActive) {
-                throw new ShotlyException("User account is deactivated",
-                        ShotlyErrorCode.ACCOUNT_DEACTIVATED);
+                throw new ShotlyException("User account is deactivated", ShotlyErrorCode.ACCOUNT_DEACTIVATED);
             }
             return user;
         }
@@ -83,7 +94,12 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         try {
             createUser(newUser);
 
-            LOGGER.infof("Created new user: %s", newUser);
+            String method = request.method().name();
+            String path = request.uri();
+            String ip = request.remoteAddress().host();
+            String body = currentVertxRequest.getCurrent().body().asString();
+
+            LOGGER.infof("New User [%s] created via %s %s from IP %s. Body: %s", newUser.email, method, path, ip, body);
 
             Template defaultTemplate = new Template(newUser, "Default");
             templateRepository.persist(defaultTemplate);

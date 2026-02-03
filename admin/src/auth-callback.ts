@@ -10,7 +10,7 @@ export class AuthCallback extends LitElement {
         authService
             .handleAuthentication()
             .then((targetUrl) => {
-                window.location.href = targetUrl
+                window.location.href = targetUrl + "/"
             })
             .catch((error) => {
                 authService.logout(true)

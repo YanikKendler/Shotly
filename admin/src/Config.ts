@@ -1,5 +1,5 @@
 export default class Config {
-    static readonly mode: "prod" | "dev" = "dev"
+    static readonly mode: 'prod' | 'dev' = import.meta.env.DEV ? 'dev' : 'prod'
 
     static readonly backendURL =
         this.mode == 'prod' ? 'https://api.shotly.at' : 'http://localhost:8080'
