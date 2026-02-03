@@ -6,6 +6,7 @@ import {
     Maybe,
     ShotlistDto,
     TemplateDto,
+    UserActivity,
     UserDto,
     UserTier,
 } from './generatedTypes'
@@ -53,6 +54,7 @@ export class Dashboard extends LitElement {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: .5rem;
 
             .right {
                 display: flex;
@@ -104,6 +106,12 @@ export class Dashboard extends LitElement {
 
         table {
             margin-top: 1rem;
+
+            font-size: 0.9rem;
+
+            @media screen and (max-width: 600px) {
+                font-size: 0.8rem;
+            }
         }
 
         tr {
@@ -137,7 +145,6 @@ export class Dashboard extends LitElement {
 
             td {
                 background-color: var(--row-bg);
-                font-size: 0.9rem;
 
                 &.edited {
                     outline: 2px solid hsl(18, 90%, 58%);
@@ -245,6 +252,9 @@ export class Dashboard extends LitElement {
     templates: TemplateDto[] | null = null
 
     @state()
+    userActivity: UserActivity | null = null
+
+    @state()
     changes: UserDto[] = []
 
     @state()
@@ -314,6 +324,14 @@ export class Dashboard extends LitElement {
                                 name
                             }
                         }
+                        userActivity{
+                            lastHour
+                            fourHours
+                            eightHours
+                            twentyFourHours
+                            sevenDays
+                            thirtyDays
+                        }
                     }`,
                 },
                 {
@@ -329,6 +347,7 @@ export class Dashboard extends LitElement {
         this.users = (result.data.users as UserDto[]) || []
         this.shotlists = (result.data.allShotlists as ShotlistDto[]) || []
         this.templates = (result.data.allTemplates as TemplateDto[]) || []
+        this.userActivity = (result.data.userActivity as UserActivity) || {}
 
         const notyf = new Notyf()
         if (result.errors)
@@ -659,7 +678,7 @@ export class Dashboard extends LitElement {
 
         return html`
             <div class="top">
-                <h1>Shotly Admin</h1>
+                <h1>Admin</h1>
                 <div class="right">
                     <button
                         @click=${this.discardChanges}
@@ -678,6 +697,31 @@ export class Dashboard extends LitElement {
                     </button>
                 </div>
             </div>
+            
+            <h2 style="margin-top: 1rem">Active Users</h2>
+            <table>
+                <tr>
+                    <th>1h</th>
+                    <th>4h</th>
+                    <th>8h</th>
+                    <th>1d</th>
+                    <th>7d</th>
+                    <th>30d</th>
+                </tr>
+                ${
+                    !this.userActivity ? html`<p class="empty">Loading...</p>` : 
+                    html`
+                        <tr>
+                            <td>${this.userActivity.lastHour}</td>
+                            <td>${this.userActivity.fourHours}</td>
+                            <td>${this.userActivity.eightHours}</td>
+                            <td>${this.userActivity.twentyFourHours}</td>
+                            <td>${this.userActivity.sevenDays}</td>
+                            <td>${this.userActivity.thirtyDays}</td>
+                        </tr>
+                `}
+            </table>
+            
             <h2 style="margin-top: 1rem">Users</h2>
             <div class="scrollArea">
                 <table>

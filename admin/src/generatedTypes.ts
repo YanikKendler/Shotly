@@ -414,6 +414,7 @@ export type Query = {
   shots?: Maybe<Array<Maybe<ShotDto>>>;
   template?: Maybe<TemplateDto>;
   templates?: Maybe<Array<Maybe<TemplateDto>>>;
+  userActivity?: Maybe<UserActivity>;
   users?: Maybe<Array<Maybe<UserDto>>>;
 };
 
@@ -1014,6 +1015,16 @@ export type User = {
   templates?: Maybe<Array<Maybe<Template>>>;
   tier?: Maybe<UserTier>;
   version?: Maybe<Scalars['BigInteger']['output']>;
+};
+
+export type UserActivity = {
+  __typename?: 'UserActivity';
+  eightHours?: Maybe<Scalars['Int']['output']>;
+  fourHours?: Maybe<Scalars['Int']['output']>;
+  lastHour?: Maybe<Scalars['Int']['output']>;
+  sevenDays?: Maybe<Scalars['Int']['output']>;
+  thirtyDays?: Maybe<Scalars['Int']['output']>;
+  twentyFourHours?: Maybe<Scalars['Int']['output']>;
 };
 
 export type UserAdminUpdateDtoInput = {

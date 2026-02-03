@@ -2,6 +2,7 @@ package me.kendler.yanik.endpoints;
 
 import io.quarkus.panache.common.Sort;
 import jakarta.inject.Inject;
+import me.kendler.yanik.dto.UserActivity;
 import me.kendler.yanik.dto.user.UserAdminUpdateDTO;
 import me.kendler.yanik.dto.user.UserDTO;
 import me.kendler.yanik.dto.user.UserEditDTO;
@@ -68,5 +69,12 @@ public class UserResource {
         userRepository.checkAdmin(jwt);
 
         return userRepository.adminUserUpdate(updateDTO);
+    }
+
+    @Query
+    public UserActivity getUserActivity(){
+        userRepository.checkAdmin(jwt);
+
+        return userRepository.calculateUserActivity();
     }
 }

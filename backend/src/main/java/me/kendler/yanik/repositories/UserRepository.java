@@ -9,6 +9,7 @@ import jakarta.json.JsonString;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.auth0.Auth0Service;
+import me.kendler.yanik.dto.UserActivity;
 import me.kendler.yanik.dto.user.UserAdminUpdateDTO;
 import me.kendler.yanik.dto.user.UserDTO;
 import me.kendler.yanik.dto.user.UserEditDTO;
@@ -220,12 +221,33 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
 
         if(updateDTO.tier() != null)
             user.tier = updateDTO.tier();
-        
+
         user.revokeProAfter = updateDTO.revokeProAfter();
 
         persist(user);
 
         return user.toDTO();
+    }
+
+    public UserActivity calculateUserActivity() {
+        ZonedDateTime now = ZonedDateTime.now();
+
+        int lastHour = (int) countActiveSince(now.minusHours(1));
+        int fourHours = (int) countActiveSince(now.minusHours(4));
+        int eightHours = (int) countActiveSince(now.minusHours(8));
+        int twentyFourHours = (int) countActiveSince(now.minusHours(24));
+        int sevenDays = (int) countActiveSince(now.minusDays(7));
+        int thirtyDays = (int) countActiveSince(now.minusDays(30));
+
+        return new UserActivity(lastHour, fourHours, eightHours, twentyFourHours, sevenDays, thirtyDays);
+    }
+
+    private long countActiveSince(ZonedDateTime since) {
+        Long count = getEntityManager()
+                .createQuery("SELECT COUNT(u) FROM User u WHERE u.lastActiveAt >= :since", Long.class)
+                .setParameter("since", since)
+                .getSingleResult();
+        return count == null ? 0L : count;
     }
 
     // ADMIN
