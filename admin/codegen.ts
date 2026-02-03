@@ -14,9 +14,10 @@ const config: CodegenConfig = {
                 withHOC: false,
                 withComponent: false,
                 reactApolloVersion: 3,
+                gqlImport: false,
             },
         },
     },
-};
+}
 
 export default config;
