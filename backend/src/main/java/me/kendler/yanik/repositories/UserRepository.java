@@ -94,13 +94,15 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         try {
             createUser(newUser);
 
+            //log user creation and creator
+
             String method = request.method().name();
             String path = request.uri();
-            String ip = request.remoteAddress().host();
             String body = currentVertxRequest.getCurrent().body().asString();
 
-            LOGGER.infof("New User [%s] created via %s %s from IP %s. Body: %s", newUser.email, method, path, ip, body);
+            LOGGER.infof("New User [%s, %s] created via %s %s. Body: %s", newUser.id, newUser.email, method, path, body);
 
+            //create default template for new user
             Template defaultTemplate = new Template(newUser, "Default");
             templateRepository.persist(defaultTemplate);
 

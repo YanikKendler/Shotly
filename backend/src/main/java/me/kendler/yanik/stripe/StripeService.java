@@ -190,6 +190,7 @@ public class StripeService {
     @Transactional
     public boolean handleWebhook(Event event){
         EventDataObjectDeserializer eventDataObjectDeserializer = event.getDataObjectDeserializer();
+
         if (eventDataObjectDeserializer.getObject().isEmpty()) {
             LOGGER.warn("Webhook event data object is empty: " + event.toJson());
             return false;
