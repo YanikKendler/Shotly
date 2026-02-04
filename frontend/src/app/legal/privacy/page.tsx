@@ -9,7 +9,8 @@ export default function Privacy(){
                 Pfennigmayrstraße 8<br/>
                 4641 Steinhaus<br/>
                 Austria<br/>
-                Email: yanik@shotly.at</p>
+                Email: <Link className={"inline"} href="mailto:yanik@shotly.at">yanik@shotly.at</Link>
+            </p>
 
             <h2>2. Collection and Processing of Personal Data</h2>
             <p>The following personal data is processed when using Shotly:</p>
@@ -18,6 +19,7 @@ export default function Privacy(){
                 <li>Email address</li>
                 <li>Password (stored in encrypted form)</li>
             </ul>
+            <br/>
             <p>
                 Authentication and user data management are handled by the service provider <strong>Auth0</strong>
                 (Okta Inc.). More information about data processing by Auth0 can be found at: <Link className={"inline"} href="https://auth0.com/privacy" target="_blank" rel="noopener noreferrer">https://auth0.com/privacy</Link>
@@ -38,7 +40,7 @@ export default function Privacy(){
                 contractual clauses for securing data transfers to third countries.
             </p>
 
-            <h2>5. Cookies & Analytics</h2>
+            <h2>5. Cookies</h2>
             <p>
                 Shotly only uses technically necessary cookies to ensure the basic functionality of the web application
                 (e.g., for login and session management). No tracking or marketing cookies are used.
@@ -59,10 +61,56 @@ export default function Privacy(){
                 For complaints or questions: <Link className={"inline"} href="mailto:yanik@shotly.at">yanik@shotly.at</Link>
             </p>
 
-            <h2>8. Contact for Data Protection Issues</h2>
+            <h2>8. Use of TelemetryDeck to analyze app usage</h2>
+
             <p>
-                Email: <Link className={"inline"} href="mailto:yanik@shotly.at">yanik@shotly.at</Link>
+                We use the privacy-friendly analytics service TelemetryDeck (provider: TelemetryDeck GmbH,
+                Von-der-Tann-Str. 54, 86159 Augsburg, Germany) to analyze usage data. The use is based on Art. 6 para. 1
+                lit. b GDPR, as we require reliable and efficient tools for collecting app usage data in order to
+                fulfill the contract with you, our customer.
             </p>
+
+            <h3>What data is transferred?</h3>
+
+            <p>
+                The data processed by TelemetryDeck is completely anonymized and does not allow any conclusions to be
+                drawn about personal information.
+            </p>
+
+            <p>The following data is collected, among other things:</p>
+
+            <ul>
+                <li>an anonymized, untraceable user ID (per app installation),</li>
+                <li>actions defined by the app publisher (e.g., "app launched," "settings opened"),</li>
+                <li>a rounded timestamp (to the nearest hour),</li>
+                <li>device metadata (e.g., system version, app version, device type),</li>
+                <li>additional metadata defined by the app publisher (e.g., "number of items in the database").</li>
+            </ul>
+
+            <h3>What is not stored?</h3>
+
+            <ul>
+                <li>No IP addresses (not in logs, not in the database),</li>
+                <li>No cookies or tracking technologies,</li>
+                <li>no persistent identifiers that could be traced back to individuals.</li>
+            </ul>
+
+            <br/>
+
+            <p>
+                The source code of the TelemetryDeck SDK is completely open source and available on GitHub: <Link
+                className={"inline"} href="https://github.com/TelemetryDeck">https://github.com/TelemetryDeck</Link>
+            </p>
+            <p>
+                Further information on the exact data processing by TelemetryDeck can be found at: <Link
+                className={"inline"}
+                href="https://telemetrydeck.com/privacy">https://telemetrydeck.com/privacy</Link> and at <Link
+                className={"inline"}
+                href="https://telemetrydeck.com/docs/guides/privacy-faq/">https://telemetrydeck.com/docs/guides/privacy-faq/</Link>
+            </p>
+            <br/>
+            <br/>
+            <br/>
         </>
     )
 }

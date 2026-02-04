@@ -1,7 +1,7 @@
 'use client'
 
 import gql from "graphql-tag"
-import React, {useContext, useEffect, useRef, useState} from "react"
+import React, {useEffect, useRef, useState} from "react"
 import {ApolloQueryResult, InteropApolloQueryResult, useApolloClient} from "@apollo/client"
 import {
     CollaborationDto,
@@ -12,7 +12,7 @@ import {
     UserTier
 } from "../../../../lib/graphql/generated"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
-import {Check, CircleAlert, House, LoaderCircle, Menu, X} from "lucide-react"
+import {Check, House, LoaderCircle, Menu, X} from "lucide-react"
 import './shotlist.scss'
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import {ShotlistContext} from "@/context/ShotlistContext"

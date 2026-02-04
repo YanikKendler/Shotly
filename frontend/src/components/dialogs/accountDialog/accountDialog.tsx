@@ -16,7 +16,7 @@ import Link from "next/link"
 import PaymentService from "@/service/PaymentService"
 import Config from "@/util/Config"
 import Skeleton from "react-loading-skeleton"
-import {wuConstants} from "@yanikkendler/web-utils/dist"
+import {wuConstants, wuGeneral} from "@yanikkendler/web-utils/dist"
 import Slider from "@/components/inputs/slider/slider"
 import {BUILD_INFO} from "../../../../buildinfo"
 import Separator from "@/components/separator/separator";
@@ -25,6 +25,7 @@ import {wuTime} from "@yanikkendler/web-utils"
 import Utils from "@/util/Utils"
 import toast from "react-hot-toast"
 import {errorNotification} from "@/service/NotificationService"
+import {td} from "@/service/AnalyticsService"
 
 export interface UserSettings {
     saveExportSettingsInLocalstorage: boolean
@@ -242,39 +243,7 @@ export function useAccountDialog() {
             return;
         }
     }
-
-    /*const setAllowAnalytics = (decision: boolean) => {
-        client.mutate({
-            mutation: gql`
-                mutation setAllowAnalytics($allow: Boolean!){
-                    allowAnalytics(allow: $allow) {
-                        id
-                    }
-                }
-            `,
-            variables: {allow: decision}
-        }).then(({errors}) => {
-            if(errors){
-                console.error(errors)
-                errorNotification({
-                    title: "Failed to set analytics preference",
-                    tryAgainLater: true
-                })
-            }
-        })
-
-        setQuery({
-            ...query,
-            data: {
-                ...query.data,
-                currentUser: {
-                    ...query.data.currentUser as UserDto,
-                    allowAnalytics: decision
-                }
-            }
-        })
-    }*/
-
+    
     let dialogContent
 
     if(deleting)
@@ -343,7 +312,10 @@ export function useAccountDialog() {
                         className="RadioGroupRoot"
                         defaultValue={selectedAppearance}
                         aria-label="Appearance"
-                        onValueChange={setSelectedAppearance}
+                        onValueChange={(value) => {
+                            td.signal("Account.Settings.AppearanceChanged", {appearance: value})
+                            setSelectedAppearance(value)
+                        }}
                     >
                         <SimpleTooltip text={"Light"} asButton showHoverArea={false} hoverAreaExpansion={0} delay={700}>
                             <RadioGroup.Item className="RadioGroupItem" value="light">
@@ -372,6 +344,7 @@ export function useAccountDialog() {
                                 className="SwitchRoot"
                                 checked={userSettings.saveExportSettingsInLocalstorage}
                                 onCheckedChange={(checked) => {
+                                    td.signal("Account.Settings.RememberExportSettings")
                                     setUserSettings({
                                         ...userSettings,
                                         saveExportSettingsInLocalstorage: checked
@@ -388,6 +361,7 @@ export function useAccountDialog() {
                                 className="SwitchRoot"
                                 checked={userSettings.displaySceneNumbersNextToShotNumbers}
                                 onCheckedChange={(checked) => {
+                                    td.signal("Account.Settings.SceneNumbers")
                                     setUserSettings({
                                         ...userSettings,
                                         displaySceneNumbersNextToShotNumbers: checked
@@ -405,6 +379,7 @@ export function useAccountDialog() {
                                 aria-label="Shot numbering after Z"
                                 value={userSettings.shotNumberingAfterZ}
                                 onValueChange={(value) => {
+                                    td.signal("Account.Settings.ShotNumbering")
                                     setUserSettings({
                                         ...userSettings,
                                         shotNumberingAfterZ: value as "different" | "repeating"
@@ -445,15 +420,27 @@ export function useAccountDialog() {
 
                 <div className="row">
                     <p>Visit the Documentation</p>
-                    <Link href={"https://docs.shotly.at"} target={"_blank"}>Shotly Docs</Link>
+                    <Link
+                        href={"https://docs.shotly.at"}
+                        target={"_blank"}
+                        onClick={() => {td.signal("Account.Support.Docs")}}
+                    >Shotly Docs</Link>
                 </div>
                 <div className="row">
                     <p>Report a bug or request a feature</p>
-                    <Link href={"https://github.com/YanikKendler/shotly/issues/new/choose"} target={"_blank"}>New issue</Link>
+                    <Link
+                        href={"https://github.com/YanikKendler/shotly/issues/new/choose"}
+                        target={"_blank"}
+                        onClick={() => {td.signal("Account.Support.NewIssue")}}
+                    >New issue</Link>
                 </div>
                 <div className="row">
                     <p>Contact me via email</p>
-                    <Link href={"mailto:yanik@shotly.at"} target={"_blank"}>yanik@shotly.at</Link>
+                    <Link
+                        href={"mailto:yanik@shotly.at"}
+                        target={"_blank"}
+                        onClick={() => {td.signal("Account.Support.Mail")}}
+                    >yanik@shotly.at</Link>
                 </div>
 
                 <Separator text={"Account"}/>
@@ -470,17 +457,6 @@ export function useAccountDialog() {
                         <button className={"delete bad"} onClick={deleteAccount}>Delete account</button>
                     </div>
                 }
-
-                {/*<div className="row">
-                    <p>Allow collection of non-personal analytics data</p>
-                    <Switch.Root
-                        className="SwitchRoot"
-                        checked={query.data.currentUser?.allowAnalytics || false}
-                        onCheckedChange={setAllowAnalytics}
-                    >
-                        <Switch.Thumb className="SwitchThumb"/>
-                    </Switch.Root>
-                </div>*/}
 
                 <Separator/>
 

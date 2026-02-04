@@ -11,7 +11,8 @@ export default function SimplePopover({
     asChild = false,
     side = "top",
     className = "",
-    contentClassName = ""
+    contentClassName = "",
+    onOpen = () => {}
 } : {
     children: ReactNode
     text?: string
@@ -22,9 +23,13 @@ export default function SimplePopover({
     side?: "top" | "right" | "bottom" | "left",
     className?: string
     contentClassName?: string
+    onOpen?: () => void
 }){
     return (
-        <Popover.Root>
+        <Popover.Root onOpenChange={(open) => {
+            if(open)
+                onOpen()
+        }}>
             <Popover.Trigger asChild={asChild} className={`popoverTrigger ${className}`}>
                 {children}
             </Popover.Trigger>

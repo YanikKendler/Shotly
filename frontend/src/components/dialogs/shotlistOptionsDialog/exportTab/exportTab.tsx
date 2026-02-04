@@ -41,6 +41,7 @@ import Separator from "@/components/separator/separator"
 import DotLoader from "@/components/DotLoader"
 import {errorNotification} from "@/service/NotificationService"
 import LabeledCheckbox from "@/components/inputs/labeledCheckbox/labeledCheckbox"
+import {td} from "@/service/AnalyticsService"
 
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full"
 
@@ -329,6 +330,13 @@ export default function ExportTab(
         if (!data) {
             return
         }
+
+        td.signal("Shotlist.Options.Export.Exported", {
+            fileType: selectedFileType,
+            showCheckboxes: selectedFileType == "PDF" ? showCheckboxes : undefined,
+            filterCount: customSceneFilters.size + customShotFilters.size,
+            selectedScenes: setSelectedScenes.length
+        })
 
         setExportRunning(true)
 

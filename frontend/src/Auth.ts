@@ -1,6 +1,7 @@
 import auth0, {Auth0DecodedHash, Auth0ParseHashError, WebAuth} from 'auth0-js';
 import Config from "@/util/Config"
 import {errorNotification} from "@/service/NotificationService"
+import {td} from "@/service/AnalyticsService"
 
 export interface AuthUser {
     email: string;
@@ -128,6 +129,8 @@ class Auth {
             })
             return
         }
+
+        td.clientUser = authResult.idTokenPayload.sub
 
         this.authUser = {
             email: authResult.idTokenPayload.email,

@@ -1,6 +1,7 @@
 import Link from "next/link"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import "./helpLink.scss"
+import {td} from "@/service/AnalyticsService"
 
 export default function HelpLink({
     link,
@@ -13,7 +14,12 @@ export default function HelpLink({
 }) {
     return (
         <SimpleTooltip text={"Click to open the relevant documentation"} fontSize={0.8} offset={0} delay={delay}>
-            <Link href={link} target="_blank" className={`helpLink ${floating && "floating"}`}>?</Link>
+            <Link
+                href={link}
+                target="_blank"
+                className={`helpLink ${floating && "floating"}`}
+                onClick={() => {td.signal("HelpLink", {link: link})}}
+            >?</Link>
         </SimpleTooltip>
     )
 }

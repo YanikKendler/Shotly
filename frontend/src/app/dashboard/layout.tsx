@@ -497,7 +497,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                 {/*always visible*/}
                                 <Popover.Root>
                                     <Popover.Trigger className={"collaborationRequestsTrigger"}>
-                                        Collab-Requests
+                                        Collaborations
                                         <Inbox size={18}/>
                                         {
                                             pendingCollaborations.data.pendingCollaborations && pendingCollaborations.data.pendingCollaborations.length > 0 &&

@@ -13,7 +13,7 @@ import {SelectOption} from "@/util/Types"
 import {useRouter} from "next/navigation"
 import Link from "next/link"
 import {errorNotification} from "@/service/NotificationService"
-import { trackEvent } from "@simpleanalytics/react";
+import {saEvent} from "@/service/AnalyticsService"
 
 export function useCreateShotlistDialog() {
     const [isOpen, setIsOpen] = useState(false);
@@ -69,8 +69,6 @@ export function useCreateShotlistDialog() {
     }
 
     function openCreateShotlistDialog(): Promise<boolean> {
-        trackEvent("OPENED_CREATE_SHOTLIST_DIALOG")
-
         setIsOpen(true)
         setIsCreating(false)
         loadData()

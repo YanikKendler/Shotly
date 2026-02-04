@@ -8,23 +8,21 @@ import React, {useEffect, useRef} from "react"
 import {
     BookText, CalendarCheck,
     Check,
-    ClockAlert, Cloud,
     Columns3Cog,
     Download,
     FileCode,
-    GripVertical,
     Heart,
     Info, Blocks,
     Users
 } from "lucide-react"
 import Image from "next/image"
-import {Popover, Tooltip} from "radix-ui"
 import AuthSwitcher from "@/components/utility/authSwitcher/authSwitcher"
 import ThemeSwitcher from "@/components/utility/themeSwitcher/themeSwitcher"
 import Skeleton from "react-loading-skeleton"
 import Config from "@/util/Config"
 import Separator from "@/components/separator/separator"
 import SimplePopover from "@/components/popover/simplePopover"
+import {td} from "@/service/AnalyticsService"
 
 export default function Landing() {
     const pageRef = useRef<HTMLDivElement>(null);
@@ -70,7 +68,14 @@ export default function Landing() {
         <main className="landing" ref={pageRef}>
             <nav>
                 <div className="left">
-                    <Link href={"https://docs.shotly.at"} target={"_blank"} className={"noPadding"}><BookText size={22} />Documentation</Link>
+                    <Link
+                        href={"https://docs.shotly.at"}
+                        target={"_blank"}
+                        className={"noPadding"}
+                        onClick={() => td.signal("Landing.Nav.Documentation")}
+                    >
+                        <BookText size={22} />Documentation
+                    </Link>
                 </div>
                 <div className="center">
                     <Link href={"#hero"}>Home</Link>
@@ -80,12 +85,28 @@ export default function Landing() {
                 <div className="right">
                     <AuthSwitcher
                         authenticated={
-                            <Link className={"main"} href={"/dashboard"}>Your Dashboard</Link>
+                            <Link
+                                className={"main"}
+                                href={"/dashboard"}
+                                onClick={() => td.signal("Landing.Nav.Dashboard")}
+                            >Your Dashboard</Link>
                         }
                         unauthenticated={
                             <>
-                                <button className={"secondary"} onClick={() => Auth.register()}>Sign up</button>
-                                <button className={"main"} onClick={() => Auth.login()}>Log in</button>
+                                <button
+                                    className={"secondary"}
+                                    onClick={() => {
+                                        td.signal("Landing.Nav.SignUp")
+                                        Auth.register()
+                                    }}
+                                >Sign up</button>
+                                <button
+                                    className={"main"}
+                                    onClick={() => {
+                                        td.signal("Landing.Nav.LogIn")
+                                        Auth.login()
+                                    }}
+                                >Log in</button>
                             </>
                         }
                     />
@@ -99,8 +120,18 @@ export default function Landing() {
                         <p className={"tagline"}>Shotlist creation made easy!</p>
                         <div className="arrowContainer">
                             <AuthSwitcher
-                                authenticated={<Link href={"/dashboard"}>To your Dashboard</Link>}
-                                unauthenticated={<button onClick={() => Auth.login()}>Get started for free</button>}
+                                authenticated={
+                                    <Link
+                                        href={"/dashboard"}
+                                        onClick={() => td.signal("Landing.Hero.Dashboard")}
+                                    >To your Dashboard</Link>
+                                }
+                                unauthenticated={
+                                    <button onClick={() => {
+                                        td.signal("Landing.Hero.GetStarted")
+                                        Auth.login()
+                                    }}>Get started for free</button>
+                                }
                             />
                             <Image
                                 className={"arrow"}
@@ -113,14 +144,10 @@ export default function Landing() {
                         </div>
                         <div className="beta">Beta</div>
                     </div>
-                    <Image className={""} id={"clapboard"} src={"/home-doodles/doodle-0.svg"} alt={"doodle"} width={128}
-                           height={118} fetchPriority={"low"}/>
-                    <Image className={"first"} id={"brush"} src={"/home-doodles/doodle-1.svg"} alt={"doodle"} width={97}
-                           height={85} fetchPriority={"low"}/>
-                    <Image className={""} id={"shotlist"} src={"/home-doodles/doodle-2.svg"} alt={"doodle"} width={179}
-                           height={111} fetchPriority={"low"}/>
-                    <Image className={"third"} id={"close-up"} src={"/home-doodles/doodle-3.svg"} alt={"doodle"}
-                           width={118} height={52} fetchPriority={"low"}/>
+                    <Image className={""} id={"clapboard"} src={"/home-doodles/doodle-0.svg"} alt={"doodle"} width={128} height={118} fetchPriority={"low"}/>
+                    <Image className={"first"} id={"brush"} src={"/home-doodles/doodle-1.svg"} alt={"doodle"} width={97} height={85} fetchPriority={"low"}/>
+                    <Image className={""} id={"shotlist"} src={"/home-doodles/doodle-2.svg"} alt={"doodle"} width={179} height={111} fetchPriority={"low"}/>
+                    <Image className={"third"} id={"close-up"} src={"/home-doodles/doodle-3.svg"} alt={"doodle"} width={118} height={52} fetchPriority={"low"}/>
                     <Image className={"second"} id={"clipboard"} src={"/home-doodles/doodle-4.svg"} alt={"doodle"} width={85} height={113} fetchPriority={"low"}/>
                     <Image className={"third"} id={"medium-shot"} src={"/home-doodles/doodle-5.svg"} alt={"doodle"} width={126} height={37} fetchPriority={"low"}/>
                     <Image className={"second"} id={"thoughts"} src={"/home-doodles/doodle-6.svg"} alt={"doodle"} width={59} height={52} fetchPriority={"low"}/>
@@ -165,6 +192,7 @@ export default function Landing() {
                                 href="https://docs.shotly.at/attributes"
                                 className={"noPadding"}
                                 target={"_blank"}
+                                onClick={() => td.signal("Landing.LearnMore.Attributes")}
                             >
                                 Learn more
                             </Link>
@@ -179,6 +207,7 @@ export default function Landing() {
                                 href="https://docs.shotly.at/shotlist/export"
                                 className={"noPadding"}
                                 target={"_blank"}
+                                onClick={() => td.signal("Landing.Clicked.LearnMore.Export")}
                             >
                                 Learn more
                             </Link>
@@ -213,6 +242,7 @@ export default function Landing() {
                                 href="https://docs.shotly.at/shotlist/collaboration"
                                 className={"noPadding"}
                                 target={"_blank"}
+                                onClick={() => td.signal("Landing.Clicked.LearnMore.Collaboration")}
                             >
                                 Learn more
                             </Link>
@@ -227,6 +257,7 @@ export default function Landing() {
                                 href="https://docs.shotly.at/templates"
                                 className={"noPadding"}
                                 target={"_blank"}
+                                onClick={() => td.signal("Landing.Clicked.LearnMore.Templates")}
                             >
                                 Learn more
                             </Link>
@@ -241,6 +272,7 @@ export default function Landing() {
                                 href="https://github.com/YanikKendler/Shotly/blob/main/README.md##License"
                                 className={"noPadding"}
                                 target={"_blank"}
+                                onClick={() => td.signal("Landing.Clicked.LearnMore.License")}
                             >
                                 Learn more
                             </Link>
@@ -280,7 +312,13 @@ export default function Landing() {
                                 <li><Check size={20} strokeWidth={3}/>unlimited scenes</li>
                                 <li><Check size={20} strokeWidth={3}/>unlimited shots</li>
                             </ul>
-                            <button className="select secondary" onClick={() => Auth.login()}>Get started</button>
+                            <button
+                                className="select secondary"
+                                onClick={() => {
+                                    td.signal("Landing.Price.Basic")
+                                    Auth.login()
+                                }}
+                            >Get started</button>
                         </div>
 
                         <div className="tier">
@@ -300,7 +338,13 @@ export default function Landing() {
                                 <li className={"gray"}><CalendarCheck size={20} strokeWidth={2.5}/>cancel any time</li>
                                 <li className={"gray"}><Heart size={20} strokeWidth={3}/>support this project</li>
                             </ul>
-                            <button className="select main" onClick={() => Auth.loginForPro()}>Choose Pro</button>
+                            <button
+                                className="select main"
+                                onClick={() => {
+                                    td.signal("Landing.Price.Pro")
+                                    Auth.loginForPro()
+                                }}
+                            >Choose Pro</button>
                         </div>
                     </div>
                     <Link href="/freeForStudents" className={"freeForStudents"}>Shotly for Students</Link>

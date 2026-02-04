@@ -10,7 +10,7 @@ import {Metadata, Viewport} from "next"
 import {SkeletonTheme} from "react-loading-skeleton"
 import {Toaster} from "react-hot-toast"
 import {CircleAlert, CircleCheck} from "lucide-react"
-import Analytics from "@/components/utility/Analytics"
+import Script from "next/script"
 
 export const metadata: Metadata = {
     title: "Shotly | Shotlist creation made easy",
@@ -142,9 +142,8 @@ export default function RootLayout({
                     },
                 }}
             />
-
-            <Analytics/>
         </body>
+        <Script src="https://scripts.simpleanalyticscdn.com/latest.js" />
         </html>
     )
 }
