@@ -13,6 +13,13 @@ import {
 import {wuTime} from '@yanikkendler/web-utils'
 import {Notyf} from 'notyf'
 
+export enum SortName {
+    Name = 'name',
+    CreatedAt = 'createdAt',
+    ActiveAt = 'activeAt',
+    Tier = 'tier'
+}
+
 @customElement('app-dashboard')
 export class Dashboard extends LitElement {
     static override styles = css`
@@ -29,6 +36,12 @@ export class Dashboard extends LitElement {
             padding: 0;
             margin: 0;
             box-sizing: border-box;
+        }
+        
+        h1{
+            @media screen and (max-width: 600px) {
+                display: none;
+            }
         }
 
         button {
@@ -49,12 +62,20 @@ export class Dashboard extends LitElement {
                 pointer-events: none;
             }
         }
+        
+        select{
+            background-color: hsl(0, 0%, 20%);
+            color: white;
+            border: none;
+            outline: none;
+            padding: .3rem;
+        }
 
         .top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: .5rem;
+            gap: 0.5rem;
 
             .right {
                 display: flex;
@@ -97,8 +118,9 @@ export class Dashboard extends LitElement {
                 display: none; /*Chrome, Safari and Opera */
             }
         }
-        
-        .empty{
+
+        .empty {
+            padding: 0.3rem;
             color: gray;
             font-style: italic;
             white-space: nowrap;
@@ -136,6 +158,7 @@ export class Dashboard extends LitElement {
             }
 
             th {
+                padding: 0.3rem;
                 background-color: hsl(0, 0%, 30%);
 
                 &.name {
@@ -153,7 +176,6 @@ export class Dashboard extends LitElement {
 
             td,
             th {
-                padding: 0.3rem;
                 white-space: nowrap;
                 outline: 1px solid hsl(0, 0%, 0%);
 
@@ -162,21 +184,15 @@ export class Dashboard extends LitElement {
                     left: 0;
                     z-index: 1;
                     font-weight: 500;
-
-                    &.clickable {
-                        cursor: pointer;
-                        &:hover {
-                            outline: 1.5px solid white;
-                            color: white;
-                            text-decoration: underline;
-                        }
-                    }
                 }
 
                 &.truncate {
-                    max-width: 10ch;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
+                    .cellValue {
+                        max-width: 10ch;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
                 }
 
                 &.empty {
@@ -197,12 +213,29 @@ export class Dashboard extends LitElement {
                     }
                 }
 
-                &.noPadding {
-                    padding: 0;
+                &.selectable {
+                    cursor: pointer;
+                    &:hover {
+                        outline: 1.5px solid white;
+                        color: white;
+                        text-decoration: underline;
+                    }
                 }
 
                 &:has(button.revokePro) {
                     padding-inline: 0.3rem;
+                }
+
+                p.cellValue {
+                    padding: 0.3rem;
+                    max-width: 30ch;
+                    white-space: wrap;
+                    width: max-content;
+                }
+                
+                p.centered{
+                    text-align: center;
+                    padding: .3rem;
                 }
 
                 select,
@@ -262,6 +295,16 @@ export class Dashboard extends LitElement {
 
     @state()
     userFilter: UserDto | null = null
+
+    @state()
+    selectedSort: SortName = SortName.Name
+
+    sorts = new Map<SortName, (u1: UserDto, u2: UserDto) => number>([
+        [SortName.Name, (u1, u2) => u1.name?.localeCompare(u2.name || "") || 0],
+        [SortName.CreatedAt, (u1, u2) => new Date(u1.createdAt).getTime() - new Date(u2.createdAt).getTime()],
+        [SortName.ActiveAt, (u1, u2) => new Date(u1.lastActiveAt).getTime() - new Date(u2.lastActiveAt).getTime()],
+        [SortName.Tier, (u1, u2) => u1.tier?.localeCompare(u2.tier || "") || 0],
+    ]);
 
     override connectedCallback() {
         super.connectedCallback()
@@ -380,9 +423,9 @@ export class Dashboard extends LitElement {
                 ${this.renderCopyCell(user.id)}
                 <td
                     @click=${() => (this.userFilter = user)}
-                    class="name clickable"
+                    class="name selectable"
                 >
-                    ${user.name}
+                    <p class="cellValue">${user.name}</p>
                 </td>
                 ${this.renderCell(user.email)}
                 ${this.renderCell(user.howDidYouHearReason)}
@@ -447,7 +490,13 @@ export class Dashboard extends LitElement {
             <tr>
                 ${this.renderCopyCell(shotlist.id)}
                 ${this.renderCell(shotlist.name, 'name')}
-                ${this.renderCell(shotlist.owner?.name)}
+                <td
+                    @click=${() =>
+                        (this.userFilter = shotlist.owner as UserDto)}
+                    class="selectable"
+                >
+                    <p class="cellValue">${shotlist.owner?.name}</p>
+                </td>
                 ${this.renderCell(wuTime.toDateTimeString(shotlist.createdAt))}
                 ${this.renderCell(wuTime.toDateTimeString(shotlist.editedAt))}
                 ${this.renderCell(shotlist.sceneCount)}
@@ -468,7 +517,13 @@ export class Dashboard extends LitElement {
             <tr>
                 ${this.renderCopyCell(template.id)}
                 ${this.renderCell(template.name, 'name')}
-                ${this.renderCell(template.owner?.name)}
+                <td
+                    @click=${() =>
+                        (this.userFilter = template.owner as UserDto)}
+                    class="selectable"
+                >
+                    <p class="cellValue">${template.owner?.name}</p>
+                </td>
                 ${this.renderCell(wuTime.toDateTimeString(template.createdAt))}
                 ${this.renderCell(wuTime.toDateTimeString(template.editedAt))}
                 ${this.renderCell(template.sceneAttributeCount)}
@@ -548,7 +603,9 @@ export class Dashboard extends LitElement {
         if (value === null || value === '' || value === undefined)
             return this.renderEmptyCell()
 
-        return html`<td class="${className}">${value}</td>`
+        return html`<td class="${className}">
+            <p class="cellValue">${value}</p>
+        </td>`
     }
 
     renderCopyCell(value?: Maybe<string> | Maybe<number> | Maybe<boolean>) {
@@ -560,7 +617,7 @@ export class Dashboard extends LitElement {
                 title="${value}"
                 @click=${() => this.copyValue(String(value))}
             >
-                ${value}
+                <p class="cellValue">${value}</p>
             </td>
         `
     }
@@ -611,14 +668,17 @@ export class Dashboard extends LitElement {
                     next: (data) => (result = data as MutationResult),
                     error: (e) => {
                         console.log(e)
-                        notyf.error(`Failed to save changes for user ${user.name}"`)
+                        notyf.error(
+                            `Failed to save changes for user ${user.name}"`
+                        )
                     },
                     complete: () => {
                         const newUsers = [...(this.users || [])]
                         newUsers.map((u) => {
                             if (u.id == user.id) {
                                 u.active = result.data.adminUpdateUser?.active
-                                u.revokeProAfter = result.data.adminUpdateUser?.revokeProAfter
+                                u.revokeProAfter =
+                                    result.data.adminUpdateUser?.revokeProAfter
                                 u.tier = result.data.adminUpdateUser?.tier
                             }
                         })
@@ -660,26 +720,26 @@ export class Dashboard extends LitElement {
             return html``
         }
 
-        const filteredShotlists = (this.shotlists || [])
-            .filter((s) =>
-                this.userFilter?.id
-                    ? s.owner?.id ==
-                    this.userFilter.id
-                    : true
-            )
+        const filteredShotlists = (this.shotlists || []).filter((s) =>
+            this.userFilter?.id ? s.owner?.id == this.userFilter.id : true
+        )
 
-        const filteredTemplates = (this.templates || [])
-            .filter((t) =>
-                this.userFilter?.id
-                    ? t.owner?.id ==
-                    this.userFilter.id
-                    : true
-            )
+        const filteredTemplates = (this.templates || []).filter((t) =>
+            this.userFilter?.id ? t.owner?.id == this.userFilter.id : true
+        )
+
+        console.log(this.selectedSort)
 
         return html`
             <div class="top">
                 <h1>Admin</h1>
                 <div class="right">
+                    <select @change=${(e: Event) => {this.selectedSort = SortName[(e.target as HTMLSelectElement).value as keyof typeof SortName]}}>
+                        <option value="Name" selected>Name</option>
+                        <option value="CreatedAt">Created At</option>
+                        <option value="ActiveAt">Active At</option>
+                        <option value="Tier">Tier</option>
+                    </select>
                     <button
                         @click=${this.discardChanges}
                         .disabled=${this.changes.length <= 0}
@@ -697,7 +757,7 @@ export class Dashboard extends LitElement {
                     </button>
                 </div>
             </div>
-            
+
             <h2 style="margin-top: 1rem">Active Users</h2>
             <table>
                 <tr>
@@ -708,20 +768,20 @@ export class Dashboard extends LitElement {
                     <th>7d</th>
                     <th>30d</th>
                 </tr>
-                ${
-                    !this.userActivity ? html`<p class="empty">Loading...</p>` : 
-                    html`
-                        <tr>
-                            <td>${this.userActivity.lastHour}</td>
-                            <td>${this.userActivity.fourHours}</td>
-                            <td>${this.userActivity.eightHours}</td>
-                            <td>${this.userActivity.twentyFourHours}</td>
-                            <td>${this.userActivity.sevenDays}</td>
-                            <td>${this.userActivity.thirtyDays}</td>
-                        </tr>
-                `}
+                ${!this.userActivity
+                    ? html`<p class="empty">Loading...</p>`
+                    : html`
+                          <tr>
+                              <td><p class="centered">${this.userActivity.lastHour}</p></td>
+                              <td><p class="centered">${this.userActivity.fourHours}</p></td>
+                              <td><p class="centered">${this.userActivity.eightHours}</p></td>
+                              <td><p class="centered">${this.userActivity.twentyFourHours}</p></td>
+                              <td><p class="centered">${this.userActivity.sevenDays}</p></td>
+                              <td><p class="centered">${this.userActivity.thirtyDays}</p></td>
+                          </tr>
+                      `}
             </table>
-            
+
             <h2 style="margin-top: 1rem">Users</h2>
             <div class="scrollArea">
                 <table>
@@ -732,8 +792,8 @@ export class Dashboard extends LitElement {
                         <th>How did you hear</th>
                         <th>Created</th>
                         <th>Active</th>
-                        <th>shotlists</th>
-                        <th>template</th>
+                        <th>Shotlists</th>
+                        <th>Template</th>
                         <th>Tier</th>
                         <th>Revoke pro after</th>
                         <th>Has cancelled</th>
@@ -743,9 +803,11 @@ export class Dashboard extends LitElement {
                     </tr>
                     ${!this.users
                         ? html`<p class="empty">Loading...</p>`
-                        : this.users.map((u) => {
-                            return this.renderUser(u)
-                        })}
+                        : this.users
+                            .sort(this.sorts.get(this.selectedSort))
+                            .map((u) => {
+                              return this.renderUser(u)
+                          })}
                 </table>
             </div>
 
@@ -753,11 +815,11 @@ export class Dashboard extends LitElement {
                 <h2>Shotlists</h2>
                 ${this.userFilter
                     ? html`
-                        <p>(${this.userFilter.name})</p>
-                        <button @click=${() => (this.userFilter = null)}>
-                            Clear
-                        </button>
-                    `
+                          <p>(${this.userFilter.name})</p>
+                          <button @click=${() => (this.userFilter = null)}>
+                              Clear
+                          </button>
+                      `
                     : html`<p>(all)</p>`}
             </div>
             <div class="scrollArea">
@@ -778,23 +840,21 @@ export class Dashboard extends LitElement {
                     ${!this.shotlists
                         ? html`<p class="empty">Loading..</p>`
                         : filteredShotlists.length <= 0
-                            ? html`<p class="empty">No results</p>`
-                            : filteredShotlists.map((s) => {
-                                return this.renderShotlist(s)
-                            })}
+                        ? html`<p class="empty">No results</p>`
+                        : filteredShotlists.map((s) => {
+                              return this.renderShotlist(s)
+                          })}
                 </table>
             </div>
             <div class="heading">
                 <h2>Templates</h2>
                 ${this.userFilter
                     ? html`
-                        <p>(${this.userFilter.name})</p>
-                        <button
-                            @click=${() => (this.userFilter = null)}
-                        >
-                            Clear
-                        </button>
-                    `
+                          <p>(${this.userFilter.name})</p>
+                          <button @click=${() => (this.userFilter = null)}>
+                              Clear
+                          </button>
+                      `
                     : html`<p>(all)</p>`}
             </div>
             <div class="scrollArea">
@@ -811,10 +871,10 @@ export class Dashboard extends LitElement {
                     ${!this.templates
                         ? html`<p class="empty">Loading..</p>`
                         : filteredTemplates.length <= 0
-                            ? html`<p class="empty">No results</p>`
-                            : filteredTemplates.map((t) => {
-                                return this.renderTemplate(t)
-                            })}
+                        ? html`<p class="empty">No results</p>`
+                        : filteredTemplates.map((t) => {
+                              return this.renderTemplate(t)
+                          })}
                 </table>
             </div>
         `
