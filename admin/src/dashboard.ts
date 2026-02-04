@@ -32,6 +32,7 @@ export class Dashboard extends LitElement {
             flex-direction: column;
             padding: 0.5rem;
             padding-bottom: 5rem;
+            padding-top: 3rem;
         }
 
         * {
@@ -73,11 +74,18 @@ export class Dashboard extends LitElement {
             padding: 0.3rem;
         }
 
-        .top {
+        nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 0.5rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: hsl(0, 0%, 10%);
+            padding: .5rem;
+            z-index: 100;
 
             .right {
                 display: flex;
@@ -192,7 +200,7 @@ export class Dashboard extends LitElement {
                         overflow: hidden;
                         text-overflow: ellipsis;
                         white-space: nowrap;
-                        padding-right: 0;
+                        padding-inline: .2rem;
                     }
                 }
 
@@ -775,7 +783,7 @@ export class Dashboard extends LitElement {
         )
 
         return html`
-            <div class="top">
+            <nav>
                 <h1>Admin</h1>
                 <div class="right">
                     <select
@@ -810,7 +818,7 @@ export class Dashboard extends LitElement {
                         Log Out
                     </button>
                 </div>
-            </div>
+            </nav>
 
             <h2 style="margin-top: 1rem">Active Users</h2>
             <table>
