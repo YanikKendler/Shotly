@@ -754,6 +754,8 @@ export class Dashboard extends LitElement {
     }
 
     async discardChanges() {
+        if(this.changes.length <= 0) return
+
         const notyf = new Notyf()
 
         this.discard = true
