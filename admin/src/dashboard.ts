@@ -16,6 +16,7 @@ import {Notyf} from 'notyf'
 export enum SortName {
     Name = 'name',
     CreatedAt = 'createdAt',
+    CreatedAtReverse = 'createdAtReverse',
     ActiveAt = 'activeAt',
     Tier = 'tier'
 }
@@ -30,6 +31,7 @@ export class Dashboard extends LitElement {
             display: flex;
             flex-direction: column;
             padding: 0.5rem;
+            padding-bottom: 5rem;
         }
 
         * {
@@ -37,8 +39,8 @@ export class Dashboard extends LitElement {
             margin: 0;
             box-sizing: border-box;
         }
-        
-        h1{
+
+        h1 {
             @media screen and (max-width: 600px) {
                 display: none;
             }
@@ -62,13 +64,13 @@ export class Dashboard extends LitElement {
                 pointer-events: none;
             }
         }
-        
-        select{
+
+        select {
             background-color: hsl(0, 0%, 20%);
             color: white;
             border: none;
             outline: none;
-            padding: .3rem;
+            padding: 0.3rem;
         }
 
         .top {
@@ -184,6 +186,14 @@ export class Dashboard extends LitElement {
                     left: 0;
                     z-index: 1;
                     font-weight: 500;
+
+                    .cellValue {
+                        max-width: 15ch;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        padding-right: 0;
+                    }
                 }
 
                 &.truncate {
@@ -232,10 +242,10 @@ export class Dashboard extends LitElement {
                     white-space: wrap;
                     width: max-content;
                 }
-                
-                p.centered{
+
+                p.centered {
                     text-align: center;
-                    padding: .3rem;
+                    padding: 0.3rem;
                 }
 
                 select,
@@ -300,11 +310,48 @@ export class Dashboard extends LitElement {
     selectedSort: SortName = SortName.Name
 
     sorts = new Map<SortName, (u1: UserDto, u2: UserDto) => number>([
-        [SortName.Name, (u1, u2) => u1.name?.localeCompare(u2.name || "") || 0],
-        [SortName.CreatedAt, (u1, u2) => new Date(u1.createdAt).getTime() - new Date(u2.createdAt).getTime()],
-        [SortName.ActiveAt, (u1, u2) => new Date(u1.lastActiveAt).getTime() - new Date(u2.lastActiveAt).getTime()],
-        [SortName.Tier, (u1, u2) => u1.tier?.localeCompare(u2.tier || "") || 0],
-    ]);
+        [SortName.Name, (u1, u2) => u1.name?.localeCompare(u2.name || '') || 0],
+        [
+            SortName.CreatedAt,
+            (u1, u2) => {
+                const time1 = u1.createdAt
+                    ? new Date(u1.createdAt).getTime()
+                    : Number.MAX_SAFE_INTEGER
+                const time2 = u2.createdAt
+                    ? new Date(u2.createdAt).getTime()
+                    : Number.MAX_SAFE_INTEGER
+
+                return time1 - time2
+            },
+        ],
+        [
+            SortName.CreatedAtReverse,
+            (u1, u2) => {
+                const time1 = u1.createdAt
+                    ? new Date(u1.createdAt).getTime()
+                    : Number.MAX_SAFE_INTEGER
+                const time2 = u2.createdAt
+                    ? new Date(u2.createdAt).getTime()
+                    : Number.MAX_SAFE_INTEGER
+
+                return time2 - time1
+            },
+        ],
+        [
+            SortName.ActiveAt,
+            (u1, u2) => {
+                const time1 = u1.lastActiveAt
+                    ? new Date(u1.lastActiveAt).getTime()
+                    : Number.MAX_SAFE_INTEGER
+                const time2 = u2.lastActiveAt
+                    ? new Date(u2.lastActiveAt).getTime()
+                    : Number.MAX_SAFE_INTEGER
+
+                return time1 - time2
+            },
+        ],
+        [SortName.Tier, (u1, u2) => u1.tier?.localeCompare(u2.tier || '') || 0],
+    ])
 
     override connectedCallback() {
         super.connectedCallback()
@@ -667,7 +714,7 @@ export class Dashboard extends LitElement {
                 {
                     next: (data) => (result = data as MutationResult),
                     error: (e) => {
-                        console.log(e)
+                        console.error(e)
                         notyf.error(
                             `Failed to save changes for user ${user.name}"`
                         )
@@ -683,7 +730,6 @@ export class Dashboard extends LitElement {
                             }
                         })
 
-                        console.log(result.data.adminUpdateUser)
                         this.users = newUsers
 
                         notyf.success(`Changes saved for user ${user.name}"`)
@@ -728,15 +774,23 @@ export class Dashboard extends LitElement {
             this.userFilter?.id ? t.owner?.id == this.userFilter.id : true
         )
 
-        console.log(this.selectedSort)
-
         return html`
             <div class="top">
                 <h1>Admin</h1>
                 <div class="right">
-                    <select @change=${(e: Event) => {this.selectedSort = SortName[(e.target as HTMLSelectElement).value as keyof typeof SortName]}}>
+                    <select
+                        @change=${(e: Event) => {
+                            this.discardChanges()
+                            this.selectedSort =
+                                SortName[
+                                    (e.target as HTMLSelectElement)
+                                        .value as keyof typeof SortName
+                                ]
+                        }}
+                    >
                         <option value="Name" selected>Name</option>
-                        <option value="CreatedAt">Created At</option>
+                        <option value="CreatedAt">Oldest</option>
+                        <option value="CreatedAtReverse">Newest</option>
                         <option value="ActiveAt">Active At</option>
                         <option value="Tier">Tier</option>
                     </select>
@@ -772,17 +826,44 @@ export class Dashboard extends LitElement {
                     ? html`<p class="empty">Loading...</p>`
                     : html`
                           <tr>
-                              <td><p class="centered">${this.userActivity.lastHour}</p></td>
-                              <td><p class="centered">${this.userActivity.fourHours}</p></td>
-                              <td><p class="centered">${this.userActivity.eightHours}</p></td>
-                              <td><p class="centered">${this.userActivity.twentyFourHours}</p></td>
-                              <td><p class="centered">${this.userActivity.sevenDays}</p></td>
-                              <td><p class="centered">${this.userActivity.thirtyDays}</p></td>
+                              <td>
+                                  <p class="centered">
+                                      ${this.userActivity.lastHour}
+                                  </p>
+                              </td>
+                              <td>
+                                  <p class="centered">
+                                      ${this.userActivity.fourHours}
+                                  </p>
+                              </td>
+                              <td>
+                                  <p class="centered">
+                                      ${this.userActivity.eightHours}
+                                  </p>
+                              </td>
+                              <td>
+                                  <p class="centered">
+                                      ${this.userActivity.twentyFourHours}
+                                  </p>
+                              </td>
+                              <td>
+                                  <p class="centered">
+                                      ${this.userActivity.sevenDays}
+                                  </p>
+                              </td>
+                              <td>
+                                  <p class="centered">
+                                      ${this.userActivity.thirtyDays}
+                                  </p>
+                              </td>
                           </tr>
                       `}
             </table>
 
-            <h2 style="margin-top: 1rem">Users</h2>
+            <div class="heading">
+                <h2>Users</h2>
+                <p>(${this.users?.length || 0})</p>
+            </div>
             <div class="scrollArea">
                 <table>
                     <tr>
@@ -804,15 +885,16 @@ export class Dashboard extends LitElement {
                     ${!this.users
                         ? html`<p class="empty">Loading...</p>`
                         : this.users
-                            .sort(this.sorts.get(this.selectedSort))
-                            .map((u) => {
-                              return this.renderUser(u)
-                          })}
+                              .sort(this.sorts.get(this.selectedSort))
+                              .map((u) => {
+                                  return this.renderUser(u)
+                              })}
                 </table>
             </div>
 
             <div class="heading">
                 <h2>Shotlists</h2>
+                <p>(${filteredShotlists.length})</p>
                 ${this.userFilter
                     ? html`
                           <p>(${this.userFilter.name})</p>
@@ -848,6 +930,7 @@ export class Dashboard extends LitElement {
             </div>
             <div class="heading">
                 <h2>Templates</h2>
+                <p>(${filteredTemplates.length})</p>
                 ${this.userFilter
                     ? html`
                           <p>(${this.userFilter.name})</p>
