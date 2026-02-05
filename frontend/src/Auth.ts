@@ -132,8 +132,6 @@ class Auth {
 
         //td.clientUser = authResult.idTokenPayload.sub
 
-        td.signal("UserLogin")
-
         this.authUser = {
             email: authResult.idTokenPayload.email,
             sub: authResult.idTokenPayload.sub,

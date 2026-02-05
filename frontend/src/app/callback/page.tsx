@@ -5,6 +5,7 @@ import auth from "@/Auth"
 import { useRouter } from 'next/navigation'
 import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 import Auth from "@/Auth"
+import {td} from "@/service/Analytics"
 
 /**
  * User is sent here after a login on the auth0 hosted login.shotly.at page
@@ -16,6 +17,7 @@ export default function CallbackPage() {
     useEffect(() => {
         auth.handleAuthentication()
             .then((targetUrl) => {
+                td.signal("Callback.UserLogin")
                 router.push(targetUrl)
             })
             .catch((error) => {
