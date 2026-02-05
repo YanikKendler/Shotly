@@ -78,9 +78,18 @@ export default function Landing() {
                     </Link>
                 </div>
                 <div className="center">
-                    <Link href={"#hero"}>Home</Link>
-                    <Link href={"#features"}>Features</Link>
-                    <Link href={"#pricing"}>Pricing</Link>
+                    <Link
+                        href={"#hero"}
+                        onClick={() => td.signal("Landing.Nav.Home")}
+                    >Home</Link>
+                    <Link
+                        href={"#features"}
+                        onClick={() => td.signal("Landing.Nav.Features")}
+                    >Features</Link>
+                    <Link
+                        href={"#pricing"}
+                        onClick={() => td.signal("Landing.Nav.Pricing")}
+                    >Pricing</Link>
                 </div>
                 <div className="right">
                     <AuthSwitcher
@@ -347,7 +356,10 @@ export default function Landing() {
                             >Choose Pro</button>
                         </div>
                     </div>
-                    <Link href="/freeForStudents" className={"freeForStudents"}>Shotly for Students</Link>
+                    <Link
+                        href="/freeForStudents"
+                        className={"freeForStudents"}
+                    >Shotly for Students</Link>
                 </section>
                 <footer>
                     <div className={"credits"}>
