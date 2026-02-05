@@ -25,7 +25,7 @@ import {wuTime} from "@yanikkendler/web-utils"
 import Utils from "@/util/Utils"
 import toast from "react-hot-toast"
 import {errorNotification} from "@/service/NotificationService"
-import {td} from "@/service/AnalyticsService"
+import {td} from "@/service/Analytics"
 
 export interface UserSettings {
     saveExportSettingsInLocalstorage: boolean
@@ -243,7 +243,7 @@ export function useAccountDialog() {
             return;
         }
     }
-    
+
     let dialogContent
 
     if(deleting)

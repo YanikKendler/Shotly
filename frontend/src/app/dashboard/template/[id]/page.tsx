@@ -45,7 +45,7 @@ import Skeleton from "react-loading-skeleton"
 import auth from "@/Auth"
 import SimplePopover from "@/components/popover/simplePopover"
 import {errorNotification} from "@/service/NotificationService"
-import {td} from "@/service/AnalyticsService"
+import {td} from "@/service/Analytics"
 
 export default function Template (){
     const params = useParams<{ id: string }>()

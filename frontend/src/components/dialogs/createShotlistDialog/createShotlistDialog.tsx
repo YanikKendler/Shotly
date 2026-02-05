@@ -13,7 +13,6 @@ import {SelectOption} from "@/util/Types"
 import {useRouter} from "next/navigation"
 import Link from "next/link"
 import {errorNotification} from "@/service/NotificationService"
-import {saEvent} from "@/service/AnalyticsService"
 
 export function useCreateShotlistDialog() {
     const [isOpen, setIsOpen] = useState(false);

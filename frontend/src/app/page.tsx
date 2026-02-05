@@ -22,7 +22,7 @@ import Skeleton from "react-loading-skeleton"
 import Config from "@/util/Config"
 import Separator from "@/components/separator/separator"
 import SimplePopover from "@/components/popover/simplePopover"
-import {td} from "@/service/AnalyticsService"
+import {td} from "@/service/Analytics"
 
 export default function Landing() {
     const pageRef = useRef<HTMLDivElement>(null);

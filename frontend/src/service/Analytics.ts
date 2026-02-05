@@ -17,5 +17,5 @@ const getTempUserIdentifier = (): string => {
 export const td = new TelemetryDeck({
     appID: '8542FDD9-23AE-4E22-AA0C-3A912341432C',
     clientUser: getTempUserIdentifier(),
-    testMode: Config.mode != "prod-deployment"
+    testMode: Config.mode != "prod-deployment",
 });

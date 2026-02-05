@@ -1,7 +1,7 @@
 import Link from "next/link"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import "./helpLink.scss"
-import {td} from "@/service/AnalyticsService"
+import {td} from "@/service/Analytics"
 
 export default function HelpLink({
     link,

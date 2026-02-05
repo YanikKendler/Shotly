@@ -41,7 +41,7 @@ import Separator from "@/components/separator/separator"
 import DotLoader from "@/components/DotLoader"
 import {errorNotification} from "@/service/NotificationService"
 import LabeledCheckbox from "@/components/inputs/labeledCheckbox/labeledCheckbox"
-import {td} from "@/service/AnalyticsService"
+import {td} from "@/service/Analytics"
 
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full"
 
