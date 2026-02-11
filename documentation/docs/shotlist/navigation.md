@@ -2,9 +2,9 @@
 
 ## General
 
-The shotlist is broken up into scenes, which are located in the sidebar. When a scene is selected, its shots are loaded and displayed in the table on the right.
+The shotlist is broken up into scenes, which are located in the sidebar. When a scene is selected, its shots are loaded and displayed in the table on the right. Scenes are usually identified by their scene number, the "name" that is displayed in the sidebar is a composition of the scene's attributes, such as the location, and time of day.
 
-At the bottom of the sidebar, the `Collab-Requests` button is replaced with the `Shotlist Options` button. This button opens a dialog that allows you to rename the shotlist, [edit the attributes](./attributes.md), [manage collaborators](./collaboration.md), and [filter and export the shotlist](./export.md). 
+When viewing a shotlist, the `Collab-Requests` button at the bottom of the sidebar is replaced with the `Shotlist Options` button. This opens a dialog that allows you to rename the shotlist, [edit the attributes](./attributes.md), [manage collaborators](./collaboration.md), and [filter and export the shotlist](./export.md). 
 
 !!! Tip
     The shotlist can also be renamed by simply clicking the shotlist's name in the top left next to the dashboard icon.

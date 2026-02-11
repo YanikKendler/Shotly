@@ -12,7 +12,8 @@ export default function SimpleTooltip({
     hoverAreaExpansion,
     showHoverArea = true,
     asButton = false,
-    delay = 500
+    delay = 500,
+    canOpen = true,
 }: {
     children: ReactNode
     text?: string
@@ -23,7 +24,7 @@ export default function SimpleTooltip({
     showHoverArea?: boolean
     asButton?: boolean
     delay?: number
-
+    canOpen?: boolean
 }){
     return (
         <Tooltip.Root delayDuration={delay}>
@@ -45,13 +46,16 @@ export default function SimpleTooltip({
                 }
             </Tooltip.Trigger>
             <Tooltip.Portal>
-                <Tooltip.Content className="tooltipContent" sideOffset={offset} style={{fontSize: fontSize + "rem"}}>
-                    <div className="scrollArea">
-                        {text ?? text}
-                        {content ?? content}
-                    </div>
-                    <Tooltip.Arrow className="tooltipArrow"/>
-                </Tooltip.Content>
+                {
+                    canOpen &&
+                    <Tooltip.Content className="tooltipContent" sideOffset={offset} style={{fontSize: fontSize + "rem"}}>
+                        <div className="scrollArea">
+                            {text ?? text}
+                            {content ?? content}
+                        </div>
+                        <Tooltip.Arrow className="tooltipArrow"/>
+                    </Tooltip.Content>
+                }
             </Tooltip.Portal>
         </Tooltip.Root>
     )

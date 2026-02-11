@@ -18,6 +18,7 @@ import {
     ShotlistOptionsDialogSubPage
 } from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import Separator from "@/components/separator/separator"
+import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 
 export interface SidebarSceneRef {
     closePopover: () => void
@@ -135,14 +136,21 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
         >
             <div className="name">
                 <p className="number">{position + 1}</p>
-                <p className="text">{
-                    sceneAttributes.every(attr => SceneAttributeParser.isEmpty(attr))
-                        ? "New Scene"
-                        : sceneAttributes
-                            .filter(attr => !SceneAttributeParser.isEmpty(attr))
-                            .map(attr => SceneAttributeParser.toValueString(attr))
-                            .join(" • ")
-                }</p>
+                <SimpleTooltip
+                    text={"Because a scene is usually identified by it's number, this name is composed of the values of all its attributes. If you want to define a name simply add a text attribute."}
+                    canOpen={expanded}
+                >
+                    <p className="text">
+                        {
+                            sceneAttributes.every(attr => SceneAttributeParser.isEmpty(attr))
+                                ? "New Scene"
+                                : sceneAttributes
+                                    .filter(attr => !SceneAttributeParser.isEmpty(attr))
+                                    .map(attr => SceneAttributeParser.toValueString(attr))
+                                    .join(" • ")
+                        }
+                    </p>
+                </SimpleTooltip>
                 {
                     !readOnly &&
                     <Popover.Root
