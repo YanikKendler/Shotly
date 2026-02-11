@@ -147,14 +147,22 @@ div.sceneAttributeDefinition{
     }
   }
 
-  button{
+  button.new{
+    position: sticky;
+    bottom: 0;
     justify-content: left;
     padding: .5rem .15rem;
     color: var(--text-40);
     margin-top: .5rem;
+    background-color: var(--contrast);
 
     &:hover{
-      background-color: var(--transparent-gray-10);
+      background-color: var(--text-90);
+      color: var(--text);
+
+      svg{
+        color: var(--text);
+      }
     }
   }
 }

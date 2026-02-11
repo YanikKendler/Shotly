@@ -143,7 +143,6 @@ export default function RootLayout({
                 }}
             />
         </body>
-        <Script src="https://scripts.simpleanalyticscdn.com/latest.js" />
         </html>
     )
 }

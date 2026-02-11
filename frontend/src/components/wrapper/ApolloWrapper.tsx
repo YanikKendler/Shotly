@@ -12,6 +12,7 @@ import {onError} from "@apollo/client/link/error"
 import Config from "@/util/Config"
 import {ShotlyErrorCode} from "@/util/Types"
 import React from "react"
+import {errorNotification} from "@/service/NotificationService"
 
 export function makeClient() {
     const httpLink = new HttpLink({
@@ -48,8 +49,11 @@ export function makeClient() {
             const error = graphQLErrors[0];
 
             if (error?.extensions?.type != 'SHOTLY_EXCEPTION') {
-                //TODO check how to do this properly
-                console.error("unkown exception - going to error page?", error)
+                console.error("unknown exception", error)
+                errorNotification({
+                    title: "unknown exception",
+                    message: error.message,
+                })
                 //redirectToServerError()
             } else {
                 switch (error?.extensions?.code as ShotlyErrorCode) {

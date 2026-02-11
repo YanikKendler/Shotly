@@ -278,7 +278,10 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
                                 <p>#</p>
                                 <Skeleton height={"2rem"} width={"25ch"}/>
                             </div>
-                            <button onClick={createSelectOption}><Plus size={18}/>Add option</button>
+                            <button
+                                className={"new"}
+                                onClick={createSelectOption}
+                            ><Plus size={18}/>Add option</button>
                         </Popover.Content>
                     </Popover.Portal>
                 </Popover.Root>
