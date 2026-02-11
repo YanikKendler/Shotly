@@ -87,8 +87,8 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
 
         User newUser = new User(
                 auth0Sub,
-                jwt.getClaim("name"),
-                jwt.getClaim("email")
+                jwt.getClaim("name").toString(),
+                jwt.getClaim("email").toString().toLowerCase()
         );
 
         try {

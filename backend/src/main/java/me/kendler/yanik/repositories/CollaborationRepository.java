@@ -81,6 +81,7 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
 
     /**
      * Creates a new Collaboration with all users found with the given email
+     * 
      * Its possible to have multiple users with the same email because Auth0 does not provide a clean way of
      * preventing signup via a social login if the email is already used in a email/password login.
      * <a href="https://community.auth0.com/t/block-social-sign-up-if-user-with-email-already-exists/65639/5">relevant post</a>
@@ -105,7 +106,7 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
 
         List<User> users = userRepository.find(
                 "email = ?1 and id not in ?2 and id != ?3",
-                createDTO.email(),
+                createDTO.email().toLowerCase(),
                 existingCollaboratorIds,
                 currentUser.id
         ).list();
