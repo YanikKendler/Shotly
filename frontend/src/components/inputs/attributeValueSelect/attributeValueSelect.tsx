@@ -123,7 +123,7 @@ interface AttributeValueSelectProps {
     definitionId: number,
     value: SelectOption | SelectOption[] | undefined,
     onChange: (newValue: any) => void,
-    onCreate: (newValue: any) => void,
+    onCreate: (newValue: any) => Promise<void>,
     options: SelectOption[],
     loadOptions: (definitionId: number) => Promise<void>,
     placeholder: string,
@@ -178,6 +178,14 @@ function AttributeValueSelect({
 
     const closeMenu = () => {
         selectRef.current?.blur()
+    }
+
+    const handleCreate = (inputValue: string) => {
+        setIsLoading(true)
+        onCreate(inputValue).then(() => {
+            console.log("creation done")
+            setIsLoading(false)
+        })
     }
 
     const CustomSelectMenu = <
@@ -272,7 +280,7 @@ function AttributeValueSelect({
             onMenuClose={() => menuIsOpen.current = false}
             isMulti={isMulti}
             isClearable={false}
-            onCreateOption={onCreate}
+            onCreateOption={handleCreate}
             options={options.map(Utils.optionToUnnamedIfEmpty)}
             isLoading={isLoading}
             placeholder={placeholder || ""}
