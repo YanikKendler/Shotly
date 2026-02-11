@@ -582,7 +582,10 @@ export default function Shotlist() {
 
     const loadSceneSelectOptions = async (sceneAttributeDefinitionId: number) => {
         //options are already in the cache
-        if(sceneSelectOptionsCache.has(sceneAttributeDefinitionId)) return
+        if(
+            sceneSelectOptionsCache.has(sceneAttributeDefinitionId) &&
+            sceneSelectOptionsCache.get(sceneAttributeDefinitionId)
+        ) return
 
         const {data} = await client.query({
             query: gql`
