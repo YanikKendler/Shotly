@@ -22,7 +22,8 @@ main.shotlist{
     .header{
       display: flex;
       align-items: center;
-      padding-inline: 1.5rem;
+      padding-left: 1.5rem;
+      padding-right: 1.8rem;
       overflow-x: auto;
       position: relative;
 
@@ -67,13 +68,25 @@ main.shotlist{
         color: var(--text-40);
         margin-inline: auto;
       }
+
+      .add{
+        position: absolute;
+        right: 1.75rem;
+        color: var(--text-50);
+        padding: .4rem;
+
+        &:hover{
+          color: var(--text);
+          background-color: var(--transparent-gray-10);
+        }
+      }
     }
   }
 
   .floater{
     position: absolute;
     bottom: 1rem;
-    right: 1rem;
+    right: 1.3rem;
     display: flex;
     align-items: center;
     gap: .5rem;

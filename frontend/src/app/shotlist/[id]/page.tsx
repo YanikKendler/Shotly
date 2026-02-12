@@ -12,7 +12,7 @@ import {
     UserTier
 } from "../../../../lib/graphql/generated"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
-import {Check, House, LoaderCircle, Menu, X} from "lucide-react"
+import {Check, House, LoaderCircle, Menu, Settings2, X} from "lucide-react"
 import './shotlist.scss'
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import {ShotlistContext} from "@/context/ShotlistContext"
@@ -43,7 +43,6 @@ import HelpLink from "@/components/helpLink/helpLink"
 import Link from "next/link"
 import DotLoader from "@/components/DotLoader"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
-import toast from "react-hot-toast"
 import {errorNotification} from "@/service/NotificationService"
 
 export interface SelectedScene {
@@ -796,6 +795,13 @@ export default function Shotlist() {
                                     <div className={`attribute`} key={attr.id}><p>{attr.name || "Unnamed"}</p></div>
                                 ))
                             }
+                            <button
+                                className={"add"}
+                                onClick={() => openShotlistOptionsDialog({
+                                    main: ShotlistOptionsDialogPage.attributes,
+                                    sub: ShotlistOptionsDialogSubPage.shot
+                                })}
+                            ><Settings2 size={16}/></button>
                         </div>
                         <SheetManager
                             selectedScene={selectedScene}

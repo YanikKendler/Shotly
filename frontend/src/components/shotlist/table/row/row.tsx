@@ -112,7 +112,7 @@ const RowBase = forwardRef<RowRef, RowProps>(({
                     <Popover.Trigger
                         className="grip"
                     >
-                        <GripVertical/>
+                        <GripVertical size={22}/>
                     </Popover.Trigger>
                     <Popover.Portal>
                         <Popover.Content className="popoverContent shotContextOptionsPopup" align={"center"}>
