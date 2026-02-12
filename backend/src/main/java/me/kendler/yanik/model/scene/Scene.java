@@ -62,7 +62,8 @@ public class Scene extends PanacheEntityBase {
                     .map(Shot::toDTO)
                     .collect(Collectors.toList()),
             this.position,
-            this.createdAt
+            this.createdAt,
+            this.shots.size()
         );
     }
 }

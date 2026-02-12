@@ -204,7 +204,7 @@ export default function Shotlist() {
             query.data.shotlist.scenes &&
             query.data.shotlist.scenes[0]?.id != undefined
         ) {
-            selectScene(query.data.shotlist.scenes[0].id, query.data.shotlist.scenes[0].position)
+            selectScene(query.data.shotlist.scenes[0].id, query.data.shotlist.scenes[0]?.position || null)
         }
 
         //read only state
@@ -258,6 +258,7 @@ export default function Shotlist() {
                                     textValue
                                 }
                             }
+                            shotCount
                         }
                         sceneAttributeDefinitions{
                             id

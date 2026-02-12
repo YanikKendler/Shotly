@@ -52,8 +52,14 @@
   }
 
   &:hover, &.menuOpen{
-    .name .grip{
-      opacity: 1;
+    .name .right {
+      .grip {
+        opacity: 1;
+      }
+
+      .count{
+        opacity: 0;
+      }
     }
   }
 
@@ -87,27 +93,44 @@
       font-weight: 700;
     }
 
-    .grip{
-      position: relative;
-      display: flex;
-      align-items: center;
-      border-radius: .3rem;
-      color: var(--text-50);
-      opacity: 0;
-      transition: opacity .2s;
-      cursor: pointer;
-      padding: .2rem .1rem;
-      margin: -.2rem -.1rem;
+    .right{
+      display: grid;
+      justify-items: right;
 
-      &:hover{
-        color: var(--text-20);
-        background-color: var(--transparent-gray-10);
+      > * {
+        grid-area: 1 / 1 / 1 / 1;
       }
 
-      @media (pointer: coarse){
-        opacity: 1;
+      .grip{
+        position: absolute;
+        display: flex;
+        align-items: center;
+        border-radius: .3rem;
+        color: var(--text-50);
+        opacity: 0;
+        transition: opacity .2s;
+        cursor: pointer;
+        padding: .2rem .1rem;
+        margin: -.2rem -.1rem;
+
+        &:hover{
+          color: var(--text-20);
+          background-color: var(--transparent-gray-10);
+        }
+
+        @media (pointer: coarse){
+          opacity: 1;
+        }
+      }
+
+      .count{
+        color: var(--text-70);
+        transition: opacity .2s;
+        font-size: .9rem;
+        pointer-events: none;
       }
     }
+
   }
 
   .attributes{

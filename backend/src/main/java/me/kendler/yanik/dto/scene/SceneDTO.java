@@ -12,6 +12,7 @@ public record SceneDTO (
     UUID id,
     List<SceneAttributeBaseDTO> attributes,
     List<ShotDTO> shots,
-    int position,
-    ZonedDateTime createdAt
+    Integer position,
+    ZonedDateTime createdAt,
+    Integer shotCount
 ){ }

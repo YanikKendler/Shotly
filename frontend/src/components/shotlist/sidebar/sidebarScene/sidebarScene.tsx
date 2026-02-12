@@ -151,59 +151,64 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                         }
                     </p>
                 </SimpleTooltip>
-                {
-                    !readOnly &&
-                    <Popover.Root
-                        open={editMenuIsOpen}
-                        onOpenChange={(open) => {
-                            if (shotlistContext.elementIsBeingDragged) return
+                <div className="right">
+                    <p className={"count"}>{scene.shotCount}</p>
+                    {
+                        !readOnly &&
+                        <Popover.Root
+                            open={editMenuIsOpen}
+                            onOpenChange={(open) => {
+                                if (shotlistContext.elementIsBeingDragged) return
 
-                            setEditMenuIsOpen(open)
-                        }}
-                    >
-                        <Popover.Trigger
-                            className="grip"
-                            onClick={e => {
-                                e.stopPropagation()
+                                setEditMenuIsOpen(open)
                             }}
                         >
-                            <GripVertical size={expanded ? 22 : 20}/>
-                        </Popover.Trigger>
-                        <Popover.Portal>
-                            <Popover.Content className="popoverContent sceneContextOptionsPopup" align={"start"}
-                                             side={"right"} sideOffset={12} alignOffset={-10}>
-                                <button className={"bad"} onClick={(e) => {
-                                    e.stopPropagation();
-                                    deleteScene()
-                                }}>
-                                    <Trash size={18}/>Delete
-                                </button>
-                                <Separator/>
-                                <button
-                                    disabled={position == 0}
-                                    onClick={() => moveScene(scene.id as string, position - 1)}
-                                >
-                                    <ArrowBigUp size={18}/>Move up
-                                </button>
-                                <button
-                                    disabled={position >= shotlistContext.sceneCount - 1}
-                                    onClick={() => moveScene(scene.id as string, position + 1)}
-                                >
-                                    <ArrowBigDown size={18}/>Move down
-                                </button>
-                                <Separator/>
-                                <button onClick={() => shotlistContext.openShotlistOptionsDialog({
-                                    main: ShotlistOptionsDialogPage.attributes,
-                                    sub: ShotlistOptionsDialogSubPage.scene
-                                })}>
-                                    <List size={18}/> Edit scene attributes
-                                </button>
-                                <Separator/>
-                                <p className={"instructions"}><span className="bold">Click</span> to edit, <span className="bold">Drag</span> to reorder</p>
-                            </Popover.Content>
-                        </Popover.Portal>
-                    </Popover.Root>
-                }
+                            <Popover.Trigger
+                                className="grip"
+                                onClick={e => {
+                                    e.stopPropagation()
+                                }}
+                            >
+                                <GripVertical size={expanded ? 22 : 20}/>
+                            </Popover.Trigger>
+                            <Popover.Portal>
+                                <Popover.Content className="popoverContent sceneContextOptionsPopup" align={"start"}
+                                                 side={"right"} sideOffset={12} alignOffset={-10}>
+                                    <button className={"bad"} onClick={(e) => {
+                                        e.stopPropagation();
+                                        deleteScene()
+                                    }}>
+                                        <Trash size={18}/>Delete
+                                    </button>
+                                    <Separator/>
+                                    <button
+                                        disabled={position == 0}
+                                        onClick={() => moveScene(scene.id as string, position - 1)}
+                                    >
+                                        <ArrowBigUp size={18}/>Move up
+                                    </button>
+                                    <button
+                                        disabled={position >= shotlistContext.sceneCount - 1}
+                                        onClick={() => moveScene(scene.id as string, position + 1)}
+                                    >
+                                        <ArrowBigDown size={18}/>Move down
+                                    </button>
+                                    <Separator/>
+                                    <button onClick={() => shotlistContext.openShotlistOptionsDialog({
+                                        main: ShotlistOptionsDialogPage.attributes,
+                                        sub: ShotlistOptionsDialogSubPage.scene
+                                    })}>
+                                        <List size={18}/> Edit scene attributes
+                                    </button>
+                                    <Separator/>
+                                    <p className={"instructions"}>
+                                        <span className="bold">Click</span> to edit, <span className="bold">Drag</span> to reorder
+                                    </p>
+                                </Popover.Content>
+                            </Popover.Portal>
+                        </Popover.Root>
+                    }
+                </div>
             </div>
 
             <Collapsible.Root open={expanded}>
