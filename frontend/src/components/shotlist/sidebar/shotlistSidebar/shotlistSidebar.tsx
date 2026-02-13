@@ -22,7 +22,7 @@ import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import SimplePopover from "@/components/popover/simplePopover"
 
 export interface ShotlistSidebarRef {
-    getScene: (position: number) => SceneDto | null
+    getScene: (position: number) => SidebarSceneRef | null
     findScene: (sceneId: string) => SidebarSceneRef | null
     findAttribute: (attributeId: number) => SceneAttributeRef | null
     onCreateScene: (scene: SceneDto) => void,
