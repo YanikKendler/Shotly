@@ -18,6 +18,10 @@ import CreatableSelect from "react-select/creatable"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
 
 export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBase<SelectOption>> = {
+    control: (baseStyles) => ({
+        ...baseStyles,
+        minWidth: 0
+    }),
     option: (baseStyles, state) => ({
         ...baseStyles,
         cursor: 'pointer',
@@ -62,11 +66,19 @@ export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBas
             cursor: "default"
         },
     }),
+    placeholder: base => ({
+        ...base,
+        overflow: "hidden",
+        whiteSpace: "nowrap",
+        textOverflow: "ellipsis",
+        maxWidth: "calc(100% - 2rem)",
+    })
 }
 
 export const selectShotStyles: StylesConfig<SelectOption, boolean, GroupBase<SelectOption>> = {
     ...reactSelectBaseStyles,
     control: (baseStyles, state) => ({
+        ...reactSelectBaseStyles.control,
         ...baseStyles,
         border: "none",
         outline: "none",
@@ -83,6 +95,7 @@ export const selectShotStyles: StylesConfig<SelectOption, boolean, GroupBase<Sel
 export const selectSceneStyles: StylesConfig<SelectOption, boolean, GroupBase<SelectOption>> = {
     ...reactSelectBaseStyles,
     control: (baseStyles, state) => ({
+        ...reactSelectBaseStyles.control,
         ...baseStyles,
         border: "none",
         boxShadow: "none",
@@ -261,8 +274,6 @@ function AttributeValueSelect({
     }
 
     const handleMenuOpen = () => {
-        console.log(placeholder, options)
-
         menuIsOpen.current = true
     }
 

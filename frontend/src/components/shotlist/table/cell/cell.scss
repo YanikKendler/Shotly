@@ -39,6 +39,13 @@
       cursor: text;
       color: var(--text-40);
     }
+
+    p {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      width: calc(100% - 2rem);
+    }
   }
 
   &.number{
