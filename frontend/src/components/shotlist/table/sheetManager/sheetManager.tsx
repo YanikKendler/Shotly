@@ -568,6 +568,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                     })}
                 </div>
             }
+            {/*<p className={"shotCount"}>{query.data.shots?.length}</p>*/}
         </div>
     )
 })
