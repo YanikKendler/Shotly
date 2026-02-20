@@ -112,7 +112,7 @@ const CellMultiSelectInput = forwardRef<CellInputRef, CellMultiSelectInputProps>
         <AttributeValueSelect
             definitionId={attribute.definition?.id}
             isMulti={true}
-            options={shotlistContext.shotSelectOptions.get(attribute.definition?.id) || []}
+            options={shotlistContext.getShotSelectOption(attribute.definition?.id)}
             loadOptions={shotlistContext.loadShotSelectOptions}
             onChange={(newValue) => updateMultiSelectValue(newValue as SelectOption[])}
             onCreate={createOption}

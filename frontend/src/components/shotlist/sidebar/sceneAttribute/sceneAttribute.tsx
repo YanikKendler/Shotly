@@ -311,7 +311,7 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
                         <AttributeValueSelect
                             definitionId={attribute.definition?.id}
                             isMulti={false}
-                            options={shotlistContext.sceneSelectOptions.get(attribute.definition?.id) || []}
+                            options={shotlistContext.getSceneSelectOption(attribute.definition?.id)}
                             loadOptions={shotlistContext.loadSceneSelectOptions}
                             onChange={(newValue) => updateSingleSelectValue(newValue as SelectOption)}
                             onCreate={createOption}
@@ -339,7 +339,7 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
                         <AttributeValueSelect
                             definitionId={attribute.definition?.id}
                             isMulti={true}
-                            options={shotlistContext.sceneSelectOptions.get(attribute.definition?.id) || []}
+                            options={shotlistContext.getSceneSelectOption(attribute.definition?.id)}
                             loadOptions={shotlistContext.loadSceneSelectOptions}
                             onChange={(newValue) => updateMultiSelectValue(newValue as SelectOption[])}
                             onCreate={createOption}

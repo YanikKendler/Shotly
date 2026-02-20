@@ -107,7 +107,7 @@ const CellSingleSelectInput = forwardRef<CellInputRef, CellSingleSelectInputProp
             <AttributeValueSelect
                 definitionId={attribute.definition?.id}
                 isMulti={false}
-                options={shotlistContext.shotSelectOptions.get(attribute.definition?.id) || []}
+                options={shotlistContext.getShotSelectOption(attribute.definition?.id)}
                 loadOptions={shotlistContext.loadShotSelectOptions}
                 onChange={(newValue) => updateSingleSelectValue(newValue as SelectOption)}
                 onCreate={createOption}

@@ -580,6 +580,17 @@ export default function Shotlist() {
         setShotSelectOptionsCache(newCache)
     }
 
+    const getShotSelectOption = (shotAttributeDefinitionId: number): SelectOption[] => {
+        const result = shotSelectOptionsCache.get(shotAttributeDefinitionId)
+
+        if(!result) {
+            loadShotSelectOptions(shotAttributeDefinitionId)
+            return []
+        }
+
+        return result
+    }
+
     const loadSceneSelectOptions = async (sceneAttributeDefinitionId: number) => {
         //options are already in the cache
         if(
@@ -622,6 +633,17 @@ export default function Shotlist() {
         const newCache = new Map(sceneSelectOptionsCache)
         newCache.set(sceneAttributeDefinitionId, [...currentOptions, option])
         setSceneSelectOptionsCache(newCache)
+    }
+
+    const getSceneSelectOption = (sceneAttributeDefinitionId: number): SelectOption[] => {
+        const result = sceneSelectOptionsCache.get(sceneAttributeDefinitionId)
+
+        if(!result) {
+            loadSceneSelectOptions(sceneAttributeDefinitionId)
+            return []
+        }
+
+        return result
     }
 
     const calculateReadOnlyState = () => {
@@ -710,12 +732,15 @@ export default function Shotlist() {
             setSceneCount: setSceneCount,
             focusedCell: focusedCell,
             setFocusedCell: setFocusedCell,
-            shotSelectOptions: shotSelectOptionsCache,
+
+            getShotSelectOption: getShotSelectOption,
             loadShotSelectOptions: loadShotSelectOptions,
             addShotSelectOption: addShotSelectOption,
-            sceneSelectOptions: sceneSelectOptionsCache,
+
+            getSceneSelectOption: getSceneSelectOption,
             loadSceneSelectOptions: loadSceneSelectOptions,
             addSceneSelectOption: addSceneSelectOption,
+
             websocketRef: websocketRef,
             broadCastSceneAttributeSelect: broadCastSceneAttributeSelect,
             setSaveState: setSaveState,

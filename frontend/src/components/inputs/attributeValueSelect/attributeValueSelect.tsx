@@ -166,7 +166,7 @@ function AttributeValueSelect({
         loadOptions(definitionId).then(() => {
             setIsLoading(false)
         })
-    }, [definitionId]);
+    }, [definitionId])
 
     const setFocus = () => {
         selectRef.current?.focus()
@@ -260,6 +260,16 @@ function AttributeValueSelect({
             }
     }
 
+    const handleMenuOpen = () => {
+        console.log(placeholder, options)
+
+        menuIsOpen.current = true
+    }
+
+    const handleMenuClose = () => {
+        menuIsOpen.current = false
+    }
+
     let selectValue = undefined
 
     if(value){
@@ -276,8 +286,8 @@ function AttributeValueSelect({
             /*key={`${definitionId}-${refreshMap[`${shotOrScene}-${definitionId}`] || 0}`}*/
             value={selectValue}
             onChange={onChange}
-            onMenuOpen={() => menuIsOpen.current = true}
-            onMenuClose={() => menuIsOpen.current = false}
+            onMenuOpen={handleMenuOpen}
+            onMenuClose={handleMenuClose}
             isMulti={isMulti}
             isClearable={false}
             onCreateOption={handleCreate}

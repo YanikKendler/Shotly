@@ -19,12 +19,15 @@ export interface ShotlistContextProps {
     setSceneCount: (count: number) => void
     focusedCell: RefObject<{row: number, column: number}>
     setFocusedCell: (row: number, column: number) => void
-    shotSelectOptions: Map<number, SelectOption[]>
+
+    getShotSelectOption: (shotAttributeDefinitionId: number) => SelectOption[]
     loadShotSelectOptions: (shotAttributeDefinitionId: number) => Promise<void>
     addShotSelectOption: (shotAttributeDefinitionId: number, option: SelectOption) => void
-    sceneSelectOptions: Map<number, SelectOption[]>
+
+    getSceneSelectOption: (sceneAttributeDefinitionId: number) => SelectOption[]
     loadSceneSelectOptions: (sceneAttributeDefinitionId: number) => Promise<void>
     addSceneSelectOption: (sceneAttributeDefinitionId: number, option: SelectOption) => void
+
     websocketRef: RefObject<WebSocket | null>,
     broadCastSceneAttributeSelect: (attributeId: number) => void
     setSaveState: (key: string, saveState: SaveState) => void
@@ -46,10 +49,11 @@ export const ShotlistContext = createContext<ShotlistContextProps>({
     focusedCell: { current: { row: -1, column: -1 } },
     setFocusedCell: () => {},
     //to get options for shot single/multi select attributes - handles caching and refetching
-    shotSelectOptions: new Map(),
+    getShotSelectOption: () => [],
     loadShotSelectOptions: () => Promise.resolve(),
     addShotSelectOption: () => {},
-    sceneSelectOptions: new Map(),
+
+    getSceneSelectOption: () => [],
     loadSceneSelectOptions: () => Promise.resolve(),
     addSceneSelectOption: () => {},
     websocketRef: { current: null },
