@@ -13,7 +13,7 @@ import org.hibernate.annotations.BatchSize;
 
 @Entity
 public class ShotMultiSelectAttribute extends ShotAttributeBase {
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY)
     @BatchSize(size = 10)
     public Set<ShotSelectAttributeOptionDefinition> value = new HashSet<>();
 

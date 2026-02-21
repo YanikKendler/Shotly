@@ -13,7 +13,7 @@ import org.hibernate.annotations.BatchSize;
 
 @Entity
 public class SceneMultiSelectAttribute extends SceneAttributeBase{
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY)
     @BatchSize(size = 10)
     public Set<SceneSelectAttributeOptionDefinition> value = new HashSet<>();
 
