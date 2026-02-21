@@ -23,6 +23,7 @@ import Config from "@/util/Config"
 import Separator from "@/components/separator/separator"
 import SimplePopover from "@/components/popover/simplePopover"
 import {td} from "@/service/Analytics"
+import ViewPortSwitcher from "@/components/utility/viewportSwitcher/viewPortSwitcher"
 
 export default function Landing() {
     const pageRef = useRef<HTMLDivElement>(null);
@@ -74,7 +75,8 @@ export default function Landing() {
                         className={"noPadding"}
                         onClick={() => td.signal("Landing.Nav.Documentation")}
                     >
-                        <BookText size={22} />Documentation
+                        <BookText size={22} />
+                        <ViewPortSwitcher under={"Docs"} over={"Documentation"} breakpoint={400}/>
                     </Link>
                 </div>
                 <div className="center">

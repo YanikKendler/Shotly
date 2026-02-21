@@ -163,7 +163,7 @@ main.landing{
         color: var(--accent);
         border: .2rem solid var(--accent);
         padding: .7rem 3rem;
-        margin-top: 5rem;
+        margin-top: clamp(2rem, 6vw, 5rem);
         transition: scale ease-out .3s, background-color ease-out .3s, rotate ease-out .3s;
         font-size: min(4vw, 1rem);
 
@@ -194,7 +194,7 @@ main.landing{
         .arrow{
           position: absolute;
           bottom: 1rem;
-          left: calc(100% + 1rem)
+          left: calc(100% + 1rem - var(--shift) / 2)
         }
       }
     }
@@ -206,50 +206,52 @@ main.landing{
       user-select: none;
       pointer-events: none;
 
+      --shift: 0px;
+
       &#shotlist{
-        left: 10%;
+        left: calc(10% - var(--shift));
         top: 10%;
         animation-delay: .5s;
       }
 
       &#thoughts{
-        left: 5%;
+        left: calc(5% - var(--shift));
         top: 35%;
         animation-delay: 1s;
       }
 
       &#camera{
-        left: 5%;
+        left: calc(5% - var(--shift));
         top: 55%;
         animation-delay: 1.5s;
       }
 
       &#close-up{
-        left: 15%;
+        left: calc(15% - var(--shift));
         top: 70%;
         animation-delay: 2s;
       }
 
       &#medium-shot{
-        right: 15%;
+        right: calc(15% - var(--shift));
         top: 15%;
         animation-delay: 2.5s;
       }
 
       &#brush{
-        right: 10%;
+        right: calc(10% - var(--shift));
         top: 20%;
         animation-delay: 3s;
       }
 
       &#clipboard{
-        right: 5%;
+        right: calc(5% - var(--shift));
         top: 44%;
         animation-delay: 3.5s;
       }
 
       &#clapboard{
-        right: 15%;
+        right: calc(15% - var(--shift));
         top: 70%;
         animation-delay: 4s;
       }
@@ -265,17 +267,17 @@ main.landing{
       @media screen and (max-width: 900px) {
         scale: 80%;
 
+        --shift: 5%;
+
         &.second{
           display: none;
         }
       }
 
       @media screen and (max-width: 400px) {
-        scale: 70%;
+        scale: 60%;
 
-        &.third{
-          display: none;
-        }
+        --shift: 50px;
       }
     }
   }
