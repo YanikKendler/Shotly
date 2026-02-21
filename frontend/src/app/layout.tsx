@@ -116,7 +116,7 @@ export default function RootLayout({
         </head>
         <body>
             <div className="root">
-                {(Config.mode === "dev-deployment" || true) && <div className="infoBanner">You are currently viewing a dev deployment. Please go to <Link className={"inline noPadding"} href={"https://shotly.at"}>Shotly.at</Link> instead.</div>}
+                {(Config.mode === "dev-deployment") && <div className="infoBanner">You are currently viewing a dev deployment. Please go to <Link className={"inline noPadding"} href={"https://shotly.at"}>Shotly.at</Link> instead.</div>}
                 <AuthWrapper> {/*should be the outermost*/}
                     <ApolloWrapper> {/*should also be out*/}
                         <Tooltip.Provider>
