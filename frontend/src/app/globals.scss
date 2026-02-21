@@ -270,6 +270,15 @@ img{
     position: sticky;
     top: 0;
     z-index: 200;
+
+    a {
+      font-weight: bold;
+      text-decoration: underline;
+
+      &:hover{
+        color: var(--accent-90);
+      }
+    }
   }
 }
 

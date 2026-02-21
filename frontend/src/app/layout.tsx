@@ -11,6 +11,7 @@ import {SkeletonTheme} from "react-loading-skeleton"
 import {Toaster} from "react-hot-toast"
 import {CircleAlert, CircleCheck} from "lucide-react"
 import Script from "next/script"
+import Link from "next/link"
 
 export const metadata: Metadata = {
     title: "Shotly | Shotlist creation made easy",
@@ -115,7 +116,7 @@ export default function RootLayout({
         </head>
         <body>
             <div className="root">
-                {(Config.mode === "dev-deployment") && <div className="infoBanner">You are currently viewing a dev deployment</div>}
+                {(Config.mode === "dev-deployment" || true) && <div className="infoBanner">You are currently viewing a dev deployment. Please go to <Link className={"inline noPadding"} href={"https://shotly.at"}>Shotly.at</Link> instead.</div>}
                 <AuthWrapper> {/*should be the outermost*/}
                     <ApolloWrapper> {/*should also be out*/}
                         <Tooltip.Provider>
