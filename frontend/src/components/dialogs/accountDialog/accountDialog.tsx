@@ -472,7 +472,7 @@ export function useAccountDialog() {
                         All your changes are automatically saved.
                     </small>
                     <small>
-                        shotly v{BUILD_INFO.version} - {BUILD_INFO.buildTime} - {Config.mode}
+                        shotly v{BUILD_INFO.version} • {BUILD_INFO.buildTime} • {Config.mode == "prod-deployment" ? "prod" : Config.mode}
                     </small>
                 </div>
             </>
