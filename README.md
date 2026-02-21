@@ -49,3 +49,16 @@ Especially in the rendering process its much nicer to have sperate components to
 The `ShotAttributeBase` objects referenced by the Scene and others are purposefully not bi directional. This would make the code cleaner and easier but long story short: it breaks the backend.
 
 Long story: I tried this for a straight week and some of the data just would not be displayed even though the relation was there in the db. I also ran into [this](https://stackoverflow.com/questions/79550566/quarkus-hibernate-orm-creates-flawed-associative-table-when-two-entities-with-o) fun issue which I managed to work around. I brought this up to a teacher and they practically told me "quarkus relations just suck" so i removed the bi directional relation and tadaaa. It worked, this does result in way more queries and its really ugly code at times where i have to do a whole lot of where clauses instead of dot notations but i figure quarkus would do the same behind the scenes so it doesnt really matter.
+
+## Goals and Non-Goals
+
+### Goals
+
+- Create a comprehensive, simple but powerful shotlist tool
+- Provide a free version without any restrictions on core features, except the allowed number of shotlists
+- Allow exporting or full permanent deletion of shotlist
+
+### Non-Goals
+
+- Create a tool for other parts of the filmmaking process, such as scriptwriting
+- Automate shotlist creation using AI
