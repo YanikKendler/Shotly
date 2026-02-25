@@ -126,6 +126,10 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
             const cellRef = getCellRef(cellRefs.current.size-1, attributePositionToSelect.current)
             cellRef?.setFocus()
             cellRef?.openMenu()
+
+            console.log("cell ref size: ", cellRefs.current.size)
+            console.log("cell ref to be focused", cellRef)
+
             attributePositionToSelect.current = -1
         }
 
@@ -276,6 +280,8 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
     const createShot = async (attributePosition: number) => {
         shotlistContext.setSaveState("createShot", "saving")
+
+        console.log("Creating shot with attribute position: " + attributePosition)
 
         setCreationLoaderVisibility(true)
         attributePositionToSelect.current = attributePosition

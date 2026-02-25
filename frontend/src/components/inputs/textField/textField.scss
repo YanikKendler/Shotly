@@ -57,11 +57,26 @@ div.textField{
     }
   }
 
+  .clearButtonContainer{
+    position: relative;
+
+    button.clear {
+      position: absolute;
+      right: .3rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-50);
+
+      &:hover {
+        color: var(--text-10);
+      }
+    }
+  }
+
   input{
     border-radius: .3rem;
     border: 2px solid var(--border);
     padding: .5rem .3rem;
-    max-width: 40ch;
     width: 100%;
     font-size: inherit;
 

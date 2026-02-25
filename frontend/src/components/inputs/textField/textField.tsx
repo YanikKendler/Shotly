@@ -1,4 +1,4 @@
-import {Info} from "lucide-react"
+import {Info, X} from "lucide-react"
 import React, {useCallback, useEffect, useRef, useState} from "react"
 import "./textField.scss"
 import {wuGeneral} from "@yanikkendler/web-utils/dist"
@@ -38,7 +38,8 @@ export default function TextField(
         autoComplete = true,
         loading = false,
         color = "gray",
-        visible = true
+        visible = true,
+        clearable = false,
     }
     :
     {
@@ -57,7 +58,8 @@ export default function TextField(
         autoComplete?: boolean
         loading?: boolean
         color?: "gray" | "accent"
-        visible?: boolean
+        visible?: boolean,
+        clearable?: boolean
     }
 ) {
     const [currentValue, setCurrentValue] = useState<string>(value || defaultValue);
@@ -122,7 +124,7 @@ export default function TextField(
     } : {};
 
     return (
-        <div className={`textField ${color}`} style={{display: visible ? "flex" : "none"}}>
+        <div className={`textField ${color}`} style={{display: visible ? "flex" : "none", maxWidth: maxWidth}}>
             {
                 label &&
                 <label htmlFor={label}>{label}</label>
@@ -133,18 +135,24 @@ export default function TextField(
                         loading?
                         <Skeleton height={"2rem"}/> :
                         <>
-                            <input
-                                id={label}
-                                type="text"
-                                placeholder={placeholder}
-                                value={currentValue}
-                                onInput={e => handleInput(e.currentTarget.value)}
-                                maxLength={maxLength}
-                                disabled={disabled}
-                                className={inputClass}
-                                style={{maxWidth: maxWidth}}
-                                {...ignoreProps}
-                            />
+                            <div className="clearButtonContainer">
+                                <input
+                                    id={label}
+                                    type="text"
+                                    placeholder={placeholder}
+                                    value={currentValue}
+                                    onInput={e => handleInput(e.currentTarget.value)}
+                                    maxLength={maxLength}
+                                    disabled={disabled}
+                                    className={inputClass}
+                                    style={{maxWidth: maxWidth}}
+                                    {...ignoreProps}
+                                />
+                                {
+                                    clearable == true && currentValue != "" &&
+                                    <button className={"clear"} onClick={() => handleInput("")}><X size={18}/></button>
+                                }
+                            </div>
                             <p className={"error " + errorType}>{error}</p>
                         </>
                     }

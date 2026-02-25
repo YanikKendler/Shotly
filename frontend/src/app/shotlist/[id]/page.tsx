@@ -527,23 +527,21 @@ export default function Shotlist() {
     const reconnectWebsocket = () => {
         // Don't reconnect if we don't have a user yet
         if (!currentUserRef.current?.id || !query?.data?.shotlist?.id) {
-            console.info("Skipping reconnect - not loaded yet");
-            return;
+            return
         }
 
         if (websocketRef.current?.readyState === WebSocket.OPEN || websocketRef.current?.readyState === WebSocket.CONNECTING) {
-            console.info("Skipping reconnect - already connected");
-            return;
+            return
         }
 
-        const delay = Math.min(1000 * 2 ** websocketRetriesRef.current, 30000);
+        const delay = Math.min(1000 * 2 ** websocketRetriesRef.current, 30000)
 
         setTimeout(() => {
-            websocketRetriesRef.current++;
-            console.info("Attempting reconnect, attempt", websocketRetriesRef.current, "with user id", currentUserRef.current?.id);
+            websocketRetriesRef.current++
+            console.info("Attempting reconnect, attempt", websocketRetriesRef.current, "with user id", currentUserRef.current?.id)
             if(currentUserRef.current?.id)
-                joinShotlistWebsocket(currentUserRef.current?.id);
-        }, delay);
+                joinShotlistWebsocket(currentUserRef.current?.id)
+        }, delay)
     }
 
     const loadShotSelectOptions = async (shotAttributeDefinitionId: number) => {

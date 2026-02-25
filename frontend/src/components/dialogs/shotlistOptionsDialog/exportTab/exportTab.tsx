@@ -1,8 +1,19 @@
-import {ChevronDown, Download, File, List, ListOrdered, Plus, Square, SquareCheck, Trash, Type, X} from "lucide-react"
+import {
+    Download,
+    File,
+    ListOrdered,
+    Plus,
+    SquareCheck,
+    X,
+    LucideWrapText,
+    Repeat,
+    Heading,
+    CaseSensitive, Type
+} from "lucide-react"
 import React, {Fragment, useEffect, useRef, useState} from "react"
 import gql from "graphql-tag"
 import {pdf, PDFViewer} from "@react-pdf/renderer"
-import PDFExport from "@/components/dialogs/shotlistOptionsDialog/exportTab/PDFExport"
+import PDFExport, {PDFExportOptions} from "@/components/dialogs/shotlistOptionsDialog/exportTab/PDFExport"
 import {wuGeneral, wuTime} from "@yanikkendler/web-utils"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {
@@ -42,12 +53,13 @@ import DotLoader from "@/components/DotLoader"
 import {errorNotification} from "@/service/NotificationService"
 import LabeledCheckbox from "@/components/inputs/labeledCheckbox/labeledCheckbox"
 import {td} from "@/service/Analytics"
+import TextField from "@/components/inputs/textField/textField"
 
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full"
 
 interface ExportSettingsLocalStorage {
     selectedFileType?: SelectedFileTypes
-    showCheckboxes?: boolean
+    pdfExportOptions?: PDFExportOptions
     selectedScenes?: MultiValue<SelectOption>
     customShotFilters?: [number, MultiValue<SelectOption>][]
     customSceneFilters?: [number, MultiValue<SelectOption>][]
@@ -68,7 +80,13 @@ export default function ExportTab(
     const [sceneOptions, setSceneOptions] = useState<SelectOption[]>([{value: "this is bad", label: "1"}])
 
     const [selectedFileType, setSelectedFileType] = useState<SelectedFileTypes>("PDF")
-    const [showCheckboxes, setShowCheckboxes] = useState(false)
+    const [pdfExportOptions, setPdfExportOptions] = useState<PDFExportOptions>({
+        showCheckboxes: false,
+        avoidOrphans: true,
+        repeatSceneHeading: false,
+        repeatAttributeDefinitions: false,
+        headerText: ""
+    })
     const [selectedScenes, setSelectedScenes] = useState<MultiValue<SelectOption>>([])
     const [customSceneFilters, setCustomSceneFilters] = useState<Map<number, MultiValue<SelectOption>>>(new Map())
     const [customShotFilters, setCustomShotFilters] = useState<Map<number, MultiValue<SelectOption>>>(new Map())
@@ -101,14 +119,14 @@ export default function ExportTab(
 
         const settingsObject: ExportSettingsLocalStorage = {
             selectedFileType: selectedFileType,
-            showCheckboxes: showCheckboxes,
+            pdfExportOptions: pdfExportOptions,
             selectedScenes: selectedScenes,
             customShotFilters: Array.from(customShotFilters),
             customSceneFilters: Array.from(customSceneFilters)
         }
         const settingsString = JSON.stringify(settingsObject)
         localStorage.setItem(Config.localStorageKey.exportSettings(shotlist.id), settingsString)
-    }, [selectedFileType, showCheckboxes, selectedScenes, customShotFilters, customSceneFilters]);
+    }, [selectedFileType, pdfExportOptions, selectedScenes, customShotFilters, customSceneFilters]);
 
     const loadSettingsFromLocalStorage = (shotlistId: string) => {
         const settingsString = localStorage.getItem(Config.localStorageKey.exportSettings(shotlistId))
@@ -118,8 +136,8 @@ export default function ExportTab(
 
         if(settingsObject.selectedFileType)
             setSelectedFileType(settingsObject.selectedFileType)
-        if(settingsObject.showCheckboxes)
-            setShowCheckboxes(settingsObject.showCheckboxes)
+        if(settingsObject.pdfExportOptions)
+            setPdfExportOptions(settingsObject.pdfExportOptions)
         if(settingsObject.selectedScenes && settingsObject.selectedScenes.length > 0)
             setSelectedScenes(settingsObject.selectedScenes)
         if(settingsObject.customShotFilters && settingsObject.customShotFilters.length > 0)
@@ -333,7 +351,7 @@ export default function ExportTab(
 
         td.signal("Shotlist.Options.Export.Exported", {
             fileType: selectedFileType,
-            showCheckboxes: selectedFileType == "PDF" ? showCheckboxes : undefined,
+            pdfExportOptions: pdfExportOptions,
             filterCount: customSceneFilters.size + customShotFilters.size,
             selectedScenes: setSelectedScenes.length
         })
@@ -414,7 +432,7 @@ export default function ExportTab(
     }
 
     const exportPDF = async (data: ShotlistDto) => {
-        const blob = await pdf(<PDFExport data={data} showCheckboxes={showCheckboxes}/>).toBlob()
+        const blob = await pdf(<PDFExport data={data} options={pdfExportOptions}/>).toBlob()
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href = url
@@ -513,20 +531,77 @@ export default function ExportTab(
                     </div>
                     {
                         selectedFileType == "PDF" &&
-                        <div className="filter">
-                            <div className="left">
-                                <SquareCheck size={22}/>
-                                <p>Add checkboxes</p>
-                            </div>
+                        <>
+                            <div className="filter">
+                                <div className="left">
+                                    <SquareCheck size={22}/>
+                                    <p>Add checkboxes</p>
+                                </div>
 
-                            <Switch.Root
-                                className="SwitchRoot"
-                                checked={showCheckboxes}
-                                onCheckedChange={setShowCheckboxes}
-                            >
-                                <Switch.Thumb className="SwitchThumb"/>
-                            </Switch.Root>
-                        </div>
+                                <Switch.Root
+                                    className="SwitchRoot"
+                                    checked={pdfExportOptions.showCheckboxes}
+                                    onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, showCheckboxes: checked})}
+                                >
+                                    <Switch.Thumb className="SwitchThumb"/>
+                                </Switch.Root>
+                            </div>
+                            <div className="filter">
+                                <div className="left">
+                                    <LucideWrapText size={22}/>
+                                    <p>Avoid orphaned shots</p>
+                                </div>
+
+                                <Switch.Root
+                                    className="SwitchRoot"
+                                    checked={pdfExportOptions.avoidOrphans}
+                                    onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, avoidOrphans: checked})}
+                                >
+                                    <Switch.Thumb className="SwitchThumb"/>
+                                </Switch.Root>
+                            </div>
+                            <div className="filter">
+                                <div className="left">
+                                    <Heading size={22}/>
+                                    <p>Repeat scene headings after page breaks</p>
+                                </div>
+
+                                <Switch.Root
+                                    className="SwitchRoot"
+                                    checked={pdfExportOptions.repeatSceneHeading}
+                                    onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, repeatSceneHeading: checked})}
+                                >
+                                    <Switch.Thumb className="SwitchThumb"/>
+                                </Switch.Root>
+                            </div>
+                            <div className="filter">
+                                <div className="left">
+                                    <Repeat size={22}/>
+                                    <p>Repeat scene attribute names on every page</p>
+                                </div>
+
+                                <Switch.Root
+                                    className="SwitchRoot"
+                                    checked={pdfExportOptions.repeatAttributeDefinitions}
+                                    onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, repeatAttributeDefinitions: checked})}
+                                >
+                                    <Switch.Thumb className="SwitchThumb"/>
+                                </Switch.Root>
+                            </div>
+                            <div className="filter">
+                                <div className="left">
+                                    <Type size={22}/>
+                                    <p>Header text (optional)</p>
+                                </div>
+
+                                <TextField
+                                    value={pdfExportOptions.headerText}
+                                    valueChange={(value) => setPdfExportOptions({...pdfExportOptions, headerText: value})}
+                                    placeholder={"Production day 1"}
+                                    clearable
+                                />
+                            </div>
+                        </>
                     }
                     <div className="filter">
                         <div className="left">
@@ -675,7 +750,7 @@ export default function ExportTab(
                         <Dialog.Content className="dialogContent pdfPreviewDialogContent">
                             <Dialog.Title>PDF preview <span>(the final export will be: {selectedFileType})</span></Dialog.Title>
                             <PDFViewer showToolbar={false}>
-                                <PDFExport data={filterData(shotlistPreviewCache)} showCheckboxes={selectedFileType == "PDF" && showCheckboxes}/>
+                                <PDFExport data={filterData(shotlistPreviewCache)} options={selectedFileType == "PDF" ? pdfExportOptions : {} as PDFExportOptions}/>
                             </PDFViewer>
                             <Dialog.Close asChild>
                                 <button
