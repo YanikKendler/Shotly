@@ -347,6 +347,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                         placeholder={"shotlist name"}
                         onInput={e => debounceUpdateShotlistName(e.currentTarget.value)}
                         role={"heading"}
+                        disabled={isReadOnly}
                     />
                 </div>
                 <div className={`list ${reloadInProgress && "reloading"}`} id={`sceneList`}>
