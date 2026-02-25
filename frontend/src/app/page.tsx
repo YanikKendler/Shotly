@@ -67,6 +67,7 @@ export default function Landing() {
 
     return (
         <main className="landing" ref={pageRef}>
+            <title>Shotly | Shotlist creation made easy</title>
             <nav>
                 <div className="left">
                     <Link

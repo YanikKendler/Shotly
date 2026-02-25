@@ -457,6 +457,7 @@ export default function Template (){
 
     return (
         <main className={"template dashboardContent"}>
+            <title>Shotly | Template</title>
             <div className="top">
                 <h2>
                     {

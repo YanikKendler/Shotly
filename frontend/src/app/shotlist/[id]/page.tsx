@@ -216,6 +216,13 @@ export default function Shotlist() {
     }, [query])
 
     useEffect(() => {
+        //set page name
+        setTimeout(() => {
+            document.title = `Shotly | ${query.data.shotlist?.name || "Shotlist"}`
+        },500)
+    }, [query.data.shotlist?.name]);
+
+    useEffect(() => {
         selectedSceneRef.current = selectedScene
     }, [selectedScene]);
 

@@ -358,6 +358,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             dialogStep: dialogStep,
             incrementDialogStep: incrementDialogStep
         }}>
+        <title>Shotly | Dashboard</title>
         <main className="home">
             <PanelGroup autoSaveId={"shotly-dashboard-sidebar-width"} direction="horizontal" className={"PanelGroup"}>
                 <Panel

@@ -14,7 +14,6 @@ import Script from "next/script"
 import Link from "next/link"
 
 export const metadata: Metadata = {
-    title: "Shotly | Shotlist creation made easy",
     description:
         "A freemium, source available, no-AI, clean and simple shotlist creation tool for filmmakers.",
     keywords: [
@@ -48,6 +47,7 @@ export const metadata: Metadata = {
         "shotlist template",
         "camera shot planning"
     ],
+
     metadataBase: new URL("https://shotly.at"),
     openGraph: {
         title: "Shotly | Shotlist creation made easy",
@@ -113,6 +113,7 @@ export default function RootLayout({
             <script>
                 {`window.sa_event=window.sa_event||function(){var a=[].slice.call(arguments);window.sa_event.q?window.sa_event.q.push(a):window.sa_event.q=[a]};`}
             </script>
+            <title>Shotly</title>
         </head>
         <body>
             <div className="root">

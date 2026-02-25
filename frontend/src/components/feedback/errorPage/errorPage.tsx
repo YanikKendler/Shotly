@@ -27,6 +27,7 @@ export default function ErrorPage(
 ) {
     return (
         <div className={"errorPage"}>
+            <title>Shotly | Error</title>
             <div className={"header"}>
                 <Link href={"/"}><Wordmark/></Link>
             </div>

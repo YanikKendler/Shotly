@@ -4,6 +4,7 @@ import Link from "next/link"
 export default function freeForStudents(){
     return (
         <SimplePage>
+            <title>Shotly | Free for Students</title>
             <h1>Shotly for Students</h1>
             <p>Are you a student? Shotly is available to you completely free of charge!</p>
             <p>

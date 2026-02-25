@@ -73,6 +73,8 @@ export default function Pro(){
 
     if(isLoading || !auth.getUser()) return <LoadingPage title={Config.loadingMessage.authGetUser}/>
 
+    let content;
+
     if(!currentUser || !currentUser.id || !currentUser.tier) return (
         <ErrorPage
             title={"User could not be loaded"}
@@ -83,8 +85,8 @@ export default function Pro(){
     )
 
     else if(currentUser.tier == UserTier.Pro)
-        return (
-            <SimplePage className={"pro"}>
+        content = (
+            <>
                 <h1>You already own Shotly Pro!</h1>
                 <p>
                     I hope you are enjoying Shotly, if you run into any issues or have a feature request, feel free to reach out to <Link className={"noPadding inline"} href={"mailto:yanik@shotly.at"}>yanik@shotly.at</Link> or <Link className={"noPadding inline"} href={"https://github.com/YanikKendler/shotly/issues/new/choose"}>create a new Issue on GitHub</Link>.
@@ -95,11 +97,11 @@ export default function Pro(){
                     <button className={"text"} onClick={PaymentService.manageSubscription}>Manage Subscription</button>
                     <Link className={"filled"} href={"/dashboard"}>To your Dashboard</Link>
                 </div>
-            </SimplePage>
+            </>
         )
     else if(currentUser.tier == UserTier.ProStudent)
-        return (
-            <SimplePage className={"pro"}>
+        content = (
+            <>
                 <h1>You already own Shotly Pro for Free!</h1>
                 <p>Since you are a student living off student money and stuff :D</p>
                 <p>Lets hope you are not american.. then you would be living off student debt :(</p>
@@ -109,11 +111,11 @@ export default function Pro(){
                 <div className="buttons">
                     <Link className={"filled"} href={"/dashboard"}>To your Dashboard</Link>
                 </div>
-            </SimplePage>
+            </>
         )
     else if(currentUser.tier == UserTier.ProFree)
-        return (
-            <SimplePage className={"pro"}>
+        content = (
+            <>
                 <h1>You already own Shotly Pro for Free!</h1>
                 <p>Since you are a friend.. or you hacked the server and decided to give yourself pro. In that case I will take that as a compliment but please do send me an email.</p>
                 <p>Aaaanyways, if you are in fact a friend - have fun mate!</p>
@@ -126,12 +128,12 @@ export default function Pro(){
                 <div className="buttons">
                     <Link className={"filled"} href={"/dashboard"}>To your Dashboard</Link>
                 </div>
-            </SimplePage>
+            </>
         )
     else {
         if (currentUser.hasCancelled == true)
-            return (
-                <SimplePage className={"pro"}>
+            content = (
+                <>
                     <h1>Thank you for choosing Shotly Pro!</h1>
                     <p>You will regain access to <span>unlimited Shotlists</span> and <span>unlimited Collaborators</span>.
                     </p>
@@ -154,11 +156,11 @@ export default function Pro(){
                         Payments are securely processed by Stripe; we do not store credit card details.
                         No refunds are provided for monthly plans. All prices shown include applicable taxes.
                     </p>
-                </SimplePage>
+                </>
             )
         else
-            return (
-                <SimplePage className={"pro"}>
+            content = (
+                <>
                     <h1>Thank you for choosing Shotly Pro!</h1>
                     <p>You will get access to <span>unlimited Shotlists</span> and <span>unlimited Collaborators</span> for <span>2.99€</span>/month.
                     </p>
@@ -180,7 +182,14 @@ export default function Pro(){
                         Payments are securely processed by Stripe; we do not store credit card details.
                         No refunds are provided for monthly plans. All prices shown include applicable taxes.
                     </p>
-                </SimplePage>
+                </>
             )
+
+        return (
+            <SimplePage className={"pro"}>
+                <title>Shotly | Pro</title>
+                {content}
+            </SimplePage>
+        )
     }
 }
