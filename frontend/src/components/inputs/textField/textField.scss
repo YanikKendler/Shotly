@@ -6,6 +6,7 @@ div.textField{
   --border-hover: var(--default-interactable-hover-border);
   --focus-border: var(--accent);
   --focus-border-hover: var(--accent-40);
+  --background: var(--contrast);
 
   &.accent{
     --border: var(--accent);
@@ -66,14 +67,17 @@ div.textField{
       top: 50%;
       transform: translateY(-50%);
       color: var(--text-50);
+      background-color: var(--background);
+      z-index: 10;
 
       &:hover {
-        color: var(--text-10);
+        color: var(--bad);
       }
     }
   }
 
   input{
+    background-color: var(--background);
     border-radius: .3rem;
     border: 2px solid var(--border);
     padding: .5rem .3rem;

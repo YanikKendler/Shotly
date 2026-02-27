@@ -43,7 +43,7 @@ import {
 } from "@/util/AttributeParser"
 //@ts-ignore
 import {downloadCSV} from "@/downloadCSV"
-import {Checkbox, Dialog, Popover, Switch} from "radix-ui"
+import {Checkbox, Collapsible, Dialog, Popover, Switch} from "radix-ui"
 import {MultiValue} from "react-select"
 import HelpLink from "@/components/helpLink/helpLink"
 import Skeleton from "react-loading-skeleton"
@@ -54,6 +54,7 @@ import {errorNotification} from "@/service/NotificationService"
 import LabeledCheckbox from "@/components/inputs/labeledCheckbox/labeledCheckbox"
 import {td} from "@/service/Analytics"
 import TextField from "@/components/inputs/textField/textField"
+import Collapse from "@/components/collapse/collapse"
 
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full"
 
@@ -513,7 +514,7 @@ export default function ExportTab(
                 <div className="filters">
                     <div className="filter">
                         <div className="left">
-                            <File/>
+                            <File size={22}/>
                             <p>Format</p>
                         </div>
 
@@ -534,7 +535,7 @@ export default function ExportTab(
                         <>
                             <div className="filter">
                                 <div className="left">
-                                    <SquareCheck size={22}/>
+                                    <SquareCheck size={20}/>
                                     <p>Add checkboxes</p>
                                 </div>
 
@@ -548,59 +549,62 @@ export default function ExportTab(
                             </div>
                             <div className="filter">
                                 <div className="left">
-                                    <LucideWrapText size={22}/>
-                                    <p>Avoid orphaned shots</p>
-                                </div>
-
-                                <Switch.Root
-                                    className="SwitchRoot"
-                                    checked={pdfExportOptions.avoidOrphans}
-                                    onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, avoidOrphans: checked})}
-                                >
-                                    <Switch.Thumb className="SwitchThumb"/>
-                                </Switch.Root>
-                            </div>
-                            <div className="filter">
-                                <div className="left">
-                                    <Heading size={22}/>
-                                    <p>Repeat scene headings after page breaks</p>
-                                </div>
-
-                                <Switch.Root
-                                    className="SwitchRoot"
-                                    checked={pdfExportOptions.repeatSceneHeading}
-                                    onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, repeatSceneHeading: checked})}
-                                >
-                                    <Switch.Thumb className="SwitchThumb"/>
-                                </Switch.Root>
-                            </div>
-                            <div className="filter">
-                                <div className="left">
-                                    <Repeat size={22}/>
-                                    <p>Repeat scene attribute names on every page</p>
-                                </div>
-
-                                <Switch.Root
-                                    className="SwitchRoot"
-                                    checked={pdfExportOptions.repeatAttributeDefinitions}
-                                    onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, repeatAttributeDefinitions: checked})}
-                                >
-                                    <Switch.Thumb className="SwitchThumb"/>
-                                </Switch.Root>
-                            </div>
-                            <div className="filter">
-                                <div className="left">
-                                    <Type size={22}/>
+                                    <Type size={20}/>
                                     <p>Header text (optional)</p>
                                 </div>
 
                                 <TextField
                                     value={pdfExportOptions.headerText}
                                     valueChange={(value) => setPdfExportOptions({...pdfExportOptions, headerText: value})}
-                                    placeholder={"Production day 1"}
+                                    placeholder={"Any text"}
                                     clearable
                                 />
                             </div>
+                            <Collapse name={"Advanced settings"}>
+                                <div className="filter">
+                                    <div className="left">
+                                        <LucideWrapText size={20}/>
+                                        <p>Avoid orphaned shots when wrapping</p>
+                                    </div>
+
+                                    <Switch.Root
+                                        className="SwitchRoot"
+                                        checked={pdfExportOptions.avoidOrphans}
+                                        onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, avoidOrphans: checked})}
+                                    >
+                                        <Switch.Thumb className="SwitchThumb"/>
+                                    </Switch.Root>
+                                </div>
+                                <div className="filter">
+                                    <div className="left">
+                                        <Heading size={20}/>
+                                        <p>Repeat scene headings after page breaks</p>
+                                    </div>
+
+                                    <Switch.Root
+                                        className="SwitchRoot"
+                                        checked={pdfExportOptions.repeatSceneHeading}
+                                        onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, repeatSceneHeading: checked})}
+                                    >
+                                        <Switch.Thumb className="SwitchThumb"/>
+                                    </Switch.Root>
+                                </div>
+                                <div className="filter">
+                                    <div className="left">
+                                        <Repeat size={20}/>
+                                        <p>Repeat scene attribute names on every page</p>
+                                    </div>
+
+                                    <Switch.Root
+                                        className="SwitchRoot"
+                                        checked={pdfExportOptions.repeatAttributeDefinitions}
+                                        onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, repeatAttributeDefinitions: checked})}
+                                    >
+                                        <Switch.Thumb className="SwitchThumb"/>
+                                    </Switch.Root>
+                                </div>
+                            </Collapse>
+                            <Separator/>
                         </>
                     }
                     <div className="filter">
@@ -749,9 +753,15 @@ export default function ExportTab(
                         <Dialog.Overlay className={"dialogOverlay"}/>
                         <Dialog.Content className="dialogContent pdfPreviewDialogContent">
                             <Dialog.Title>PDF preview <span>(the final export will be: {selectedFileType})</span></Dialog.Title>
-                            <PDFViewer showToolbar={false}>
-                                <PDFExport data={filterData(shotlistPreviewCache)} options={selectedFileType == "PDF" ? pdfExportOptions : {} as PDFExportOptions}/>
-                            </PDFViewer>
+                            <div className="loaderContainer">
+                                <PDFViewer showToolbar={false}>
+                                    <PDFExport
+                                        data={filterData(shotlistPreviewCache)}
+                                        options={selectedFileType == "PDF" ? pdfExportOptions : {} as PDFExportOptions}
+                                    />
+                                </PDFViewer>
+                                <Skeleton className={"skeleton"}/>
+                            </div>
                             <Dialog.Close asChild>
                                 <button
                                     className={"export"}

@@ -2,13 +2,30 @@
 
 Shotlists can be exported via the `Shotlist Options` > `Export` dialog by any [Collaborator](./collaboration.md) who can view the shotlist. Before exporting, the shotlist can be filtered to include only specific shots or scenes.
 
-## Configuration
+## Formats
 
-Currently, the following **Formats** are supported:
+### PDF
 
-- PDF: Exports the table in a standard, print-ready PDF format.
-- CSV (full): Exports all the shots with scene headings in between. This makes it technically not a valid CSV file but includes all the data.
-- CSV (shots only): Exports only the shots one after the other with no scene information other than a number in front of the shot letter.
+Exports the table in a standard, print-ready PDF format. This mode has the following additional settings:
+
+- **Add checkboxes**: whether or not to add a small blank square field in front of every shot that can be used as a checkbox once the shot list is printed
+- **Header text**: custom text that will be displayed at the top of each page. Could be details about the shoot or any other information. If left blank, the header will not be rendered and will not take up any space
+- **Avoid orphaned shots when wrapping**: will move the whole scene to a new page if only a few shots would be on a different page than the rest
+- **Repeat scene headings after page breaks**: will repeat the scene heading (scene number and its attributes) if the scene's shots have wrapped to a new page
+- **Repeat scene attribute names on every page**: repeats the scene attribute names at the top of every page instead of just the first one
+
+||| Tip
+    I recommend just testing these features for yourself and previewing the result, these settings might seem complicated but are actually pretty simple
+
+### CSV (full)
+
+Exports all the shots with scene headings in between. This makes it technically not a valid CSV file, but includes all the data.
+
+### CSV (shots only)
+
+Exports only the shots one after the other, with no scene information other than a number in front of the shot letter.
+
+## Scenes filter
 
 Using the **Scenes** filter, you can control which scenes to include in the export. If a scene is not included in the "Scenes" filter, it will never be included, even if a custom filter matches a shot inside.
 
