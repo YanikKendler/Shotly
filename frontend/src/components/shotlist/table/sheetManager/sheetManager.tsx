@@ -67,6 +67,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     const sortableRef = useRef<Sortable|null>(null)
 
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
+    const shotIsBeingCreated = useRef<boolean>(false)
     const creationLoaderRef = useRef<HTMLDivElement>(null)
     const attributePositionToSelect = useRef<number>(-1) //position of attribute to select on next re-render
 
@@ -225,6 +226,8 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     const setCreationLoaderVisibility = (visible:boolean) => {
         if(!creationLoaderRef.current) return
 
+        shotIsBeingCreated.current = visible
+
         creationLoaderRef.current.style.display = visible ? "flex" : "none"
     }
 
@@ -279,6 +282,10 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     }
 
     const createShot = async (attributePosition: number) => {
+        if(shotIsBeingCreated.current == true) {
+            return
+        }
+
         shotlistContext.setSaveState("createShot", "saving")
 
         console.log("Creating shot with attribute position: " + attributePosition)

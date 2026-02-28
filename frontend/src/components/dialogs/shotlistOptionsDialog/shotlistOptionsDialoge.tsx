@@ -284,7 +284,9 @@ export default function ShotlistOptionsDialog({
             open={isOpen}
             onOpenChange={(isOpen: boolean) => {
                 setIsOpen(isOpen)
-                runRefreshShotlistCheck()
+                if(!isOpen){
+                    runRefreshShotlistCheck()
+                }
             }}
         >
             <Dialog.Portal>
