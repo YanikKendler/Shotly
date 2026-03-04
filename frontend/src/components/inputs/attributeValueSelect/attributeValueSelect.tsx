@@ -27,8 +27,11 @@ export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBas
         cursor: 'pointer',
         borderRadius: ".3rem",
         paddingInline: ".5rem",
-        backgroundColor: state.isFocused ? 'var(--transparent-accent-10)' : 'transparent',
-        color: "var(--text)",
+        backgroundColor: state.isFocused ?
+            state.isSelected ? 'var(--accent-55)' : 'var(--accent)' :
+            state.isSelected ? "var(--transparent-accent-20)" : 'transparent',
+        color: state.isFocused ? "var(--contrast)" : "var(--text)",
+        fontWeight: state.isFocused ? "bold" : "normal",
         fontSize: "0.85rem",
     }),
     input: (baseStyles) => ({
