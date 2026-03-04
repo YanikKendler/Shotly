@@ -20,7 +20,7 @@ import {wuConstants} from "@yanikkendler/web-utils/dist"
 export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBase<SelectOption>> = {
     control: (baseStyles) => ({
         ...baseStyles,
-        minWidth: 0
+        minWidth: 0,
     }),
     option: (baseStyles, state) => ({
         ...baseStyles,
@@ -37,7 +37,9 @@ export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBas
     }),
     menu: (baseStyles) => ({
         ...baseStyles,
-        marginTop: 0
+        marginTop: 0,
+        borderBottomLeftRadius: ".6rem",
+        borderBottomRightRadius: ".6rem"
     }),
     singleValue: (baseStyles) => ({
         ...baseStyles,
@@ -106,30 +108,10 @@ export const selectSceneStyles: StylesConfig<SelectOption, boolean, GroupBase<Se
         borderRadius: "0",
         fontSize: ".95rem",
     }),
-    valueContainer: (baseStyles) => ({
-        ...baseStyles,
-        padding: "2px .1rem",
-        alignItems: "end"
-    }),
-    multiValue: (baseStyles) => ({
-        ...baseStyles,
-        marginBottom: "0px",
-        borderRadius: "0.3rem",
-        backgroundColor: "var(--select-menu-multivalue-bg)",
-    }),
     menu: (baseStyles) => ({
         ...baseStyles,
         marginTop: "3px",
-    }),
-    option: (baseStyles, state) => ({
-        ...baseStyles,
-        cursor: 'pointer',
-        borderRadius: ".3rem",
-        paddingInline: ".5rem",
-        fontSize: ".85rem",
-        backgroundColor: state.isFocused ? 'var(--transparent-accent-10)' : 'transparent',
-        color: "var(--text)",
-    }),
+    })
 }
 
 interface AttributeValueSelectProps {
@@ -293,7 +275,7 @@ function AttributeValueSelect({
 
     return (
         <CreatableSelect
-            /*key={`${definitionId}-${refreshMap[`${shotOrScene}-${definitionId}`] || 0}`}*/
+            /*menuIsOpen={true}*/
             value={selectValue}
             onChange={onChange}
             onMenuOpen={handleMenuOpen}
