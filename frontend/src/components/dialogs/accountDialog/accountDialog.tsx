@@ -248,7 +248,7 @@ export function useAccountDialog() {
     let dialogContent
 
     if(deleting)
-        dialogContent = <Loader text={"deleting user"}/>
+        dialogContent = <Loader text={"Deleting user..."}/>
     else
         dialogContent = (
             <>

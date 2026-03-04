@@ -9,8 +9,8 @@ import "./generalTab.scss"
 import TextField from "@/components//inputs/textField/textField"
 import Loader from "@/components/feedback/loader/loader"
 import Separator from "@/components/separator/separator"
-import DotLoader from "@/components/DotLoader"
 import {errorNotification} from "@/service/NotificationService"
+import Skeleton from "react-loading-skeleton"
 
 export default function GeneralTab({
     shotlist,
@@ -111,7 +111,18 @@ export default function GeneralTab({
         }
     }
 
-    if(!shotlist) return (<Loader/>)
+    if(!shotlist || !currentUser) return (
+        <div className={"shotlistOptionsDialogGeneralTab"}>
+            <h2>Shotlist settings</h2>
+            <Skeleton height={"2.5rem"}/>
+
+            <Separator/>
+
+            <div className="details">
+                <Skeleton count={4} height={"1.5rem"}/>
+            </div>
+        </div>
+    )
 
     if(deleting) return <div className={"shotlistOptionsDialogGeneralTab"}>
         <Loader text={"Deleting shotlist..."}/>

@@ -14,6 +14,7 @@ import Link from "next/link"
 import {errorNotification} from "@/service/NotificationService"
 import Dialog, {DialogRef} from "@/components/dialog/dialog"
 import Skeleton from "react-loading-skeleton"
+import Config from "@/Config"
 
 export function useCreateShotlistDialog() {
     const dialogElementRef = useRef<DialogRef>(null);
@@ -157,7 +158,7 @@ export function useCreateShotlistDialog() {
         content = <>
             <h2 className={"title center"}>Creating shotlist "{name}"</h2>
             <div className={"loading"}>
-                <Loader text={"You will be redirected shortly.."}/>
+                <Loader text={Config.loadingMessage.redirect}/>
             </div>
         </>
     else

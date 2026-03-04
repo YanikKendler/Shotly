@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 import Auth from "@/Auth"
 import {td} from "@/service/Analytics"
+import Config from "@/Config"
 
 /**
  * User is sent here after a login on the auth0 hosted login.shotly.at page
@@ -27,6 +28,6 @@ export default function CallbackPage() {
     }, []);
 
     return (
-        <LoadingPage title={"Logging you in..."}/>
+        <LoadingPage title={Config.loadingMessage.login}/>
     )
 }

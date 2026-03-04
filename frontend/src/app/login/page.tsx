@@ -4,6 +4,7 @@
 import {useEffect} from "react"
 import auth from "@/Auth"
 import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
+import Config from "@/Config"
 
 /**
  * User can be redirected here to trigger a new login eg. when their session has expired.
@@ -15,6 +16,6 @@ export default function LoginRedirectPage() {
     }, []);
 
     return (
-        <LoadingPage title={"Logging you in..."}/>
+        <LoadingPage title={Config.loadingMessage.login}/>
     )
 }

@@ -9,6 +9,7 @@ import TextField from "@/components//inputs/textField/textField"
 import Loader from "@/components/feedback/loader/loader"
 import {errorNotification} from "@/service/NotificationService"
 import Dialog, {DialogRef} from "@/components/dialog/dialog"
+import Config from "@/Config"
 
 export function useCreateTemplateDialog() {
     const dialogElementRef = useRef<DialogRef>(null);
@@ -82,8 +83,7 @@ export function useCreateTemplateDialog() {
                 <>
                     <h2 className={"title"}>Creating template "{name}"</h2>
                     <div className={"loading"}>
-                        <Loader/>
-                        <p>You will be redirected shortly</p>
+                        <Loader text={Config.loadingMessage.redirect}/>
                     </div>
                 </>
                 :
