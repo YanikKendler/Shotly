@@ -1,4 +1,4 @@
-import Config from "@/util/Config"
+import Config from "@/Config"
 import Auth from "@/Auth"
 import {errorNotification} from "@/service/NotificationService"
 

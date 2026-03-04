@@ -9,7 +9,7 @@ import {ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
 import {wuTime} from "@yanikkendler/web-utils"
 import {useCreateShotlistDialog} from "@/components/dialogs/createShotlistDialog/createShotlistDialog"
 import Utils from "@/util/Utils"
-import Config from "@/util/Config"
+import Config from "@/Config"
 import {useCreateTemplateDialog} from "@/components/dialogs/createTemplateDialog/createTemplateDialog"
 import {driver} from "driver.js"
 import "driver.js/dist/driver.css";

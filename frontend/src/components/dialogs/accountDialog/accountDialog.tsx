@@ -1,7 +1,6 @@
 'use client';
 
-import * as Dialog from '@radix-ui/react-dialog';
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import "./accountDialog.scss"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
@@ -10,11 +9,11 @@ import Auth from "@/Auth"
 import {Query, UserDto, UserTier} from "../../../../lib/graphql/generated"
 import {RadioGroup, Switch, VisuallyHidden} from "radix-ui"
 import TextField from "@/components/inputs/textField/textField"
-import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
+import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialog"
 import Loader from "@/components/feedback/loader/loader"
 import Link from "next/link"
 import PaymentService from "@/service/PaymentService"
-import Config from "@/util/Config"
+import Config from "@/Config"
 import Skeleton from "react-loading-skeleton"
 import {wuConstants, wuGeneral} from "@yanikkendler/web-utils/dist"
 import Slider from "@/components/inputs/slider/slider"
@@ -26,6 +25,7 @@ import Utils from "@/util/Utils"
 import toast from "react-hot-toast"
 import {errorNotification} from "@/service/NotificationService"
 import {td} from "@/service/Analytics"
+import Dialog, {DialogRef} from "@/components/dialog/dialog"
 
 export interface UserSettings {
     saveExportSettingsInLocalstorage: boolean
@@ -38,12 +38,13 @@ export function useAccountDialog() {
     const client = useApolloClient()
     const {confirm, ConfirmDialog} = useConfirmDialog()
 
-    const [isOpen, setIsOpen] = useState(false);
-    const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult);
-    const [deleting, setDeleting] = useState(false);
-    const [passwordResetDisabled, setPasswordResetDisabled] = useState(false);
+    const dialogElementRef = useRef<DialogRef>(null)
 
-    const [selectedAppearance, setSelectedAppearance] = useState<string>("system");
+    const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
+    const [deleting, setDeleting] = useState(false)
+    const [passwordResetDisabled, setPasswordResetDisabled] = useState(false)
+
+    const [selectedAppearance, setSelectedAppearance] = useState<string>("system")
     const [userSettings, setUserSettings] = useState<UserSettings>({
         saveExportSettingsInLocalstorage: true,
         displaySceneNumbersNextToShotNumbers: false,
@@ -68,7 +69,7 @@ export function useAccountDialog() {
         if(userSettingsString == null || userSettingsString == ""){
             //nothing in localstorage currently, so write the default settings
             writeSettingsToLocalStorage()
-            document.documentElement.style.setProperty("--shotlist-scale", "1");
+            document.documentElement.style.setProperty("--shotlist-scale", "1")
         }
         else {
             const newSettings = JSON.parse(userSettingsString) as UserSettings
@@ -147,7 +148,7 @@ export function useAccountDialog() {
     }
 
     function openAccountDialog() {
-        setIsOpen(true)
+        dialogElementRef.current?.open()
         getCurrentUser()
     }
 
@@ -479,27 +480,16 @@ export function useAccountDialog() {
         )
 
     const AccountDialog = (
-        <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
-            <Dialog.Portal>
-                <Dialog.Overlay className={"accountDialogOverlay dialogOverlay"}/>
-                <Dialog.Content className={"accountContent dialogContent"} aria-describedby={"account dialog"} onOpenAutoFocus={e => e.preventDefault()}>
-                    <VisuallyHidden.Root>
-                        <Dialog.Description>Manage your account details and preferences.</Dialog.Description>
-                    </VisuallyHidden.Root>
+        <Dialog contentClassName={"accountDialogContent"} ref={dialogElementRef}>
+            <h2 className={"title"}>Account</h2>
 
-                    <Dialog.Title className={"title"}>Account</Dialog.Title>
+            {dialogContent}
 
-                    {dialogContent}
-
-                    <button className={"closeButton"} onClick={() => {
-                        setIsOpen(false)
-                    }}>
-                        <X size={18}/>
-                    </button>
-                    {ConfirmDialog}
-                </Dialog.Content>
-            </Dialog.Portal>
-        </Dialog.Root>
+            <button className={"closeButton"} onClick={dialogElementRef.current?.close}>
+                <X size={18}/>
+            </button>
+            {ConfirmDialog}
+        </Dialog>
     )
 
     return {openAccountDialog, AccountDialog};

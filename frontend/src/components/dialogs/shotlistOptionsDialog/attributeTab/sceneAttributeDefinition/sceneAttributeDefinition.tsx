@@ -11,7 +11,7 @@ import {useSortable} from "@dnd-kit/sortable"
 import {CSS} from '@dnd-kit/utilities';
 import {SceneAttributeDefinitionParser} from "@/util/AttributeParser"
 import gql from "graphql-tag"
-import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
+import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialog"
 import {useApolloClient} from "@apollo/client"
 import {SceneDto, SceneSelectAttributeOptionDefinition} from "../../../../../../lib/graphql/generated"
 import { Popover } from "radix-ui"

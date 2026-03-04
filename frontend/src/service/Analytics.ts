@@ -1,5 +1,5 @@
 import TelemetryDeck from '@telemetrydeck/sdk';
-import Config from "@/util/Config"
+import Config from "@/Config"
 
 const getTempUserIdentifier = (): string => {
     if(typeof window === "undefined" || !window.localStorage) {

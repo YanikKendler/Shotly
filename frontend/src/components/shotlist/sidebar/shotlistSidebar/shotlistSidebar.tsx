@@ -20,6 +20,7 @@ import {SceneAttributeRef} from "@/components/shotlist/sidebar/sceneAttribute/sc
 import Skeleton from "react-loading-skeleton"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import SimplePopover from "@/components/popover/simplePopover"
+import Dialog, {DialogRef} from "@/components/dialog/dialog"
 
 export interface ShotlistSidebarRef {
     getScene: (position: number) => SidebarSceneRef | null

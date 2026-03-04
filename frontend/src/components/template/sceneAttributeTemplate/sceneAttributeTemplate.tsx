@@ -11,7 +11,7 @@ import {
 import {useSortable} from "@dnd-kit/sortable"
 import {CSS} from "@dnd-kit/utilities"
 import {SceneAttributeTemplateParser} from "@/util/AttributeParser"
-import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
+import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialog"
 import {useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import {wuGeneral} from "@yanikkendler/web-utils/dist"

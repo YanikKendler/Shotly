@@ -33,7 +33,7 @@ import {
     SelectOption, ShotSingleOrMultiSelectAttribute, ShotSingleOrMultiSelectAttributeDefinition
 } from "@/util/Types"
 import Utils from "@/util/Utils"
-import Config from "@/util/Config"
+import Config from "@/Config"
 import MultiSelect from "@/components/inputs/multiSelect/multiSelect"
 import {
     SceneAttributeDefinitionParser,

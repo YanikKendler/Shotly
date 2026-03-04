@@ -9,7 +9,7 @@ import {
 import auth from "@/Auth"
 import {setContext} from "@apollo/client/link/context"
 import {onError} from "@apollo/client/link/error"
-import Config from "@/util/Config"
+import Config from "@/Config"
 import {ShotlyErrorCode} from "@/util/Types"
 import React from "react"
 import {errorNotification} from "@/service/NotificationService"

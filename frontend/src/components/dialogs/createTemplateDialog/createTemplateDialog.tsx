@@ -1,27 +1,33 @@
 'use client';
 
-import * as Dialog from '@radix-ui/react-dialog';
-import React, { useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import "./createTemplateDialog.scss"
 import {useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
-import auth from "@/Auth"
 import {useRouter} from "next/navigation"
 import TextField from "@/components//inputs/textField/textField"
 import Loader from "@/components/feedback/loader/loader"
 import {errorNotification} from "@/service/NotificationService"
+import Dialog, {DialogRef} from "@/components/dialog/dialog"
 
 export function useCreateTemplateDialog() {
-    const [isOpen, setIsOpen] = useState(false);
+    const dialogElementRef = useRef<DialogRef>(null);
+
     const [promiseResolver, setPromiseResolver] = useState<(value: boolean) => void>();
     const [name, setName] = useState<string>("")
     const [isLoading, setIsLoading] = useState(false)
 
+    const enterPressed = useRef(handleConfirm)
+
     const router = useRouter()
     const client = useApolloClient()
 
+    useEffect(() => {
+        enterPressed.current = handleConfirm
+    }, [name]);
+
     function openCreateTemplateDialog(): Promise<boolean> {
-        setIsOpen(true)
+        dialogElementRef.current?.open()
         setIsLoading(false)
         setName("")
         return new Promise((resolve) => {
@@ -59,58 +65,51 @@ export function useCreateTemplateDialog() {
     }
 
     function handleCancel() {
-        setIsOpen(false)
+        dialogElementRef.current?.close()
         promiseResolver?.(false)
     }
 
     const CreateTemplateDialog = (
-        <Dialog.Root open={isOpen || isLoading} onOpenChange={setIsOpen}>
-            <Dialog.Portal>
-                <Dialog.Overlay className={"createTemplateDialogOverlay dialogOverlay"}/>
-                <Dialog.Content
-                    aria-describedby={"confirm action dialog"}
-                    className={"createTemplateDialogContent dialogContent"}
-                    onKeyDown={(e) => {
-                        if(e.key === "Enter" && !isLoading) {
-                            e.preventDefault()
-                            handleConfirm()
-                        }
-                    }}
-                >
-                    {isLoading ?
-                        <>
-                            <Dialog.Title className={"title"}>Creating template "{name}"</Dialog.Title>
-                            <div className={"loading"}>
-                                <Loader/>
-                                <p>You will be redirected shortly</p>
-                            </div>
-                        </>
-                        :
-                        <>
-                            <Dialog.Title className={"title"}>Create Template</Dialog.Title>
-                            <TextField
-                                label={"Name"}
-                                valueChange={setName}
-                                placeholder={"Personal Projects"}
-                            />
-                            <div className={"buttons"}>
-                                <button onClick={e => {
-                                    e.stopPropagation();
-                                    handleCancel();
-                                }}>cancel
-                                </button>
-                                <button disabled={name.length <= 2} onClick={e => {
-                                    e.stopPropagation();
-                                    handleConfirm();
-                                }} className={"accent confirm"}>create
-                                </button>
-                            </div>
-                        </>
-                    }
-                </Dialog.Content>
-            </Dialog.Portal>
-        </Dialog.Root>
-    );
+        <Dialog
+            aria-describedby={"create template dialog"}
+            contentClassName={"createTemplateDialogContent"}
+            ref={dialogElementRef}
+            keyBinds={{
+                "Enter": () => enterPressed.current()
+            }}
+        >
+            {isLoading ?
+                <>
+                    <h2 className={"title"}>Creating template "{name}"</h2>
+                    <div className={"loading"}>
+                        <Loader/>
+                        <p>You will be redirected shortly</p>
+                    </div>
+                </>
+                :
+                <>
+                    <h2 className={"title"}>Create Template</h2>
+                    <TextField
+                        label={"Name"}
+                        valueChange={setName}
+                        placeholder={"Personal Projects"}
+                    />
+                    <div className={"buttons"}>
+                        <button onClick={e => {
+                            e.stopPropagation();
+                            handleCancel();
+                        }}>cancel
+                        </button>
+                        <button disabled={name.length <= 2} onClick={e => {
+                            e.stopPropagation();
+                            handleConfirm();
+                        }} className={"accent confirm"}>create
+                        </button>
+                    </div>
+                </>
+            }
+        </Dialog>
+    )
 
     return {openCreateTemplateDialog, CreateTemplateDialog};
 }

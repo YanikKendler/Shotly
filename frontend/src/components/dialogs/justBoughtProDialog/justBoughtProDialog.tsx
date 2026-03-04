@@ -3,7 +3,7 @@ import React, {useContext, useEffect, useState} from "react"
 import {Dialog} from "radix-ui"
 import "./justBoughtProDialog.scss"
 import {DashboardContext, DialogStep} from "@/context/DashboardContext"
-import Config from "@/util/Config"
+import Config from "@/Config"
 
 export default function JustBoughtProDialog(){
     const router = useRouter()

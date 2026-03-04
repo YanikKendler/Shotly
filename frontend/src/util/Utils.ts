@@ -4,7 +4,7 @@ import {SelectOption, ShotlistOrTemplate} from "@/util/Types"
 import {ShotlistDto} from "../../lib/graphql/generated"
 import {NetworkStatus} from "@apollo/client"
 import {UserSettings} from "@/components/dialogs/accountDialog/accountDialog"
-import Config from "@/util/Config"
+import Config from "@/Config"
 
 export interface fontSizeBreakpoint {
     length: number

@@ -105,8 +105,6 @@ public class ShotlistWebsocketService {
                 if (!room.contains(conn.id())) continue;
                 if (userId.equals(UUID.fromString(conn.pathParam("userId")))) continue;
 
-                System.out.println("sending to connection with userId " + conn.pathParam("userId"));
-
                 conn.sendTextAndAwait(json);
             }
         } catch (Exception e) {

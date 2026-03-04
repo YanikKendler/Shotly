@@ -5,7 +5,7 @@ import {ApolloWrapper} from "@/components/wrapper/ApolloWrapper"
 import {Inter} from 'next/font/google'
 import {Toast, Tooltip} from "radix-ui"
 import AuthWrapper from "@/components/wrapper/AuthWrapper"
-import Config from "@/util/Config"
+import Config from "@/Config"
 import {Metadata, Viewport} from "next"
 import {SkeletonTheme} from "react-loading-skeleton"
 import {Toaster} from "react-hot-toast"

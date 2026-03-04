@@ -1,7 +1,6 @@
 'use client';
 
-import * as Dialog from '@radix-ui/react-dialog';
-import React, {useEffect, useState} from 'react';
+import React, {RefObject, useEffect, useRef, useState} from 'react';
 import "./shotlistOptionsDialog.scss"
 import {Tabs, VisuallyHidden} from "radix-ui"
 import {FileDown, List, Users, X, Settings2} from "lucide-react"
@@ -18,8 +17,9 @@ import GeneralTab from "@/components/dialogs/shotlistOptionsDialog/generalTab/ge
 import AttributeTab from "@/components/dialogs/shotlistOptionsDialog/attributeTab/attributeTab"
 import CollaboratorsTab from "@/components/dialogs/shotlistOptionsDialog/collaboratorsTab/collaboratorsTab"
 import Separator from "@/components/separator/separator"
-import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
+import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialog"
 import {errorNotification} from "@/service/NotificationService"
+import Dialog, {DialogRef} from "@/components/dialog/dialog"
 
 export enum ShotlistOptionsDialogPage {
     general = "general",
@@ -38,15 +38,13 @@ export enum ShotlistOptionsDialogSubPage {
 export const ShotlistOptionsDialogSubPageValues: string[] = Object.values(ShotlistOptionsDialogSubPage)
 
 export default function ShotlistOptionsDialog({
-    isOpen,
-    setIsOpen,
+    ref,
     selectedPage,
     shotlistId,
     refreshShotlist,
     isReadOnly
 }: {
-    isOpen: boolean,
-    setIsOpen: any,
+    ref: RefObject<DialogRef | null>
     selectedPage: { main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage } | null,
     shotlistId: string | null,
     refreshShotlist: () => void,
@@ -58,7 +56,7 @@ export default function ShotlistOptionsDialog({
     const [collaborations, setCollaborations] = useState<CollaborationDto[] | null>(null)
     const [currentUser, setCurrentUser] = useState<UserDto | null>(null)
     // used for refreshing the shotlist on dialog close, only when any data has been edited
-    const [stringifiedAttributeData, setStringifiedAttributeData] = useState<string>("");
+    const [stringifiedAttributeData, setstringifiedAttributeData] = useState<string>("");
     const [dataChanged, setDataChanged] = useState(false);
     const [selectedMainPage, setSelectedMainPage] = useState<ShotlistOptionsDialogPage>(ShotlistOptionsDialogPage.general);
     const [selectedSubPage, setSelectedSubPage] = useState<ShotlistOptionsDialogSubPage>(ShotlistOptionsDialogSubPage.scene);
@@ -67,10 +65,10 @@ export default function ShotlistOptionsDialog({
     const router = useRouter()
     const {confirm, ConfirmDialog} = useConfirmDialog()
 
-    useEffect(() => {
+    const checkUrlAutoOpen = () => {
         const url = new URL(window.location.href)
         if(url.searchParams.get("oo") == "true") {
-            setIsOpen(true)
+            ref.current?.open()
 
             const mpParam = url.searchParams.get("mp")
             const spParam = url.searchParams.get("sp")
@@ -85,18 +83,8 @@ export default function ShotlistOptionsDialog({
             else {
                 setSelectedMainPage(ShotlistOptionsDialogPage.general)
             }
-
         }
-    }, []);
-
-    useEffect(() => {
-        updateUrl()
-
-        if(!shotlistId) return
-
-        loadData()
-        setDataChanged(false)
-    }, [shotlistId, isOpen]);
+    }
 
     useEffect(() => {
         if(selectedPage) {
@@ -104,14 +92,6 @@ export default function ShotlistOptionsDialog({
             setSelectedSubPage(selectedPage.sub)
         }
     }, [selectedPage]);
-
-    useEffect(() => {
-        if (isOpen) {
-            setStringifiedAttributeData(JSON.stringify(shotAttributeDefinitions) + JSON.stringify(sceneAttributeDefinitions) + JSON.stringify(shotlist));
-        }
-        else{
-        }
-    }, [isOpen]);
 
     const loadData = async () => {
         //fetching the defintions separately because im lazy and the shotlist query doesnt actually return the options hehe
@@ -210,7 +190,7 @@ export default function ShotlistOptionsDialog({
         setCollaborations(result.data.shotlist.collaborations)
         setCurrentUser(result.data.currentUser)
 
-        setStringifiedAttributeData(
+        setstringifiedAttributeData(
             JSON.stringify(result.data.shotAttributeDefinitions) +
             JSON.stringify(result.data.sceneAttributeDefinitions) +
             JSON.stringify(result.data.shotlist)
@@ -254,7 +234,7 @@ export default function ShotlistOptionsDialog({
         router.push("/dashboard")
     }
 
-    const updateUrl = (page?: ShotlistOptionsDialogPage) => {
+    const updateUrl = (isOpen: boolean, page?: ShotlistOptionsDialogPage) => {
         const url = new URL(window.location.href)
         if(isOpen){
             url.searchParams.set("oo", "true") // options open
@@ -280,129 +260,123 @@ export default function ShotlistOptionsDialog({
 
     return (
         <>
-        <Dialog.Root
-            open={isOpen}
+        <Dialog
             onOpenChange={(isOpen: boolean) => {
-                setIsOpen(isOpen)
-                if(!isOpen){
+                updateUrl(isOpen)
+
+                if(isOpen) {
+                    if (shotlistId) {
+                        loadData()
+                        setDataChanged(false)
+                    }
+                }
+                else {
                     runRefreshShotlistCheck()
                 }
             }}
+            onRenderFinish={checkUrlAutoOpen}
+            ref={ref}
+            contentClassName={"shotlistOptionsDialogContent"}
         >
-            <Dialog.Portal>
-                <Dialog.Overlay className={"shotlistOptionsDialogOverlay dialogOverlay"}/>
-                <Dialog.Content aria-describedby={"confirm action dialog"} className={"shotlistOptionsDialogContent dialogContent"}>
-                    <VisuallyHidden.Root>
-                        <Dialog.Title className={"title"}>Shotlist options</Dialog.Title>
-                        <Dialog.Description className={"description"}>Edit attributes and collaborators or export a shotlist.</Dialog.Description>
-                    </VisuallyHidden.Root>
+            <button className={"closeButton"} onClick={ref.current?.close}>
+                <X size={18}/>
+            </button>
+            <Tabs.Root
+                className={"optionsDialogPageTabRoot"}
+                value={selectedMainPage}
+                onValueChange={page => {
+                    setSelectedMainPage(page as ShotlistOptionsDialogPage)
+                    updateUrl(true, page as ShotlistOptionsDialogPage)
+                }}
+            >
+                <Tabs.List className={"tabs"}>
+                    <Tabs.Trigger value={"general"}>
+                        <Settings2 size={18} strokeWidth={2}/>
+                        General
+                    </Tabs.Trigger>
+                    <Tabs.Trigger value={"attributes"}>
+                        <List size={18} strokeWidth={2}/>
+                        Attributes
+                    </Tabs.Trigger>
+                    <Tabs.Trigger value={"collaborators"}>
+                        <Users size={18} strokeWidth={2}/>
+                        Collaborators
+                    </Tabs.Trigger>
+                    <Tabs.Trigger value={"export"}>
+                        <FileDown size={18} strokeWidth={2}/>
+                        Export
+                    </Tabs.Trigger>
+                </Tabs.List>
+                <Separator orientation={"vertical"}/>
+                <Separator orientation={"horizontal"}/>
+                <Tabs.Content value={"general"} className={"content"}>
+                    <GeneralTab
+                        shotlist={shotlist}
+                        setShotlist={setShotlist}
+                        dataChanged={() => setDataChanged(true)}
+                        isReadOnly={isReadOnly}
+                        currentUser={currentUser}
+                    />
+                </Tabs.Content>
+                <Tabs.Content value={"attributes"} className={"content"}>
+                    {
+                        isReadOnly ?
+                        <p className={"empty"}>Sorry, this shotlist is in read-only Mode.</p> :
+                        <AttributeTab
+                            shotlistId={shotlistId}
+                            shotAttributeDefinitions={shotAttributeDefinitions}
+                            setShotAttributeDefinitions={setShotAttributeDefinitions}
+                            sceneAttributeDefinitions={sceneAttributeDefinitions}
+                            setSceneAttributeDefinitions={setSceneAttributeDefinitions}
+                            selectedPage={selectedSubPage}
+                            setSelectedPage={setSelectedSubPage}
+                            dataChanged={() => setDataChanged(true)}
+                        />
+                    }
+                </Tabs.Content>
+                <Tabs.Content value={"collaborators"} className={"content"}>
+                    {
+                        shotlist?.owner?.id != currentUser?.id ?
+                        <>
+                            <div className="collabNotOwner">
+                                <h2>Collaboration</h2>
+                                <div className="row">
+                                    <p>Leave this Shotlist</p>
+                                    <button
+                                        className="bad"
+                                        onClick={leaveCollaboration}
+                                    >
+                                        Leave
+                                    </button>
+                                </div>
+                                <p className={"empty"}>
+                                    As a collaborator, you don’t have permission to edit collaborators.
+                                </p>
+                            </div>
+                        </> :
 
-                    <div className="content">
-                        <button className={"closeButton"} onClick={() => {
-                            setIsOpen(false)
-                            runRefreshShotlistCheck()
-                        }}>
-                            <X size={18}/>
-                        </button>
-                        <Tabs.Root
-                            className={"optionsDialogPageTabRoot"}
-                            value={selectedMainPage}
-                            onValueChange={page => {
-                                setSelectedMainPage(page as ShotlistOptionsDialogPage)
-                                updateUrl(page as ShotlistOptionsDialogPage)
-                            }}
-                        >
-                            <Tabs.List className={"tabs"}>
-                                <Tabs.Trigger value={"general"}>
-                                    <Settings2 size={18} strokeWidth={2}/>
-                                    General
-                                </Tabs.Trigger>
-                                <Tabs.Trigger value={"attributes"}>
-                                    <List size={18} strokeWidth={2}/>
-                                    Attributes
-                                </Tabs.Trigger>
-                                <Tabs.Trigger value={"collaborators"}>
-                                    <Users size={18} strokeWidth={2}/>
-                                    Collaborators
-                                </Tabs.Trigger>
-                                <Tabs.Trigger value={"export"}>
-                                    <FileDown size={18} strokeWidth={2}/>
-                                    Export
-                                </Tabs.Trigger>
-                            </Tabs.List>
-                            <Separator orientation={"vertical"}/>
-                            <Separator orientation={"horizontal"}/>
-                            <Tabs.Content value={"general"} className={"content"}>
-                                <GeneralTab
-                                    shotlist={shotlist}
-                                    setShotlist={setShotlist}
-                                    dataChanged={() => setDataChanged(true)}
-                                    isReadOnly={isReadOnly}
-                                    currentUser={currentUser}
-                                />
-                            </Tabs.Content>
-                            <Tabs.Content value={"attributes"} className={"content"}>
-                                {
-                                    isReadOnly ?
-                                    <p className={"empty"}>Sorry, this shotlist is in read-only Mode.</p> :
-                                    <AttributeTab
-                                        shotlistId={shotlistId}
-                                        shotAttributeDefinitions={shotAttributeDefinitions}
-                                        setShotAttributeDefinitions={setShotAttributeDefinitions}
-                                        sceneAttributeDefinitions={sceneAttributeDefinitions}
-                                        setSceneAttributeDefinitions={setSceneAttributeDefinitions}
-                                        selectedPage={selectedSubPage}
-                                        setSelectedPage={setSelectedSubPage}
-                                        dataChanged={() => setDataChanged(true)}
-                                    />
-                                }
-                            </Tabs.Content>
-                            <Tabs.Content value={"collaborators"} className={"content"}>
-                                {
-                                    shotlist?.owner?.id != currentUser?.id ?
-                                    <>
-                                        <div className="collabNotOwner">
-                                            <h2>Collaboration</h2>
-                                            <div className="row">
-                                                <p>Leave this Shotlist</p>
-                                                <button
-                                                    className="bad"
-                                                    onClick={leaveCollaboration}
-                                                >
-                                                    Leave
-                                                </button>
-                                            </div>
-                                            <p className={"empty"}>
-                                                As a collaborator, you don’t have permission to edit collaborators.
-                                            </p>
-                                        </div>
-                                    </> :
-
-                                    <CollaboratorsTab
-                                        shotlistId={shotlistId}
-                                        collaborations={collaborations}
-                                        setCollaborations={setCollaborations}
-                                    />
-                                }
-                            </Tabs.Content>
-                            {/*keep the tab mounted so that the selected filters don't disappear when switching tabs*/}
-                            <Tabs.Content
-                                value={"export"}
-                                className={"content"}
-                                forceMount={true}
-                                style={{display: selectedMainPage == "export" ? "block" : "none"}}
-                            >
-                                <ExportTab
-                                    shotlist={shotlist}
-                                    shotAttributeDefinitions={shotAttributeDefinitions}
-                                    sceneAttributeDefinitions={sceneAttributeDefinitions}
-                                />
-                            </Tabs.Content>
-                        </Tabs.Root>
-                    </div>
-                </Dialog.Content>
-            </Dialog.Portal>
-        </Dialog.Root>
+                        <CollaboratorsTab
+                            shotlistId={shotlistId}
+                            collaborations={collaborations}
+                            setCollaborations={setCollaborations}
+                        />
+                    }
+                </Tabs.Content>
+                {/*keep the tab mounted so that the selected filters don't disappear when switching tabs*/}
+                <Tabs.Content
+                    value={"export"}
+                    className={"content"}
+                    forceMount={true}
+                    style={{display: selectedMainPage == "export" ? "block" : "none"}}
+                >
+                    <ExportTab
+                        shotlist={shotlist}
+                        shotAttributeDefinitions={shotAttributeDefinitions}
+                        sceneAttributeDefinitions={sceneAttributeDefinitions}
+                    />
+                </Tabs.Content>
+            </Tabs.Root>
+        </Dialog>
         {ConfirmDialog}
         </>
     );

@@ -26,7 +26,7 @@ import auth from "@/Auth"
 import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
 import Utils, {uuidRegex} from "@/util/Utils"
-import Config from "@/util/Config"
+import Config from "@/Config"
 import {GenericError, SelectOption, ShotlyErrorCode} from "@/util/Types"
 import SheetManager, {SheetManagerRef} from "@/components/shotlist/table/sheetManager/sheetManager"
 import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
@@ -44,6 +44,7 @@ import Link from "next/link"
 import DotLoader from "@/components/DotLoader"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import {errorNotification} from "@/service/NotificationService"
+import {DialogRef} from "@/components/dialog/dialog"
 
 export interface SelectedScene {
     id: string | null
@@ -74,11 +75,12 @@ export default function Shotlist() {
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
     const [selectedScene, setSelectedScene] = useState<SelectedScene>({ id: sceneId, position: null })
-    const [optionsDialogOpen, setOptionsDialogOpen] = useState(false)
     const [selectedOptionsDialogPage, setSelectedOptionsDialogPage] = useState<{main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage} | null>(null)
     const [elementIsBeingDragged, setElementIsBeingDragged] = useState(false)
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [readOnlyBannerVisible, setReadOnlyBannerVisible] = useState(true)
+
+    const shotlistOptionsDialogRef = useRef<DialogRef>(null);
 
     const [reloadKey, setReloadKey] = useState(0)
     const [reloadInProgress, setReloadInProgress] = useState(false)
@@ -698,7 +700,7 @@ export default function Shotlist() {
 
     const openShotlistOptionsDialog = (page: { main: ShotlistOptionsDialogPage, sub?: ShotlistOptionsDialogSubPage }) => {
         setSelectedOptionsDialogPage({main: page.main, sub: page.sub || ShotlistOptionsDialogSubPage.shot})
-        setOptionsDialogOpen(true)
+        shotlistOptionsDialogRef.current?.open()
     }
 
     //used in the socket handler
@@ -798,7 +800,7 @@ export default function Shotlist() {
                                 reloadInProgress={reloadInProgress}
 
                                 openShotlistOptionsDialog={() => {
-                                    setOptionsDialogOpen(true)
+                                    shotlistOptionsDialogRef.current?.open()
                                     driverObj.destroy()
                                 }}
 
@@ -868,8 +870,7 @@ export default function Shotlist() {
                 </div>
             </main>
             <ShotlistOptionsDialog
-                isOpen={optionsDialogOpen}
-                setIsOpen={setOptionsDialogOpen}
+                ref={shotlistOptionsDialogRef}
                 selectedPage={selectedOptionsDialogPage}
                 shotlistId={query.data.shotlist?.id || null}
                 refreshShotlist={() => {

@@ -196,7 +196,6 @@ function AttributeValueSelect({
     const handleCreate = (inputValue: string) => {
         setIsLoading(true)
         onCreate(inputValue).then(() => {
-            console.log("creation done")
             setIsLoading(false)
         })
     }

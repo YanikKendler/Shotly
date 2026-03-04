@@ -9,7 +9,7 @@ import {AnySceneAttribute} from "@/util/Types"
 import {ArrowBigDown, ArrowBigUp, GripVertical, List, Trash} from "lucide-react"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
-import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialoge"
+import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialog"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import SceneAttribute, {SceneAttributeRef} from "../sceneAttribute/sceneAttribute"
 import ErrorDisplay from "@/components/feedback/errorDisplay/errorDisplay"
@@ -127,7 +127,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
 
     return (
         <div
-            className={`sidebarScene ${expanded ? 'expanded' : ''} ${editMenuIsOpen && "menuOpen"} ${markAsDeleted && "deleting"}`}
+            className={`sidebarScene ${expanded ? 'expanded' : ''} ${editMenuIsOpen && "menuOpen"} ${markAsDeleted && "deleting"} ${readOnly && "readOnly"}`}
             onClick={() => {
                 if(!shotlistContext.elementIsBeingDragged && !expanded)
                     onSelect(scene.id as string, position)
