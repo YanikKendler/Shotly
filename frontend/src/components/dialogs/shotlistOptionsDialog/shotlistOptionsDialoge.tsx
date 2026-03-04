@@ -56,35 +56,16 @@ export default function ShotlistOptionsDialog({
     const [collaborations, setCollaborations] = useState<CollaborationDto[] | null>(null)
     const [currentUser, setCurrentUser] = useState<UserDto | null>(null)
     // used for refreshing the shotlist on dialog close, only when any data has been edited
-    const [stringifiedAttributeData, setstringifiedAttributeData] = useState<string>("");
+    const [stringifiedAttributeData, setStringifiedAttributeData] = useState<string>("");
     const [dataChanged, setDataChanged] = useState(false);
     const [selectedMainPage, setSelectedMainPage] = useState<ShotlistOptionsDialogPage>(ShotlistOptionsDialogPage.general);
     const [selectedSubPage, setSelectedSubPage] = useState<ShotlistOptionsDialogSubPage>(ShotlistOptionsDialogSubPage.scene);
 
+    const [isLoading, setIsLoading] = useState(true)
+
     const client = useApolloClient()
     const router = useRouter()
     const {confirm, ConfirmDialog} = useConfirmDialog()
-
-    const checkUrlAutoOpen = () => {
-        const url = new URL(window.location.href)
-        if(url.searchParams.get("oo") == "true") {
-            ref.current?.open()
-
-            const mpParam = url.searchParams.get("mp")
-            const spParam = url.searchParams.get("sp")
-
-            if(mpParam && ShotlistOptionsDialogPageValues.includes(mpParam)) {
-                setSelectedMainPage(ShotlistOptionsDialogPage[mpParam as keyof typeof ShotlistOptionsDialogPage])
-
-                if(spParam && ShotlistOptionsDialogSubPageValues.includes(spParam)) {
-                    setSelectedSubPage(ShotlistOptionsDialogSubPage[spParam as keyof typeof ShotlistOptionsDialogSubPage])
-                }
-            }
-            else {
-                setSelectedMainPage(ShotlistOptionsDialogPage.general)
-            }
-        }
-    }
 
     useEffect(() => {
         if(selectedPage) {
@@ -94,6 +75,8 @@ export default function ShotlistOptionsDialog({
     }, [selectedPage]);
 
     const loadData = async () => {
+        setIsLoading(true)
+
         //fetching the defintions separately because im lazy and the shotlist query doesnt actually return the options hehe
         const result = await client.query({query: gql`
                 query data($shotlistId: String!){
@@ -174,6 +157,8 @@ export default function ShotlistOptionsDialog({
             },
         )
 
+        setIsLoading(false)
+
         if(result.errors){
             errorNotification({
                 title: "Failed to load shotlist data",
@@ -190,11 +175,32 @@ export default function ShotlistOptionsDialog({
         setCollaborations(result.data.shotlist.collaborations)
         setCurrentUser(result.data.currentUser)
 
-        setstringifiedAttributeData(
+        setStringifiedAttributeData(
             JSON.stringify(result.data.shotAttributeDefinitions) +
             JSON.stringify(result.data.sceneAttributeDefinitions) +
             JSON.stringify(result.data.shotlist)
         )
+    }
+
+    const checkUrlAutoOpen = () => {
+        const url = new URL(window.location.href)
+        if(url.searchParams.get("oo") == "true") {
+            ref.current?.open()
+
+            const mpParam = url.searchParams.get("mp")
+            const spParam = url.searchParams.get("sp")
+
+            if(mpParam && ShotlistOptionsDialogPageValues.includes(mpParam)) {
+                setSelectedMainPage(ShotlistOptionsDialogPage[mpParam as keyof typeof ShotlistOptionsDialogPage])
+
+                if(spParam && ShotlistOptionsDialogSubPageValues.includes(spParam)) {
+                    setSelectedSubPage(ShotlistOptionsDialogSubPage[spParam as keyof typeof ShotlistOptionsDialogSubPage])
+                }
+            }
+            else {
+                setSelectedMainPage(ShotlistOptionsDialogPage.general)
+            }
+        }
     }
 
     const leaveCollaboration = async () => {
@@ -251,9 +257,11 @@ export default function ShotlistOptionsDialog({
     }
 
     function runRefreshShotlistCheck(){
+        if(isLoading) return
+
         let currentAttributeData = JSON.stringify(shotAttributeDefinitions) + JSON.stringify(sceneAttributeDefinitions) + JSON.stringify(shotlist)
 
-        if(dataChanged || currentAttributeData != stringifiedAttributeData) {
+        if(dataChanged || (stringifiedAttributeData != "" && currentAttributeData != stringifiedAttributeData)) {
             refreshShotlist()
         }
     }
