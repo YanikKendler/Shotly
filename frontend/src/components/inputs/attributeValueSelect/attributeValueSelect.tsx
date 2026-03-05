@@ -151,8 +151,8 @@ function AttributeValueSelect({
     styles = reactSelectBaseStyles
 }, ref) {
     const selectRef = useRef<SelectInstance<any, boolean, any> | null>(null);
-    const menuIsOpen = useRef(false);
     const [isLoading, setIsLoading] = useState(true)
+    const menuIsOpen = useRef(false)
 
     useImperativeHandle(ref, () => ({
         setFocus,
@@ -300,7 +300,7 @@ function AttributeValueSelect({
             onKeyDown={e => {
                 if (menuIsOpen.current) {
                     if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-                        e.stopPropagation(); // Verhindert, dass das Event weitergegeben wird
+                        e.stopPropagation();
                     }
                 } else {
                     if (e.key === "Enter") {

@@ -6,7 +6,7 @@ import Select, {
     MultiValueProps
 } from "react-select"
 import {reactSelectTheme} from "@/util/Utils"
-import React, {useEffect, useState} from "react"
+import React, {useEffect, useRef, useState} from "react"
 import {ChevronDown, X} from "lucide-react"
 import {SelectOption} from "@/util/Types"
 
@@ -53,6 +53,7 @@ export default function MultiSelect(
 ) {
     const [selectedOptions, setSelectedOptions] = useState<MultiValue<SelectOption>>([]);
     const [actualMinWidth, setActualMinWidth] = useState<string>(minWidth);
+    //const menuIsOpen = useRef(false)
 
     useEffect(() => {
         if(window.innerWidth < 600)
@@ -92,6 +93,20 @@ export default function MultiSelect(
                 ClearIndicator: CustomClearIndicator,
                 IndicatorSeparator: () => null,
             }}
+            /*onMenuOpen={() => menuIsOpen.current = true}
+            onMenuClose={() => menuIsOpen.current = false}
+            //doesnt really work in dialogs because apparently the event is first handled by the dialog idk
+            onKeyDown={e => {
+                console.log("keydown", e.key)
+                if(e.key == "Escape") {
+                    console.log(menuIsOpen.current)
+                    if(menuIsOpen.current) {
+                        console.log("trying to capute")
+                        e.stopPropagation()
+                        e.preventDefault()
+                    }
+                }
+            }}*/
             styles={{
                 clearIndicator: (base) => ({
                     ...base,
@@ -117,6 +132,7 @@ export default function MultiSelect(
                     outline: "none",
                     boxShadow: "none",
                     backgroundColor: "transparent",
+                    fontSize: ".9rem"
                 }),
                 menu: (base) => ({
                     ...base,
@@ -134,11 +150,11 @@ export default function MultiSelect(
                     ...base,
                     fontSize: "0.85rem",
                     borderRadius: '0.3rem',
-                    backgroundColor: state.isSelected
-                        ? 'var(--transparent-accent-10)'
-                        : state.isFocused
-                            ? 'var(--transparent-10)'
-                            : 'transparent',
+                    backgroundColor: state.isFocused ?
+                        state.isSelected ? 'var(--accent-55)' : 'var(--accent)' :
+                        state.isSelected ? "var(--transparent-accent-20)" : 'transparent',
+                    color: state.isFocused ? "var(--contrast)" : "var(--text)",
+                    fontWeight: state.isFocused ? "bold" : "normal",
                 }),
                 multiValue: (baseStyles) => ({
                     ...baseStyles,
