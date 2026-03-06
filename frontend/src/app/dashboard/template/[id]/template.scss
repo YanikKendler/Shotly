@@ -56,6 +56,7 @@ main.template{
       display: flex;
       gap: 1rem;
       align-items: center;
+      z-index: 1;
 
       .spacer{
         visibility: hidden;
