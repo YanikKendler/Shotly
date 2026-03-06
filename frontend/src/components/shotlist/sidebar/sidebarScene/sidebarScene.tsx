@@ -126,6 +126,10 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
     if(!scene || !scene.id) return (<ErrorDisplay title={"Scene not found"} scale={0.5} noMargin/>)
 
     return (
+        <SimpleTooltip
+            canOpen={!expanded}
+            content={<p><span className="key">Alt</span> + <span className="key">{position + 1}</span></p>}
+        >
         <div
             className={`sidebarScene ${expanded ? 'expanded' : ''} ${editMenuIsOpen && "menuOpen"} ${markAsDeleted && "deleting"} ${readOnly && "readOnly"}`}
             onClick={() => {
@@ -137,7 +141,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
             <div className="name">
                 <p className="number">{position + 1}</p>
                 <SimpleTooltip
-                    text={"Because a scene is usually identified by it's number, this name is composed of the values of all its attributes. If you want to define a name simply add a text attribute."}
+                    text={"Since a scene is usually identified by its number, its name is made up of the values of all its attributes. If you want to give it a specific name, simply add a text attribute."}
                     canOpen={expanded}
                 >
                     <p className="text">
@@ -256,6 +260,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
 
             {ConfirmDialog}
         </div>
+        </SimpleTooltip>
     )
 })
 

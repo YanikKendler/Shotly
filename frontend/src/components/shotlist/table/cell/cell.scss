@@ -99,6 +99,12 @@
         }
       }
 
+      &:focus-visible {
+        opacity: 1;
+        background-color: red;
+        color: var(--accent);
+      }
+
       &::before{
         content: '';
         border-radius: .3rem;

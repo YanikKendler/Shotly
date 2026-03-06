@@ -225,9 +225,7 @@ body {
   color: inherit;
 
   &:where(:focus-visible) {
-    &:focus-visible {
-      outline: .15rem solid var(--accent);
-    }
+    outline: .15rem solid var(--accent);
   }
 }
 
@@ -392,6 +390,16 @@ span.truncate{
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+span.key{
+  background-color: var(--contrast);
+  border: 1px solid var(--text-50);
+  padding: .3rem;
+  display: inline-block;
+  border-radius: .3rem;
+  font-family: monospace;
+  font-size: .8rem;
 }
 
 .flex{
@@ -670,6 +678,10 @@ span.truncate{
 
   &[data-resize-handle-state="hover"], &[data-resize-handle-state="drag"]{
     outline-color: var(--drag-handle-hover);
+  }
+
+  &:focus-visible {
+    outline-color: var(--accent);
   }
 }
 

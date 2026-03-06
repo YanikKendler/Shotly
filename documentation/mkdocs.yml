@@ -21,6 +21,7 @@ extra:
   homepage: https://shotly.at
 nav:
 - Overview: index.md
+- Dashboard: dashboard.md
 - Account and Settings: account.md
 - Templates: templates.md
 - Shotlist:

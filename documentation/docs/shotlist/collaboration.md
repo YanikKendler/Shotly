@@ -15,7 +15,7 @@ Only valid email addresses can be added as collaborators. You will see an error 
 
 ## Accepting Collaborations
 
-If your account has been invited to collaborate on a shotlist, you will not immediately see that shotlist on your dashboard. You first have to accept the collaboration invite by clicking the `Collab-Requests` button on the bottom left of your dashboard (this button is not visible when viewing a shotlist). You may need to `refresh` the request before you can see new invites.
+If your account has been invited to collaborate on a shotlist, you will not immediately see that shotlist on your [dashboard](../dashboard.md). You first have to accept the collaboration invite by clicking the `Collaborations` button on the bottom left of your [dashboard](../dashboard.md) (this button is not visible when viewing a shotlist). You may need to `refresh` the request before you can see new invites.
 
 You can now accept or decline the request by clicking the checkmark or X icon. Upon accepting, the shotlist will show up both in your sidebar and on your dashboard. If you decline the request, it will disappear, and the shotlist's owner can resend the request.
 

@@ -30,6 +30,7 @@ import {errorNotification} from "@/service/NotificationService"
 import Radio, {RadioResult} from "@/components/inputs/radio/radio"
 import JustBoughtProDialog from "@/components/dialogs/justBoughtProDialog/justBoughtProDialog"
 import TextField from "@/components/inputs/textField/textField"
+import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys" //package has incorrectly configured type exports
 
 export default function DashboardLayout({children}: { children: React.ReactNode }) {
     const client = useApolloClient()
@@ -41,6 +42,8 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const { openAccountDialog, AccountDialog } = useAccountDialog()
 
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
+
+    const [collaborationRequestOpen, setCollaborationRequestOpen] = useState(false)
 
     const [dialogStep, setDialogStep] = useState(DialogStep.LOADING)
 
@@ -57,6 +60,38 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const [howDidYouHearText, setHowDidYouHearText] = useState("")
 
     //const [analyticsDialogOpen, setAnalyticsDialogOpen] = useState(false)
+
+    useEffect(() => {
+        let unsubscribe = tinykeys(window, {
+            "Alt+N": event => {
+                event.preventDefault()
+                openCreateShotlistDialog()
+            },
+            "Alt+S": event => {
+                event.preventDefault()
+                openCreateShotlistDialog()
+            },
+            "Alt+T": event => {
+                event.preventDefault()
+                openCreateTemplateDialog()
+            },
+            "Alt+H": event => {
+                event.preventDefault()
+                router.push("/dashboard")
+            },
+            "Alt+A": event => {
+                event.preventDefault()
+                openAccountDialog()
+            },
+            "Alt+C": event => {
+                event.preventDefault()
+                setCollaborationRequestOpen(isOpen => !isOpen)
+            }
+        })
+        return () => {
+            unsubscribe()
+        }
+    }, [])
 
     useEffect(() => {
         if(!query.data.currentUser) return
@@ -349,6 +384,9 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     if(!auth.getUser())
         return <LoadingPage title={Config.loadingMessage.authGetUser}/>
 
+    //yeah i know this is ugly
+    const isTemplatePage = pathname.includes("template")
+
     return (
         <DashboardContext.Provider value={{
             query: query,
@@ -365,12 +403,15 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                     defaultSize={20}
                     maxSize={30}
                     minSize={12}
-                    className={`sidebar ${pathname?.includes("template") ? "collapse" : ""} ${sidebarOpen ? "open" : "closed"}`}
+                    className={`sidebar ${isTemplatePage ? "collapse" : ""} ${sidebarOpen ? "open" : "closed"}`}
                 >
                     <div className="content">
                         <div className="top">
                             <SimpleTooltip
-                                content={<p><span className="bold">Click</span> to go back to the Dashboard</p>}
+                                content={<div>
+                                    <p><span className="bold">Click</span> to go back to the Dashboard</p>
+                                    <p><span className="key">Alt</span> + <span className="key">H</span></p>
+                                </div>}
                             >
                                 <Link href={`/dashboard`} onClick={e => {
                                     wuGeneral.onNthClick(() => {
@@ -431,7 +472,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                             <Skeleton height={"1.5rem"}/>
                                         </> :
                                         !query.data.shotlists?.shared || query.data.shotlists.shared.length <= 0 ? (
-                                            <p className={"empty"}>No shared shotlist yet</p>
+                                            <p className={"empty"}>No shared shotlists yet</p>
                                         ) :
                                         (query.data.shotlists.shared as ShotlistDto[]).sort(Utils.orderShotlistsOrTemplatesByName).map((shotlist) => (
                                             <SimpleTooltip text={shotlist.name || "Unnamed"} key={shotlist.id}>
@@ -496,15 +537,19 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                     New Template <Blocks size={18}/>
                                 </button>
                                 {/*always visible*/}
-                                <Popover.Root>
-                                    <Popover.Trigger className={"collaborationRequestsTrigger"}>
-                                        Collaborations
-                                        <Inbox size={18}/>
-                                        {
-                                            pendingCollaborations.data.pendingCollaborations && pendingCollaborations.data.pendingCollaborations.length > 0 &&
-                                            <span className={"badge"}>{pendingCollaborations.data.pendingCollaborations.length}</span>
-                                        }
-                                    </Popover.Trigger>
+                                <Popover.Root open={collaborationRequestOpen} onOpenChange={setCollaborationRequestOpen}>
+                                    <SimpleTooltip
+                                        content={<p><span className="key">Alt</span> + <span className="key">C</span></p>}
+                                    >
+                                        <Popover.Trigger className={"collaborationRequestsTrigger"}>
+                                            Collaborations
+                                            <Inbox size={18}/>
+                                            {
+                                                pendingCollaborations.data.pendingCollaborations && pendingCollaborations.data.pendingCollaborations.length > 0 &&
+                                                <span className={"badge"}>{pendingCollaborations.data.pendingCollaborations.length}</span>
+                                            }
+                                        </Popover.Trigger>
+                                    </SimpleTooltip>
                                     <Popover.Portal>
                                         <Popover.Content
                                             className={"popoverContent CollaborationRequests"}
@@ -558,7 +603,9 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                         </Popover.Content>
                                     </Popover.Portal>
                                 </Popover.Root>
-                                <button onClick={openAccountDialog}>Account <User size={18}/></button>
+                                <SimpleTooltip content={<p><span className="key">Alt</span> + <span className="key">A</span></p>}>
+                                    <button onClick={openAccountDialog}>Account <User size={18}/></button>
+                                </SimpleTooltip>
                             </div>
                         </div>
                     </div>
@@ -568,7 +615,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                     <button className="closearea" onClick={() => setSidebarOpen(false)}/>
                 </Panel>
                 <PanelResizeHandle className="PanelResizeHandle sidebarResize"/>
-                <Panel className={`headerContainer ${pathname?.includes("template") ? "template" : ""}`}>
+                <Panel className={`headerContainer ${isTemplatePage && "template"}`}>
                     <div className="header">
                         {
                             query.loading ?
@@ -578,8 +625,16 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                             </>
                             :
                             <>
-                                <button className="template" onClick={openCreateTemplateDialog}>New Template</button>
-                                <button className="shotlist" onClick={openCreateShotlistDialog}>New Shotlist</button>
+                                <SimpleTooltip
+                                    content={<p><span className="key">Alt</span> + <span className="key">T</span></p>}
+                                >
+                                    <button className="template" onClick={openCreateTemplateDialog}>New Template</button>
+                                </SimpleTooltip>
+                                <SimpleTooltip
+                                    content={<p><span className="key">Alt</span> + <span className="key">N</span> or <span className="key">Alt</span> + <span className="key">S</span></p>}
+                                >
+                                    <button className="shotlist" onClick={openCreateShotlistDialog}>New Shotlist</button>
+                                </SimpleTooltip>
                             </>
                         }
                     </div>
@@ -588,12 +643,10 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             </PanelGroup>
 
             <div className="floater">
+                <HelpLink link={`https://docs.shotly.at/${isTemplatePage ? "templates" : "dashboard"}`}/>
                 {
-                    /*Yeah i know this is ugly*/
-                    pathname?.includes("template") && <>
-                        <HelpLink link="https://docs.shotly.at/templates"/>
-                        <button className="openSidebar" onClick={() => setSidebarOpen(true)}><Menu/></button>
-                    </>
+                    isTemplatePage &&
+                    <button className="openSidebar" onClick={() => setSidebarOpen(true)}><Menu/></button>
                 }
             </div>
 

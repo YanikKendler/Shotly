@@ -45,6 +45,7 @@ import DotLoader from "@/components/DotLoader"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import {errorNotification} from "@/service/NotificationService"
 import {DialogRef} from "@/components/dialog/dialog"
+import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys" //package has incorrectly configured type exports
 
 export interface SelectedScene {
     id: string | null
@@ -145,6 +146,51 @@ export default function Shotlist() {
             window.removeEventListener("online", handleOnline);
             document.removeEventListener("visibilitychange", handleVisibilityChange);
         };
+    }, [])
+
+    useEffect(() => {
+        let unsubscribe = tinykeys(window, {
+            "ArrowLeft": (e) => sheetManagerRef.current?.moveFocusedCell(e, 0, -1),
+            "ArrowRight": (e) => sheetManagerRef.current?.moveFocusedCell(e, 0, 1),
+            "ArrowUp": (e) => sheetManagerRef.current?.moveFocusedCell(e, -1, 0),
+            "ArrowDown": (e) => sheetManagerRef.current?.moveFocusedCell(e, 1, 0),
+            "Control+Enter": event => {
+                event.preventDefault()
+                sheetManagerRef.current?.handleCreateShotKeybind.current()
+            },
+            "Alt+N": event => {
+                event.preventDefault()
+                sheetManagerRef.current?.handleCreateShotKeybind.current()
+            },
+            "Alt+([1-9])": event => {
+                event.preventDefault()
+
+                const scenePositionToSelect = Number(event.key) - 1
+
+                const sceneIdToSelect = sidebarRef.current?.getScene(scenePositionToSelect)?.id || null
+
+                setSelectedScene({id: sceneIdToSelect, position: scenePositionToSelect})
+            },
+            "Alt+O": event => {
+                event.preventDefault()
+                shotlistOptionsDialogRef.current?.open()
+            },
+            "Alt+A": event => {
+                event.preventDefault()
+                sidebarRef.current?.openAccountDialog()
+            },
+            "Alt+H": event => {
+                event.preventDefault()
+                router.push("/dashboard")
+            },
+            "Alt+S": event => {
+                event.preventDefault()
+                sidebarRef.current?.createScene()
+            }
+        })
+        return () => {
+            unsubscribe()
+        }
     }, [])
 
     useEffect(() => {
@@ -833,6 +879,7 @@ export default function Shotlist() {
                                     main: ShotlistOptionsDialogPage.attributes,
                                     sub: ShotlistOptionsDialogSubPage.shot
                                 })}
+                                /*tabIndex={-1}*/
                             ><Settings2 size={16}/></button>
                         </div>
                         <SheetManager

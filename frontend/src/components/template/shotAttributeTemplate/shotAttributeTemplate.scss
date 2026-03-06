@@ -26,6 +26,10 @@ div.shotAttributeTemplate{
     }
   }
 
+  svg {
+    flex-shrink: 0;
+  }
+
   .nameInput{
     padding-block: .5rem;
     outline: 1px solid transparent;

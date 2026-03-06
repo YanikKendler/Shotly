@@ -119,7 +119,7 @@ export default function Overview() {
         <main className="overview dashboardContent">
             <h2>Shotlists</h2>
             <div className="grid">
-                {shotlists.map((shotlist: ShotlistDto) => (
+                {shotlists.slice(0, 8).map((shotlist: ShotlistDto) => (
                     <Link href={`/shotlist/${shotlist.id}`} key={shotlist.id} className="gridItem shotlist">
                         <SimpleTooltip text={shotlist.name || "Unnamed"}>
                             <div className="top">
@@ -145,7 +145,7 @@ export default function Overview() {
             </div>
             <h2>Templates</h2>
             <div className="grid">
-                {templates.sort(Utils.orderShotlistsOrTemplatesByName).map((template: TemplateDto) => (
+                {templates.slice(0, 8).sort(Utils.orderShotlistsOrTemplatesByName).map((template: TemplateDto) => (
                     <Link href={`dashboard/template/${template.id}`} key={template.id} className="gridItem template">
                         <SimpleTooltip text={template.name || "Unnamed"}>
                             <div className="top">

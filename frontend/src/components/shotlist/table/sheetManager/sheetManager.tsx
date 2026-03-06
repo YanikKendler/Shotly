@@ -16,7 +16,6 @@ import "./sheetManager.scss"
 import {Query, ShotAttributeDefinitionBase, ShotDto} from "../../../../../lib/graphql/generated"
 import {AnyShotAttribute, AnyShotAttributeDefinition, ShotlyErrorCode} from "@/util/Types"
 import Utils from "@/util/Utils"
-import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys" /*package has incorrectly configured type exports*/
 import {wuText} from "@yanikkendler/web-utils"
 import {ShotAttributeDefinitionParser} from "@/util/AttributeParser"
 import Skeleton from "react-loading-skeleton"
@@ -35,6 +34,8 @@ export interface SheetManagerRef {
     onMoveShot: (shotId: string, to: number) => void
     onCreateShot: (newShot: ShotDto) => void
     onDeleteShot: (shotId: string) => void
+    moveFocusedCell: (e:KeyboardEvent, row:number, column: number) => void
+    handleCreateShotKeybind: RefObject<() => void>
 }
 
 export interface SheetManagerProps {
@@ -78,26 +79,10 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         findCellRef: findCellRef,
         onMoveShot: onMoveShot,
         onCreateShot: onCreateShot,
-        onDeleteShot: onDeleteShot
+        onDeleteShot: onDeleteShot,
+        moveFocusedCell: moveFocusedCell,
+        handleCreateShotKeybind: handleCreateShotKeybind
     }))
-
-    useEffect(() => {
-        let unsubscribe = tinykeys(window, {
-            "ArrowLeft": (e) => moveFocusedCell(e, 0, -1),
-            "ArrowRight": (e) => moveFocusedCell(e, 0, 1),
-            "ArrowUp": (e) => moveFocusedCell(e, -1, 0),
-            "ArrowDown": (e) => moveFocusedCell(e, 1, 0),
-            "Control+Enter": () => {
-                handleCreateShotKeybind.current()
-            },
-            "Alt+N": () => {
-                handleCreateShotKeybind.current()
-            }
-        })
-        return () => {
-            unsubscribe()
-        }
-    }, [])
 
     useEffect(() => {
         handleCreateShotKeybind.current = () => {

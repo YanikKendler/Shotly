@@ -118,6 +118,11 @@
           background-color: var(--transparent-gray-10);
         }
 
+        &:focus-visible {
+          opacity: 1;
+          background-color: var(--contrast);
+        }
+
         @media (pointer: coarse){
           opacity: 1;
         }

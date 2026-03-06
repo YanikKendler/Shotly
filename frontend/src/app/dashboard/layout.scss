@@ -169,6 +169,11 @@ main.home{
       border-top-left-radius: 1rem;
       padding: 1.5rem;
       padding-bottom: 5rem;
+
+      @media screen and (max-width: 600px) {
+        padding: .8rem;
+        padding-bottom: 3rem;
+      }
     }
   }
 

@@ -1,5 +1,5 @@
 import Iconmark from "@/components/iconmark"
-import {FileSliders, House, Plus, User } from "lucide-react"
+import {FileSliders, House, Plus, Settings2, User} from "lucide-react"
 import Link from "next/link"
 import {Popover, Tooltip } from "radix-ui"
 import {Query, SceneDto, ShotlistDto} from "../../../../../lib/graphql/generated"
@@ -20,15 +20,16 @@ import {SceneAttributeRef} from "@/components/shotlist/sidebar/sceneAttribute/sc
 import Skeleton from "react-loading-skeleton"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import SimplePopover from "@/components/popover/simplePopover"
-import Dialog, {DialogRef} from "@/components/dialog/dialog"
 
 export interface ShotlistSidebarRef {
     getScene: (position: number) => SidebarSceneRef | null
     findScene: (sceneId: string) => SidebarSceneRef | null
     findAttribute: (attributeId: number) => SceneAttributeRef | null
-    onCreateScene: (scene: SceneDto) => void,
+    onCreateScene: (scene: SceneDto) => void
     onDeleteScene: (sceneId: string) => void
     onMoveScene: (sceneId: string, to: number) => void
+    createScene: () => void
+    openAccountDialog: () => void
 }
 
 export interface ShotlistSidebarProps {
@@ -85,6 +86,8 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
         onCreateScene: onCreateScene,
         onDeleteScene: onDeleteScene,
         onMoveScene: onMoveScene,
+        createScene: createScene,
+        openAccountDialog: openAccountDialog
     }))
 
     useEffect(() => {
@@ -335,7 +338,10 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
             <div className="content">
                 <div className="top">
                     <SimpleTooltip
-                        content={<p><span className="bold">Click</span> to go back to the Dashboard</p>}
+                        content={<div>
+                            <p><span className="bold">Click</span> to go back to the Dashboard</p>
+                            <p><span className="key">Alt</span> + <span className="key">H</span></p>
+                        </div>}
                     >
                         <Link href={`../dashboard`}>
                             <House strokeWidth={2.5} size={20}/>
@@ -383,13 +389,17 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                     </div>
                     {
                         !isReadOnly &&
-                        <button
-                        className={"create"}
-                            disabled={isReadOnly}
-                            onClick={createScene}
+                        <SimpleTooltip
+                            content={<p><span className="key">Alt</span> + <span className="key">S</span></p>}
                         >
-                            Add scene <Plus/>
-                        </button>
+                            <button
+                            className={"create"}
+                                disabled={isReadOnly}
+                                onClick={createScene}
+                            >
+                                Add scene <Plus/>
+                            </button>
+                        </SimpleTooltip>
                     }
                     <div className="bottom">
                         {
@@ -414,13 +424,17 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                                 </SimplePopover>
                             )
                         }
-                        <button
-                            onClick={openShotlistOptionsDialog}
-                            id={"shotlistOptions"}
-                        >
-                            Shotlist Options <FileSliders size={18}/>
-                        </button>
-                        <button onClick={openAccountDialog}>Account <User size={18}/></button>
+                        <SimpleTooltip content={<p><span className="key">Alt</span> + <span className="key">O</span></p>}>
+                            <button
+                                onClick={openShotlistOptionsDialog}
+                                id={"shotlistOptions"}
+                            >
+                                Shotlist Options <Settings2 size={18}/>
+                            </button>
+                        </SimpleTooltip>
+                        <SimpleTooltip content={<p><span className="key">Alt</span> + <span className="key">A</span></p>}>
+                            <button onClick={openAccountDialog}>Account <User size={18}/></button>
+                        </SimpleTooltip>
                     </div>
                 </div>
             </div>
