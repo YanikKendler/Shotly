@@ -77,6 +77,8 @@ export default function ShotlistOptionsDialog({
     const loadData = async () => {
         setIsLoading(true)
 
+        console.log("starting to load data")
+
         //fetching the defintions separately because im lazy and the shotlist query doesnt actually return the options hehe
         const result = await client.query({query: gql`
                 query data($shotlistId: String!){
@@ -273,7 +275,9 @@ export default function ShotlistOptionsDialog({
                 updateUrl(isOpen)
 
                 if(isOpen) {
+                    console.log("is open")
                     if (shotlistId) {
+                        console.log("shotlist id loaded")
                         loadData()
                         setDataChanged(false)
                     }

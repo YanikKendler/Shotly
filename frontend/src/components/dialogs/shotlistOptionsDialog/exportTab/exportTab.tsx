@@ -43,7 +43,7 @@ import {
 } from "@/util/AttributeParser"
 //@ts-ignore
 import {downloadCSV} from "@/downloadCSV"
-import {Checkbox, Collapsible, Dialog, Popover, Switch} from "radix-ui"
+import {Popover, Switch} from "radix-ui"
 import {MultiValue} from "react-select"
 import HelpLink from "@/components/helpLink/helpLink"
 import Skeleton from "react-loading-skeleton"
@@ -51,11 +51,12 @@ import ExportFilter from "@/components/dialogs/shotlistOptionsDialog/exportTab/e
 import Separator from "@/components/separator/separator"
 import DotLoader from "@/components/DotLoader"
 import {errorNotification} from "@/service/NotificationService"
-import LabeledCheckbox from "@/components/inputs/labeledCheckbox/labeledCheckbox"
 import {td} from "@/service/Analytics"
 import TextField from "@/components/inputs/textField/textField"
 import Collapse from "@/components/collapse/collapse"
 import * as XLSX from 'xlsx-js-style';
+import ExportPreview from "@/components/dialogs/shotlistOptionsDialog/exportTab/exportPreview/exportPreview"
+import Dialog, {DialogRef} from "@/components/dialog/dialog"
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full" | "XLSX"
 
 interface ExportSettingsLocalStorage {
@@ -98,20 +99,24 @@ export default function ExportTab(
 
     const [exportRunning, setExportRunning] = useState(false)
 
+    const previewDialogRef = useRef<DialogRef>(null);
+
     //load settings from local storage
     useEffect(() => {
+        console.log("shotlist changed", shotlist)
+
         if(!shotlist || !shotlist.id) return
-
-        if(!Utils.getUserSettingsFromLocalStorage().saveExportSettingsInLocalstorage) return
-
-        loadSettingsFromLocalStorage(shotlist.id)
-        extractSceneOptions()
 
         loadDataForExport().then(data => {
             if(!data) return
 
             setShotlistPreviewCache(data)
         })
+
+        if(!Utils.getUserSettingsFromLocalStorage().saveExportSettingsInLocalstorage) return
+
+        loadSettingsFromLocalStorage(shotlist.id)
+        extractSceneOptions()
     }, [shotlist])
 
     //save settings to local storage
@@ -878,43 +883,29 @@ export default function ExportTab(
                         <>{"Download shotlist"}<Download size={16} strokeWidth={3}/></>
                     }
                 </button>
-                <Dialog.Root>
-                    <Dialog.Trigger asChild>
-                        <button className="preview">
-                            Preview
+                <button className="preview" onClick={previewDialogRef.current?.open}>
+                    Preview
+                </button>
+                <Dialog contentClassName={"pdfPreviewDialogContent"} ref={previewDialogRef}>
+                    <div className="top sticky">
+                        <h1>Export preview</h1>
+                        <button
+                            className={"export"}
+                            onClick={() => {
+                                previewDialogRef.current?.close()
+                                exportShotlist()
+                            }}
+                        >
+                            <span>Download shotlist</span><Download size={16} strokeWidth={3}/>
                         </button>
-                    </Dialog.Trigger>
-                    <Dialog.Portal>
-                        <Dialog.Overlay className={"dialogOverlay"}/>
-                        <Dialog.Content className="dialogContent pdfPreviewDialogContent">
-                            <Dialog.Title>PDF preview <span>(the final export will be: {selectedFileType})</span></Dialog.Title>
-                            <div className="loaderContainer">
-                                <PDFViewer showToolbar={false}>
-                                    <PDFExport
-                                        data={filterData(shotlistPreviewCache)}
-                                        options={selectedFileType == "PDF" ? pdfExportOptions : {} as PDFExportOptions}
-                                    />
-                                </PDFViewer>
-                                <Skeleton className={"skeleton"}/>
-                            </div>
-                            <Dialog.Close asChild>
-                                <button
-                                    className={"export"}
-                                    onClick={exportShotlist}
-                                >
-                                    Download shotlist<Download size={16} strokeWidth={3}/>
-                                </button>
-                            </Dialog.Close>
-                            <p className="small">If a collaborator has edited the shotlist, the preview might not be fully up to date, but the final export will be.</p>
+                        <button className={"close"} onClick={previewDialogRef.current?.close}>
+                            <X size={18}/>
+                        </button>
+                    </div>
+                    <ExportPreview data={filterData(shotlistPreviewCache)}/>
+                    <p className="small">If a collaborator has edited the shotlist, the preview might not be fully up to date, but the final export will be.</p>
+                </Dialog>
 
-                            <Dialog.Close asChild>
-                                <button className={"closeButton"}>
-                                    <X size={18}/>
-                                </button>
-                            </Dialog.Close>
-                        </Dialog.Content>
-                    </Dialog.Portal>
-                </Dialog.Root>
                 <HelpLink link="https://docs.shotly.at/shotlist/export"/>
             </div>
         </div>

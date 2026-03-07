@@ -919,7 +919,7 @@ export default function Shotlist() {
             <ShotlistOptionsDialog
                 ref={shotlistOptionsDialogRef}
                 selectedPage={selectedOptionsDialogPage}
-                shotlistId={query.data.shotlist?.id || null}
+                shotlistId={id || null}
                 refreshShotlist={() => {
                     refreshShotlistFunction.current()
 

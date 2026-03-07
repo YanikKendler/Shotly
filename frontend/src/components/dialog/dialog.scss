@@ -13,6 +13,13 @@ div.dialog {
     height: 100%;
     z-index: -1;
   }
+
+  :where(.sticky) {
+    position: sticky;
+    top: 0;
+    border-radius: .5rem;
+    background-color: var(--contrast);
+  }
 }
 
 :where(div.dialog > .content) {
@@ -26,4 +33,5 @@ div.dialog {
   overflow-y: auto;
   grid-area: 1 / 1 / 2 / 2;
   position: relative;
+  scrollbar-width: thin;
 }

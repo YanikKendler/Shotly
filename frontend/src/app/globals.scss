@@ -65,6 +65,7 @@
 
   --transparent-accent-10: hsla(20, 100%, 50%, 10%);
   --transparent-accent-20: hsla(20, 100%, 50%, 20%);
+  --transparent-accent-30: hsla(20, 100%, 50%, 30%);
 
   --sidebar-bg: hsl(20, 20%, 95%);
   --home-button-bg: hsl(14, 21%, 92%);
@@ -169,6 +170,7 @@
 
   --transparent-accent-10: hsla(20, 100%, 50%, 10%);
   --transparent-accent-20: hsla(20, 100%, 50%, 20%);
+  --transparent-accent-30: hsla(20, 100%, 50%, 30%);
 
   --sidebar-bg: hsl(20, 20%, 5%);
   --home-button-bg: hsl(14, 21%, 8%);
@@ -872,6 +874,7 @@ body button.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot {
     position: absolute;
     inset: -.5rem;
     border-radius: 9999px;
+    margin: .5rem;
   }
 
   .SwitchThumb {
