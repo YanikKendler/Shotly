@@ -129,6 +129,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
         <SimpleTooltip
             canOpen={!expanded}
             content={<p><span className="key">Alt</span> + <span className="key">{position + 1}</span></p>}
+            delay={700}
         >
         <div
             className={`sidebarScene ${expanded ? 'expanded' : ''} ${editMenuIsOpen && "menuOpen"} ${markAsDeleted && "deleting"} ${readOnly && "readOnly"}`}

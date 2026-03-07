@@ -38,6 +38,24 @@ const Dialog = forwardRef<DialogRef, DialogProps>(({
         onRenderFinish()
     }, [dialogElement.current])
 
+
+    useImperativeHandle(ref, () => ({
+        open: open,
+        close: close,
+        toggle: () => {
+            if(dialogElement.current?.dataset.state == "open")
+                close()
+            else
+                open()
+        },
+        setOpen: (isOpen) => {
+            if(open)
+                open()
+            else
+                close()
+        }
+    }))
+
     const setDisplay = (open: boolean) => {
         if(!dialogElement.current) return
 
@@ -73,22 +91,18 @@ const Dialog = forwardRef<DialogRef, DialogProps>(({
         removeKeyBinds.current()
     }
 
-    useImperativeHandle(ref, () => ({
-        open: open,
-        close: close,
-        toggle: () => {
-            if(dialogElement.current?.dataset.state == "open")
-                close()
-            else
-                open()
-        },
-        setOpen: (isOpen) => {
-            if(open)
-                open()
-            else
-                close()
-        }
-    }))
+    const handleScroll = () => {
+        const contentElement = dialogElement.current?.querySelector(".content") as HTMLDivElement
+
+        if(!contentElement) return
+
+        console.log(contentElement.scrollTop)
+
+        if(contentElement.scrollTop > 5)
+            contentElement.classList.add("scrolled")
+        else
+            contentElement.classList.remove("scrolled")
+    }
 
     return <Portal.Root>
         <div
@@ -96,7 +110,7 @@ const Dialog = forwardRef<DialogRef, DialogProps>(({
             ref={dialogElement}
             tabIndex={-1}
         >
-            <div className={`content ${contentClassName}`}>
+            <div className={`content ${contentClassName}`} onScroll={handleScroll}>
                 {children}
             </div>
             <div className="overlay" onClick={close}/>

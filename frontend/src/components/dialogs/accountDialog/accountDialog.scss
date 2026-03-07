@@ -5,12 +5,28 @@
   max-width: 600px;
   scrollbar-width: thin;
 
-  .title{
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: .8rem;
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h2{
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    button.close{
+      padding: .4rem;
+      background-color: var(--dialog-close-button-bg);
+      border-radius: 1rem;
+
+      &:hover{
+        background-color: var(--dialog-close-button-hover-bg);
+      }
+    }
   }
+
 
   .row{
     display: flex;
@@ -22,7 +38,7 @@
 
     p{
       color: var(--text-20);
-      font-size: .95rem;
+      font-size: .9rem;
 
       &.value{
         color: var(--text-30);
@@ -42,7 +58,7 @@
         font-weight: 500;
         width: fit-content;
         padding: .4rem 1rem;
-        font-size: .95rem;
+        font-size: .9rem;
 
         &.accent {
           color: var(--text-100);
@@ -72,7 +88,7 @@
       flex-wrap: wrap;
 
       a{
-        font-size: .9rem;
+        font-size: .85rem;
         color: var(--text-60);
 
         &:hover{
@@ -84,19 +100,6 @@
 
     &.bottom{
       padding-inline: .5rem;
-    }
-  }
-
-  .closeButton{
-    position: absolute;
-    top: .5rem;
-    right: .5rem;
-    padding: .4rem;
-    background-color: var(--dialog-close-button-bg);
-    border-radius: 1rem;
-
-    &:hover{
-      background-color: var(--dialog-close-button-hover-bg);
     }
   }
 

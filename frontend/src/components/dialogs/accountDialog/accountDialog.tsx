@@ -481,13 +481,15 @@ export function useAccountDialog() {
 
     const AccountDialog = (
         <Dialog contentClassName={"accountDialogContent"} ref={dialogElementRef}>
-            <h2 className={"title"}>Account</h2>
+            <div className="top sticky">
+                <h2 className={"title"}>Account</h2>
+                <button className={"close"} onClick={dialogElementRef.current?.close}>
+                    <X size={18}/>
+                </button>
+            </div>
 
             {dialogContent}
 
-            <button className={"closeButton"} onClick={dialogElementRef.current?.close}>
-                <X size={18}/>
-            </button>
             {ConfirmDialog}
         </Dialog>
     )
