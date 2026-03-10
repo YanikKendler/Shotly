@@ -184,12 +184,12 @@ export default function Pro(){
                     </p>
                 </>
             )
-
-        return (
-            <SimplePage className={"pro"}>
-                <title>Shotly | Pro</title>
-                {content}
-            </SimplePage>
-        )
     }
+
+    return (
+        <SimplePage className={"pro"}>
+            <title>Shotly | Pro</title>
+            {content}
+        </SimplePage>
+    )
 }
