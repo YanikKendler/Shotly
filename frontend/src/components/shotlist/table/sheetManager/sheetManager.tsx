@@ -31,6 +31,7 @@ import {
 export interface SheetManagerRef {
     getCellRef: (row: number, column: number) => CellRef | null
     findCellRef: (id: number) => CellRef | null
+    getRowRef: (row: number) => RowRef | null
     onMoveShot: (shotId: string, to: number) => void
     onCreateShot: (newShot: ShotDto) => void
     onDeleteShot: (shotId: string) => void
@@ -77,6 +78,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     useImperativeHandle(ref, () => ({
         getCellRef: getCellRef,
         findCellRef: findCellRef,
+        getRowRef: (row: number) => rowRefs.current.get(row) || null,
         onMoveShot: onMoveShot,
         onCreateShot: onCreateShot,
         onDeleteShot: onDeleteShot,
@@ -140,7 +142,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
                     shotlistContext.elementIsBeingDragged = true
 
-                    rowRefs.current.get(event.oldIndex)?.closePopover()
+                    rowRefs.current.get(event.oldIndex)?.closeContextOptions()
                 },
                 onEnd: (event) => {
                     //so that the drag ghost is hidden before re-rendering otherwise it hangs in the air for half a second
@@ -361,6 +363,8 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
     const moveShot = useCallback((shotId: string, to: number) => {
         shotlistContext.setSaveState("moveShot", "saving")
+
+        console.log("moving", shotId)
 
         client.mutate({
             mutation : gql`

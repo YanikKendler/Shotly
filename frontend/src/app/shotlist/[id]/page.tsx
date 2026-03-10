@@ -43,7 +43,7 @@ import HelpLink from "@/components/helpLink/helpLink"
 import Link from "next/link"
 import DotLoader from "@/components/DotLoader"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
-import {errorNotification} from "@/service/NotificationService"
+import {errorNotification, infoNotification} from "@/service/NotificationService"
 import {DialogRef} from "@/components/dialog/dialog"
 import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys" //package has incorrectly configured type exports
 
@@ -186,6 +186,19 @@ export default function Shotlist() {
             "Alt+S": event => {
                 event.preventDefault()
                 sidebarRef.current?.createScene()
+            },
+            "Alt+.": event => {
+                event.preventDefault()
+                const currentRow = focusedCell.current.row
+
+                if(currentRow < 0) {
+                    infoNotification({title: "Select a cell to use this shortcut"})
+                    return
+                }
+
+                const rowRef = sheetManagerRef.current?.getRowRef(currentRow)
+
+                rowRef?.openContextOptions()
             }
         })
         return () => {

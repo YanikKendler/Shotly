@@ -358,6 +358,10 @@ button, a{
   svg{
     flex-shrink: 0;
   }
+
+  span.key {
+    margin-left: auto;
+  }
 }
 
 span.bold, b, strong{
@@ -381,13 +385,30 @@ span.truncate{
 }
 
 span.key{
-  background-color: var(--contrast);
+  background-color: var(--transparent-gray-10);
   border: 1px solid var(--text-50);
-  padding: .3rem;
+  padding: .3em;
   display: inline-block;
-  border-radius: .3rem;
+  border-radius: .3em;
   font-family: monospace;
-  font-size: .8rem;
+  font-size: .8em;
+  color: var(--text-20);
+  min-width: 1.5em;
+  text-align: center;
+
+  &.subtle {
+    border-color: var(--text-70);
+    color: var(--text-40);
+  }
+
+  &:has(svg) {
+    padding-block: .2em;
+  }
+
+  svg {
+    height: .9em;
+    width: .9em;
+  }
 }
 
 .flex{
@@ -843,8 +864,8 @@ body button.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot {
   display: flex;
   align-items: center;
   padding: 0;
-  width: 2.3rem;
-  height: 1rem;
+  width: 2.3em;
+  height: 1em;
   background-color: var(--switch-bg);
   border-radius: 9999px;
   position: relative;
@@ -858,23 +879,23 @@ body button.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot {
   &::before {
     content: '';
     position: absolute;
-    inset: -.5rem;
+    inset: -.5em;
     border-radius: 9999px;
-    margin: .5rem;
+    margin: .5em;
   }
 
   .SwitchThumb {
     display: block;
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 1.5em;
+    height: 1.5em;
     background-color: var(--switch-knob-bg);
     border-radius: 9999px;
     transition: transform 100ms;
     will-change: transform;
-    transform: translateX(-.2rem);
+    transform: translateX(-.2em);
 
     &[data-state="checked"] {
-      transform: translateX(1rem);
+      transform: translateX(1em);
       background-color: var(--switch-knob-focused-bg);
     }
   }

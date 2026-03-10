@@ -31,7 +31,7 @@ public class ShotRepository implements PanacheRepositoryBase<Shot, UUID> {
     public Shot findByIdValidated(UUID id){
         Shot shot = findById(id);
         if (shot == null) {
-            throw new ShotlyException("This Shot does not exist", ShotlyErrorCode.NOT_FOUND);
+            throw new ShotlyException("Shot with id " + id + " does not exist", ShotlyErrorCode.NOT_FOUND);
         }
         return shot;
     }

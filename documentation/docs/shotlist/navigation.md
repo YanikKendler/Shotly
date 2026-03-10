@@ -22,10 +22,14 @@ The shotlist supports the following keybinds:
     - a value can be selected by pressing `Enter`
     - can be closed using `Esc`
 - A new shot can be created using `Control + Enter` or `Alt + N`.
-- Scenes can be selected using `Alt + [1-9]` (`Alt` + and number from 1 - 9)
+- Scenes can be selected using `Alt + [1-9]` (`Alt` + any number from 1 - 9)
 - To open the shotlist options: `Alt + O`
 - To open the account dialog: `Alt + A`
 - To go back home to the dashboard: `Alt + H`
+- The context menu for shots can be opened using `Alt + .` and while the menu is open:
+    - The Shot can be deleted using `Del`
+    - The Shot can be moved using `↑` or `↓`
+    - The Shot Attributes can be edited using `E`
 
 ## The save indicator
 
