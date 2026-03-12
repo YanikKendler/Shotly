@@ -6,7 +6,7 @@ import {ApolloQueryResult, InteropApolloQueryResult, useApolloClient} from "@apo
 import {
     CollaborationDto,
     CollaborationType,
-    Query,
+    Query, SceneDto,
     ShotAttributeDefinitionBase,
     UserDto,
     UserTier
@@ -797,7 +797,24 @@ export default function Shotlist() {
             elementIsBeingDragged: elementIsBeingDragged,
             setElementIsBeingDragged: setElementIsBeingDragged,
             shotCount: shotCount,
-            setShotCount: setShotCount,
+            setShotCount: (count) => {
+                setShotCount(count);
+                setQuery(prev => ({
+                    ...prev,
+                    data: {
+                        ...prev.data,
+                        shotlist: {
+                            ...prev.data.shotlist,
+                            scenes: (prev.data.shotlist?.scenes as SceneDto[])?.map(s => {
+                                if (s.id === selectedScene.id) {
+                                    return { ...s, shotCount: count };
+                                }
+                                return s;
+                            }) || []
+                        }
+                    }
+                }));
+            },
             sceneCount: sceneCount,
             setSceneCount: setSceneCount,
             focusedCell: focusedCell,
