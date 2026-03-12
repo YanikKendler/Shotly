@@ -115,9 +115,6 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
             cellRef?.setFocus()
             cellRef?.openMenu()
 
-            console.log("cell ref size: ", cellRefs.current.size)
-            console.log("cell ref to be focused", cellRef)
-
             attributePositionToSelect.current = -1
         }
 
@@ -275,8 +272,6 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
         shotlistContext.setSaveState("createShot", "saving")
 
-        console.log("Creating shot with attribute position: " + attributePosition)
-
         setCreationLoaderVisibility(true)
         attributePositionToSelect.current = attributePosition
 
@@ -363,8 +358,6 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
     const moveShot = useCallback((shotId: string, to: number) => {
         shotlistContext.setSaveState("moveShot", "saving")
-
-        console.log("moving", shotId)
 
         client.mutate({
             mutation : gql`

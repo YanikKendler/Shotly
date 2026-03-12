@@ -158,6 +158,10 @@ export default function Shotlist() {
                 event.preventDefault()
                 sheetManagerRef.current?.handleCreateShotKeybind.current()
             },
+            "Alt+Enter": event => {
+                event.preventDefault()
+                sheetManagerRef.current?.handleCreateShotKeybind.current()
+            },
             "Alt+N": event => {
                 event.preventDefault()
                 sheetManagerRef.current?.handleCreateShotKeybind.current()

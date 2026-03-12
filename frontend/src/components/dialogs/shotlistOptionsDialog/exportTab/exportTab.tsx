@@ -103,8 +103,6 @@ export default function ExportTab(
 
     //load settings from local storage
     useEffect(() => {
-        console.log("shotlist changed", shotlist)
-
         if(!shotlist || !shotlist.id) return
 
         loadDataForExport().then(data => {

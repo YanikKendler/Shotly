@@ -96,8 +96,6 @@ const Dialog = forwardRef<DialogRef, DialogProps>(({
 
         if(!contentElement) return
 
-        console.log(contentElement.scrollTop)
-
         if(contentElement.scrollTop > 5)
             contentElement.classList.add("scrolled")
         else

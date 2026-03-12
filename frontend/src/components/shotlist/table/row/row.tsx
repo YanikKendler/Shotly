@@ -165,7 +165,7 @@ const RowBase = forwardRef<RowRef, RowProps>(({
                         <GripVertical size={22}/>
                     </Popover.Trigger>
                     <Popover.Portal>
-                        <Popover.Content className="popoverContent shotContextOptionsPopup" align={"center"} onCloseAutoFocus={e => e.preventDefault()}>
+                        <Popover.Content className="popoverContent shotContextOptionsPopup" align={"center"} onCloseAutoFocus={e => e.preventDefault()} onOpenAutoFocus={e => e.preventDefault()}>
                             <Popover.Close asChild><button disabled={true}><CornerDownRight size={18}/> Make Subshot</button></Popover.Close>
                             <Popover.Close asChild><button disabled={true}><NotepadText size={18}/> Notes</button></Popover.Close>
                             <Popover.Close asChild>

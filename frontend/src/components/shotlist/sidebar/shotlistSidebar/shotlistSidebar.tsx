@@ -338,6 +338,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
             <div className="content">
                 <div className="top">
                     <SimpleTooltip
+                        canOpen={!shotlistContext.elementIsBeingDragged}
                         content={<div>
                             <p><span className="bold">Click</span> to go back to the Dashboard</p>
                             <p><span className="key">Alt</span> + <span className="key">H</span></p>

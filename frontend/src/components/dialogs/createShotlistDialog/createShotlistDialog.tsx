@@ -115,8 +115,6 @@ export function useCreateShotlistDialog() {
             return
         }
 
-        console.log("done")
-
         router.push(`/shotlist/${data.createShotlist.id}`)
         promiseResolver?.(true)
     }
