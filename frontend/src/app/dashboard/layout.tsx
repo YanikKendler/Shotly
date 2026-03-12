@@ -4,12 +4,12 @@ import gql from "graphql-tag"
 import Link from "next/link"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import "./layout.scss"
-import React, {useEffect, useState} from "react"
+import React, {useEffect, useRef, useState} from "react"
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
 import {Blocks, Check, ChevronDown, House, Inbox, Menu, NotepadText, Plus, RefreshCw, User, X} from "lucide-react"
 import {CollaborationDto, CollaborationState, Query, ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
-import {Collapsible, Popover} from "radix-ui"
+import {Collapsible, Dialog, Popover, VisuallyHidden} from "radix-ui"
 import {wuGeneral} from "@yanikkendler/web-utils"
 import auth from "@/Auth"
 import {usePathname, useRouter} from "next/navigation"
@@ -30,7 +30,8 @@ import {errorNotification} from "@/service/NotificationService"
 import Radio, {RadioResult} from "@/components/inputs/radio/radio"
 import JustBoughtProDialog from "@/components/dialogs/justBoughtProDialog/justBoughtProDialog"
 import TextField from "@/components/inputs/textField/textField"
-import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys" //package has incorrectly configured type exports
+import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys"
+import Image from "next/image" //package has incorrectly configured type exports
 
 export default function DashboardLayout({children}: { children: React.ReactNode }) {
     const client = useApolloClient()
@@ -59,6 +60,8 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const [howDidYouHearReason, setHowDidYouHearReason] = useState("")
     const [howDidYouHearText, setHowDidYouHearText] = useState("")
 
+    const [easterEggOpen, setEasterEggOpen] = useState(false)
+
     //const [analyticsDialogOpen, setAnalyticsDialogOpen] = useState(false)
 
     useEffect(() => {
@@ -86,6 +89,9 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             "Alt+C": event => {
                 event.preventDefault()
                 setCollaborationRequestOpen(isOpen => !isOpen)
+            },
+            "S h o t l y": event => {
+                setEasterEggOpen(true)
             }
         })
         return () => {
@@ -655,6 +661,18 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             {AccountDialog}
 
             <JustBoughtProDialog/>
+
+            <Dialog.Root open={easterEggOpen} onOpenChange={setEasterEggOpen}>
+                <Dialog.Portal>
+                    <Dialog.Content className={"dialogContent"} onOpenAutoFocus={e => e.preventDefault()}>
+                        <VisuallyHidden.Root>
+                            <Dialog.Title>Hi there</Dialog.Title>
+                            <Dialog.Description>Just an easter egg</Dialog.Description>
+                        </VisuallyHidden.Root>
+                        <Image src={"/ralph-wave.gif"} alt={"Ralph Wave.. sorry you dont get to see this"} width={384} height={288}/>
+                    </Dialog.Content>
+                </Dialog.Portal>
+            </Dialog.Root>
 
             <div className={"introQuestions"}>
                 {
