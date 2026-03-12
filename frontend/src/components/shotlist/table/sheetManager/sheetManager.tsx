@@ -4,7 +4,7 @@ import React, {
     useCallback,
     useContext,
     useEffect,
-    useImperativeHandle,
+    useImperativeHandle, useLayoutEffect,
     useRef,
     useState
 } from "react"
@@ -98,10 +98,18 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     });
 
     useEffect(() => {
+        //if the scene id exists and actually differs from the currently loaded
         if(selectedScene.id && selectedScene.id !== null && selectedScene.id != query.data.shots?.at(0)?.sceneId){
+            isSyncingScroll.current = false
+            shotIsBeingCreated.current = false
+            attributePositionToSelect.current = -1
+
             setQuery({
                 ...query,
-                loading: true
+                loading: true,
+                data: {
+                    shots: null,
+                }
             })
             loadShots()
         }
@@ -204,6 +212,9 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
         shotlistContext.setShotCount(result.data?.shots?.length || 0)
 
+        cellRefs.current = new Map()
+        rowRefs.current = new Map()
+
         setQuery(result)
     }
 
@@ -269,6 +280,8 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         if(shotIsBeingCreated.current == true) {
             return
         }
+
+        console.log(cellRefs.current)
 
         shotlistContext.setSaveState("createShot", "saving")
 
