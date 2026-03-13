@@ -1,6 +1,6 @@
 package me.kendler.yanik.dto;
 
-public record UserActivity(
+public record StatCounts(
     Integer lastHour,
     Integer fourHours,
     Integer eightHours,

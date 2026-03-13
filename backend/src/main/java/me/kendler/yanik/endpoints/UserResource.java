@@ -1,9 +1,6 @@
 package me.kendler.yanik.endpoints;
 
-import io.quarkus.panache.common.Sort;
 import jakarta.inject.Inject;
-import me.kendler.yanik.dto.UserActivity;
-import me.kendler.yanik.dto.user.UserAdminUpdateDTO;
 import me.kendler.yanik.dto.user.UserDTO;
 import me.kendler.yanik.dto.user.UserEditDTO;
 import me.kendler.yanik.model.User;
@@ -12,8 +9,6 @@ import org.eclipse.microprofile.graphql.GraphQLApi;
 import org.eclipse.microprofile.graphql.Mutation;
 import org.eclipse.microprofile.graphql.Query;
 import org.eclipse.microprofile.jwt.JsonWebToken;
-
-import java.util.List;
 
 @GraphQLApi
 public class UserResource {
@@ -52,29 +47,4 @@ public class UserResource {
     public User setAllowAnalytics(boolean allow){
         return userRepository.setAllowAnalytics(jwt, allow);
     }*/
-
-    // ADMIN
-
-    @Query
-    public List<UserDTO> getUsers(){
-        userRepository.checkAdmin(jwt);
-
-        List<User> users = userRepository.findAll(Sort.descending("name")).stream().toList();
-
-        return users.stream().map(User::toDTO).toList();
-    }
-
-    @Mutation
-    public UserDTO adminUpdateUser(UserAdminUpdateDTO updateDTO){
-        userRepository.checkAdmin(jwt);
-
-        return userRepository.adminUserUpdate(updateDTO);
-    }
-
-    @Query
-    public UserActivity getUserActivity(){
-        userRepository.checkAdmin(jwt);
-
-        return userRepository.calculateUserActivity();
-    }
 }

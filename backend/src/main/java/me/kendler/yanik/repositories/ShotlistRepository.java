@@ -4,6 +4,7 @@ import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import me.kendler.yanik.dto.StatCounts;
 import me.kendler.yanik.dto.shotlist.ShotlistCollection;
 import me.kendler.yanik.dto.shotlist.ShotlistCreateDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistDTO;
@@ -27,6 +28,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -159,4 +161,24 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
         return null;
     }
 
+    public StatCounts calculateRecentCreatedShotlistStats() {
+        ZonedDateTime now = ZonedDateTime.now();
+
+        int lastHour = (int) countCreatedSince(now.minusHours(1));
+        int fourHours = (int) countCreatedSince(now.minusHours(4));
+        int eightHours = (int) countCreatedSince(now.minusHours(8));
+        int twentyFourHours = (int) countCreatedSince(now.minusHours(24));
+        int sevenDays = (int) countCreatedSince(now.minusDays(7));
+        int thirtyDays = (int) countCreatedSince(now.minusDays(30));
+
+        return new StatCounts(lastHour, fourHours, eightHours, twentyFourHours, sevenDays, thirtyDays);
+    }
+
+    private long countCreatedSince(ZonedDateTime since) {
+        Long count = getEntityManager()
+                .createQuery("SELECT COUNT(s) FROM Shotlist s WHERE s.createdAt >= :since", Long.class)
+                .setParameter("since", since)
+                .getSingleResult();
+        return count == null ? 0L : count;
+    }
 }

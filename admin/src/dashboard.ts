@@ -3,13 +3,13 @@ import {customElement, state} from 'lit/decorators.js'
 import authService from './AuthService'
 import {gqlClient, MutationResult, QueryResult} from './GqlClient'
 import {
-    Maybe,
-    ShotlistDto,
-    TemplateDto,
-    UserActivity,
-    UserDto,
-    UserTier,
-} from './generatedTypes'
+  Maybe,
+  ShotlistDto,
+  TemplateDto,
+  StatCounts,
+  UserDto,
+  UserTier,
+} from './generatedTypes';
 import {wuTime} from '@yanikkendler/web-utils'
 import {Notyf} from 'notyf'
 
@@ -55,6 +55,7 @@ export class Dashboard extends LitElement {
             color: white;
             font-weight: bold;
             cursor: pointer;
+            font-size: inherit;
 
             &:hover {
                 background-color: hsl(0, 0%, 30%);
@@ -66,7 +67,7 @@ export class Dashboard extends LitElement {
             }
         }
 
-        select {
+        select, input {
             background-color: hsl(0, 0%, 20%);
             color: white;
             border: none;
@@ -76,7 +77,6 @@ export class Dashboard extends LitElement {
 
         nav {
             display: flex;
-            justify-content: space-between;
             align-items: center;
             gap: 0.5rem;
             position: fixed;
@@ -87,9 +87,18 @@ export class Dashboard extends LitElement {
             padding: .5rem;
             z-index: 100;
 
+            img {
+                height: 2rem;
+            }
+            
             .right {
                 display: flex;
                 gap: 0.5rem;
+                margin-left: auto;
+                
+                @media screen and (max-width: 600px) {
+                    font-size: .8rem;
+                }
             }
         }
 
@@ -119,8 +128,10 @@ export class Dashboard extends LitElement {
         }
 
         .scrollArea {
+            margin-top: 1rem;
             width: 100%;
-            overflow-x: auto;
+            max-height: 50vh;
+            overflow: auto;
             -ms-overflow-style: none; /* IE and Edge */
             scrollbar-width: none; /* Firefox */
 
@@ -135,10 +146,14 @@ export class Dashboard extends LitElement {
             font-style: italic;
             white-space: nowrap;
         }
+        
+        table.users {
+            th {
+                width: 8ch;
+            }
+        }
 
         table {
-            margin-top: 1rem;
-
             font-size: 0.9rem;
 
             @media screen and (max-width: 600px) {
@@ -149,6 +164,16 @@ export class Dashboard extends LitElement {
         tr {
             width: 100%;
             --row-bg: hsl(0, 0%, 10%);
+            
+            &.sticky th {
+                position: sticky;
+                top: 0;
+                z-index: 20 !important;
+                
+                &.name {
+                    z-index: 30 !important;
+                }
+            }
 
             td.name {
                 --row-bg: hsl(19, 60%, 10%);
@@ -170,6 +195,7 @@ export class Dashboard extends LitElement {
             th {
                 padding: 0.3rem;
                 background-color: hsl(0, 0%, 30%);
+                width: fit-content;
 
                 &.name {
                     background-color: hsl(19, 50%, 30%);
@@ -303,7 +329,13 @@ export class Dashboard extends LitElement {
     templates: TemplateDto[] | null = null
 
     @state()
-    userActivity: UserActivity | null = null
+    recentActiveUsers: StatCounts | null = null
+
+    @state()
+    recentCreatedUsers: StatCounts | null = null
+
+    @state()
+    recentCreatedShotlists: StatCounts | null = null
 
     @state()
     changes: UserDto[] = []
@@ -315,7 +347,10 @@ export class Dashboard extends LitElement {
     userFilter: UserDto | null = null
 
     @state()
-    selectedSort: SortName = SortName.Name
+    selectedUserSort: SortName = SortName.Name
+
+    @state()
+    userSearchQuery: string = ""
 
     sorts = new Map<SortName, (u1: UserDto, u2: UserDto) => number>([
         [SortName.Name, (u1, u2) => u1.name?.localeCompare(u2.name || '') || 0],
@@ -355,7 +390,7 @@ export class Dashboard extends LitElement {
                     ? new Date(u2.lastActiveAt).getTime()
                     : Number.MAX_SAFE_INTEGER
 
-                return time1 - time2
+                return time2 - time1
             },
         ],
         [SortName.Tier, (u1, u2) => u1.tier?.localeCompare(u2.tier || '') || 0],
@@ -422,7 +457,23 @@ export class Dashboard extends LitElement {
                                 name
                             }
                         }
-                        userActivity{
+                        recentActiveUserStats{
+                            lastHour
+                            fourHours
+                            eightHours
+                            twentyFourHours
+                            sevenDays
+                            thirtyDays
+                        }
+                        recentCreatedUserStats{
+                            lastHour
+                            fourHours
+                            eightHours
+                            twentyFourHours
+                            sevenDays
+                            thirtyDays
+                        }
+                        recentCreatedShotlistStats{
                             lastHour
                             fourHours
                             eightHours
@@ -445,7 +496,9 @@ export class Dashboard extends LitElement {
         this.users = (result.data.users as UserDto[]) || []
         this.shotlists = (result.data.allShotlists as ShotlistDto[]) || []
         this.templates = (result.data.allTemplates as TemplateDto[]) || []
-        this.userActivity = (result.data.userActivity as UserActivity) || {}
+        this.recentActiveUsers = (result.data.recentActiveUserStats as StatCounts) || {}
+        this.recentCreatedUsers = (result.data.recentCreatedUserStats as StatCounts) || {}
+        this.recentCreatedShotlists =(result.data.recentCreatedShotlistStats as StatCounts) || {}
 
         const notyf = new Notyf()
         if (result.errors)
@@ -786,24 +839,9 @@ export class Dashboard extends LitElement {
 
         return html`
             <nav>
+                <img src="../Shotly-Admin.png" alt="A"/>
                 <h1>Admin</h1>
                 <div class="right">
-                    <select
-                        @change=${(e: Event) => {
-                            this.discardChanges()
-                            this.selectedSort =
-                                SortName[
-                                    (e.target as HTMLSelectElement)
-                                        .value as keyof typeof SortName
-                                ]
-                        }}
-                    >
-                        <option value="Name" selected>Name</option>
-                        <option value="CreatedAt">Oldest</option>
-                        <option value="CreatedAtReverse">Newest</option>
-                        <option value="ActiveAt">Active At</option>
-                        <option value="Tier">Tier</option>
-                    </select>
                     <button
                         @click=${this.discardChanges}
                         .disabled=${this.changes.length <= 0}
@@ -822,9 +860,10 @@ export class Dashboard extends LitElement {
                 </div>
             </nav>
 
-            <h2 style="margin-top: 1rem">Active Users</h2>
-            <table>
+            <h2 style="margin-top: 1rem">Stats</h2>
+            <table class="users">
                 <tr>
+                    <th></th>
                     <th>1h</th>
                     <th>4h</th>
                     <th>8h</th>
@@ -832,38 +871,113 @@ export class Dashboard extends LitElement {
                     <th>7d</th>
                     <th>30d</th>
                 </tr>
-                ${!this.userActivity
+                ${!this.recentActiveUsers
                     ? html`<p class="empty">Loading...</p>`
                     : html`
                           <tr>
+                              <th>Ac U</th>
                               <td>
                                   <p class="centered">
-                                      ${this.userActivity.lastHour}
+                                      ${this.recentActiveUsers.lastHour}
                                   </p>
                               </td>
                               <td>
                                   <p class="centered">
-                                      ${this.userActivity.fourHours}
+                                      ${this.recentActiveUsers.fourHours}
                                   </p>
                               </td>
                               <td>
                                   <p class="centered">
-                                      ${this.userActivity.eightHours}
+                                      ${this.recentActiveUsers.eightHours}
                                   </p>
                               </td>
                               <td>
                                   <p class="centered">
-                                      ${this.userActivity.twentyFourHours}
+                                      ${this.recentActiveUsers.twentyFourHours}
                                   </p>
                               </td>
                               <td>
                                   <p class="centered">
-                                      ${this.userActivity.sevenDays}
+                                      ${this.recentActiveUsers.sevenDays}
                                   </p>
                               </td>
                               <td>
                                   <p class="centered">
-                                      ${this.userActivity.thirtyDays}
+                                      ${this.recentActiveUsers.thirtyDays}
+                                  </p>
+                              </td>
+                          </tr>
+                      `}
+                ${!this.recentCreatedUsers
+                    ? html`<p class="empty">Loading...</p>`
+                    : html`
+                          <tr>
+                              <th>Cr U</th>
+                              <td>
+                                  <p class="centered">
+                                      ${this.recentCreatedUsers.lastHour}
+                                  </p>
+                              </td>
+                              <td>
+                                  <p class="centered">
+                                      ${this.recentCreatedUsers.fourHours}
+                                  </p>
+                              </td>
+                              <td>
+                                  <p class="centered">
+                                      ${this.recentCreatedUsers.eightHours}
+                                  </p>
+                              </td>
+                              <td>
+                                  <p class="centered">
+                                      ${this.recentCreatedUsers.twentyFourHours}
+                                  </p>
+                              </td>
+                              <td>
+                                  <p class="centered">
+                                      ${this.recentCreatedUsers.sevenDays}
+                                  </p>
+                              </td>
+                              <td>
+                                  <p class="centered">
+                                      ${this.recentCreatedUsers.thirtyDays}
+                                  </p>
+                              </td>
+                          </tr>
+                      `}
+                ${!this.recentCreatedShotlists
+                    ? html`<p class="empty">Loading...</p>`
+                    : html`
+                          <tr>
+                              <th>Cr S</th>
+                              <td>
+                                  <p class="centered">
+                                      ${this.recentCreatedShotlists.lastHour}
+                                  </p>
+                              </td>
+                              <td>
+                                  <p class="centered">
+                                      ${this.recentCreatedShotlists.fourHours}
+                                  </p>
+                              </td>
+                              <td>
+                                  <p class="centered">
+                                      ${this.recentCreatedShotlists.eightHours}
+                                  </p>
+                              </td>
+                              <td>
+                                  <p class="centered">
+                                      ${this.recentCreatedShotlists.twentyFourHours}
+                                  </p>
+                              </td>
+                              <td>
+                                  <p class="centered">
+                                      ${this.recentCreatedShotlists.sevenDays}
+                                  </p>
+                              </td>
+                              <td>
+                                  <p class="centered">
+                                      ${this.recentCreatedShotlists.thirtyDays}
                                   </p>
                               </td>
                           </tr>
@@ -873,10 +987,30 @@ export class Dashboard extends LitElement {
             <div class="heading">
                 <h2>Users</h2>
                 <p>(${this.users?.length || 0})</p>
+                <select
+                  @change=${(e: Event) => {
+                    this.discardChanges()
+                    this.selectedUserSort =
+                      SortName[
+                        (e.target as HTMLSelectElement)
+                          .value as keyof typeof SortName
+                        ]
+                  }}
+                >
+                  <option value="Name" selected>Name</option>
+                  <option value="CreatedAt">Oldest</option>
+                  <option value="CreatedAtReverse">Newest</option>
+                  <option value="ActiveAt">Active At</option>
+                  <option value="Tier">Tier</option>
+                </select>
+                <input type="text" placeholder="search" @input=${(e: Event) => {
+                  this.discardChanges()
+                  this.userSearchQuery = (e.target as HTMLInputElement).value
+                }}>
             </div>
             <div class="scrollArea">
                 <table>
-                    <tr>
+                    <tr class="sticky">
                         <th>Id</th>
                         <th class="name">Name</th>
                         <th>Email</th>
@@ -895,10 +1029,14 @@ export class Dashboard extends LitElement {
                     ${!this.users
                         ? html`<p class="empty">Loading...</p>`
                         : this.users
-                              .sort(this.sorts.get(this.selectedSort))
-                              .map((u) => {
-                                  return this.renderUser(u)
-                              })}
+                            .sort(this.sorts.get(this.selectedUserSort))
+                            .filter(u => 
+                              u.name?.toUpperCase().includes(this.userSearchQuery.toUpperCase()) || 
+                              this.userSearchQuery.toUpperCase().includes(u.name?.toUpperCase() || "")
+                            )
+                            .map((u) => {
+                                return this.renderUser(u)
+                            })}
                 </table>
             </div>
 
@@ -916,7 +1054,7 @@ export class Dashboard extends LitElement {
             </div>
             <div class="scrollArea">
                 <table>
-                    <tr>
+                    <tr class="sticky">
                         <th>Id</th>
                         <th class="name">Name</th>
                         <th>Owner</th>
@@ -952,7 +1090,7 @@ export class Dashboard extends LitElement {
             </div>
             <div class="scrollArea">
                 <table>
-                    <tr>
+                    <tr class="sticky">
                         <th>Id</th>
                         <th class="name">Name</th>
                         <th>Owner</th>

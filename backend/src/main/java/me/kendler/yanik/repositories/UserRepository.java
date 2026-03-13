@@ -11,7 +11,7 @@ import jakarta.json.JsonString;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.auth0.Auth0Service;
-import me.kendler.yanik.dto.UserActivity;
+import me.kendler.yanik.dto.StatCounts;
 import me.kendler.yanik.dto.user.UserAdminUpdateDTO;
 import me.kendler.yanik.dto.user.UserDTO;
 import me.kendler.yanik.dto.user.UserEditDTO;
@@ -20,7 +20,6 @@ import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.*;
 import me.kendler.yanik.model.template.Template;
 import me.kendler.yanik.model.template.sceneAttributes.SceneSingleSelectAttributeTemplate;
-import me.kendler.yanik.model.template.sceneAttributes.SceneTextAttributeTemplate;
 import me.kendler.yanik.model.template.shotAttributes.ShotTextAttributeTemplate;
 import me.kendler.yanik.repositories.template.SceneAttributeTemplateRepository;
 import me.kendler.yanik.repositories.template.ShotAttributeTemplateRepository;
@@ -247,7 +246,7 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         return user.toDTO();
     }
 
-    public UserActivity calculateUserActivity() {
+    public StatCounts calculateRecentActiveUserStats() {
         ZonedDateTime now = ZonedDateTime.now();
 
         int lastHour = (int) countActiveSince(now.minusHours(1));
@@ -257,12 +256,33 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         int sevenDays = (int) countActiveSince(now.minusDays(7));
         int thirtyDays = (int) countActiveSince(now.minusDays(30));
 
-        return new UserActivity(lastHour, fourHours, eightHours, twentyFourHours, sevenDays, thirtyDays);
+        return new StatCounts(lastHour, fourHours, eightHours, twentyFourHours, sevenDays, thirtyDays);
+    }
+
+    public StatCounts calculateRecentCreatedUserStats() {
+        ZonedDateTime now = ZonedDateTime.now();
+
+        int lastHour = (int) countCreatedSince(now.minusHours(1));
+        int fourHours = (int) countCreatedSince(now.minusHours(4));
+        int eightHours = (int) countCreatedSince(now.minusHours(8));
+        int twentyFourHours = (int) countCreatedSince(now.minusHours(24));
+        int sevenDays = (int) countCreatedSince(now.minusDays(7));
+        int thirtyDays = (int) countCreatedSince(now.minusDays(30));
+
+        return new StatCounts(lastHour, fourHours, eightHours, twentyFourHours, sevenDays, thirtyDays);
     }
 
     private long countActiveSince(ZonedDateTime since) {
         Long count = getEntityManager()
                 .createQuery("SELECT COUNT(u) FROM User u WHERE u.lastActiveAt >= :since", Long.class)
+                .setParameter("since", since)
+                .getSingleResult();
+        return count == null ? 0L : count;
+    }
+
+    private long countCreatedSince(ZonedDateTime since) {
+        Long count = getEntityManager()
+                .createQuery("SELECT COUNT(u) FROM User u WHERE u.createdAt >= :since", Long.class)
                 .setParameter("since", since)
                 .getSingleResult();
         return count == null ? 0L : count;

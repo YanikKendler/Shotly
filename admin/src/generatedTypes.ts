@@ -402,6 +402,9 @@ export type Query = {
   allTemplates?: Maybe<Array<Maybe<TemplateDto>>>;
   currentUser?: Maybe<UserDto>;
   pendingCollaborations?: Maybe<Array<Maybe<CollaborationDto>>>;
+  recentActiveUserStats?: Maybe<StatCounts>;
+  recentCreatedShotlistStats?: Maybe<StatCounts>;
+  recentCreatedUserStats?: Maybe<StatCounts>;
   sceneAttributeDefinitions?: Maybe<Array<Maybe<SceneAttributeDefinitionBaseDto>>>;
   sceneSelectAttributeOptions?: Maybe<Array<Maybe<SceneSelectAttributeOptionDefinition>>>;
   scenes?: Maybe<Array<Maybe<SceneDto>>>;
@@ -414,7 +417,6 @@ export type Query = {
   shots?: Maybe<Array<Maybe<ShotDto>>>;
   template?: Maybe<TemplateDto>;
   templates?: Maybe<Array<Maybe<TemplateDto>>>;
-  userActivity?: Maybe<UserActivity>;
   users?: Maybe<Array<Maybe<UserDto>>>;
 };
 
@@ -572,6 +574,7 @@ export type SceneDto = {
   createdAt?: Maybe<Scalars['DateTime']['output']>;
   id?: Maybe<Scalars['String']['output']>;
   position: Scalars['Int']['output'];
+  shotCount: Scalars['Int']['output'];
   shots?: Maybe<Array<Maybe<ShotDto>>>;
 };
 
@@ -955,6 +958,16 @@ export type ShotlistEditDtoInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type StatCounts = {
+  __typename?: 'StatCounts';
+  eightHours?: Maybe<Scalars['Int']['output']>;
+  fourHours?: Maybe<Scalars['Int']['output']>;
+  lastHour?: Maybe<Scalars['Int']['output']>;
+  sevenDays?: Maybe<Scalars['Int']['output']>;
+  thirtyDays?: Maybe<Scalars['Int']['output']>;
+  twentyFourHours?: Maybe<Scalars['Int']['output']>;
+};
+
 export type Template = {
   __typename?: 'Template';
   /** ISO-8601 */
@@ -1015,16 +1028,6 @@ export type User = {
   templates?: Maybe<Array<Maybe<Template>>>;
   tier?: Maybe<UserTier>;
   version?: Maybe<Scalars['BigInteger']['output']>;
-};
-
-export type UserActivity = {
-  __typename?: 'UserActivity';
-  eightHours?: Maybe<Scalars['Int']['output']>;
-  fourHours?: Maybe<Scalars['Int']['output']>;
-  lastHour?: Maybe<Scalars['Int']['output']>;
-  sevenDays?: Maybe<Scalars['Int']['output']>;
-  thirtyDays?: Maybe<Scalars['Int']['output']>;
-  twentyFourHours?: Maybe<Scalars['Int']['output']>;
 };
 
 export type UserAdminUpdateDtoInput = {
