@@ -200,8 +200,12 @@ export default function Shotlist() {
                     return
                 }
 
-                const rowRef = sheetManagerRef.current?.getRowRef(currentRow)
+                /*const cellRef = sheetManagerRef.current?.getCellRef(focusedCell.current.row, focusedCell.current.column)
+                cellRef?.closeMenu()*/
 
+                (document.activeElement as HTMLDivElement).blur()
+
+                const rowRef = sheetManagerRef.current?.getRowRef(currentRow)
                 rowRef?.openContextOptions()
             }
         })

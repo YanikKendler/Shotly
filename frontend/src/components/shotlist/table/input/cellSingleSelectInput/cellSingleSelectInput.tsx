@@ -45,6 +45,9 @@ const CellSingleSelectInput = forwardRef<CellInputRef, CellSingleSelectInputProp
         openMenu: () => {
             selectInputRef.current?.openMenu()
         },
+        closeMenu: () => {
+            selectInputRef.current?.closeMenu()
+        },
         setValue: value => {
             const option = value as SelectOption
             setSingleSelectValue(option)

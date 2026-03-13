@@ -134,6 +134,7 @@ interface AttributeValueSelectProps {
 export interface AttributeValueSelectRef {
     setFocus: () => void
     openMenu: () => void
+    closeMenu: () => void
 }
 
 export default forwardRef<AttributeValueSelectRef, AttributeValueSelectProps>(
@@ -152,11 +153,12 @@ function AttributeValueSelect({
 }, ref) {
     const selectRef = useRef<SelectInstance<any, boolean, any> | null>(null);
     const [isLoading, setIsLoading] = useState(true)
-    const menuIsOpen = useRef(false)
+    const [menuIsOpen, setMenuIsOpen] = useState(false)
 
     useImperativeHandle(ref, () => ({
         setFocus,
-        openMenu
+        openMenu,
+        closeMenu
     }))
 
     useEffect(() => {
@@ -175,7 +177,7 @@ function AttributeValueSelect({
     }
 
     const closeMenu = () => {
-        selectRef.current?.blur()
+        setMenuIsOpen(false)
     }
 
     const handleCreate = (inputValue: string) => {
@@ -258,11 +260,11 @@ function AttributeValueSelect({
     }
 
     const handleMenuOpen = () => {
-        menuIsOpen.current = true
+        setMenuIsOpen(true)
     }
 
     const handleMenuClose = () => {
-        menuIsOpen.current = false
+        setMenuIsOpen(false)
     }
 
     let selectValue = undefined
@@ -278,7 +280,7 @@ function AttributeValueSelect({
 
     return (
         <CreatableSelect
-            /*menuIsOpen={true}*/
+            menuIsOpen={menuIsOpen}
             value={selectValue}
             onChange={onChange}
             onMenuOpen={handleMenuOpen}
@@ -298,7 +300,7 @@ function AttributeValueSelect({
             menuPlacement="auto"
             ref={selectRef}
             onKeyDown={e => {
-                if (menuIsOpen.current) {
+                if (menuIsOpen) {
                     if (e.key === "ArrowUp" || e.key === "ArrowDown") {
                         e.stopPropagation();
                     }

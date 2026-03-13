@@ -20,12 +20,14 @@ import {wuGeneral} from "@yanikkendler/web-utils"
 export interface CellInputRef {
     setFocus: () => void
     openMenu: () => void
+    closeMenu: () => void
     setValue: (value: ShotAttributeValueMultiType) => void
 }
 
 export interface CellRef {
     setFocus: () => void
     openMenu: () => void
+    closeMenu: () => void
     setValue: (value: ShotAttributeValueMultiType) => void
     setReadOnlyValue: (value: string) => void
     id: number
@@ -84,6 +86,9 @@ const CellBase = forwardRef<CellRef, CellProps>(({
         },
         openMenu() {
             inputRef.current?.openMenu()
+        },
+        closeMenu() {
+            inputRef.current?.closeMenu()
         },
         setValue(value) {
             inputRef.current?.setValue(value)

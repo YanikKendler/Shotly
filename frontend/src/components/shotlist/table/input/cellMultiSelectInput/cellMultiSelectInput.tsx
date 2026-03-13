@@ -51,6 +51,9 @@ const CellMultiSelectInput = forwardRef<CellInputRef, CellMultiSelectInputProps>
         openMenu: () => {
             selectInputRef.current?.openMenu()
         },
+        closeMenu: () => {
+            selectInputRef.current?.closeMenu()
+        },
         setValue: value => {
             const options = value as SelectOption[]
             setMultiSelectValue(options)

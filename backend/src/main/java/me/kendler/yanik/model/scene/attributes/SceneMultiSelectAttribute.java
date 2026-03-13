@@ -28,7 +28,7 @@ public class SceneMultiSelectAttribute extends SceneAttributeBase{
         return new SceneMultiSelectAttributeDTO(
             id,
             definition.toDTO(),
-            value.stream().sorted(Comparator.comparing(option -> option.name)).toList()
+            value.stream().sorted(Comparator.comparing(option -> option.name.toUpperCase())).toList()
         );
     }
 }

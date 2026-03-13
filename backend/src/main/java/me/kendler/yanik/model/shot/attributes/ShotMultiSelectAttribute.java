@@ -28,7 +28,7 @@ public class ShotMultiSelectAttribute extends ShotAttributeBase {
         return new ShotMultiSelectAttributeDTO(
             id,
             definition.toDTO(),
-            value.stream().sorted(Comparator.comparing(option -> option.name)).toList()
+            value.stream().sorted(Comparator.comparing(option -> option.name.toUpperCase())).toList()
         );
     }
 }

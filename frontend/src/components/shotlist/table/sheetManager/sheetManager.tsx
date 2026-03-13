@@ -536,7 +536,9 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
             </div>
 
             <div ref={creationLoaderRef} style={{display: "none"}} className={"sheetRow"}>
-                <Cell row={-1} column={-1} type={["number", "loader"]}><Skeleton/></Cell>
+                <Cell row={-1} column={-1} type={["number", "loader"]}>
+                    <Skeleton height={"calc(40px * var(--shotlist-scale))"}/>
+                </Cell>
 
                 {shotAttributeDefinitions?.map((shotAttributeDefinition, index) => {
                     return (
@@ -546,7 +548,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                             type={["loader"]}
                             key={shotAttributeDefinition.id}
                         >
-                            <Skeleton/>
+                            <Skeleton height={"calc(40px * var(--shotlist-scale))"}/>
                         </Cell>
                     )
                 })}
