@@ -1,20 +1,14 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
+about: Suggest a new shotly feature
 title: ''
 labels: feature request
 assignees: ''
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+**I am trying to do the following:**
+Please describe what you are trying to accomplish and at what point you are frustrated / would like a specific solution.
 
 **Describe the solution you'd like**
-A clear and concise description of what you want to happen.
-
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
-
-**Additional context**
-Add any other context or screenshots about the feature request here.
+A clear and concise description of what you want to happen in as much detail as possible.
