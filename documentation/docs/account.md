@@ -3,19 +3,22 @@
 You can log into Shotly by using either your email and password or Google.
 
 !!! Info
-    Shotly will never send you spamy marketing emails or similar. Your email is primarily used to provide a unique login and an option to reset your password. The only other time you will receive an email from Shotly is if I personally reach out to you or if you opt-in to email notifications, should that feature become available.
+    Shotly will never send you spamy marketing emails or similar. Your email is primarily used to provide a unique login and an option to reset your password. The only other time you will receive an email from Shotly is if I personally reach out to you.
 
 You can manage your account at any time by clicking on `Account` in the lower left of the sidebar.
 
 ## Your Account
 
-The first field in the dialog shows your email address. The email cannot be changed, and there is currently no way to transfer your data to another email.
+The first field in the dialog **shows your email address**. The email cannot be changed, and there is currently no way to transfer your data to another email.
 
-Your "Display name" is a publicly visible name. I recommend simply using your first name. The display name is used to identify you when collaborating on a shotlist. You cannot use it to log into Shotly.
+Your **"Display name"** is a publicly visible name. I recommend simply using your first name. The display name is used to identify you when collaborating on a shotlist. You can **not** use it to log into Shotly.
 
-The third row allows you to manage or upgrade your subscription. You may be redirected to a Stripe-hosted page.
+The third row allows you to manage or upgrade **your subscription**. You may be redirected to a Stripe.com.
 
-At the bottom of the dialog, you can find the options to sign out and delete your account. You can also request a feature or report a bug by opening an issue on GitHub.
+At the bottom of the dialog, you can find the options to **sign out** and **delete your account**. You can also **request a feature** or **report a bug** by opening an issue on GitHub.
+
+!!! Info
+    When deleting your account, all your data is permanently lost. The moment you click "confirm" all of your Shotlists and Templates will be removed from Shotly's database.
 
 ## Settings
 

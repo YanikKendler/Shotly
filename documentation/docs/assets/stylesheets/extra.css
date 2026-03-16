@@ -2,7 +2,7 @@
   --md-primary-fg-color--light: hsl(18, 100%, 60%);
   --md-primary-fg-color:        hsl(18, 100%, 47%);
   --md-primary-fg-color--dark:  hsl(18, 95%, 30%);
-  --md-primary-fg-color--transparent: hsla(18, 100%, 60%, 20%);
+  --md-primary-fg-color--transparent: hsla(18, 75%, 21%, 65%);
 
   --md-accent-fg-color--light: hsl(40, 100%, 60%);
   --md-accent-fg-color:        hsl(40, 100%, 47%);

@@ -9,8 +9,8 @@ theme:
   favicon: /assets/logo/shotly-docs-iconmark_o2.png
   logo: /assets/logo/shotly-iconmark_white.png
   features:
-  - navigation.expand
   - search.suggest
+  - navigation.sections
 extra_css:
   - /assets/stylesheets/extra.css
 markdown_extensions:
