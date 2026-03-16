@@ -1,5 +1,5 @@
 import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 
 export default function Loading(){
-    return <LoadingPage title={"Loading Dashboard..."}/>
+    return <main className="overview dashboardContent"><LoadingPage title={"Loading Dashboard..."}/></main>
 }

@@ -150,10 +150,10 @@ class Auth {
                 if (err) {
                     console.error(err)
                     localStorage.removeItem(Config.localStorageKey.isLoggedIn);
-                    errorNotification({
+                    /*errorNotification({
                         title: "Silent authentication failed",
                         sub: "Please reload the page and log in again."
-                    })
+                    })*/
                     return reject(err);
                 }
                 this.setSession(authResult);
