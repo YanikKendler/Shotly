@@ -39,7 +39,7 @@ export default function Overview() {
             }},
             { element: '.sidebar .content .list .bottom', popover: {
                 title: 'Account & Activity',
-                description: 'If someone invites you to their shotlist the request will be visible under "Collab-Requests". Using the "Account" button you can modify your account and change your settings.',
+                description: 'If someone invites you to their shotlist the request will be visible under "Collaborations". Using the "Account" button you can modify your account and change your settings.',
                 side: "right",
                 align: 'center'
             }},
