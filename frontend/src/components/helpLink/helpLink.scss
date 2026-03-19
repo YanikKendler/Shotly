@@ -1,4 +1,4 @@
-a.helpLink{
+.helpLink{
   background-color: var(--contrast);
   border: 2px solid var(--default-interactable-border);
   border-radius: 5rem;
@@ -15,7 +15,28 @@ a.helpLink{
 
   &.floating{
     position: absolute;
-    bottom: .5rem;
-    right: .5rem;
+    bottom: .75rem;
+    right: .75rem;
+  }
+}
+
+.helpLinkPopoverContent{
+  padding: .2rem;
+
+  a {
+    font-size: .8rem;
+    padding: .4rem;
+    color: var(--text-20);
+    gap: .3rem;
+    justify-content: start;
+
+    &:hover {
+      color: var(--accent);
+      background-color: var(--transparent-accent-05);
+    }
+
+    svg {
+      color: inherit;
+    }
   }
 }

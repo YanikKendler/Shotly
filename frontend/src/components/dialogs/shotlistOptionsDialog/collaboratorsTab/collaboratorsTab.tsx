@@ -304,7 +304,7 @@ export default function CollaboratorsTab(
                 <p className={"invalid"}>No Shotly account is associated with that email.</p>
             }
 
-            <HelpLink link="https://docs.shotly.at/shotlist/collaboration" floating/>
+            <HelpLink link="https://docs.shotly.at/shotlist/collaboration" name={"Collaboration"} floating/>
 
             {ConfirmDialog}
         </div>

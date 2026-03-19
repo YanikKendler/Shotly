@@ -904,7 +904,7 @@ export default function ExportTab(
                     <p className="small">If a collaborator has edited the shotlist, the preview might not be fully up to date, but the final export will be.</p>
                 </Dialog>
 
-                <HelpLink link="https://docs.shotly.at/shotlist/export"/>
+                <HelpLink link="https://docs.shotly.at/shotlist/export" name={"Export"}/>
             </div>
         </div>
     )

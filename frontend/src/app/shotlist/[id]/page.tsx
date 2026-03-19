@@ -950,7 +950,7 @@ export default function Shotlist() {
                         <span className="saved"><Check size={18} strokeWidth={2.5}/></span>
                         <span className="error">!</span>
                     </div>
-                    <HelpLink link="https://docs.shotly.at/shotlist/navigation" delay={0}/>
+                    <HelpLink link="https://docs.shotly.at/shotlist/navigation" delay={0} name={"Shotlist"}/>
                     <button className="openSidebar" onClick={() => setSidebarOpen(true)}><Menu/></button>
                 </div>
             </main>

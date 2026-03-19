@@ -379,7 +379,7 @@ export default function AttributeTab(
                     }
                 </Tabs.Content>
             </Tabs.Root>
-            <HelpLink link="https://docs.shotly.at/shotlist/attributes" floating/>
+            <HelpLink link="https://docs.shotly.at/shotlist/attributes" name={"Attribute"} floating/>
         </div>
     )
 }

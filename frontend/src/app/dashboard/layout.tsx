@@ -649,7 +649,10 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             </PanelGroup>
 
             <div className="floater">
-                <HelpLink link={`https://docs.shotly.at/${isTemplatePage ? "templates" : "dashboard"}`}/>
+                <HelpLink
+                    link={`https://docs.shotly.at/${isTemplatePage ? "templates" : "dashboard"}`}
+                    name={isTemplatePage ? "Template" : "Dashboard"}
+                />
                 {
                     isTemplatePage &&
                     <button className="openSidebar" onClick={() => setSidebarOpen(true)}><Menu/></button>

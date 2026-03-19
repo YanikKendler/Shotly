@@ -39,6 +39,7 @@ export default function SimplePopover({
                     sideOffset={offset}
                     side={side}
                     style={{fontSize: fontSize + "rem"}}
+                    collisionPadding={10}
                 >
                     <Popover.Arrow className="popoverArrow"/>
                     <div className="scrollArea">
