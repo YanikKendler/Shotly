@@ -58,13 +58,16 @@ export abstract class SceneAttributeParser {
     }
 
     static isEmpty(attribute: AnySceneAttribute): boolean{
+        if(!attribute) return true
+
         switch (attribute.type) {
             case "SceneTextAttributeDTO":
                 return wuConstants.Regex.empty.test((attribute as SceneTextAttributeDto).textValue || "")
             case "SceneSingleSelectAttributeDTO":
                 return (attribute as SceneSingleSelectAttributeDto).singleSelectValue === null
             case "SceneMultiSelectAttributeDTO":
-                return !attribute || (attribute as SceneMultiSelectAttributeDto).multiSelectValue?.length === 0
+                if(!(attribute as SceneMultiSelectAttributeDto).multiSelectValue) return true
+                return (attribute as SceneMultiSelectAttributeDto).multiSelectValue?.length == 0
         }
         return true
     }

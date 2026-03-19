@@ -691,7 +691,7 @@ export default function Shotlist() {
 
         newCache.set(
             sceneAttributeDefinitionId,
-            data.sceneSelectAttributeOptions.map((option: any): SelectOption => ({
+            data.sceneSelectAttributeOptions?.map((option: any): SelectOption => ({
                 value: option.id,
                 label: option.name,
             }))
