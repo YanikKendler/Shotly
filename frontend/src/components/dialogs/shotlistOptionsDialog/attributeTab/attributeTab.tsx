@@ -1,6 +1,6 @@
 import {SceneAttributeType, ShotAttributeType, ShotlistDto} from "../../../../../lib/graphql/generated"
 import {Popover, Separator, Tabs} from "radix-ui"
-import React, {useRef} from "react"
+import React, {RefObject, useRef} from "react"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {useRouter} from "next/navigation"
@@ -16,15 +16,15 @@ import {
 } from "@dnd-kit/core"
 import {arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy} from "@dnd-kit/sortable"
 import ShotAttributeDefinition from "@/components/dialogs/shotlistOptionsDialog/attributeTab/shotAttributeDefinition/shotAttributeDefinition"
-import {ChevronDown, GripVertical, List, Plus, Type} from "lucide-react"
+import {ChevronDown, GripVertical, List, Plus, Type, X} from "lucide-react"
 import SceneAttributeDefinition from "@/components/dialogs/shotlistOptionsDialog/attributeTab/sceneAttributeDefinition/sceneAttributeDefinition"
 import {ShotlistOptionsDialogSubPage} from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {AnySceneAttributeDefinition, AnyShotAttributeDefinition} from "@/util/Types"
 import {apolloClient} from "@/components/wrapper/ApolloWrapper"
-import Loader from "@/components/feedback/loader/loader"
 import HelpLink from "@/components/helpLink/helpLink"
 import Skeleton from "react-loading-skeleton"
 import {errorNotification} from "@/service/NotificationService"
+import {DialogRef} from "@/components/dialog/dialog"
 
 export default function AttributeTab(
     {
@@ -35,7 +35,8 @@ export default function AttributeTab(
         setSceneAttributeDefinitions,
         selectedPage = ShotlistOptionsDialogSubPage.scene,
         setSelectedPage,
-        dataChanged
+        dataChanged,
+        shotlistOptionsDialogRef
     }
         :
     {
@@ -47,6 +48,8 @@ export default function AttributeTab(
         selectedPage: ShotlistOptionsDialogSubPage
         setSelectedPage: (page: ShotlistOptionsDialogSubPage) => void
         dataChanged: () => void
+        shotlistOptionsDialogRef: RefObject<DialogRef | null>
+
     }
 ) {
     const client = useApolloClient()
@@ -243,23 +246,28 @@ export default function AttributeTab(
     }
 
     return (
-        <div className={"shotlistOptionsDialogAttributeTab"}>
+        <>
             <Tabs.Root
-                className={"attributeTypeTabRoot"}
+                className={"attributeTypeTabRoot shotlistOptionsDialogAttributeTab shotlistOptionsDialogPage"}
                 value={selectedPage}
                 onValueChange={page => {
                     updateUrl(page as ShotlistOptionsDialogSubPage)
                     setSelectedPage(page as ShotlistOptionsDialogSubPage)
                 }}
             >
-                <Tabs.List className={"tabs"}>
-                    <Tabs.Trigger value={"scene"}>
-                        Scene
-                    </Tabs.Trigger>
-                    <Tabs.Trigger value={"shot"}>
-                        Shot
-                    </Tabs.Trigger>
-                </Tabs.List>
+                <div className="top">
+                    <Tabs.List className={"tabs"}>
+                        <Tabs.Trigger value={"scene"}>
+                            Scene
+                        </Tabs.Trigger>
+                        <Tabs.Trigger value={"shot"}>
+                            Shot
+                        </Tabs.Trigger>
+                    </Tabs.List>
+                    <button className={"closeButton"} onClick={shotlistOptionsDialogRef.current?.close}>
+                        <X size={18}/>
+                    </button>
+                </div>
                 <Tabs.Content
                     value={"scene"}
                     className={"content"}
@@ -319,6 +327,7 @@ export default function AttributeTab(
                             </Popover.Root>
                         </>
                     }
+                    <span className="scrollSpacer" aria-hidden/>
                 </Tabs.Content>
                 <Tabs.Content
                     value={"shot"}
@@ -377,9 +386,10 @@ export default function AttributeTab(
                             </Popover.Root>
                         </>
                     }
+                    <span className="scrollSpacer" aria-hidden/>
                 </Tabs.Content>
             </Tabs.Root>
             <HelpLink link="https://docs.shotly.at/shotlist/attributes" name={"Attribute"} floating/>
-        </div>
+        </>
     )
 }

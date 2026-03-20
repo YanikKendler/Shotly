@@ -1,17 +1,4 @@
 div.shotlistOptionsDialogExportTab{
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow-y: hidden;
-
-  .scroll{
-    height: 100%;
-    overflow-y: auto;
-    padding-bottom: 4rem;
-
-    scrollbar-width: thin;
-    scrollbar-gutter: stable;
-  }
 
   .filters{
     display: flex;
@@ -55,9 +42,6 @@ div.shotlistOptionsDialogExportTab{
 
       }
 
-      button.SwitchRoot{
-      }
-
       .textField{
         width: 100%;
         font-size: .9rem;
@@ -93,13 +77,6 @@ div.shotlistOptionsDialogExportTab{
   }
 
   .bottom{
-    margin-top: auto;
-    display: flex;
-    border-top: 2px solid var(--text-90);
-    padding-top: 1rem;
-    background-color: var(--contrast);
-    gap: .5rem;
-
     button{
       padding: .5rem .8rem;
       font-size: .95rem;

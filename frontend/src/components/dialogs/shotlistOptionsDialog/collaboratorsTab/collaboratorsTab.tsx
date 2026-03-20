@@ -1,4 +1,4 @@
-import React, {useState} from "react"
+import React, {RefObject, useState} from "react"
 import {useApolloClient} from "@apollo/client"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialog"
 import "./collaboratorsTab.scss"
@@ -7,7 +7,7 @@ import TextField from "@/components//inputs/textField/textField"
 import Skeleton from "react-loading-skeleton"
 import gql from "graphql-tag"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
-import {Ellipsis, Send, Trash, User} from "lucide-react"
+import {Ellipsis, Send, Trash, User, X} from "lucide-react"
 import SimpleSelect from "@/components/inputs/simpleSelect/simpleSelect"
 import {Popover} from "radix-ui"
 import GoogleLogo from "@/components/googleLogo"
@@ -15,16 +15,19 @@ import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import Config from "@/Config"
 import HelpLink from "@/components/helpLink/helpLink"
 import {errorNotification} from "@/service/NotificationService"
+import {DialogRef} from "@/components/dialog/dialog"
 
 export default function CollaboratorsTab(
     {
         shotlistId,
         collaborations,
-        setCollaborations
+        setCollaborations,
+        shotlistOptionsDialogRef
     }:{
-        shotlistId: string | null,
-        collaborations: CollaborationDto[] | null,
+        shotlistId: string | null
+        collaborations: CollaborationDto[] | null
         setCollaborations: (collaborators: CollaborationDto[]) => void
+        shotlistOptionsDialogRef: RefObject<DialogRef | null>
     }
 ) {
     const client = useApolloClient()
@@ -190,16 +193,26 @@ export default function CollaboratorsTab(
     }
 
     if(collaborations == null) {
-        return <>
-            <h2>Current Collaborators</h2>
+        return <div className="shotlistOptionsDialogCollaboratorsTab shotlistOptionsDialogPage">
+            <div className="top">
+                <h2>Current Collaborators</h2>
+                <button className={"closeButton"} onClick={shotlistOptionsDialogRef.current?.close}>
+                    <X size={18}/>
+                </button>
+            </div>
             <Skeleton height={"2rem"} style={{marginTop: ".5rem"}} count={2}/>
             <Skeleton height={"2rem"} width={"15ch"} style={{marginTop: "2rem"}}/>
-        </>
+        </div>
     }
 
     return (
-        <div className={"shotlistOptionsDialogCollaboratorsTab"}>
-            <h2>Current Collaborators</h2>
+        <div className={"shotlistOptionsDialogCollaboratorsTab shotlistOptionsDialogPage"}>
+            <div className="top">
+                <h2>Current Collaborators</h2>
+                <button className={"closeButton"} onClick={shotlistOptionsDialogRef.current?.close}>
+                    <X size={18}/>
+                </button>
+            </div>
             <div className="collaborators">
             {
                 collaborations.length <= 0 ?

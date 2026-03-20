@@ -10,7 +10,7 @@ import {
     Heading,
     CaseSensitive, Type
 } from "lucide-react"
-import React, {Fragment, useEffect, useRef, useState} from "react"
+import React, {Fragment, RefObject, useEffect, useRef, useState} from "react"
 import gql from "graphql-tag"
 import {pdf, PDFViewer} from "@react-pdf/renderer"
 import PDFExport, {PDFExportOptions} from "@/components/dialogs/shotlistOptionsDialog/exportTab/PDFExport"
@@ -71,12 +71,14 @@ export default function ExportTab(
     {
         shotlist,
         shotAttributeDefinitions,
-        sceneAttributeDefinitions
+        sceneAttributeDefinitions,
+        shotlistOptionsDialogRef
     }:
     {
         shotlist: ShotlistDto | null
         shotAttributeDefinitions: AnyShotAttributeDefinition[] | null
         sceneAttributeDefinitions: AnySceneAttributeDefinition[] | null
+        shotlistOptionsDialogRef: RefObject<DialogRef | null>
     }
 ) {
     const [sceneOptions, setSceneOptions] = useState<SelectOption[]>([{value: "this is bad", label: "1"}])
@@ -619,11 +621,16 @@ export default function ExportTab(
         setCustomSceneFilters(newCustomFilters)
     }
 
-    if(!shotlist) return <>
-        <h2>Configure the export</h2>
+    if(!shotlist) return <div className={"shotlistOptionsDialogExportTab shotlistOptionsDialogPage"}>
+        <div className="top">
+            <h2>Configure the export</h2>
+            <button className={"closeButton"} onClick={shotlistOptionsDialogRef.current?.close}>
+                <X size={18}/>
+            </button>
+        </div>
         <Skeleton height={"2rem"} count={2} style={{marginTop: ".5rem"}}/>
         <Skeleton height={"2rem"} width={"15ch"} style={{marginTop: "2rem"}}/>
-    </>
+    </div>
 
     const customSceneFilterCandidates = sceneAttributeDefinitions
         ?.filter(attributeDefinition => {
@@ -644,230 +651,235 @@ export default function ExportTab(
         })
 
     return (
-        <div className={"shotlistOptionsDialogExportTab"}>
-            <h2>Configure the export</h2>
+        <div className={"shotlistOptionsDialogExportTab shotlistOptionsDialogPage"}>
+            <div className="top">
+                <h2>Configure the export</h2>
+                <button className={"closeButton"} onClick={shotlistOptionsDialogRef.current?.close}>
+                    <X size={18}/>
+                </button>
+            </div>
 
-            <div className="scroll">
-                <div className="filters">
-                    <div className="filter">
-                        <div className="left">
-                            <File size={22}/>
-                            <p>Format</p>
-                        </div>
-
-                        <SimpleSelect
-                            name="File Type"
-                            onChange={newValue => setSelectedFileType(newValue as SelectedFileTypes)}
-                            options={[
-                                {value: "PDF", label: "PDF"},
-                                {value: "XLSX", label: "XLSX"},
-                                {value: "CSV-full", label: "CSV (full)"},
-                                {value: "CSV-small", label: "CSV (shots only)"},
-                            ]}
-                            value={selectedFileType}
-                            fontSize={".9rem"}
-                        />
+            <div className="filters">
+                <div className="filter">
+                    <div className="left">
+                        <File size={22}/>
+                        <p>Format</p>
                     </div>
-                    {
-                        selectedFileType == "PDF" &&
-                        <>
+
+                    <SimpleSelect
+                        name="File Type"
+                        onChange={newValue => setSelectedFileType(newValue as SelectedFileTypes)}
+                        options={[
+                            {value: "PDF", label: "PDF"},
+                            {value: "XLSX", label: "XLSX"},
+                            {value: "CSV-full", label: "CSV (full)"},
+                            {value: "CSV-small", label: "CSV (shots only)"},
+                        ]}
+                        value={selectedFileType}
+                        fontSize={".9rem"}
+                    />
+                </div>
+                {
+                    selectedFileType == "PDF" &&
+                    <>
+                        <div className="filter">
+                            <div className="left">
+                                <SquareCheck size={20}/>
+                                <p>Add checkboxes</p>
+                            </div>
+
+                            <Switch.Root
+                                className="SwitchRoot"
+                                checked={pdfExportOptions.showCheckboxes}
+                                onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, showCheckboxes: checked})}
+                            >
+                                <Switch.Thumb className="SwitchThumb"/>
+                            </Switch.Root>
+                        </div>
+                        <div className="filter">
+                            <div className="left">
+                                <Type size={20}/>
+                                <p>Header text (optional)</p>
+                            </div>
+
+                            <TextField
+                                value={pdfExportOptions.headerText}
+                                valueChange={(value) => setPdfExportOptions({...pdfExportOptions, headerText: value})}
+                                placeholder={"Any text"}
+                                clearable
+                            />
+                        </div>
+                        <Collapse name={"Advanced settings"}>
                             <div className="filter">
                                 <div className="left">
-                                    <SquareCheck size={20}/>
-                                    <p>Add checkboxes</p>
+                                    <LucideWrapText size={20}/>
+                                    <p>Avoid orphaned shots when wrapping</p>
                                 </div>
 
                                 <Switch.Root
                                     className="SwitchRoot"
-                                    checked={pdfExportOptions.showCheckboxes}
-                                    onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, showCheckboxes: checked})}
+                                    checked={pdfExportOptions.avoidOrphans}
+                                    onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, avoidOrphans: checked})}
                                 >
                                     <Switch.Thumb className="SwitchThumb"/>
                                 </Switch.Root>
                             </div>
                             <div className="filter">
                                 <div className="left">
-                                    <Type size={20}/>
-                                    <p>Header text (optional)</p>
+                                    <Heading size={20}/>
+                                    <p>Repeat scene headings after page breaks</p>
                                 </div>
 
-                                <TextField
-                                    value={pdfExportOptions.headerText}
-                                    valueChange={(value) => setPdfExportOptions({...pdfExportOptions, headerText: value})}
-                                    placeholder={"Any text"}
-                                    clearable
-                                />
+                                <Switch.Root
+                                    className="SwitchRoot"
+                                    checked={pdfExportOptions.repeatSceneHeading}
+                                    onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, repeatSceneHeading: checked})}
+                                >
+                                    <Switch.Thumb className="SwitchThumb"/>
+                                </Switch.Root>
                             </div>
-                            <Collapse name={"Advanced settings"}>
-                                <div className="filter">
-                                    <div className="left">
-                                        <LucideWrapText size={20}/>
-                                        <p>Avoid orphaned shots when wrapping</p>
-                                    </div>
-
-                                    <Switch.Root
-                                        className="SwitchRoot"
-                                        checked={pdfExportOptions.avoidOrphans}
-                                        onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, avoidOrphans: checked})}
-                                    >
-                                        <Switch.Thumb className="SwitchThumb"/>
-                                    </Switch.Root>
+                            <div className="filter">
+                                <div className="left">
+                                    <Repeat size={20}/>
+                                    <p>Repeat scene attribute names on every page</p>
                                 </div>
-                                <div className="filter">
-                                    <div className="left">
-                                        <Heading size={20}/>
-                                        <p>Repeat scene headings after page breaks</p>
-                                    </div>
 
-                                    <Switch.Root
-                                        className="SwitchRoot"
-                                        checked={pdfExportOptions.repeatSceneHeading}
-                                        onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, repeatSceneHeading: checked})}
-                                    >
-                                        <Switch.Thumb className="SwitchThumb"/>
-                                    </Switch.Root>
-                                </div>
-                                <div className="filter">
-                                    <div className="left">
-                                        <Repeat size={20}/>
-                                        <p>Repeat scene attribute names on every page</p>
-                                    </div>
-
-                                    <Switch.Root
-                                        className="SwitchRoot"
-                                        checked={pdfExportOptions.repeatAttributeDefinitions}
-                                        onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, repeatAttributeDefinitions: checked})}
-                                    >
-                                        <Switch.Thumb className="SwitchThumb"/>
-                                    </Switch.Root>
-                                </div>
-                            </Collapse>
-                            <Separator/>
-                        </>
-                    }
-                    <div className="filter">
-                        <div className="left">
-                            <ListOrdered size={22}/>
-                            <p>Scenes</p>
-                        </div>
-
-                        <MultiSelect
-                            name={"Scenes"}
-                            placeholder={"All Scenes"}
-                            options={sceneOptions}
-                            value={selectedScenes}
-                            onChange={newValue => {
-                                setSelectedScenes(newValue)
-                            }}
-                            sorted={true}
-                            minWidth={"20rem"}
-                        />
+                                <Switch.Root
+                                    className="SwitchRoot"
+                                    checked={pdfExportOptions.repeatAttributeDefinitions}
+                                    onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, repeatAttributeDefinitions: checked})}
+                                >
+                                    <Switch.Thumb className="SwitchThumb"/>
+                                </Switch.Root>
+                            </div>
+                        </Collapse>
+                        <Separator/>
+                    </>
+                }
+                <div className="filter">
+                    <div className="left">
+                        <ListOrdered size={22}/>
+                        <p>Scenes</p>
                     </div>
+
+                    <MultiSelect
+                        name={"Scenes"}
+                        placeholder={"All Scenes"}
+                        options={sceneOptions}
+                        value={selectedScenes}
+                        onChange={newValue => {
+                            setSelectedScenes(newValue)
+                        }}
+                        sorted={true}
+                        minWidth={"20rem"}
+                    />
                 </div>
-
-                {customSceneFilters.size > 0 && <Separator text={"Scene attributes"}/>}
-
-                <div className="filters">
-                    {Array.from(customSceneFilters).map((filter, index) => {
-                        const definition = sceneAttributeDefinitions?.find(def => def?.id === filter[0]) as SceneSingleOrMultiSelectAttributeDefinition
-
-                        if(!definition) return null
-
-                        const Icon = SceneAttributeDefinitionParser.toIcon(definition)
-                        const options = (definition.options as SceneSelectAttributeOptionDefinition[])
-                            ?.map(option =>
-                                ({
-                                    value: option.id.toString(),
-                                    label: option.name || "Unnamed",
-                                })
-                            ) || []
-
-                        return (<Fragment key={definition.id}>
-                            <ExportFilter
-                                Icon={Icon}
-                                name={definition.name || "Unnamed"}
-                                isMulti={SceneAttributeDefinitionParser.isMulti(definition)}
-                                options={options}
-                                value={filter[1]}
-                                onChange={newValue => {
-                                    setSceneFilterValue(definition.id, newValue)
-                                }}
-                                onRemove={() => removeSceneFilter(definition.id)}
-                            />
-                            {customSceneFilters.size > index+1 && <p className="combinationInfo">and</p>}
-                        </Fragment>)
-                    })}
-                </div>
-
-                {customShotFilters.size > 0 && <Separator text={"Shot attributes"}/>}
-
-                <div className="filters">
-                    {Array.from(customShotFilters).map((filter, index) => {
-                        const definition = shotAttributeDefinitions?.find(def => def?.id === filter[0]) as ShotSingleOrMultiSelectAttributeDefinition
-
-                        if(!definition) return null
-
-                        const Icon = ShotAttributeDefinitionParser.toIcon(definition)
-                        const options = (definition.options as ShotSelectAttributeOptionDefinition[])
-                            ?.map(option =>
-                                ({value: option.id.toString(), label: option.name || "Unnamed"})
-                            ) || []
-
-                        return (<Fragment key={definition.id}>
-                            <ExportFilter
-                                Icon={Icon}
-                                name={definition.name || "Unnamed"}
-                                isMulti={ShotAttributeDefinitionParser.isMulti(definition)}
-                                options={options}
-                                value={filter[1]}
-                                onChange={newValue => {
-                                    setShotFilterValue(definition.id, newValue)
-                                }}
-                                onRemove={() => removeShotFilter(definition.id)}
-                            />
-                            {customShotFilters.size > index+1 && <p className="combinationInfo">and</p>}
-                        </Fragment>)
-                    })}
-                </div>
-
-                <Popover.Root>
-                    <Popover.Trigger className={"addFilter"}>
-                        Add filter <Plus size={20}/>
-                    </Popover.Trigger>
-                    <Popover.Portal>
-                        <Popover.Content className="popoverContent addFilterPopup" sideOffset={5} align={"start"}>
-                                <h3>Scene</h3>
-                                {
-                                    !customSceneFilterCandidates || customSceneFilterCandidates?.length <= 0 ?
-                                        <p className="empty">None left</p> :
-                                    customSceneFilterCandidates?.map((attributeDefinition, index) => (
-                                        <Popover.Close asChild key={index}>
-                                            <button
-                                                onClick={() => addSceneFilter(attributeDefinition?.id || -1)}
-                                            >
-                                                {attributeDefinition?.name || "Unnamed"}
-                                            </button>
-                                        </Popover.Close>
-                                    ))
-                                }
-                                <h3>Shot</h3>
-                                {
-                                    !customShotFilterCandidates || customShotFilterCandidates?.length <= 0 ?
-                                        <p className="empty">None left</p> :
-                                    customShotFilterCandidates.map((attributeDefinition, index) => (
-                                        <Popover.Close asChild key={index}>
-                                            <button
-                                                onClick={() => addShotFilter(attributeDefinition?.id || -1)}
-                                            >
-                                                {attributeDefinition?.name || "Unnamed"}
-                                            </button>
-                                        </Popover.Close>
-                                    ))
-                                }
-                        </Popover.Content>
-                    </Popover.Portal>
-                </Popover.Root>
             </div>
+
+            {customSceneFilters.size > 0 && <Separator text={"Scene attributes"}/>}
+
+            <div className="filters">
+                {Array.from(customSceneFilters).map((filter, index) => {
+                    const definition = sceneAttributeDefinitions?.find(def => def?.id === filter[0]) as SceneSingleOrMultiSelectAttributeDefinition
+
+                    if(!definition) return null
+
+                    const Icon = SceneAttributeDefinitionParser.toIcon(definition)
+                    const options = (definition.options as SceneSelectAttributeOptionDefinition[])
+                        ?.map(option =>
+                            ({
+                                value: option.id.toString(),
+                                label: option.name || "Unnamed",
+                            })
+                        ) || []
+
+                    return (<Fragment key={definition.id}>
+                        <ExportFilter
+                            Icon={Icon}
+                            name={definition.name || "Unnamed"}
+                            isMulti={SceneAttributeDefinitionParser.isMulti(definition)}
+                            options={options}
+                            value={filter[1]}
+                            onChange={newValue => {
+                                setSceneFilterValue(definition.id, newValue)
+                            }}
+                            onRemove={() => removeSceneFilter(definition.id)}
+                        />
+                        {customSceneFilters.size > index+1 && <p className="combinationInfo">and</p>}
+                    </Fragment>)
+                })}
+            </div>
+
+            {customShotFilters.size > 0 && <Separator text={"Shot attributes"}/>}
+
+            <div className="filters">
+                {Array.from(customShotFilters).map((filter, index) => {
+                    const definition = shotAttributeDefinitions?.find(def => def?.id === filter[0]) as ShotSingleOrMultiSelectAttributeDefinition
+
+                    if(!definition) return null
+
+                    const Icon = ShotAttributeDefinitionParser.toIcon(definition)
+                    const options = (definition.options as ShotSelectAttributeOptionDefinition[])
+                        ?.map(option =>
+                            ({value: option.id.toString(), label: option.name || "Unnamed"})
+                        ) || []
+
+                    return (<Fragment key={definition.id}>
+                        <ExportFilter
+                            Icon={Icon}
+                            name={definition.name || "Unnamed"}
+                            isMulti={ShotAttributeDefinitionParser.isMulti(definition)}
+                            options={options}
+                            value={filter[1]}
+                            onChange={newValue => {
+                                setShotFilterValue(definition.id, newValue)
+                            }}
+                            onRemove={() => removeShotFilter(definition.id)}
+                        />
+                        {customShotFilters.size > index+1 && <p className="combinationInfo">and</p>}
+                    </Fragment>)
+                })}
+            </div>
+
+            <Popover.Root>
+                <Popover.Trigger className={"addFilter"}>
+                    Add filter <Plus size={20}/>
+                </Popover.Trigger>
+                <Popover.Portal>
+                    <Popover.Content className="popoverContent addFilterPopup" sideOffset={5} align={"start"}>
+                            <h3>Scene</h3>
+                            {
+                                !customSceneFilterCandidates || customSceneFilterCandidates?.length <= 0 ?
+                                    <p className="empty">None left</p> :
+                                customSceneFilterCandidates?.map((attributeDefinition, index) => (
+                                    <Popover.Close asChild key={index}>
+                                        <button
+                                            onClick={() => addSceneFilter(attributeDefinition?.id || -1)}
+                                        >
+                                            {attributeDefinition?.name || "Unnamed"}
+                                        </button>
+                                    </Popover.Close>
+                                ))
+                            }
+                            <h3>Shot</h3>
+                            {
+                                !customShotFilterCandidates || customShotFilterCandidates?.length <= 0 ?
+                                    <p className="empty">None left</p> :
+                                customShotFilterCandidates.map((attributeDefinition, index) => (
+                                    <Popover.Close asChild key={index}>
+                                        <button
+                                            onClick={() => addShotFilter(attributeDefinition?.id || -1)}
+                                        >
+                                            {attributeDefinition?.name || "Unnamed"}
+                                        </button>
+                                    </Popover.Close>
+                                ))
+                            }
+                    </Popover.Content>
+                </Popover.Portal>
+            </Popover.Root>
+
+            <span className="scrollSpacer" aria-hidden></span>
 
             <div className="bottom">
                 <button

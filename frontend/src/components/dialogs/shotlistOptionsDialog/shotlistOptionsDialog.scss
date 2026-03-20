@@ -9,18 +9,7 @@
   height: 100%;
   max-height: 600px;
 
-  .closeButton{
-    position: absolute;
-    top: .5rem;
-    right: .5rem;
-    padding: .4rem;
-    background-color: var(--dialog-close-button-bg);
-    border-radius: 1rem;
-
-    &:hover{
-      background-color: var(--dialog-close-button-hover-bg);
-    }
-  }
+  padding: 0;
 
   .optionsDialogPageTabRoot{
     display: flex;
@@ -34,6 +23,7 @@
     > .tabs{
       display: flex;
       flex-direction: column;
+      padding: 1rem;
       padding-top: 2rem;
       gap: .5rem;
       -ms-overflow-style: none;  /* IE and Edge */
@@ -74,7 +64,6 @@
     }
 
     > .separator{
-      margin-inline: 1rem;
 
       &.horizontal{
         display: none;
@@ -94,47 +83,98 @@
       }
     }
 
-    > .content{
+    > .content {
       width: 100%;
       height: 100%;
       overflow: hidden;
+    }
+  }
 
-      &:not([hidden]){
-        display: flex;
-        flex-direction: column;
-      }
+  .shotlistOptionsDialogPage{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-inline: 1rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
+    position: relative;
+
+    &:not([hidden]){
+      display: flex;
+      flex-direction: column;
+    }
+
+    > .top {
+      position: sticky;
+      top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-block: 1rem;
+      background-color: var(--contrast);
+      margin-bottom: .3rem;
+      z-index: 10;
 
       h2{
         font-weight: 600;
-        margin-block: .5rem;
-        margin-bottom: 1rem;
       }
 
-      > .empty {
-        color: var(--text-50);
-        text-align: center;
-        margin-top: 4rem;
-      }
+      .closeButton{
+        padding: .4rem;
+        background-color: var(--dialog-close-button-bg);
+        border-radius: 1rem;
 
-      > .collabNotOwner{
-        .empty{
-          color: var(--text-50);
-          margin-top: 1rem;
+        &:hover{
+          background-color: var(--dialog-close-button-hover-bg);
         }
+      }
+    }
 
-        .row{
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          width: 100%;
-          color: var(--text-20);
+    .scrollSpacer {
+      height: 100px;
+      width: 100%;
+      flex-shrink: 0;
+      display: block;
+    }
 
-          button{
-            border: 2px solid var(--default-interactable-border);
+    > .bottom {
+      margin-top: auto;
+      display: flex;
+      border-top: 2px solid var(--text-90);
+      padding-block: 1rem;
+      background-color: var(--contrast);
+      gap: .5rem;
+      position: sticky;
+      bottom: 0rem; //account for padding on parent
+      left: 0;
+      right: 0;
+    }
 
-            &:hover{
-              border-color: var(--bad-60);
-            }
+    > .empty {
+      color: var(--text-50);
+      text-align: center;
+      margin-top: 4rem;
+    }
+
+    > .collabNotOwner{
+      .empty{
+        color: var(--text-50);
+        margin-top: 1rem;
+      }
+
+      .row{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        color: var(--text-20);
+
+        button{
+          border: 2px solid var(--default-interactable-border);
+
+          &:hover{
+            border-color: var(--bad-60);
           }
         }
       }

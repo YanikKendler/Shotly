@@ -1,6 +1,6 @@
 import {ShotAttributeDefinitionParser} from "@/util/AttributeParser"
 import {Component, ForwardRefExoticComponent} from "react"
-import {LucideProps, X} from "lucide-react"
+import {LucideProps, Trash, X} from "lucide-react"
 import {ShotSelectAttributeOptionDefinition} from "../../../../../lib/graphql/generated"
 import MultiSelect from "@/components/inputs/multiSelect/multiSelect"
 import {MultiValue} from "react-select"
@@ -49,7 +49,7 @@ export default function ExportFilter({
                     className="remove bad"
                     onClick={onRemove}
                 >
-                    <X size={18}/>
+                    <Trash size={18}/>
                 </button>
             </div>
         </div>

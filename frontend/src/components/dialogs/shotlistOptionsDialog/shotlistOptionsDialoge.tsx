@@ -286,9 +286,6 @@ export default function ShotlistOptionsDialog({
             ref={ref}
             contentClassName={"shotlistOptionsDialogContent"}
         >
-            <button className={"closeButton"} onClick={ref.current?.close}>
-                <X size={18}/>
-            </button>
             <Tabs.Root
                 className={"optionsDialogPageTabRoot"}
                 value={selectedMainPage}
@@ -324,6 +321,7 @@ export default function ShotlistOptionsDialog({
                         dataChanged={() => setDataChanged(true)}
                         isReadOnly={isReadOnly}
                         currentUser={currentUser}
+                        shotlistOptionsDialogRef={ref}
                     />
                 </Tabs.Content>
                 <Tabs.Content value={"attributes"} className={"content"}>
@@ -339,6 +337,7 @@ export default function ShotlistOptionsDialog({
                             selectedPage={selectedSubPage}
                             setSelectedPage={setSelectedSubPage}
                             dataChanged={() => setDataChanged(true)}
+                            shotlistOptionsDialogRef={ref}
                         />
                     }
                 </Tabs.Content>
@@ -367,6 +366,7 @@ export default function ShotlistOptionsDialog({
                             shotlistId={shotlistId}
                             collaborations={collaborations}
                             setCollaborations={setCollaborations}
+                            shotlistOptionsDialogRef={ref}
                         />
                     }
                 </Tabs.Content>
@@ -381,6 +381,7 @@ export default function ShotlistOptionsDialog({
                         shotlist={shotlist}
                         shotAttributeDefinitions={shotAttributeDefinitions}
                         sceneAttributeDefinitions={sceneAttributeDefinitions}
+                        shotlistOptionsDialogRef={ref}
                     />
                 </Tabs.Content>
             </Tabs.Root>

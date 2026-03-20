@@ -1,5 +1,5 @@
 import {ShotlistDto, UserDto} from "../../../../../lib/graphql/generated"
-import React, {useState} from "react"
+import React, {RefObject, useState} from "react"
 import gql from "graphql-tag"
 import {wuGeneral, wuTime} from "@yanikkendler/web-utils"
 import {useApolloClient} from "@apollo/client"
@@ -11,6 +11,8 @@ import Loader from "@/components/feedback/loader/loader"
 import Separator from "@/components/separator/separator"
 import {errorNotification} from "@/service/NotificationService"
 import Skeleton from "react-loading-skeleton"
+import {DialogRef} from "@/components/dialog/dialog"
+import {X} from "lucide-react"
 
 export default function GeneralTab({
     shotlist,
@@ -18,12 +20,15 @@ export default function GeneralTab({
     dataChanged,
     isReadOnly,
     currentUser,
+    shotlistOptionsDialogRef
 }: {
     shotlist: ShotlistDto | null,
     setShotlist: (shotlist: ShotlistDto) => void,
     dataChanged: () => void,
     isReadOnly: boolean,
     currentUser: UserDto | null,
+    shotlistOptionsDialogRef: RefObject<DialogRef | null>
+
 }) {
     const client = useApolloClient()
     const { confirm, ConfirmDialog } = useConfirmDialog();
@@ -112,8 +117,13 @@ export default function GeneralTab({
     }
 
     if(!shotlist || !currentUser) return (
-        <div className={"shotlistOptionsDialogGeneralTab"}>
-            <h2>Shotlist settings</h2>
+        <div className={"shotlistOptionsDialogGeneralTab shotlistOptionsDialogPage"}>
+            <div className="top">
+                <h2>Shotlist settings</h2>
+                <button className={"closeButton"} onClick={shotlistOptionsDialogRef.current?.close}>
+                    <X size={18}/>
+                </button>
+            </div>
             <Skeleton height={"2.5rem"}/>
 
             <Separator/>
@@ -124,13 +134,18 @@ export default function GeneralTab({
         </div>
     )
 
-    if(deleting) return <div className={"shotlistOptionsDialogGeneralTab"}>
+    if(deleting) return <div className={"shotlistOptionsDialogGeneralTab shotlistOptionsDialogPage"}>
         <Loader text={"Deleting shotlist..."}/>
     </div>
 
     return (
-        <div className={"shotlistOptionsDialogGeneralTab"}>
-            <h2>Shotlist settings</h2>
+        <div className={"shotlistOptionsDialogGeneralTab shotlistOptionsDialogPage"}>
+            <div className="top">
+                <h2>Shotlist settings</h2>
+                <button className={"closeButton"} onClick={shotlistOptionsDialogRef.current?.close}>
+                    <X size={18}/>
+                </button>
+            </div>
             <TextField
                 label={"Name"}
                 value={shotlist.name || ""}
@@ -153,8 +168,7 @@ export default function GeneralTab({
 
             {
                 shotlist.owner?.id == currentUser?.id &&
-                <>
-                    <Separator className={"dangerZone"}/>
+                <div className={"bottom"}>
                     <div className="row">
                         <p>Permanently delete the shotlist "{shotlist.name}"</p>
                         <button
@@ -165,7 +179,7 @@ export default function GeneralTab({
                             Delete Shotlist
                         </button>
                     </div>
-                </>
+                </div>
             }
             {ConfirmDialog}
         </div>

@@ -871,6 +871,7 @@ body button.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot {
   border-radius: 9999px;
   position: relative;
   -webkit-tap-highlight-color: var(--accent);
+  font-size: .9rem;
 
   &[data-state="checked"] {
     background-color: var(--accent);
