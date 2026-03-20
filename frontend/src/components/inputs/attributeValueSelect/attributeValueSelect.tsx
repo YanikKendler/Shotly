@@ -33,6 +33,11 @@ export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBas
         color: state.isFocused ? "var(--contrast)" : "var(--text)",
         fontWeight: state.isFocused ? "bold" : "normal",
         fontSize: "0.85rem",
+        width: "fit-content",
+        minWidth: "100%",
+        maxWidth: "15rem",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
     }),
     input: (baseStyles) => ({
         ...baseStyles,
