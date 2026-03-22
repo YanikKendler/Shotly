@@ -225,7 +225,7 @@ public class ShotAttributeDefinitionRepository implements PanacheRepository<Shot
                     , Shotlist.class
                 )
                 .setParameter("definitionId", id)
-                .getSingleResult();
+                .getSingleResultOrNull();
         if(result == null) {
             throw new ShotlyException("Shotlist not found for definition ID: " + id, ShotlyErrorCode.NOT_FOUND);
         }
