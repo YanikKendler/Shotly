@@ -12,7 +12,6 @@ import {
     ShotSingleSelectAttributeDto,
     ShotTextAttributeDto
 } from "../../../../../lib/graphql/generated"
-import {apolloClient} from "@/components/wrapper/ApolloWrapper"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {wuGeneral} from "@yanikkendler/web-utils"

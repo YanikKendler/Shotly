@@ -1,10 +1,10 @@
 import "./globals.scss"
 import 'react-loading-skeleton/dist/skeleton.css'
 import React from "react"
-import {ApolloWrapper} from "@/components/wrapper/ApolloWrapper"
+import {ApolloWrapper} from "@/wrapper/ApolloWrapper"
 import {Inter} from 'next/font/google'
 import {Toast, Tooltip} from "radix-ui"
-import AuthWrapper from "@/components/wrapper/AuthWrapper"
+import AuthWrapper from "@/wrapper/AuthWrapper"
 import Config from "@/Config"
 import {Metadata, Viewport} from "next"
 import {SkeletonTheme} from "react-loading-skeleton"

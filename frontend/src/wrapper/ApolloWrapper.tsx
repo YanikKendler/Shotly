@@ -1,11 +1,7 @@
 "use client";
 
-import {from, HttpLink, Observable} from "@apollo/client";
-import {
-    ApolloNextAppProvider,
-    ApolloClient,
-    InMemoryCache,
-} from "@apollo/client-integration-nextjs";
+import {from, HttpLink} from "@apollo/client";
+import {ApolloClient, ApolloNextAppProvider, InMemoryCache,} from "@apollo/client-integration-nextjs";
 import auth from "@/Auth"
 import {setContext} from "@apollo/client/link/context"
 import {onError} from "@apollo/client/link/error"
@@ -50,10 +46,10 @@ export function makeClient() {
 
             if (error?.extensions?.type != 'SHOTLY_EXCEPTION') {
                 console.error("unknown exception", error)
-                errorNotification({
+                /*errorNotification({
                     title: "unknown exception",
                     message: error.message,
-                })
+                })*/
                 //redirectToServerError()
             } else {
                 switch (error?.extensions?.code as ShotlyErrorCode) {
@@ -61,6 +57,12 @@ export function makeClient() {
                         if (window) {
                             window.location.href = '/userDeactivated'
                         }
+                        break
+                    case ShotlyErrorCode.TOO_MANY_REQUESTS:
+                        errorNotification({
+                            title: "You have been doing that a lot!",
+                            message: "Please try again later.",
+                        })
                         break
                 }
             }

@@ -20,7 +20,6 @@ import {ChevronDown, GripVertical, List, Plus, Type, X} from "lucide-react"
 import SceneAttributeDefinition from "@/components/dialogs/shotlistOptionsDialog/attributeTab/sceneAttributeDefinition/sceneAttributeDefinition"
 import {ShotlistOptionsDialogSubPage} from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {AnySceneAttributeDefinition, AnyShotAttributeDefinition} from "@/util/Types"
-import {apolloClient} from "@/components/wrapper/ApolloWrapper"
 import HelpLink from "@/components/helpLink/helpLink"
 import Skeleton from "react-loading-skeleton"
 import {errorNotification} from "@/service/NotificationService"
@@ -136,7 +135,7 @@ export default function AttributeTab(
             const oldIndex = shotAttributeDefinitions.findIndex((definition) => definition.id === active.id);
             const newIndex = shotAttributeDefinitions.findIndex((definition) => definition.id === over.id);
 
-            apolloClient.mutate({
+            client.mutate({
                 mutation: gql`
                     mutation updateShotDefinition($id: BigInteger!, $position: Int!) {
                         updateShotAttributeDefinition(editDTO:{
@@ -217,7 +216,7 @@ export default function AttributeTab(
             const oldIndex = sceneAttributeDefinitions.findIndex((definition) => definition.id === active.id);
             const newIndex = sceneAttributeDefinitions.findIndex((definition) => definition.id === over.id);
 
-            apolloClient.mutate({
+            client.mutate({
                 mutation: gql`
                     mutation updateSceneDefinition($id: BigInteger!, $position: Int!) {
                         updateSceneAttributeDefinition(editDTO:{

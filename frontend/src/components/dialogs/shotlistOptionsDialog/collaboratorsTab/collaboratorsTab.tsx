@@ -1,4 +1,4 @@
-import React, {RefObject, useState} from "react"
+import React, {RefObject, useEffect, useState} from "react"
 import {useApolloClient} from "@apollo/client"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialog"
 import "./collaboratorsTab.scss"
@@ -16,6 +16,8 @@ import Config from "@/Config"
 import HelpLink from "@/components/helpLink/helpLink"
 import {errorNotification} from "@/service/NotificationService"
 import {DialogRef} from "@/components/dialog/dialog"
+import auth from "@/Auth"
+import {ShotlyErrorCode} from "@/util/Types"
 
 export default function CollaboratorsTab(
     {
@@ -34,10 +36,21 @@ export default function CollaboratorsTab(
     const { confirm, ConfirmDialog } = useConfirmDialog()
 
     const [inputValue, setInputValue] = useState("")
+    const [userIsAlreadyAMember, setUserIsAlreadyAMember] = useState(false)
     const [emailInvalid, setEmailInvalid] = useState<boolean>(false)
+
+    useEffect(() => {
+        setUserIsAlreadyAMember(
+            collaborations?.some(c => c.user?.email == inputValue) ||
+            auth.getUser()?.email == inputValue ||
+            false
+        )
+    }, [inputValue]);
 
     const addCollaborator = async () => {
         if(!wuConstants.Regex.email.test(inputValue)) return
+
+        if(userIsAlreadyAMember) return
 
         try{
             const result = await client.mutate({
@@ -62,11 +75,13 @@ export default function CollaboratorsTab(
                 variables: {shotlistId: shotlistId, email: inputValue},
             })
             if (result.errors) {
-                errorNotification({
-                    title: "Could not add this email as a collaborator",
-                    sub: "Please try a different email"
-                })
-                setEmailInvalid(true)
+                if(result.errors[0]?.extensions?.code as ShotlyErrorCode != ShotlyErrorCode.TOO_MANY_REQUESTS) {
+                    errorNotification({
+                        title: "Could not add this email as a collaborator",
+                        sub: "Please try a different email"
+                    })
+                    setEmailInvalid(true)
+                }
                 console.error(result.errors);
                 return;
             }
@@ -304,17 +319,25 @@ export default function CollaboratorsTab(
                         />
                         <button
                             className={"accent"}
-                            disabled={!wuConstants.Regex.email.test(inputValue)}
+                            disabled={
+                                !wuConstants.Regex.email.test(inputValue) ||
+                                userIsAlreadyAMember
+                            }
                             onClick={addCollaborator}
                         >
-                            Invite
+                            Invite <Send size={16} strokeWidth={2.5}/>
                         </button>
                     </>
                 }
             </div>
             {
+                userIsAlreadyAMember &&
+                <p className={"invalid"}>This user is already a collaborator on this shotlist</p>
+
+            }
+            {
                 emailInvalid &&
-                <p className={"invalid"}>No Shotly account is associated with that email.</p>
+                <p className={"invalid"}>No Shotly account is associated with this email.</p>
             }
 
             <HelpLink link="https://docs.shotly.at/shotlist/collaboration" name={"Collaboration"} floating/>

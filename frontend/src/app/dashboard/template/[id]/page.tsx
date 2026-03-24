@@ -1,19 +1,15 @@
 "use client"
 
 import "./template.scss"
-import {useParams, useRouter, useSearchParams} from "next/navigation"
-import {ApolloError, ApolloQueryResult, useApolloClient} from "@apollo/client"
+import {useParams, useRouter} from "next/navigation"
+import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
-import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 import React, {useEffect, useState} from "react"
 import {
     Query,
     SceneAttributeTemplateBase, SceneAttributeType,
-    ShotAttributeBase,
     ShotAttributeTemplateBase,
     ShotAttributeType,
-    ShotlistDto,
-    TemplateDto
 } from "../../../../../lib/graphql/generated"
 import gql from "graphql-tag"
 import {wuGeneral} from "@yanikkendler/web-utils"
@@ -29,11 +25,9 @@ import {
     useSensors
 } from "@dnd-kit/core"
 import {arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy} from "@dnd-kit/sortable"
-import ShotAttributeDefinition from "@/components/dialogs/shotlistOptionsDialog/attributeTab/shotAttributeDefinition/shotAttributeDefinition"
-import {Collapsible, Popover} from "radix-ui"
-import {apolloClient} from "@/components/wrapper/ApolloWrapper"
+import {Popover} from "radix-ui"
 import ShotAttributeTemplate from "@/components/template/shotAttributeTemplate/shotAttributeTemplate"
-import {AnySceneAttributeDefinition, AnyShotAttributeTemplate, ShotlyErrorCode} from "@/util/Types"
+import {AnyShotAttributeTemplate, ShotlyErrorCode} from "@/util/Types"
 import Utils, {uuidRegex} from "@/util/Utils"
 import Config from "@/Config"
 import Link from "next/link"
@@ -288,7 +282,7 @@ export default function Template (){
             const oldIndex = query.data.template.shotAttributes.findIndex((definition) => definition!.id === active.id);
             const newIndex = query.data.template.shotAttributes.findIndex((definition) => definition!.id === over.id);
 
-            apolloClient.mutate({
+            client.mutate({
                 mutation: gql`
                     mutation updateShotAttributeTemplatePosition($id: BigInteger!, $position: Int!) {
                         updateShotAttributeTemplate(editDTO:{
@@ -385,7 +379,7 @@ export default function Template (){
             const oldIndex = query.data.template.sceneAttributes.findIndex((definition) => definition!.id === active.id);
             const newIndex = query.data.template.sceneAttributes.findIndex((definition) => definition!.id === over.id);
 
-            apolloClient.mutate({
+            client.mutate({
                 mutation: gql`
                     mutation updateSceneAttributeTemplatePosition($id: BigInteger!, $position: Int!) {
                         updateSceneAttributeTemplate(editDTO:{

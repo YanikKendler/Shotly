@@ -177,7 +177,7 @@ export function useAccountDialog() {
 
         setTimeout(() => {
             setPasswordResetDisabled(false)
-        },10000)
+        }, wuConstants.Time.msPerMinute)
     }
 
     async function deleteAccount() {
@@ -278,8 +278,8 @@ export function useAccountDialog() {
                             !Auth.getUser()?.isSocial &&
                             <div className="row">
                                 <p>Send password reset request to your email</p>
-                                <button disabled={passwordResetDisabled} className={"logout"} onClick={resetPassword}>Send
-                                    email
+                                <button disabled={passwordResetDisabled} className={"logout"} onClick={resetPassword}>
+                                    Send email
                                 </button>
                             </div>
                         }
