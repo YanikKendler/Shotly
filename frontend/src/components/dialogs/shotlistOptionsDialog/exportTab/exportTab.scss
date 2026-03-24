@@ -12,12 +12,16 @@ div.shotlistOptionsDialogExportTab{
       gap: 1rem;
       width: 100%;
       min-height: 2.5rem;
+      font-size: .9rem;
+
+      @media screen and (max-width: 600px) {
+        font-size: .85rem;
+      }
 
       .left{
         display: flex;
         align-items: center;
         gap: .5rem;
-        font-size: .9rem;
         color: var(--text-20);
         font-weight: 500;
 
@@ -92,13 +96,20 @@ div.shotlistOptionsDialogExportTab{
         }
       }
 
-      &.preview{
-        color: var(--text-10);
-        border: 2px solid var(--default-interactable-light-border);
+      &.secondary{
+        color: var(--text-20);
+        /*border: 2px solid var(--default-interactable-light-border);*/
+        background-color: var(--transparent-gray-20);
 
         &:hover{
-          border-color: var(--default-interactable-hover-border);
+          background-color: var(--transparent-gray-30);
           color: var(--text);
+        }
+      }
+
+      @media screen and (max-width: 600px) {
+        span {
+          display: none;
         }
       }
     }
@@ -157,33 +168,33 @@ div.shotlistOptionsDialogExportTab{
       }
     }
 
-    button.export {
+    button {
       padding: .5rem .8rem;
       font-size: .9rem;
-      width: fit-content;
-      margin-left: auto;
-
       font-weight: bold;
-      color: var(--accent);
-      background-color: var(--transparent-accent-10);
 
-      &:hover {
-        background-color: var(--transparent-accent-20);
+      &.export {
+        margin-left: auto;
+        color: var(--accent);
+        background-color: var(--transparent-accent-10);
+
+        &:hover {
+          background-color: var(--transparent-accent-20);
+        }
       }
 
-      @media screen and (max-width: 600px){
+      &.close {
+        background-color: var(--transparent-gray-10);
+
+        &:hover {
+          background-color: var(--transparent-gray-20);
+        }
+      }
+
+      @media screen and (max-width: 600px) {
         span {
           display: none;
         }
-      }
-    }
-
-    button.close{
-      border-radius: 100%;
-      background-color: var(--transparent-gray-10);
-
-      &:hover{
-        background-color: var(--transparent-gray-20);
       }
     }
   }

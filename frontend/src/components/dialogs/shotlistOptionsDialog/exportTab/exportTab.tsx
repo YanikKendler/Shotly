@@ -8,7 +8,9 @@ import {
     LucideWrapText,
     Repeat,
     Heading,
-    CaseSensitive, Type
+    Type,
+    RotateCcw,
+    View, Eye
 } from "lucide-react"
 import React, {Fragment, RefObject, useEffect, useRef, useState} from "react"
 import gql from "graphql-tag"
@@ -57,6 +59,8 @@ import Collapse from "@/components/collapse/collapse"
 import * as XLSX from 'xlsx-js-style';
 import ExportPreview from "@/components/dialogs/shotlistOptionsDialog/exportTab/exportPreview/exportPreview"
 import Dialog, {DialogRef} from "@/components/dialog/dialog"
+import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialog"
+
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full" | "XLSX"
 
 interface ExportSettingsLocalStorage {
@@ -81,7 +85,10 @@ export default function ExportTab(
         shotlistOptionsDialogRef: RefObject<DialogRef | null>
     }
 ) {
-    const [sceneOptions, setSceneOptions] = useState<SelectOption[]>([{value: "this is bad", label: "1"}])
+    const {confirm, ConfirmDialog} = useConfirmDialog()
+    const client = useApolloClient()
+
+    const [scenesAsOptions, setScenesAsOptions] = useState<SelectOption[]>([{value: "this is bad", label: "1"}])
 
     const [selectedFileType, setSelectedFileType] = useState<SelectedFileTypes>("PDF")
     const [pdfExportOptions, setPdfExportOptions] = useState<PDFExportOptions>({
@@ -96,8 +103,6 @@ export default function ExportTab(
     const [customShotFilters, setCustomShotFilters] = useState<Map<number, MultiValue<SelectOption>>>(new Map())
 
     const [shotlistPreviewCache, setShotlistPreviewCache] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
-
-    const client = useApolloClient()
 
     const [exportRunning, setExportRunning] = useState(false)
 
@@ -116,7 +121,7 @@ export default function ExportTab(
         if(!Utils.getUserSettingsFromLocalStorage().saveExportSettingsInLocalstorage) return
 
         loadSettingsFromLocalStorage(shotlist.id)
-        extractSceneOptions()
+        extractScenesAsOptions()
     }, [shotlist])
 
     //save settings to local storage
@@ -144,20 +149,49 @@ export default function ExportTab(
             setSelectedFileType(settingsObject.selectedFileType)
         if(settingsObject.pdfExportOptions)
             setPdfExportOptions(settingsObject.pdfExportOptions)
-        if(settingsObject.selectedScenes && settingsObject.selectedScenes.length > 0)
-            setSelectedScenes(settingsObject.selectedScenes)
-        if(settingsObject.customShotFilters && settingsObject.customShotFilters.length > 0)
-            setCustomShotFilters(new Map(settingsObject.customShotFilters))
-        if(settingsObject.customSceneFilters && settingsObject.customSceneFilters.length > 0)
-            setCustomSceneFilters(new Map(settingsObject.customSceneFilters))
+        if(settingsObject.selectedScenes && settingsObject.selectedScenes.length > 0) {
+            //only load scenes from LS that actually exists in the scenesAsOptions
+            const filtered = settingsObject.selectedScenes.filter(selected => scenesAsOptions.some(option => option.value == selected.value))
+            setSelectedScenes(filtered)
+        }
+        if(settingsObject.customSceneFilters && settingsObject.customSceneFilters.length > 0) {
+            //only load filters that reference an existing attributeDefinition id
+            let filtered = settingsObject.customSceneFilters.filter(f => sceneAttributeDefinitions?.some(d => d.id == f[0]))
+            //remove selected filter values that reference a non-existent select option
+            filtered = filtered.map(
+                f => [
+                    f[0],
+                    f[1].filter(v => {
+                        const def = sceneAttributeDefinitions?.find(s => s.id == f[0]) as SceneSingleOrMultiSelectAttributeDefinition
+                        return def.options?.some(o => o?.id == v.value)
+                    })
+                ]
+            )
+            setCustomSceneFilters(new Map(filtered))
+        }
+        if(settingsObject.customShotFilters && settingsObject.customShotFilters.length > 0) {
+            //only load filters that reference an existing attributeDefinition id
+            let filtered = settingsObject.customShotFilters.filter(f => shotAttributeDefinitions?.some(d => d.id == f[0]))
+            //remove selected filter values that reference a non-existent select option
+            filtered = filtered.map(
+                f => [
+                    f[0],
+                    f[1].filter(v => {
+                        const def = shotAttributeDefinitions?.find(s => s.id == f[0]) as ShotSingleOrMultiSelectAttributeDefinition
+                        return def.options?.some(o => o?.id == v.value)
+                    })
+                ]
+            )
+            setCustomShotFilters(new Map(filtered))
+        }
     }
 
-    const extractSceneOptions = () => {
+    const extractScenesAsOptions = () => {
         let newSceneOptions: SelectOption[] = [];
         for (let i = 0; i < (shotlist?.sceneCount || 0); i++) {
             newSceneOptions.push({value: i.toString(), label: `${(i + 1).toString()}`});
         }
-        setSceneOptions(newSceneOptions)
+        setScenesAsOptions(newSceneOptions)
     }
 
     const loadFilteredData = async () => {
@@ -241,6 +275,30 @@ export default function ExportTab(
         }
 
         return result
+    }
+
+    const resetValues = async () => {
+        if(!await confirm({
+            title: "Reset Filters?",
+            message: `This will reset "format", "scenes", any additional settings and remove all custom filters.`,
+            buttons: {
+                confirm: {
+                    className: "bad",
+                }
+            }
+        })) return
+
+        setSelectedFileType("PDF")
+        setPdfExportOptions({
+            showCheckboxes: false,
+            avoidOrphans: true,
+            repeatSceneHeading: false,
+            repeatAttributeDefinitions: false,
+            headerText: ""
+        })
+        setSelectedScenes([])
+        setCustomSceneFilters(new Map())
+        setCustomShotFilters(new Map())
     }
 
     const filterData = (result: ApolloQueryResult<Query>): ShotlistDto => {
@@ -765,7 +823,7 @@ export default function ExportTab(
                     <MultiSelect
                         name={"Scenes"}
                         placeholder={"All Scenes"}
-                        options={sceneOptions}
+                        options={scenesAsOptions}
                         value={selectedScenes}
                         onChange={newValue => {
                             setSelectedScenes(newValue)
@@ -890,11 +948,14 @@ export default function ExportTab(
                     {
                         exportRunning ?
                         <span>{"Exporting"}<DotLoader/></span> :
-                        <>{"Download shotlist"}<Download size={16} strokeWidth={3}/></>
+                        <><span>Download shotlist</span><Download size={16} strokeWidth={3}/></>
                     }
                 </button>
-                <button className="preview" onClick={previewDialogRef.current?.open}>
-                    Preview
+                <button className="secondary" onClick={previewDialogRef.current?.open}>
+                    <span>Preview</span> <Eye size={16} strokeWidth={2.5}/>
+                </button>
+                <button className="secondary" onClick={resetValues}>
+                    <span>Reset</span> <RotateCcw size={16} strokeWidth={2.5}/>
                 </button>
                 <Dialog contentClassName={"pdfPreviewDialogContent"} ref={previewDialogRef}>
                     <div className="top sticky">
@@ -909,7 +970,7 @@ export default function ExportTab(
                             <span>Download shotlist</span><Download size={16} strokeWidth={3}/>
                         </button>
                         <button className={"close"} onClick={previewDialogRef.current?.close}>
-                            <X size={18}/>
+                            <span>Close preview</span><X size={18} strokeWidth={3}/>
                         </button>
                     </div>
                     <ExportPreview data={filterData(shotlistPreviewCache)}/>
@@ -918,6 +979,8 @@ export default function ExportTab(
 
                 <HelpLink link="https://docs.shotly.at/shotlist/export" name={"Export"}/>
             </div>
+
+            {ConfirmDialog}
         </div>
     )
 }
