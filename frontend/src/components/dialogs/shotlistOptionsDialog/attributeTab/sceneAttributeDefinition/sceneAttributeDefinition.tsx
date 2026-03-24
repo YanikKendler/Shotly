@@ -22,7 +22,7 @@ import {errorNotification} from "@/service/NotificationService"
 
 export default function SceneAttributeDefinition({attributeDefinition, onDelete, dataChanged}: {attributeDefinition: AnySceneAttributeDefinition, onDelete: (id: number) => void, dataChanged: () => void}) {
 
-    const [definition, setDefiniton] = useState<AnySceneAttributeDefinition>({} as AnySceneAttributeDefinition)
+    const [definition, setDefinition] = useState<AnySceneAttributeDefinition>({} as AnySceneAttributeDefinition)
 
     // @ts-ignore
     const {attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition} = useSortable({id: attributeDefinition.id});
@@ -43,7 +43,7 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
     const creationLoaderRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        setDefiniton(attributeDefinition)
+        setDefinition(attributeDefinition)
     }, [attributeDefinition])
 
     const setCreationLoaderVisibility = (visible:boolean) => {
@@ -73,7 +73,7 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
             return
         }
 
-        setDefiniton({
+        setDefinition({
             ...definition,
             name: newName
         })
@@ -147,7 +147,7 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
         if(currentOptions) newOptions = [...currentOptions]
         newOptions.push(data.createSceneSelectAttributeOption)
 
-        setDefiniton({
+        setDefinition({
             ...definition,
             options: newOptions
         })
@@ -183,7 +183,7 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
 
         let newOptions: SceneSelectAttributeOptionDefinition[] = (definition as SceneSingleOrMultiSelectAttributeDefinition)?.options?.filter(option => option?.id != optionId) as SceneSelectAttributeOptionDefinition[] || []
 
-        setDefiniton({
+        setDefinition({
             ...definition,
             options: newOptions
         })
@@ -223,7 +223,7 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
             return option
         })
 
-        setDefiniton({
+        setDefinition({
             ...definition,
             options: newOptions
         })

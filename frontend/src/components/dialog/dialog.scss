@@ -46,4 +46,8 @@ div.dialog {
     transition: box-shadow .2s ease-out;
     box-shadow: .2rem .2rem .5rem .3rem var(--transparent-black-15);
   }
+
+  @media screen and (max-width: 600px) {
+    padding: .5rem;
+  }
 }

@@ -632,6 +632,9 @@ export default function Shotlist() {
             fetchPolicy: 'no-cache'
         })
 
+        //no clue why this is needed, saw a million errors once
+        if(!data.shotSelectAttributeOptions) return
+
         let newCache = new Map(shotSelectOptionsCache)
 
         newCache.set(

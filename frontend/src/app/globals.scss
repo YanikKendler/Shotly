@@ -236,6 +236,10 @@ img{
   object-fit: contain;
 }
 
+svg {
+  flex-shrink: 0;
+}
+
 ::selection{
   background-color: var(--accent-60);
   color: hsl(0, 0%, 0%);
@@ -865,13 +869,13 @@ body button.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot {
   display: flex;
   align-items: center;
   padding: 0;
-  width: 2.3em;
-  height: 1em;
+  width: 1.9em;
+  height: 0.9em;
   background-color: var(--switch-bg);
   border-radius: 9999px;
   position: relative;
   -webkit-tap-highlight-color: var(--accent);
-  font-size: .9rem;
+  flex-shrink: 0;
 
   &[data-state="checked"] {
     background-color: var(--accent);
@@ -881,23 +885,23 @@ body button.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot {
   &::before {
     content: '';
     position: absolute;
-    inset: -.5em;
+    inset: -.45em;
     border-radius: 9999px;
-    margin: .5em;
+    margin: .45em;
   }
 
   .SwitchThumb {
     display: block;
-    width: 1.5em;
-    height: 1.5em;
+    width: 1.35em;
+    height: 1.35em;
     background-color: var(--switch-knob-bg);
     border-radius: 9999px;
     transition: transform 100ms;
     will-change: transform;
-    transform: translateX(-.2em);
+    transform: translateX(-.18em);
 
     &[data-state="checked"] {
-      transform: translateX(1em);
+      transform: translateX(0.8em);
       background-color: var(--switch-knob-focused-bg);
     }
   }

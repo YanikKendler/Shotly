@@ -12,11 +12,6 @@ div.shotlistOptionsDialogExportTab{
       gap: 1rem;
       width: 100%;
       min-height: 2.5rem;
-      font-size: .9rem;
-
-      @media screen and (max-width: 600px) {
-        font-size: .85rem;
-      }
 
       .left{
         display: flex;
@@ -24,6 +19,11 @@ div.shotlistOptionsDialogExportTab{
         gap: .5rem;
         color: var(--text-20);
         font-weight: 500;
+        font-size: .9rem;
+
+        @media screen and (max-width: 600px) {
+          font-size: .85rem;
+        }
 
         svg{
           color: var(--text-30);

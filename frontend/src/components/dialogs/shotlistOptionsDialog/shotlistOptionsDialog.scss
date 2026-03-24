@@ -38,6 +38,8 @@
         overflow-x: auto;
         height: fit-content;
         gap: 0;
+        padding: .5rem;
+        padding-top: 1rem;
 
         svg{
           display: none;
@@ -70,9 +72,6 @@
       }
 
       @media screen and (max-width: 600px){
-        margin-block: 1rem;
-        margin-inline: 0;
-
         &.horizontal{
           display: block;
         }
@@ -141,6 +140,7 @@
     > .bottom {
       margin-top: auto;
       display: flex;
+      flex-wrap: wrap;
       border-top: 2px solid var(--text-90);
       padding-block: 1rem;
       background-color: var(--contrast);

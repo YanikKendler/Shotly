@@ -49,7 +49,7 @@ export default function ExportFilter({
                     className="remove bad"
                     onClick={onRemove}
                 >
-                    <Trash size={18}/>
+                    <X size={18}/>
                 </button>
             </div>
         </div>
