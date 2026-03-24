@@ -7,6 +7,7 @@ import me.kendler.yanik.dto.scene.attributes.SceneAttributeBaseDTO;
 import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.scene.attributeDefinitions.SceneAttributeDefinitionBase;
 import me.kendler.yanik.model.scene.attributeDefinitions.SceneSelectAttributeOptionDefinition;
+import me.kendler.yanik.rateLimiting.RateLimited;
 import me.kendler.yanik.repositories.UserRepository;
 import me.kendler.yanik.repositories.scene.SceneAttributeDefinitionRepository;
 import me.kendler.yanik.repositories.scene.SceneAttributeRepository;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.UUID;
 
 @GraphQLApi
+@RateLimited()
 public class SceneResource {
     @Inject
     JsonWebToken jwt;

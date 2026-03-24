@@ -2,7 +2,6 @@ package me.kendler.yanik.endpoints;
 
 import io.quarkus.panache.common.Sort;
 import jakarta.inject.Inject;
-import me.kendler.yanik.dto.shotlist.ShotlistDTO;
 import me.kendler.yanik.dto.template.TemplateCreateDTO;
 import me.kendler.yanik.dto.template.TemplateDTO;
 import me.kendler.yanik.dto.template.TemplateEditDTO;
@@ -14,6 +13,7 @@ import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.template.Template;
 import me.kendler.yanik.model.template.sceneAttributes.SceneSelectAttributeOptionTemplate;
 import me.kendler.yanik.model.template.shotAttributes.ShotSelectAttributeOptionTemplate;
+import me.kendler.yanik.rateLimiting.RateLimited;
 import me.kendler.yanik.repositories.UserRepository;
 import me.kendler.yanik.repositories.template.*;
 import org.eclipse.microprofile.graphql.GraphQLApi;
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.UUID;
 
 @GraphQLApi
+@RateLimited()
 public class TemplateResource {
     @Inject
     JsonWebToken jwt;

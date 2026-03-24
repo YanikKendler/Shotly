@@ -6,6 +6,7 @@ import me.kendler.yanik.dto.StatCounts;
 import me.kendler.yanik.dto.user.UserAdminUpdateDTO;
 import me.kendler.yanik.dto.user.UserDTO;
 import me.kendler.yanik.model.User;
+import me.kendler.yanik.rateLimiting.RateLimited;
 import me.kendler.yanik.repositories.ShotlistRepository;
 import me.kendler.yanik.repositories.UserRepository;
 import org.eclipse.microprofile.graphql.GraphQLApi;
@@ -16,6 +17,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import java.util.List;
 
 @GraphQLApi
+@RateLimited()
 public class AdminResource {
     @Inject
     JsonWebToken jwt;

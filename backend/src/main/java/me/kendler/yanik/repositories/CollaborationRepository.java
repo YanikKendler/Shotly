@@ -102,13 +102,17 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
             throw new ShotlyException("Basic users can only have 5 collaborators", ShotlyErrorCode.COLLABORATOR_LIMIT_REACHED);
         }
 
+        if(shotlist.collaborations.stream().anyMatch(c -> c.user.email.equals(createDTO.email()))){
+            throw new ShotlyException("This user is already a collaborator", ShotlyErrorCode.INVALID_INPUT);
+        }
+
         List<UUID> existingCollaboratorIds = shotlist.collaborations.stream().map(c -> c.user.id).toList();
 
         List<User> users = userRepository.find(
                 "email = ?1 and id not in ?2 and id != ?3",
                 createDTO.email().toLowerCase(),
                 existingCollaboratorIds,
-                currentUser.id
+                currentUser.id //only the owner can add collaborators
         ).list();
 
         if(users == null || users.isEmpty()){

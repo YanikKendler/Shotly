@@ -8,6 +8,7 @@ import me.kendler.yanik.dto.shot.attributes.ShotAttributeBaseDTO;
 import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotAttributeDefinitionBase;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotSelectAttributeOptionDefinition;
+import me.kendler.yanik.rateLimiting.RateLimited;
 import me.kendler.yanik.repositories.UserRepository;
 import me.kendler.yanik.repositories.scene.SceneRepository;
 import me.kendler.yanik.repositories.shot.ShotAttributeDefinitionRepository;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.UUID;
 
 @GraphQLApi
+@RateLimited()
 public class ShotResource {
     @Inject
     JsonWebToken jwt;

@@ -9,9 +9,8 @@ import me.kendler.yanik.dto.shotlist.ShotlistCreateDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistEditDTO;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationEditDTO;
-import me.kendler.yanik.error.ShotlyErrorCode;
-import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.Shotlist;
+import me.kendler.yanik.rateLimiting.RateLimited;
 import me.kendler.yanik.repositories.CollaborationRepository;
 import me.kendler.yanik.repositories.ShotlistRepository;
 import me.kendler.yanik.repositories.UserRepository;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 @GraphQLApi
+@RateLimited()
 public class ShotlistResource {
     private static final Logger log = LoggerFactory.getLogger(ShotlistResource.class);
     @Inject
@@ -98,6 +98,7 @@ public class ShotlistResource {
     }
 
     @Mutation
+    @RateLimited("medium")
     public List<CollaborationDTO> addCollaboration(CollaborationCreateDTO createDTO){
         userRepository.checkShotlistOwner(shotlistRepository.findByIdValidated(createDTO.shotlistId()), jwt);
 

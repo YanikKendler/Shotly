@@ -1,6 +1,5 @@
 package me.kendler.yanik.endpoints;
 
-import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
 import com.stripe.model.checkout.Session;
 import jakarta.persistence.OptimisticLockException;
@@ -14,8 +13,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import me.kendler.yanik.error.ShotlyErrorCode;
 import me.kendler.yanik.error.ShotlyException;
+import me.kendler.yanik.rateLimiting.RateLimited;
 import me.kendler.yanik.stripe.StripeCheckoutRequest;
 import me.kendler.yanik.stripe.StripeService;
 import me.kendler.yanik.stripe.StripeSessionResponse;
@@ -24,6 +23,7 @@ import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 @Path("/stripe")
+@RateLimited("medium")
 public class StripeResource {
     @Inject
     JsonWebToken jwt;
