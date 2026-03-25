@@ -2,7 +2,7 @@
 name: Feature request
 about: Suggest a new shotly feature
 title: ''
-labels: feature request
+labels: feature
 assignees: ''
 
 ---
