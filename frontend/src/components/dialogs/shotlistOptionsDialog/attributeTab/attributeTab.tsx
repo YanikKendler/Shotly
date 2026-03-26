@@ -15,9 +15,9 @@ import {
     useSensors
 } from "@dnd-kit/core"
 import {arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy} from "@dnd-kit/sortable"
-import ShotAttributeDefinition from "@/components/dialogs/shotlistOptionsDialog/attributeTab/shotAttributeDefinition/shotAttributeDefinition"
+import ShotAttributeDefinition from "@/components/dialogs/shotlistOptionsDialog/attributeTab/shotAttributeDefinition"
 import {ChevronDown, GripVertical, List, Plus, Type, X} from "lucide-react"
-import SceneAttributeDefinition from "@/components/dialogs/shotlistOptionsDialog/attributeTab/sceneAttributeDefinition/sceneAttributeDefinition"
+import SceneAttributeDefinition from "@/components/dialogs/shotlistOptionsDialog/attributeTab/sceneAttributeDefinition"
 import {ShotlistOptionsDialogSubPage} from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {AnySceneAttributeDefinition, AnyShotAttributeDefinition} from "@/util/Types"
 import HelpLink from "@/components/helpLink/helpLink"

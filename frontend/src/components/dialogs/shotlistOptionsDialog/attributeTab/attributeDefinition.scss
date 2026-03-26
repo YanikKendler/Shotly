@@ -1,9 +1,9 @@
-[data-theme="dark"] div.sceneAttributeDefinition {
+[data-theme="dark"] div.attributeDefinition {
   --grip-color: hsl(0, 0%, 35%);
   --grip-hover-color: hsl(0, 0%, 70%);
 }
 
-div.sceneAttributeDefinition{
+div.attributeDefinition{
   --grip-color: hsl(0, 0%, 65%);
   --grip-hover-color: hsl(0, 0%, 30%);
 
@@ -75,10 +75,15 @@ div.sceneAttributeDefinition{
         display: none;
       }
     }
+
+    span.gray {
+      color: var(--text-40);
+      font-size: .9em;
+    }
   }
 }
 
-.editSceneAttributeOptionsPopup{
+.editAttributeOptionsPopup{
   display: flex;
   flex-direction: column;
   width: 400px;

@@ -1,33 +1,27 @@
 'use client'
 
 import {
-    AnyShotAttribute,
-    AnyShotAttributeDefinition,
-    SceneAttributeValueCollection,
-    ShotSingleOrMultiSelectAttributeDefinition
+    AnySceneAttributeDefinition,
+    SceneSingleOrMultiSelectAttributeDefinition
 } from "@/util/Types"
-import './shotAttributeDefinition.scss'
-import {GripVertical, ListCollapse, Pencil, Plus, Trash} from "lucide-react"
+import './attributeDefinition.scss'
+import {GripVertical, ListCollapse, Plus, Trash} from "lucide-react"
 import {useSortable} from "@dnd-kit/sortable"
 import {CSS} from '@dnd-kit/utilities';
-import {ShotAttributeDefinitionParser} from "@/util/AttributeParser"
+import {SceneAttributeDefinitionParser} from "@/util/AttributeParser"
 import gql from "graphql-tag"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialog"
 import {useApolloClient} from "@apollo/client"
-import {
-    SceneDto,
-    ShotSelectAttributeOptionDefinition, ShotSingleSelectAttributeDefinitionDto,
-    ShotSingleSelectAttributeDto
-} from "../../../../../../lib/graphql/generated"
+import { SceneSelectAttributeOptionDefinition} from "../../../../../lib/graphql/generated"
 import { Popover } from "radix-ui"
 import {useEffect, useRef, useState} from "react"
-import {wuGeneral} from "@yanikkendler/web-utils/dist"
+import {wuGeneral} from "@yanikkendler/web-utils"
 import Skeleton from "react-loading-skeleton"
 import {errorNotification} from "@/service/NotificationService"
 
-export default function ShotAttributeDefinition({attributeDefinition, onDelete, dataChanged}: {attributeDefinition: AnyShotAttributeDefinition, onDelete: (id: number) => void, dataChanged: () => void}) {
+export default function SceneAttributeDefinition({attributeDefinition, onDelete, dataChanged}: {attributeDefinition: AnySceneAttributeDefinition, onDelete: (id: number) => void, dataChanged: () => void}) {
 
-    const [definition, setDefinition] = useState<AnyShotAttributeDefinition>({} as AnyShotAttributeDefinition)
+    const [definition, setDefinition] = useState<AnySceneAttributeDefinition>({} as AnySceneAttributeDefinition)
 
     // @ts-ignore
     const {attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition} = useSortable({id: attributeDefinition.id});
@@ -37,7 +31,7 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
         transition,
     };
 
-    const Icon = ShotAttributeDefinitionParser.toIcon(definition);
+    const Icon = SceneAttributeDefinitionParser.toIcon(definition);
 
     const { confirm, ConfirmDialog } = useConfirmDialog();
     const client = useApolloClient()
@@ -62,8 +56,8 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
 
         const {data, errors} = await client.mutate({
             mutation: gql`
-                mutation updateShotAttributeDefinition($id: BigInteger!, $name: String!) {
-                    updateShotAttributeDefinition(editDTO: {
+                mutation updateSceneAttributeDefinition($id: BigInteger!, $name: String!) {
+                    updateSceneAttributeDefinition(editDTO: {
                         id: $id
                         name: $name
                     }){ id }
@@ -73,7 +67,7 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
         });
         if (errors) {
             errorNotification({
-                title: "Could not update attribute definition",
+                title: "Failed to update attribute definition",
                 tryAgainLater: true
             })
             console.error(errors)
@@ -98,8 +92,8 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
 
         const { errors } = await client.mutate({
             mutation: gql`
-                mutation deleteShotAttributeDefinition($definitionId: BigInteger!) {
-                    deleteShotAttributeDefinition(id: $definitionId) {
+                mutation deleteSceneAttributeDefinition($definitionId: BigInteger!) {
+                    deleteSceneAttributeDefinition(id: $definitionId) {
                         id
                     }
                 }
@@ -109,7 +103,7 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
 
         if(errors) {
             errorNotification({
-                title: "Could not delete attribute definition",
+                title: "Failed to delete attribute definition",
                 tryAgainLater: true
             })
             setMarkAsDeleted(false)
@@ -127,8 +121,8 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
 
         const { data, errors } = await client.mutate({
             mutation: gql`
-                mutation createShotSelectAttributeOption($definitionId: BigInteger!) {
-                    createShotSelectAttributeOption(createDTO: {
+                mutation createSceneSelectAttributeOption($definitionId: BigInteger!) {
+                    createSceneSelectAttributeOption(createDTO: {
                         attributeDefinitionId: $definitionId
                     }) {
                         id
@@ -149,11 +143,13 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
             return;
         }
 
+
         setDefinition(current => {
-            let currentOptions = (current as ShotSingleOrMultiSelectAttributeDefinition).options as ShotSelectAttributeOptionDefinition[]
-            let newOptions: ShotSelectAttributeOptionDefinition[] = []
+            let currentOptions = (current as SceneSingleOrMultiSelectAttributeDefinition).options as SceneSelectAttributeOptionDefinition[]
+            let newOptions: SceneSelectAttributeOptionDefinition[] = []
             if(currentOptions) newOptions = [...currentOptions]
-            newOptions.push(data.createShotSelectAttributeOption)
+            newOptions.push(data.createSceneSelectAttributeOption)
+
             return {
                 ...current,
                 options: newOptions
@@ -170,8 +166,8 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
 
         const { errors } = await client.mutate({
             mutation: gql`
-                mutation deleteShotSelectAttributeOption($optionId: BigInteger!) {
-                    deleteShotSelectAttributeOption(id: $optionId) {
+                mutation deleteSceneSelectAttributeOption($optionId: BigInteger!) {
+                    deleteSceneSelectAttributeOption(id: $optionId) {
                         id
                     }
                 }
@@ -190,9 +186,9 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
         }
 
         setDefinition(current => {
-            let newOptions: ShotSelectAttributeOptionDefinition[] = (current as ShotSingleOrMultiSelectAttributeDefinition)?.options?.filter(option => option?.id != optionId) as ShotSelectAttributeOptionDefinition[] || []
+            let newOptions: SceneSelectAttributeOptionDefinition[] = (current as SceneSingleOrMultiSelectAttributeDefinition)?.options?.filter(option => option?.id != optionId) as SceneSelectAttributeOptionDefinition[] || []
             return {
-                ...definition,
+                ...current,
                 options: newOptions
             }
         })
@@ -203,8 +199,8 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
 
         const {data, errors} = await client.mutate({
             mutation : gql`
-                mutation updateShotSelectAttributeOption($id: BigInteger!, $name: String!) {
-                    updateShotSelectAttributeOption(editDTO: {
+                mutation updateSceneSelectAttributeOption($id: BigInteger!, $name: String!) {
+                    updateSceneSelectAttributeOption(editDTO: {
                         id: $id
                         name: $name
                     }){ id }
@@ -214,7 +210,7 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
         });
         if(errors) {
             errorNotification({
-                title: "Could not update select option",
+                title: "Failed to update select option",
                 tryAgainLater: true
             })
             console.error(errors)
@@ -222,8 +218,8 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
         }
 
         setDefinition(current => {
-            let currentOptions = (current as ShotSingleOrMultiSelectAttributeDefinition).options as ShotSelectAttributeOptionDefinition[]
-            let newOptions: ShotSelectAttributeOptionDefinition[] = currentOptions.map(option => {
+            let currentOptions = (current as SceneSingleOrMultiSelectAttributeDefinition).options as SceneSelectAttributeOptionDefinition[]
+            let newOptions: SceneSelectAttributeOptionDefinition[] = currentOptions.map(option => {
                 if(option.id == optionId) {
                     return {
                         ...option,
@@ -234,7 +230,7 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
             })
 
             return {
-                ...current,
+                ...definition,
                 options: newOptions
             }
         })
@@ -245,7 +241,7 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
     if(!definition || !definition.id) return (<p>Loading...</p>)
 
     return (
-        <div className={`shotAttributeDefinition ${markAsDeleted && "deleting"}`} ref={setNodeRef} style={style}>
+        <div className={`attributeDefinition ${markAsDeleted && "deleting"}`} ref={setNodeRef} style={style}>
             <div
                 className="grip"
                 ref={setActivatorNodeRef}
@@ -255,18 +251,18 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
                 <GripVertical/>
             </div>
             <Icon size={20} strokeWidth={3}/>
-            <input
-                type="text"
-                defaultValue={definition.name || ""}
-                placeholder={"Attribute name"}
-                onInput={(e) => debouncedUpdateDefinition(e.currentTarget.value)}
-            />
-            {(definition.type == "ShotMultiSelectAttributeDefinitionDTO" || definition.type == "ShotSingleSelectAttributeDefinitionDTO") && (
+            <input type="text" defaultValue={definition.name || ""} placeholder={"Attribute name"} onInput={(e) => debouncedUpdateDefinition(e.currentTarget.value)}/>
+            {(definition.type == "SceneMultiSelectAttributeDefinitionDTO" || definition.type == "SceneSingleSelectAttributeDefinitionDTO") && (
                 <Popover.Root modal={true}>
-                    <Popover.Trigger><span>Edit options</span> <ListCollapse size={18}/></Popover.Trigger>
+                    <Popover.Trigger>
+                        <ListCollapse size={18}/>
+                        <span>
+                            Options <span className="gray">({(definition as SceneSingleOrMultiSelectAttributeDefinition).options?.length || 0})</span>
+                        </span>
+                    </Popover.Trigger>
                     <Popover.Portal>
-                        <Popover.Content className="popoverContent editShotAttributeOptionsPopup" sideOffset={5} align={"start"}>
-                            {((definition as ShotSingleSelectAttributeDefinitionDto).options as ShotSelectAttributeOptionDefinition[])?.map((option, index) => (
+                        <Popover.Content className="popoverContent editAttributeOptionsPopup" sideOffset={5} align={"start"}>
+                            {((definition as SceneSingleOrMultiSelectAttributeDefinition).options as SceneSelectAttributeOptionDefinition[])?.map((option, index) => (
                                 <div className={`option ${deletingOptionIds.includes(option.id) && "deleting"}`} key={option.id}>
                                     <p>{index + 1}</p>
                                     <input
