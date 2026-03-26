@@ -23,7 +23,7 @@ main.shotlist{
       display: flex;
       align-items: center;
       padding-left: 1.5rem;
-      padding-right: 1.8rem;
+      padding-right: .8rem;
       overflow-x: auto;
       position: relative;
 
@@ -42,7 +42,7 @@ main.shotlist{
         width: 100%;
         padding: .5rem .3rem;
         font-weight: bold;
-        font-size: calc(.95rem * var(--shotlist-scale));
+        font-size: calc(.9rem * var(--shotlist-scale));
 
         &.number{
           width: 4ch;

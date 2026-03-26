@@ -52,7 +52,7 @@
     }
 
     &:not(.legal) {
-      button, a {
+      button:not(.SwitchRoot), a {
         border: 2px solid var(--default-interactable-border);
         color: var(--text-30);
         font-weight: 500;

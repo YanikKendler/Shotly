@@ -88,7 +88,6 @@ export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBas
 export const selectShotStyles: StylesConfig<SelectOption, boolean, GroupBase<SelectOption>> = {
     ...reactSelectBaseStyles,
     control: (baseStyles, state) => ({
-        ...reactSelectBaseStyles.control,
         ...baseStyles,
         border: "none",
         outline: "none",
@@ -119,6 +118,8 @@ export const selectSceneStyles: StylesConfig<SelectOption, boolean, GroupBase<Se
     menu: (baseStyles) => ({
         ...baseStyles,
         marginTop: "3px",
+        borderBottomLeftRadius: ".6rem",
+        borderBottomRightRadius: ".6rem"
     })
 }
 

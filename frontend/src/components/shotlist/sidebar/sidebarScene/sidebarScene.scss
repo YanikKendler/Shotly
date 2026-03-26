@@ -133,9 +133,12 @@
         transition: opacity .2s;
         font-size: .9rem;
         pointer-events: none;
+
+        @media (pointer: coarse){
+          opacity: 0;
+        }
       }
     }
-
   }
 
   .attributes{
