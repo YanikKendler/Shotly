@@ -35,7 +35,7 @@ export interface ShotlistSidebarRef {
 export interface ShotlistSidebarProps {
     query: ApolloQueryResult<Query>
     selectScene: (id: string | null, position: number | null) => void
-    setQuery: (query: ApolloQueryResult<Query>) => void
+    setQuery: React.Dispatch<React.SetStateAction<ApolloQueryResult<Query>>>
     selectedScene: SelectedScene
     sceneCount: number
     setSceneCount: (count: number) => void

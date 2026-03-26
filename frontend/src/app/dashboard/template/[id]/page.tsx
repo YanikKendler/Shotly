@@ -311,7 +311,7 @@ export default function Template (){
                     ...current.data,
                     template:{
                         ...current.data.template,
-                        shotAttributes: arrayMove(current.data.template.shotAttributes, oldIndex, newIndex)
+                        shotAttributes: arrayMove(current.data.template?.shotAttributes || [], oldIndex, newIndex)
                     }
                 }
             }))
@@ -412,7 +412,7 @@ export default function Template (){
                     ...current.data,
                     template:{
                         ...current.data.template,
-                        sceneAttributes: arrayMove(current.data.template.sceneAttributes, oldIndex, newIndex)
+                        sceneAttributes: arrayMove(current.data.template?.sceneAttributes || [], oldIndex, newIndex)
                     }
                 }
             }))

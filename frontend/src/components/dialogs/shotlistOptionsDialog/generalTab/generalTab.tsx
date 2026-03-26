@@ -23,7 +23,7 @@ export default function GeneralTab({
     shotlistOptionsDialogRef
 }: {
     shotlist: ShotlistDto | null,
-    setShotlist: (shotlist: ShotlistDto) => void,
+    setShotlist: React.Dispatch<React.SetStateAction<ShotlistDto | null>>,
     dataChanged: () => void,
     isReadOnly: boolean,
     currentUser: UserDto | null,
