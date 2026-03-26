@@ -43,7 +43,8 @@ export default class Config {
         dashboardTourCompleted: "shotly-dashboard-tour-completed",
         shotlistTourCompleted: "shotly-shotlist-tour-completed",
         templateTourCompleted: "shotly-template-tour-completed",
-        isLoggedIn: "shotly-is-logged-in"
+        isLoggedIn: "shotly-is-logged-in",
+        userIdentifier: "shotly-user-identifier"
     }
 
     static readonly loadingMessage = {
