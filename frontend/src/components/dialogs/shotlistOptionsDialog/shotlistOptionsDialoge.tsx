@@ -67,12 +67,24 @@ export default function ShotlistOptionsDialog({
     const router = useRouter()
     const {confirm, ConfirmDialog} = useConfirmDialog()
 
+    const lastRefresh = useRef(0);
+
     useEffect(() => {
         if(selectedPage) {
             setSelectedMainPage(selectedPage.main)
             setSelectedSubPage(selectedPage.sub)
         }
     }, [selectedPage]);
+
+    useEffect(() => {
+        if(Date.now() - lastRefresh.current < 500) return
+
+        //sometimes a fetch only completes after the dialog was closed (delete attribute and instantly close)
+        //this guarantees a shotlist reload even if that is the case
+        if(!ref.current?.isOpen()) {
+            runRefreshShotlistCheck()
+        }
+    }, [shotAttributeDefinitions, sceneAttributeDefinitions, shotlist]);
 
     const loadData = async () => {
         setIsLoading(true)
@@ -263,6 +275,7 @@ export default function ShotlistOptionsDialog({
 
         if(dataChanged || (stringifiedAttributeData != "" && currentAttributeData != stringifiedAttributeData)) {
             refreshShotlist()
+            lastRefresh.current = Date.now()
         }
     }
 

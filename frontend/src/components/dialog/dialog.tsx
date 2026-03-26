@@ -16,6 +16,7 @@ export interface DialogRef {
     close: () => void
     toggle: () => void
     setOpen: (isOpen: boolean) => void
+    isOpen: () => boolean
 }
 
 const Dialog = forwardRef<DialogRef, DialogProps>(({
@@ -53,6 +54,9 @@ const Dialog = forwardRef<DialogRef, DialogProps>(({
                 open()
             else
                 close()
+        },
+        isOpen: () => {
+            return dialogElement.current?.style.display == "grid"
         }
     }))
 

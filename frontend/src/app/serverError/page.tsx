@@ -7,12 +7,12 @@ export default function NotAllowed() {
             description="Shotly is experiencing technical difficulties. I am working to resolve the issue, please try again later."
             link={[
                 {
-                    href: "/",
+                    href: "/dashboard",
                     text: "Dashboard",
                 },
                 {
                     href: "/",
-                    text: "Home",
+                    text: "Landing",
                 }
             ]}
         />

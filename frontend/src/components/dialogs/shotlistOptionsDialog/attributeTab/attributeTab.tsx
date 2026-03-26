@@ -167,7 +167,9 @@ export default function AttributeTab(
     function removeSceneAttributeDefinition(definitionId: number) {
         if(!sceneAttributeDefinitions || sceneAttributeDefinitions.length == 0) return
 
-        let newSceneDefinitions: AnySceneAttributeDefinition[] = sceneAttributeDefinitions.filter((sceneDefinition: AnySceneAttributeDefinition) => sceneDefinition.id != definitionId)
+        let newSceneDefinitions: AnySceneAttributeDefinition[] = sceneAttributeDefinitions.filter(
+            (sceneDefinition: AnySceneAttributeDefinition) => sceneDefinition.id != definitionId
+        )
 
         setSceneAttributeDefinitions(newSceneDefinitions)
     }

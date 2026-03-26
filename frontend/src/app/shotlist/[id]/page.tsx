@@ -44,8 +44,8 @@ import Link from "next/link"
 import DotLoader from "@/components/DotLoader"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import {errorNotification, infoNotification} from "@/service/NotificationService"
+import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys"//package has incorrectly configured type exports
 import {DialogRef} from "@/components/dialog/dialog"
-import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys" //package has incorrectly configured type exports
 
 export interface SelectedScene {
     id: string | null
