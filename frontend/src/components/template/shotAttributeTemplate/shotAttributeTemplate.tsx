@@ -61,10 +61,10 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
             return
         }
 
-        setAttribute({
-            ...attribute,
+        setAttribute(current => ({
+            ...current,
             name: newName
-        })
+        }))
     }
 
     const debouncedUpdateDefinition = wuGeneral.debounce(updateAttributeDefinition)
@@ -120,14 +120,16 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
             return;
         }
 
-        let currentOptions = (attribute as ShotSingleOrMultiSelectAttributeTemplate).options as ShotSelectAttributeOptionTemplate[]
-        let newOptions: ShotSelectAttributeOptionTemplate[] = []
-        if(currentOptions) newOptions = [...currentOptions]
-        newOptions.push(data.createShotSelectAttributeOptionTemplate)
+        setAttribute(current => {
+            let currentOptions = (current as ShotSingleOrMultiSelectAttributeTemplate).options as ShotSelectAttributeOptionTemplate[]
+            let newOptions: ShotSelectAttributeOptionTemplate[] = []
+            if(currentOptions) newOptions = [...currentOptions]
+            newOptions.push(data.createShotSelectAttributeOptionTemplate)
 
-        setAttribute({
-            ...attribute,
-            options: newOptions
+            return {
+                ...current,
+                options: newOptions
+            }
         })
     }
 
@@ -152,15 +154,17 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
             return
         }
 
-        let newOptions: ShotSelectAttributeOptionTemplate[] =
-            (attribute as ShotSingleOrMultiSelectAttributeTemplate)
-                ?.options
-                ?.filter(option => option?.id != optionId) as ShotSelectAttributeOptionTemplate[]
-            || []
+        setAttribute(current => {
+            let newOptions: ShotSelectAttributeOptionTemplate[] =
+                (current as ShotSingleOrMultiSelectAttributeTemplate)
+                    ?.options
+                    ?.filter(option => option?.id != optionId) as ShotSelectAttributeOptionTemplate[]
+                || []
 
-        setAttribute({
-            ...attribute,
-            options: newOptions
+            return {
+                ...current,
+                options: newOptions
+            }
         })
     }
 
@@ -185,20 +189,22 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
             return
         }
 
-        let currentOptions = (attribute as ShotSingleOrMultiSelectAttributeTemplate).options as ShotSelectAttributeOptionTemplate[]
-        let newOptions: ShotSelectAttributeOptionTemplate[] = currentOptions.map(option => {
-            if(option.id == optionId) {
-                return {
-                    ...option,
-                    name: newName
+        setAttribute(current => {
+            let currentOptions = (current as ShotSingleOrMultiSelectAttributeTemplate).options as ShotSelectAttributeOptionTemplate[]
+            let newOptions: ShotSelectAttributeOptionTemplate[] = currentOptions.map(option => {
+                if(option.id == optionId) {
+                    return {
+                        ...option,
+                        name: newName
+                    }
                 }
-            }
-            return option
-        })
+                return option
+            })
 
-        setAttribute({
-            ...attribute,
-            options: newOptions
+            return {
+                ...current,
+                options: newOptions
+            }
         })
     }
 

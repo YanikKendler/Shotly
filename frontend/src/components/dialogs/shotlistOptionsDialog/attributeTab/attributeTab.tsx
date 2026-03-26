@@ -41,9 +41,9 @@ export default function AttributeTab(
     {
         shotlistId: string | null,
         shotAttributeDefinitions: AnyShotAttributeDefinition[] | null,
-        setShotAttributeDefinitions: (definitions: AnyShotAttributeDefinition[]) => void,
+        setShotAttributeDefinitions: React.Dispatch<React.SetStateAction<AnyShotAttributeDefinition[] | null>>,
         sceneAttributeDefinitions: AnySceneAttributeDefinition[] | null,
-        setSceneAttributeDefinitions: (definitions: AnySceneAttributeDefinition[]) => void
+        setSceneAttributeDefinitions: React.Dispatch<React.SetStateAction<AnySceneAttributeDefinition[] | null>>
         selectedPage: ShotlistOptionsDialogSubPage
         setSelectedPage: (page: ShotlistOptionsDialogSubPage) => void
         dataChanged: () => void
@@ -86,9 +86,10 @@ export default function AttributeTab(
     function removeShotAttributeDefinition(definitionId: number) {
         if(!shotAttributeDefinitions || shotAttributeDefinitions.length == 0) return
 
-        let newShotDefinitions: AnyShotAttributeDefinition[] = shotAttributeDefinitions.filter((shotDefinition: AnyShotAttributeDefinition) => shotDefinition.id != definitionId)
-
-        setShotAttributeDefinitions(newShotDefinitions)
+        setShotAttributeDefinitions(current => {
+            if(!current) return current
+            return current.filter((shotDefinition: AnyShotAttributeDefinition) => shotDefinition.id != definitionId)
+        })
     }
 
     async function createShotAttributeDefinition(type: ShotAttributeType) {
@@ -120,8 +121,8 @@ export default function AttributeTab(
             return;
         }
 
-        setShotAttributeDefinitions([
-            ...shotAttributeDefinitions || [],
+        setShotAttributeDefinitions(current => [
+            ...(current || []),
             data.createShotAttributeDefinition
         ])
 
@@ -160,18 +161,19 @@ export default function AttributeTab(
             })
 
 
-            setShotAttributeDefinitions(arrayMove(shotAttributeDefinitions, oldIndex, newIndex))
+            setShotAttributeDefinitions(current => current ? arrayMove(current, oldIndex, newIndex) : current)
         }
     }
 
     function removeSceneAttributeDefinition(definitionId: number) {
         if(!sceneAttributeDefinitions || sceneAttributeDefinitions.length == 0) return
 
-        let newSceneDefinitions: AnySceneAttributeDefinition[] = sceneAttributeDefinitions.filter(
-            (sceneDefinition: AnySceneAttributeDefinition) => sceneDefinition.id != definitionId
-        )
-
-        setSceneAttributeDefinitions(newSceneDefinitions)
+        setSceneAttributeDefinitions(current => {
+            if(!current) return current
+            return current.filter(
+                (sceneDefinition: AnySceneAttributeDefinition) => sceneDefinition.id != definitionId
+            )
+        })
     }
 
     async function createSceneAttributeDefinition(type: SceneAttributeType) {
@@ -203,8 +205,8 @@ export default function AttributeTab(
             return;
         }
 
-        setSceneAttributeDefinitions([
-            ...sceneAttributeDefinitions || [],
+        setSceneAttributeDefinitions(current => [
+            ...(current || []),
             data.createSceneAttributeDefinition
         ])
 
@@ -242,7 +244,7 @@ export default function AttributeTab(
             })
 
 
-            setSceneAttributeDefinitions(arrayMove(sceneAttributeDefinitions, oldIndex, newIndex))
+            setSceneAttributeDefinitions(current => current ? arrayMove(current, oldIndex, newIndex) : current)
         }
     }
 

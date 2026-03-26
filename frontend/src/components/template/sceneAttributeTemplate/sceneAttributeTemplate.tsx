@@ -61,10 +61,10 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
             return
         }
 
-        setAttribute({
-            ...attribute,
+        setAttribute(current => ({
+            ...current,
             name: newName
-        })
+        }))
     }
 
     const debouncedUpdateTemplate = wuGeneral.debounce(updateAttributeTemplate)
@@ -121,14 +121,16 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
             return;
         }
 
-        let currentOptions = (attribute as SceneSingleOrMultiSelectAttributeTemplate).options as SceneSelectAttributeOptionTemplate[]
-        let newOptions: SceneSelectAttributeOptionTemplate[] = []
-        if(currentOptions) newOptions = [...currentOptions]
-        newOptions.push(data.createSceneSelectAttributeOptionTemplate)
+        setAttribute(current => {
+            let currentOptions = (current as SceneSingleOrMultiSelectAttributeTemplate).options as SceneSelectAttributeOptionTemplate[]
+            let newOptions: SceneSelectAttributeOptionTemplate[] = []
+            if(currentOptions) newOptions = [...currentOptions]
+            newOptions.push(data.createSceneSelectAttributeOptionTemplate)
 
-        setAttribute({
-            ...attribute,
-            options: newOptions
+            return {
+                ...current,
+                options: newOptions
+            }
         })
     }
 
@@ -153,15 +155,17 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
             return
         }
 
-        let newOptions: SceneSelectAttributeOptionTemplate[] =
-            (attribute as SceneSingleOrMultiSelectAttributeTemplate)
-                ?.options
-                ?.filter(option => option?.id != optionId) as SceneSelectAttributeOptionTemplate[]
-            || []
+        setAttribute(current => {
+            let newOptions: SceneSelectAttributeOptionTemplate[] =
+                (current as SceneSingleOrMultiSelectAttributeTemplate)
+                    ?.options
+                    ?.filter(option => option?.id != optionId) as SceneSelectAttributeOptionTemplate[]
+                || []
 
-        setAttribute({
-            ...attribute,
-            options: newOptions
+            return {
+                ...current,
+                options: newOptions
+            }
         })
     }
 
@@ -186,20 +190,22 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
             return
         }
 
-        let currentOptions = (attribute as SceneSingleOrMultiSelectAttributeTemplate).options as SceneSelectAttributeOptionTemplate[]
-        let newOptions: SceneSelectAttributeOptionTemplate[] = currentOptions.map(option => {
-            if(option.id == optionId) {
-                return {
-                    ...option,
-                    name: newName
+        setAttribute(current => {
+            let currentOptions = (current as SceneSingleOrMultiSelectAttributeTemplate).options as SceneSelectAttributeOptionTemplate[]
+            let newOptions: SceneSelectAttributeOptionTemplate[] = currentOptions.map(option => {
+                if(option.id == optionId) {
+                    return {
+                        ...option,
+                        name: newName
+                    }
                 }
-            }
-            return option
-        })
+                return option
+            })
 
-        setAttribute({
-            ...attribute,
-            options: newOptions
+            return {
+                ...current,
+                options: newOptions
+            }
         })
     }
 

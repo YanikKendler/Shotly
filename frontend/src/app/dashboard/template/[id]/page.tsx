@@ -72,13 +72,13 @@ export default function Template (){
 
     useEffect(() => {
         if(!uuidRegex.test(id)){
-            setQuery({
-                ...query,
+            setQuery(current => ({
+                ...current,
                 errors: [{
                     message: "Invalid template id",
                     extensions: { code: ShotlyErrorCode.NOT_FOUND }
                 }]
-            })
+            }))
             return
         }
 
@@ -184,16 +184,16 @@ export default function Template (){
     }
 
     const handleTemplateNameChange = (name: string) => {
-        setQuery({
-            ...query,
+        setQuery(current => ({
+            ...current,
             data: {
-                ...query.data,
+                ...current.data,
                 template: {
-                    ...query.data.template,
+                    ...current.data.template,
                     name: name
                 }
             }
-        })
+        }))
 
         debounceUpdateTemplateName(name)
     }
@@ -260,19 +260,19 @@ export default function Template (){
             return;
         }
 
-        setQuery({
-            ...query,
+        setQuery(current => ({
+            ...current,
             data: {
-                ...query.data,
+                ...current.data,
                 template:{
-                    ...query.data.template,
+                    ...current.data.template,
                     shotAttributes: [
-                        ...(query.data.template?.shotAttributes || []),
+                        ...(current.data.template?.shotAttributes || []),
                         data.createShotAttributeTemplate
                     ]
                 }
             }
-        });
+        }))
     }
 
     function handleShotDefinitionDragEnd(event: any) {
@@ -305,33 +305,37 @@ export default function Template (){
                 }
             })
 
-            setQuery({
-                ...query,
+            setQuery(current => ({
+                ...current,
                 data: {
-                    ...query.data,
+                    ...current.data,
                     template:{
-                        ...query.data.template,
-                        shotAttributes: arrayMove(query.data.template.shotAttributes, oldIndex, newIndex)
+                        ...current.data.template,
+                        shotAttributes: arrayMove(current.data.template.shotAttributes, oldIndex, newIndex)
                     }
                 }
-            })
+            }))
         }
     }
 
     function onRemoveShotAttributeTemplate(id: number) {
         if(!query.data.template || !query.data.template.shotAttributes || query.data.template.shotAttributes.length == 0) return
 
-        let newShotAttributes: AnyShotAttributeTemplate[] =
-            (query.data.template.shotAttributes as AnyShotAttributeTemplate[])
-                .filter((shotTemplate) => shotTemplate.id != id)
+        setQuery(current => {
+            let newShotAttributes: AnyShotAttributeTemplate[] = []
+            if(current.data.template?.shotAttributes){
+                newShotAttributes = (current.data.template.shotAttributes as AnyShotAttributeTemplate[])
+                    .filter((shotTemplate) => shotTemplate.id != id)
+            }
 
-        setQuery({
-            ...query,
-            data: {
-                ...query.data,
-                template:{
-                    ...query.data.template,
-                    shotAttributes: newShotAttributes
+            return {
+                ...current,
+                data: {
+                    ...current.data,
+                    template:{
+                        ...current.data.template,
+                        shotAttributes: newShotAttributes
+                    }
                 }
             }
         })
@@ -360,16 +364,16 @@ export default function Template (){
             return;
         }
 
-        setQuery({
-            ...query,
+        setQuery(current => ({
+            ...current,
             data: {
-                ...query.data,
+                ...current.data,
                 template:{
-                    ...query.data.template,
-                    sceneAttributes: [...(query.data.template?.sceneAttributes || []), data.createSceneAttributeTemplate]
+                    ...current.data.template,
+                    sceneAttributes: [...(current.data.template?.sceneAttributes || []), data.createSceneAttributeTemplate]
                 }
             }
-        });
+        }))
     }
 
     function handleSceneAttributeDragEnd(event: any) {
@@ -402,32 +406,37 @@ export default function Template (){
                 }
             })
 
-            setQuery({
-                ...query,
+            setQuery(current => ({
+                ...current,
                 data: {
-                    ...query.data,
+                    ...current.data,
                     template:{
-                        ...query.data.template,
-                        sceneAttributes: arrayMove(query.data.template.sceneAttributes, oldIndex, newIndex)
+                        ...current.data.template,
+                        sceneAttributes: arrayMove(current.data.template.sceneAttributes, oldIndex, newIndex)
                     }
                 }
-            })
+            }))
         }
     }
 
     function onRemoveSceneAttributeTemplate(id: number) {
         if(!query.data.template || !query.data.template.sceneAttributes || query.data.template.sceneAttributes.length == 0) return
 
-        let newSceneTemplates: AnyShotAttributeTemplate[] = (query.data.template.sceneAttributes as AnyShotAttributeTemplate[])
-            .filter((sceneTemplate) => sceneTemplate.id != id)
+        setQuery(current => {
+            let newSceneTemplates: AnyShotAttributeTemplate[] = []
+            if(current.data.template?.sceneAttributes){
+                newSceneTemplates = (current.data.template.sceneAttributes as AnyShotAttributeTemplate[])
+                    .filter((sceneTemplate) => sceneTemplate.id != id)
+            }
 
-        setQuery({
-            ...query,
-            data: {
-                ...query.data,
-                template:{
-                    ...query.data.template,
-                    sceneAttributes: newSceneTemplates
+            return {
+                ...current,
+                data: {
+                    ...current.data,
+                    template:{
+                        ...current.data.template,
+                        sceneAttributes: newSceneTemplates
+                    }
                 }
             }
         })

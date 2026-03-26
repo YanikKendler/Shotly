@@ -346,10 +346,10 @@ export function useAccountDialog() {
                                 checked={userSettings.saveExportSettingsInLocalstorage}
                                 onCheckedChange={(checked) => {
                                     td.signal("Account.Settings.RememberExportSettings")
-                                    setUserSettings({
-                                        ...userSettings,
+                                    setUserSettings(current => ({
+                                        ...current,
                                         saveExportSettingsInLocalstorage: checked
-                                    })
+                                    }))
                                 }}
                             >
                                 <Switch.Thumb className="SwitchThumb"/>
@@ -363,10 +363,10 @@ export function useAccountDialog() {
                                 checked={userSettings.displaySceneNumbersNextToShotNumbers}
                                 onCheckedChange={(checked) => {
                                     td.signal("Account.Settings.SceneNumbers")
-                                    setUserSettings({
-                                        ...userSettings,
+                                    setUserSettings(current => ({
+                                        ...current,
                                         displaySceneNumbersNextToShotNumbers: checked
-                                    })
+                                    }))
                                 }}
                             >
                                 <Switch.Thumb className="SwitchThumb"/>
@@ -381,10 +381,10 @@ export function useAccountDialog() {
                                 value={userSettings.shotNumberingAfterZ}
                                 onValueChange={(value) => {
                                     td.signal("Account.Settings.ShotNumbering")
-                                    setUserSettings({
-                                        ...userSettings,
+                                    setUserSettings(current => ({
+                                        ...current,
                                         shotNumberingAfterZ: value as "different" | "repeating"
-                                    })
+                                    }))
                                 }}
                             >
                                 <RadioGroup.Item className="RadioGroupItem" value="different">
@@ -406,11 +406,11 @@ export function useAccountDialog() {
                                 step={0.01}
                                 markerCount={5}
                                 onChange={(value) => {
-                                    setUserSettings({
-                                        ...userSettings,
+                                    setUserSettings(current => ({
+                                        ...current,
                                         shotlistScale: value
-                                    })
-                                    document.documentElement.style.setProperty("--shotlist-scale", value.toString());
+                                    }))
+                                    document.documentElement.style.setProperty("--shotlist-scale", value.toString())
                                 }}
                             />
                         </div>

@@ -63,10 +63,10 @@ export default function GeneralTab({
             return;
         }
 
-        setShotlist({
-            ...shotlist,
+        setShotlist(current => ({
+            ...current,
             name: data.updateShotlist.name
-        })
+        }))
 
         dataChanged()
     }

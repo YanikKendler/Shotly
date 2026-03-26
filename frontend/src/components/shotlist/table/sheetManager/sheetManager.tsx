@@ -104,13 +104,13 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
             shotIsBeingCreated.current = false
             attributePositionToSelect.current = -1
 
-            setQuery({
-                ...query,
+            setQuery(current => ({
+                ...current,
                 loading: true,
                 data: {
                     shots: null,
                 }
-            })
+            }))
             loadShots()
         }
     }, [selectedScene])
@@ -339,35 +339,37 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     }
 
     const onCreateShot = useCallback((newShot: ShotDto) => {
-        const newShots = [...query.data.shots || [], newShot]
+        setQuery(current => {
+            const newShots = [...(current.data.shots || []), newShot]
+            shotlistContext.setShotCount(newShots.length)
 
-        setQuery({
-            ...query,
-            data: {
-                ...query.data,
-                shots: newShots
+            return {
+                ...current,
+                data: {
+                    ...current.data,
+                    shots: newShots
+                }
             }
         })
-
-        shotlistContext.setShotCount(newShots.length)
-    }, [query])
+    }, [shotlistContext])
 
     const onDeleteShot = useCallback((shotId: string) => {
-        if(!query || !query.data.shots) return
+        setQuery(current => {
+            if(!current.data.shots) return current
 
-        let currentShots = query.data.shots as ShotDto[]
-        let newShots= currentShots.filter((shot) => shot.id != shotId)
+            let currentShots = current.data.shots as ShotDto[]
+            let newShots = currentShots.filter((shot) => shot.id != shotId)
+            shotlistContext.setShotCount(newShots.length)
 
-        setQuery({
-            ...query,
-            data: {
-                ...query.data,
-                shots: newShots
+            return {
+                ...current,
+                data: {
+                    ...current.data,
+                    shots: newShots
+                }
             }
         })
-
-        shotlistContext.setShotCount(newShots.length)
-    }, [query])
+    }, [shotlistContext])
 
     const moveShot = useCallback((shotId: string, to: number) => {
         shotlistContext.setSaveState("moveShot", "saving")
@@ -402,18 +404,20 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     }, [query])
 
     const onMoveShot = useCallback((shotId: string, to: number) => {
-        const from = query.data.shots?.findIndex((shot) => shot?.id == shotId)
+        setQuery(current => {
+            const from = current.data.shots?.findIndex((shot) => shot?.id == shotId)
 
-        if(from == undefined) return
+            if(from == undefined || from < 0) return current
 
-        setQuery({
-            ...query,
-            data: {
-                ...query.data,
-                shots: Utils.reorderArray(query.data.shots || [], from, to)
+            return {
+                ...current,
+                data: {
+                    ...current.data,
+                    shots: Utils.reorderArray(current.data.shots || [], from, to)
+                }
             }
         })
-    }, [query])
+    }, [])
 
     const handleScroll = () => {
         const table = shotTableElement.current

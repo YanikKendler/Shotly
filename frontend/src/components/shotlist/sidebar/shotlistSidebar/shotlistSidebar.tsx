@@ -167,18 +167,16 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
             return
         }
 
-        const newShotlist: ShotlistDto = {
-            ...query.data.shotlist,
-            name: data.updateShotlist.name
-        }
-
-        setQuery({
-            ...query,
+        setQuery(current => ({
+            ...current,
             data: {
-                ...query.data,
-                shotlist: newShotlist
+                ...current.data,
+                shotlist: {
+                    ...current.data.shotlist,
+                    name: data.updateShotlist.name
+                }
             }
-        })
+        }))
 
         shotlistContext.setSaveState("updateShotlistName", "saved")
     }
@@ -227,39 +225,46 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
     }
 
     const onMoveScene = (sceneId: string, to: number) => {
-        const from = query.data.shotlist?.scenes?.findIndex((scene) => scene?.id == sceneId)
+        setQuery(current => {
+            if(!current.data.shotlist?.scenes) return current
 
-        if(from == undefined || !query.data.shotlist?.scenes) return
+            const from = current.data.shotlist.scenes?.findIndex((scene) => scene?.id == sceneId)
+            if(from == undefined || from < 0) return current
 
-        const newScenes = Utils.reorderArray(query.data.shotlist.scenes || [], from, to)
+            const newScenes = Utils.reorderArray(current.data.shotlist.scenes || [], from, to)
 
-        setQuery({
-            ...query,
-            data: {
-                ...query.data,
-                shotlist: {
-                    ...query.data.shotlist,
-                    scenes: newScenes
+            return {
+                ...current,
+                data: {
+                    ...current.data,
+                    shotlist: {
+                        ...current.data.shotlist,
+                        scenes: newScenes
+                    }
                 }
             }
         })
     }
 
     const onDeleteScene = (sceneId: string) => {
-        if(!query.data.shotlist || !query.data.shotlist.scenes) return
+        setQuery(current => {
+            if(!current.data.shotlist?.scenes) return current
 
-        let currentScenes = query.data.shotlist.scenes as SceneDto[]
-        const newScenes: SceneDto[] = currentScenes.filter((scene: SceneDto) => scene.id != sceneId)
+            const currentScenes = current.data.shotlist.scenes as SceneDto[]
+            const newScenes: SceneDto[] = currentScenes.filter((scene: SceneDto) => scene.id != sceneId)
+            setSceneCount(newScenes.length)
 
-        setQuery({
-            ...query,
-            data: {
-                ...query.data,
-                shotlist: {...query.data.shotlist, scenes: newScenes}
+            return {
+                ...current,
+                data: {
+                    ...current.data,
+                    shotlist: {
+                        ...current.data.shotlist,
+                        scenes: newScenes
+                    }
+                }
             }
         })
-
-        setSceneCount(newScenes.length)
     }
 
     const createScene = async () => {
@@ -314,17 +319,21 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
     }
 
     const onCreateScene = (scene: SceneDto) => {
-        const newScenes = [...query.data.shotlist?.scenes as SceneDto[] || [], scene]
+        setQuery(current => {
+            const newScenes = [...(current.data.shotlist?.scenes as SceneDto[] || []), scene]
+            setSceneCount(newScenes.length)
 
-        setQuery({
-            ...query,
-            data: {
-                ...query.data,
-                shotlist: {...query.data.shotlist, scenes: newScenes}
+            return {
+                ...current,
+                data: {
+                    ...current.data,
+                    shotlist: {
+                        ...current.data.shotlist,
+                        scenes: newScenes
+                    }
+                }
             }
         })
-
-        setSceneCount(newScenes.length)
     }
 
     if(!query.data.shotlist?.scenes) return (

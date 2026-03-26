@@ -221,13 +221,13 @@ export default function Shotlist() {
         }
 
         if(!uuidRegex.test(id)){
-            setQuery({
-                ...query,
+            setQuery(current => ({
+                ...current,
                 errors: [{
                     message: "Invalid shotlist id",
                     extensions: { code: ShotlyErrorCode.NOT_FOUND }
                 }]
-            })
+            }))
             return
         }
 
@@ -527,13 +527,13 @@ export default function Shotlist() {
                             break
                         case ShotlistUpdateType.COLLABORATION_DELETED:
                             if(currentUserRef.current?.id == updateDTO.payload.userId){
-                                setQuery({
-                                    ...query,
+                                setQuery(current => ({
+                                    ...current,
                                     errors: [{
                                         message: "Your collaboration to this shotlist has been removed",
                                         extensions: { code: ShotlyErrorCode.READ_NOT_ALLOWED }
                                     }]
-                                })
+                                }))
                             }
                             break
                     }

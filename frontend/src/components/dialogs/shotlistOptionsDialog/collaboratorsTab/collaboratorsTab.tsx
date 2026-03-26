@@ -28,7 +28,7 @@ export default function CollaboratorsTab(
     }:{
         shotlistId: string | null
         collaborations: CollaborationDto[] | null
-        setCollaborations: (collaborators: CollaborationDto[]) => void
+        setCollaborations: React.Dispatch<React.SetStateAction<CollaborationDto[] | null>>
         shotlistOptionsDialogRef: RefObject<DialogRef | null>
     }
 ) {
@@ -86,8 +86,8 @@ export default function CollaboratorsTab(
                 return;
             }
 
-            setCollaborations([
-                ...collaborations || [],
+            setCollaborations(current => [
+                ...(current || []),
                 ...result.data.addCollaboration
             ])
 
@@ -123,17 +123,19 @@ export default function CollaboratorsTab(
             return;
         }
 
-        let newCollaborations: CollaborationDto[] = (collaborations || []).map((collab) => {
-            if(collab.id == collaborationId) {
-                return {
-                    ...collab,
-                    collaborationType: newType
-                }
-            }
-            return collab
-        })
+        setCollaborations(current => {
+            if(!current) return current
 
-        setCollaborations(newCollaborations)
+            return current.map((collab) => {
+                if(collab.id == collaborationId) {
+                    return {
+                        ...collab,
+                        collaborationType: newType
+                    }
+                }
+                return collab
+            })
+        })
     }
 
     const deleteCollaboration = async (collaborationId: string) => {
@@ -169,9 +171,7 @@ export default function CollaboratorsTab(
             return;
         }
 
-        setCollaborations(
-            (collaborations || []).filter((collab) => collab.id !== collaborationId)
-        )
+        setCollaborations(current => current ? current.filter((collab) => collab.id !== collaborationId) : current)
     }
 
     const refreshCollaboration = async (collaborationId: string) => {
@@ -194,17 +194,19 @@ export default function CollaboratorsTab(
             return;
         }
 
-        let newCollaborations: CollaborationDto[] = (collaborations || []).map((collab) => {
-            if(collab.id == collaborationId) {
-                return {
-                    ...collab,
-                    collaborationState: CollaborationState.Pending
-                }
-            }
-            return collab
-        })
+        setCollaborations(current => {
+            if(!current) return current
 
-        setCollaborations(newCollaborations)
+            return current.map((collab) => {
+                if(collab.id == collaborationId) {
+                    return {
+                        ...collab,
+                        collaborationState: CollaborationState.Pending
+                    }
+                }
+                return collab
+            })
+        })
     }
 
     if(collaborations == null) {

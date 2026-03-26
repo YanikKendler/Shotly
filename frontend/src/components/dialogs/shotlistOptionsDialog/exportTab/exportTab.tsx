@@ -749,7 +749,7 @@ export default function ExportTab(
                             <Switch.Root
                                 className="SwitchRoot"
                                 checked={pdfExportOptions.showCheckboxes}
-                                onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, showCheckboxes: checked})}
+                                onCheckedChange={(checked) => setPdfExportOptions(current => ({...current, showCheckboxes: checked}))}
                             >
                                 <Switch.Thumb className="SwitchThumb"/>
                             </Switch.Root>
@@ -762,7 +762,7 @@ export default function ExportTab(
 
                             <TextField
                                 value={pdfExportOptions.headerText}
-                                valueChange={(value) => setPdfExportOptions({...pdfExportOptions, headerText: value})}
+                                valueChange={(value) => setPdfExportOptions(current => ({...current, headerText: value}))}
                                 placeholder={"Any text"}
                                 clearable
                             />
@@ -777,7 +777,7 @@ export default function ExportTab(
                                 <Switch.Root
                                     className="SwitchRoot"
                                     checked={pdfExportOptions.avoidOrphans}
-                                    onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, avoidOrphans: checked})}
+                                onCheckedChange={(checked) => setPdfExportOptions(current => ({...current, avoidOrphans: checked}))}
                                 >
                                     <Switch.Thumb className="SwitchThumb"/>
                                 </Switch.Root>
@@ -791,7 +791,7 @@ export default function ExportTab(
                                 <Switch.Root
                                     className="SwitchRoot"
                                     checked={pdfExportOptions.repeatSceneHeading}
-                                    onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, repeatSceneHeading: checked})}
+                                onCheckedChange={(checked) => setPdfExportOptions(current => ({...current, repeatSceneHeading: checked}))}
                                 >
                                     <Switch.Thumb className="SwitchThumb"/>
                                 </Switch.Root>
@@ -805,7 +805,7 @@ export default function ExportTab(
                                 <Switch.Root
                                     className="SwitchRoot"
                                     checked={pdfExportOptions.repeatAttributeDefinitions}
-                                    onCheckedChange={(checked) => setPdfExportOptions({...pdfExportOptions, repeatAttributeDefinitions: checked})}
+                                    onCheckedChange={(checked) => setPdfExportOptions(current => ({...current, repeatAttributeDefinitions: checked}))}
                                 >
                                     <Switch.Thumb className="SwitchThumb"/>
                                 </Switch.Root>

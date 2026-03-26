@@ -219,7 +219,10 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const loadPendingCollaborations = async () => {
         try {
             setCollaborationReloadAllowed(false)
-            setPendingCollaborations({...query, loading: true})
+            setPendingCollaborations(current => ({
+                ...current,
+                loading: true
+            }))
 
             const result = await client.query({
                 query: gql`
@@ -287,13 +290,15 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             loadData()
         }
 
-        let newCollaborations = query.data.pendingCollaborations?.filter(c => c?.id !== collaborationId) || []
+        setPendingCollaborations(current => {
+            let newCollaborations = current.data.pendingCollaborations?.filter(c => c?.id !== collaborationId) || []
 
-        setPendingCollaborations({
-            ...query,
-            data: {
-                ...query.data,
-                pendingCollaborations: newCollaborations
+            return {
+                ...current,
+                data: {
+                    ...current.data,
+                    pendingCollaborations: newCollaborations
+                }
             }
         })
     }
