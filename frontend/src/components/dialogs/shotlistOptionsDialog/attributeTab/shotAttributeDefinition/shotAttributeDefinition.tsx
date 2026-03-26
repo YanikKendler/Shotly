@@ -58,6 +58,8 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
     }
 
     async function updateDefinition(newName: string) {
+        dataChanged()
+
         const {data, errors} = await client.mutate({
             mutation: gql`
                 mutation updateShotAttributeDefinition($id: BigInteger!, $name: String!) {
@@ -78,12 +80,10 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
             return
         }
 
-        setDefinition({
-            ...definition,
+        setDefinition(current => ({
+            ...current,
             name: newName
-        })
-
-        dataChanged()
+        }))
     }
 
     const debouncedUpdateDefinition = wuGeneral.debounce(updateDefinition)
@@ -121,6 +121,8 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
     }
 
     const createSelectOption = async () => {
+        dataChanged()
+
         setCreationLoaderVisibility(true)
 
         const { data, errors } = await client.mutate({
@@ -147,22 +149,23 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
             return;
         }
 
-        let currentOptions = (definition as ShotSingleOrMultiSelectAttributeDefinition).options as ShotSelectAttributeOptionDefinition[]
-        let newOptions: ShotSelectAttributeOptionDefinition[] = []
-        if(currentOptions) newOptions = [...currentOptions]
-        newOptions.push(data.createShotSelectAttributeOption)
-
-        setDefinition({
-            ...definition,
-            options: newOptions
+        setDefinition(current => {
+            let currentOptions = (current as ShotSingleOrMultiSelectAttributeDefinition).options as ShotSelectAttributeOptionDefinition[]
+            let newOptions: ShotSelectAttributeOptionDefinition[] = []
+            if(currentOptions) newOptions = [...currentOptions]
+            newOptions.push(data.createShotSelectAttributeOption)
+            return {
+                ...current,
+                options: newOptions
+            }
         })
-
-        dataChanged()
 
         setCreationLoaderVisibility(false)
     }
 
     const deleteSelectOption = async (optionId: number) => {
+        dataChanged()
+
         setDeletingOptionIds(v => [...v, optionId])
 
         const { errors } = await client.mutate({
@@ -186,17 +189,18 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
             return
         }
 
-        let newOptions: ShotSelectAttributeOptionDefinition[] = (definition as ShotSingleOrMultiSelectAttributeDefinition)?.options?.filter(option => option?.id != optionId) as ShotSelectAttributeOptionDefinition[] || []
-
-        setDefinition({
-            ...definition,
-            options: newOptions
+        setDefinition(current => {
+            let newOptions: ShotSelectAttributeOptionDefinition[] = (current as ShotSingleOrMultiSelectAttributeDefinition)?.options?.filter(option => option?.id != optionId) as ShotSelectAttributeOptionDefinition[] || []
+            return {
+                ...definition,
+                options: newOptions
+            }
         })
-
-        dataChanged()
     }
 
     const updateOptionName = async (optionId: number, newName: string) => {
+        dataChanged()
+
         const {data, errors} = await client.mutate({
             mutation : gql`
                 mutation updateShotSelectAttributeOption($id: BigInteger!, $name: String!) {
@@ -217,23 +221,23 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
             return
         }
 
-        let currentOptions = (definition as ShotSingleOrMultiSelectAttributeDefinition).options as ShotSelectAttributeOptionDefinition[]
-        let newOptions: ShotSelectAttributeOptionDefinition[] = currentOptions.map(option => {
-            if(option.id == optionId) {
-                return {
-                    ...option,
-                    name: newName
+        setDefinition(current => {
+            let currentOptions = (current as ShotSingleOrMultiSelectAttributeDefinition).options as ShotSelectAttributeOptionDefinition[]
+            let newOptions: ShotSelectAttributeOptionDefinition[] = currentOptions.map(option => {
+                if(option.id == optionId) {
+                    return {
+                        ...option,
+                        name: newName
+                    }
                 }
+                return option
+            })
+
+            return {
+                ...current,
+                options: newOptions
             }
-            return option
         })
-
-        setDefinition({
-            ...definition,
-            options: newOptions
-        })
-
-        dataChanged()
     }
 
     const debouncedUpdateOptionName = wuGeneral.debounce(updateOptionName)

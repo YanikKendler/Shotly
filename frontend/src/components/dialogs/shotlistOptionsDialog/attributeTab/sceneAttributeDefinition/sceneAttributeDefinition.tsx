@@ -53,6 +53,8 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
     }
 
     async function updateDefinition(newName: string) {
+        dataChanged()
+
         const {data, errors} = await client.mutate({
             mutation: gql`
                 mutation updateSceneAttributeDefinition($id: BigInteger!, $name: String!) {
@@ -73,12 +75,10 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
             return
         }
 
-        setDefinition({
-            ...definition,
+        setDefinition(current => ({
+            ...current,
             name: newName
-        })
-
-        dataChanged()
+        }))
     }
 
     const debouncedUpdateDefinition = wuGeneral.debounce(updateDefinition)
@@ -116,6 +116,8 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
     }
 
     const createSelectOption = async () => {
+        dataChanged()
+
         setCreationLoaderVisibility(true)
 
         const { data, errors } = await client.mutate({
@@ -142,22 +144,25 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
             return;
         }
 
-        let currentOptions = (definition as SceneSingleOrMultiSelectAttributeDefinition).options as SceneSelectAttributeOptionDefinition[]
-        let newOptions: SceneSelectAttributeOptionDefinition[] = []
-        if(currentOptions) newOptions = [...currentOptions]
-        newOptions.push(data.createSceneSelectAttributeOption)
 
-        setDefinition({
-            ...definition,
-            options: newOptions
+        setDefinition(current => {
+            let currentOptions = (current as SceneSingleOrMultiSelectAttributeDefinition).options as SceneSelectAttributeOptionDefinition[]
+            let newOptions: SceneSelectAttributeOptionDefinition[] = []
+            if(currentOptions) newOptions = [...currentOptions]
+            newOptions.push(data.createSceneSelectAttributeOption)
+
+            return {
+                ...current,
+                options: newOptions
+            }
         })
-
-        dataChanged()
 
         setCreationLoaderVisibility(false)
     }
 
     const deleteSelectOption = async (optionId: number) => {
+        dataChanged()
+
         setDeletingOptionIds(v => [...v, optionId])
 
         const { errors } = await client.mutate({
@@ -181,17 +186,18 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
             return
         }
 
-        let newOptions: SceneSelectAttributeOptionDefinition[] = (definition as SceneSingleOrMultiSelectAttributeDefinition)?.options?.filter(option => option?.id != optionId) as SceneSelectAttributeOptionDefinition[] || []
-
-        setDefinition({
-            ...definition,
-            options: newOptions
+        setDefinition(current => {
+            let newOptions: SceneSelectAttributeOptionDefinition[] = (current as SceneSingleOrMultiSelectAttributeDefinition)?.options?.filter(option => option?.id != optionId) as SceneSelectAttributeOptionDefinition[] || []
+            return {
+                ...current,
+                options: newOptions
+            }
         })
-
-        dataChanged()
     }
 
     const updateOptionName = async (optionId: number, newName: string) => {
+        dataChanged()
+
         const {data, errors} = await client.mutate({
             mutation : gql`
                 mutation updateSceneSelectAttributeOption($id: BigInteger!, $name: String!) {
@@ -212,23 +218,23 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
             return
         }
 
-        let currentOptions = (definition as SceneSingleOrMultiSelectAttributeDefinition).options as SceneSelectAttributeOptionDefinition[]
-        let newOptions: SceneSelectAttributeOptionDefinition[] = currentOptions.map(option => {
-            if(option.id == optionId) {
-                return {
-                    ...option,
-                    name: newName
+        setDefinition(current => {
+            let currentOptions = (current as SceneSingleOrMultiSelectAttributeDefinition).options as SceneSelectAttributeOptionDefinition[]
+            let newOptions: SceneSelectAttributeOptionDefinition[] = currentOptions.map(option => {
+                if(option.id == optionId) {
+                    return {
+                        ...option,
+                        name: newName
+                    }
                 }
+                return option
+            })
+
+            return {
+                ...definition,
+                options: newOptions
             }
-            return option
         })
-
-        setDefinition({
-            ...definition,
-            options: newOptions
-        })
-
-        dataChanged()
     }
 
     const debouncedUpdateOptionName = wuGeneral.debounce(updateOptionName)
