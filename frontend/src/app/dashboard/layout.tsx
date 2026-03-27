@@ -2,7 +2,7 @@
 
 import gql from "graphql-tag"
 import Link from "next/link"
-import {ApolloQueryResult, useApolloClient} from "@apollo/client"
+import {ApolloQueryResult, InteropQueryResult, useApolloClient} from "@apollo/client"
 import "./layout.scss"
 import React, {useEffect, useRef, useState} from "react"
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
@@ -198,7 +198,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             },
         )
 
-
         if(result.errors){
             console.error(result.errors)
             errorNotification({
@@ -207,7 +206,52 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             })
         }
 
+        // when creating a new account, the backend sometimes takes too long to create the default template
+        // in order for it to still get displayed, the templates might be refetched
+        if(!result.data?.currenUser?.howDidYouHearReason && result.data?.templates?.length == 0){
+            console.log("scheduled refetch")
+            setTimeout(() => {
+                refetchTemplates()
+            },1000)
+        }
+
         setQuery(result)
+    }
+
+    const refetchTemplates = async () => {
+        console.log("refetch")
+
+        const result = await client.query({
+                query: gql`
+                    query refetchTemplates{
+                        templates {
+                            id
+                            name
+                            shotAttributeCount
+                            sceneAttributeCount
+                            owner {
+                                name
+                            }
+                        }
+                    }`,
+                fetchPolicy: "no-cache"
+            },
+        )
+
+        if(result.errors){
+            console.error(result.errors)
+            errorNotification({
+                title: "Failed to reload templates"
+            })
+        }
+
+        setQuery(current => ({
+            ...current,
+            data: {
+                ...current.data,
+                templates: result.data
+            }
+        }))
     }
 
     const incrementDialogStep = (currentStep: DialogStep) => {
