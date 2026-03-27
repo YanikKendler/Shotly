@@ -17,6 +17,10 @@ Exports the table in a standard, print-ready PDF format. This mode has the follo
 !!! Tip
     I recommend just testing these features for yourself and previewing the result, these settings might seem complicated but are actually pretty simple
 
+### XLSX
+
+Exports the full shotlist, including all shots and scenes, as a styled **Excel list** similar to the PDF export. The resulting file is a standard *MS Excel 2007+ (.xlsx)* file.
+
 ### CSV (full)
 
 Exports all the shots with scene headings in between. This makes it technically not a valid CSV file, but includes **all the data**.
