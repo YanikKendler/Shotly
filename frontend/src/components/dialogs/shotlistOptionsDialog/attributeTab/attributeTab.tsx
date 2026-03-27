@@ -35,7 +35,8 @@ export default function AttributeTab(
         selectedPage = ShotlistOptionsDialogSubPage.scene,
         setSelectedPage,
         dataChanged,
-        shotlistOptionsDialogRef
+        shotlistOptionsDialogRef,
+        isAvailable
     }
         :
     {
@@ -48,6 +49,7 @@ export default function AttributeTab(
         setSelectedPage: (page: ShotlistOptionsDialogSubPage) => void
         dataChanged: () => void
         shotlistOptionsDialogRef: RefObject<DialogRef | null>
+        isAvailable: boolean
 
     }
 ) {
@@ -246,6 +248,18 @@ export default function AttributeTab(
 
             setSceneAttributeDefinitions(current => current ? arrayMove(current, oldIndex, newIndex) : current)
         }
+    }
+
+    if(!isAvailable) {
+        return <div className={"attributeTypeTabRoot shotlistOptionsDialogAttributeTab shotlistOptionsDialogPage"}>
+            <div className="top">
+                <h2>Attributes</h2>
+                <button className={"closeButton"} onClick={shotlistOptionsDialogRef.current?.close}>
+                    <X size={18}/>
+                </button>
+            </div>
+            <p className={"empty"}>Attributes are not available since this shotlist is read-only.</p>
+        </div>
     }
 
     return (

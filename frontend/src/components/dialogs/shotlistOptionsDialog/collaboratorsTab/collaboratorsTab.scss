@@ -66,6 +66,23 @@ div.shotlistOptionsDialogCollaboratorsTab{
     color: var(--text-50);
   }
 
+  .leave{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    color: var(--text-20);
+    font-size: .95rem;
+
+    button{
+      border: 2px solid var(--default-interactable-border);
+
+      &:hover{
+        border-color: var(--bad-60);
+      }
+    }
+  }
+
   .new{
     display: flex;
     align-items: flex-end;

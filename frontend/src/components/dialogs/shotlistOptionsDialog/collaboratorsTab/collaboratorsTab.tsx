@@ -2,7 +2,12 @@ import React, {RefObject, useEffect, useState} from "react"
 import {useApolloClient} from "@apollo/client"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialog"
 import "./collaboratorsTab.scss"
-import {CollaborationDto, CollaborationState, CollaborationType} from "../../../../../lib/graphql/generated"
+import {
+    CollaborationDto,
+    CollaborationState,
+    CollaborationType,
+    ShotlistDto
+} from "../../../../../lib/graphql/generated"
 import TextField from "@/components//inputs/textField/textField"
 import Skeleton from "react-loading-skeleton"
 import gql from "graphql-tag"
@@ -18,22 +23,27 @@ import {errorNotification} from "@/service/NotificationService"
 import {DialogRef} from "@/components/dialog/dialog"
 import auth from "@/Auth"
 import {ShotlyErrorCode} from "@/util/Types"
+import {ShotlistOptionsDialogPage} from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
+import {useRouter} from "next/navigation"
 
 export default function CollaboratorsTab(
     {
-        shotlistId,
+        shotlist,
         collaborations,
         setCollaborations,
-        shotlistOptionsDialogRef
+        shotlistOptionsDialogRef,
+        isAvailable
     }:{
-        shotlistId: string | null
+        shotlist: ShotlistDto | null
         collaborations: CollaborationDto[] | null
         setCollaborations: React.Dispatch<React.SetStateAction<CollaborationDto[] | null>>
         shotlistOptionsDialogRef: RefObject<DialogRef | null>
+        isAvailable: boolean
     }
 ) {
     const client = useApolloClient()
     const { confirm, ConfirmDialog } = useConfirmDialog()
+    const router = useRouter()
 
     const [inputValue, setInputValue] = useState("")
     const [userIsAlreadyAMember, setUserIsAlreadyAMember] = useState(false)
@@ -72,7 +82,7 @@ export default function CollaboratorsTab(
                         }
                     }
                 `,
-                variables: {shotlistId: shotlistId, email: inputValue},
+                variables: {shotlistId: shotlist?.id, email: inputValue},
             })
             if (result.errors) {
                 if(result.errors[0]?.extensions?.code as ShotlyErrorCode != ShotlyErrorCode.TOO_MANY_REQUESTS) {
@@ -207,6 +217,64 @@ export default function CollaboratorsTab(
                 return collab
             })
         })
+    }
+
+    const leaveCollaboration = async () => {
+        if(!shotlist?.id) return
+
+        let decision = await confirm({
+            title: "Are you sure?",
+            message: `You will loose access to the Shotlist "${shotlist?.name || "Unnamed"}" until its owner invites you again."`,
+            buttons: {
+                confirm: {
+                    className: "bad",
+                }
+            }
+        })
+
+        if(!decision) return
+
+        const result = await client.mutate({
+            mutation: gql`
+                mutation leaveCollaboration($shotlistId: String!){
+                    leaveCollaboration(shotlistId: $shotlistId){
+                        id
+                    }
+                }`,
+            variables: {shotlistId: shotlist.id}
+        })
+
+        if(result.errors){
+            errorNotification({
+                title: "Failed to leave collaboration",
+                tryAgainLater: true
+            })
+            console.error("Error leaving collaboration:", result.errors)
+            return
+        }
+
+        router.push("/dashboard")
+    }
+
+    if(!isAvailable) {
+        return <div className="shotlistOptionsDialogCollaboratorsTab shotlistOptionsDialogPage">
+            <div className="top">
+                <h2>Collaboration</h2>
+                <button className={"closeButton"} onClick={shotlistOptionsDialogRef.current?.close}>
+                    <X size={18}/>
+                </button>
+            </div>
+            <div className="leave">
+                <p>Leave this Shotlist</p>
+                <button
+                    className="bad"
+                    onClick={leaveCollaboration}
+                >
+                    Leave
+                </button>
+            </div>
+            <p className={"empty"}>As a collaborator, you don’t have permission to edit collaborators.</p>
+        </div>
     }
 
     if(collaborations == null) {

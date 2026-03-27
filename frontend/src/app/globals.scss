@@ -168,7 +168,7 @@
 
   --popup-border: hsl(0, 0%, 18%);
   --select-menu-border: hsl(0, 0%, 25%);
-  --select-menu-multivalue-bg: hsl(0, 0%, 25%);
+  --select-menu-multivalue-bg: hsl(0, 0%, 23%);
 
   --dialog-close-button-bg: hsl(0, 0%, 15%);
   --dialog-close-button-hover-bg: hsl(0, 0%, 20%);
@@ -261,6 +261,7 @@ svg {
     position: sticky;
     top: 0;
     z-index: 200;
+    font-size: .9rem;
 
     a {
       font-weight: bold;

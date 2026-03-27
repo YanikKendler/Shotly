@@ -154,37 +154,8 @@
     > .empty {
       color: var(--text-50);
       text-align: center;
-      margin-top: 4rem;
+      margin-top: 2rem;
     }
-
-    > .collabNotOwner{
-      .empty{
-        color: var(--text-50);
-        margin-top: 1rem;
-      }
-
-      .row{
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
-        color: var(--text-20);
-
-        button{
-          border: 2px solid var(--default-interactable-border);
-
-          &:hover{
-            border-color: var(--bad-60);
-          }
-        }
-      }
-    }
-  }
-
-  > .empty{
-    text-align: center;
-    color: var(--text-50);
-    margin-top: 2rem;
   }
 }
 

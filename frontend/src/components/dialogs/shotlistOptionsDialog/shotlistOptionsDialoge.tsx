@@ -65,7 +65,6 @@ export default function ShotlistOptionsDialog({
 
     const client = useApolloClient()
     const router = useRouter()
-    const {confirm, ConfirmDialog} = useConfirmDialog()
 
     const lastRefresh = useRef(0);
 
@@ -215,43 +214,6 @@ export default function ShotlistOptionsDialog({
         }
     }
 
-    const leaveCollaboration = async () => {
-        if(!shotlistId) return
-
-        let decision = await confirm({
-            title: "Are you sure?",
-            message: `You will loose access to the Shotlist "${shotlist?.name || "Unnamed"}" until its owner invites you again."`,
-            buttons: {
-                confirm: {
-                    className: "bad",
-                }
-            }
-        })
-
-        if(!decision) return
-
-        const result = await client.mutate({
-            mutation: gql`
-                mutation leaveCollaboration($shotlistId: String!){
-                    leaveCollaboration(shotlistId: $shotlistId){
-                        id
-                    }
-                }`,
-            variables: {shotlistId: shotlistId}
-        })
-
-        if(result.errors){
-            errorNotification({
-                title: "Failed to leave collaboration",
-                tryAgainLater: true
-            })
-            console.error("Error leaving collaboration:", result.errors)
-            return
-        }
-
-        router.push("/dashboard")
-    }
-
     const updateUrl = (isOpen: boolean, page?: ShotlistOptionsDialogPage) => {
         const url = new URL(window.location.href)
         if(isOpen){
@@ -338,50 +300,27 @@ export default function ShotlistOptionsDialog({
                     />
                 </Tabs.Content>
                 <Tabs.Content value={"attributes"} className={"content"}>
-                    {
-                        isReadOnly ?
-                        <p className={"empty"}>Sorry, this shotlist is in read-only Mode.</p> :
-                        <AttributeTab
-                            shotlistId={shotlistId}
-                            shotAttributeDefinitions={shotAttributeDefinitions}
-                            setShotAttributeDefinitions={setShotAttributeDefinitions}
-                            sceneAttributeDefinitions={sceneAttributeDefinitions}
-                            setSceneAttributeDefinitions={setSceneAttributeDefinitions}
-                            selectedPage={selectedSubPage}
-                            setSelectedPage={setSelectedSubPage}
-                            dataChanged={() => setDataChanged(true)}
-                            shotlistOptionsDialogRef={ref}
-                        />
-                    }
+                    <AttributeTab
+                        shotlistId={shotlistId}
+                        shotAttributeDefinitions={shotAttributeDefinitions}
+                        setShotAttributeDefinitions={setShotAttributeDefinitions}
+                        sceneAttributeDefinitions={sceneAttributeDefinitions}
+                        setSceneAttributeDefinitions={setSceneAttributeDefinitions}
+                        selectedPage={selectedSubPage}
+                        setSelectedPage={setSelectedSubPage}
+                        dataChanged={() => setDataChanged(true)}
+                        shotlistOptionsDialogRef={ref}
+                        isAvailable={!isReadOnly}
+                    />
                 </Tabs.Content>
                 <Tabs.Content value={"collaborators"} className={"content"}>
-                    {
-                        shotlist?.owner?.id != currentUser?.id ?
-                        <>
-                            <div className="collabNotOwner">
-                                <h2>Collaboration</h2>
-                                <div className="row">
-                                    <p>Leave this Shotlist</p>
-                                    <button
-                                        className="bad"
-                                        onClick={leaveCollaboration}
-                                    >
-                                        Leave
-                                    </button>
-                                </div>
-                                <p className={"empty"}>
-                                    As a collaborator, you don’t have permission to edit collaborators.
-                                </p>
-                            </div>
-                        </> :
-
-                        <CollaboratorsTab
-                            shotlistId={shotlistId}
-                            collaborations={collaborations}
-                            setCollaborations={setCollaborations}
-                            shotlistOptionsDialogRef={ref}
-                        />
-                    }
+                    <CollaboratorsTab
+                        shotlist={shotlist}
+                        collaborations={collaborations}
+                        setCollaborations={setCollaborations}
+                        shotlistOptionsDialogRef={ref}
+                        isAvailable={shotlist?.owner?.id == currentUser?.id}
+                    />
                 </Tabs.Content>
                 {/*keep the tab mounted so that the selected filters don't disappear when switching tabs*/}
                 <Tabs.Content
@@ -399,7 +338,6 @@ export default function ShotlistOptionsDialog({
                 </Tabs.Content>
             </Tabs.Root>
         </Dialog>
-        {ConfirmDialog}
         </>
     );
 }
