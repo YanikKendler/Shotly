@@ -40,6 +40,7 @@
   --text: hsl(0, 0%, 0%);
   --text-10: hsl(0, 0%, 10%);
   --text-20: hsl(0, 0%, 20%);
+  --text-25: hsl(0, 0%, 25%);
   --text-30: hsl(0, 0%, 30%);
   --text-35: hsl(0, 0%, 35%);
   --text-40: hsl(0, 0%, 40%);
@@ -147,6 +148,7 @@
   --text:    hsl(0, 0%, 90%);
   --text-10: hsl(0, 0%, 85%);
   --text-20: hsl(0, 0%, 80%);
+  --text-25: hsl(0, 0%, 75%);
   --text-30: hsl(0, 0%, 70%);
   --text-35: hsl(0, 0%, 65%);
   --text-40: hsl(0, 0%, 60%);
@@ -298,7 +300,7 @@ button, a{
   padding: .5rem;
   transition: color .15s ease-in-out, background-color .15s ease-in-out, border .15s ease-in-out;
   cursor: pointer;
-  gap: .5rem;
+  gap: .5em;
   user-select: none;
   margin: 0;
   white-space: nowrap;

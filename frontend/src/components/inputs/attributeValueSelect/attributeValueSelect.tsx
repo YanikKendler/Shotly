@@ -53,9 +53,10 @@ export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBas
         ...baseStyles,
         color: "var(--text)",
     }),
-    valueContainer: (baseStyles) => ({
+    valueContainer: (baseStyles, props) => ({
         ...baseStyles,
-        padding: "2px .1rem"
+        paddingInline: props.isMulti ? "4px" : "2px",
+        paddingBlock: ".1rem"
     }),
     multiValue: (baseStyles) => ({
         ...baseStyles,

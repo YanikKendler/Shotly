@@ -129,7 +129,10 @@ export default function Landing() {
                 <div className="content">
                     <div className="center">
                         <Wordmark/>
-                        <p className={"tagline"}>Shotlist creation made easy!</p>
+                        <p className={"tagline"}>
+                            The free shotlist tool for filmmakers.
+                            Customize your shots, collaborate with your crew, and export to PDF for the shoot day.
+                        </p>
                         <div className="arrowContainer">
                             <AuthSwitcher
                                 authenticated={
@@ -139,10 +142,14 @@ export default function Landing() {
                                     >To your Dashboard</Link>
                                 }
                                 unauthenticated={
-                                    <button onClick={() => {
-                                        td.signal("Landing.Hero.GetStarted")
-                                        Auth.login()
-                                    }}>Get started for free</button>
+                                    <>
+                                        <button onClick={() => {
+                                            td.signal("Landing.Hero.GetStarted")
+                                            Auth.login()
+                                        }}>Create your first shotlist
+                                        </button>
+                                        <small>free, no credit card required</small>
+                                    </>
                                 }
                             />
                             <Image
@@ -171,7 +178,7 @@ export default function Landing() {
                         light={
                             <Image
                                 src={"/shotlist-light.jpg"}
-                                alt={"image of a shotlist with its scenes listet in the left sidebar and multiple shots listed on the right"}
+                                alt={"Image of a shotlist with its scenes listet in the left sidebar and multiple shots listed on the right"}
                                 width={1681}
                                 height={1000}
                                 ref={imageRef}
@@ -180,7 +187,7 @@ export default function Landing() {
                         dark={
                             <Image
                                 src={"/shotlist-dark.jpg"}
-                                alt={"image of a shotlist with its scenes listet in the left sidebar and multiple shots listed on the right"}
+                                alt={"Image of a shotlist with its scenes listet in the left sidebar and multiple shots listed on the right"}
                                 width={1643}
                                 height={1000}
                                 ref={imageRef}
@@ -193,12 +200,18 @@ export default function Landing() {
 
                 </section>
                 <section className="features" id={"features"}>
+                    <h2>Why Shotly?</h2>
+                    <p className="explainer">
+                        Tired of shotlists in messy spreadsheets? Rows that break when someone edits the wrong
+                        cell. No way to filter by scene or location. Emailing v7_FINAL_FINAL.xlsx to your crew the night before the shoot.
+                    </p>
+                    <p className="extra">There is a better way.</p>
                     <div className="content">
                         <div className="feature">
                             <div className="icon">
                                 <Columns3Cog size={40}/>
                             </div>
-                            <h2>Customizable</h2>
+                            <h3>Customizable</h3>
                             <p>Select which attributes you want per shot and per scene.</p>
                             <Link
                                 href="https://docs.shotly.at/attributes"
@@ -213,7 +226,7 @@ export default function Landing() {
                             <div className="icon">
                                 <Download size={40}/>
                             </div>
-                            <h2>Easy Export</h2>
+                            <h3>Easy Export</h3>
                             <p>Export to PDF/CSV for print or distribution. Use filters to get only what you need.</p>
                             <Link
                                 href="https://docs.shotly.at/shotlist/export"
@@ -241,14 +254,14 @@ export default function Landing() {
                                     </g>
                                 </svg>
                             </div>
-                            <h2>Cloud Based</h2>
-                            <p>Your Shotlist are stored in the cloud - accessible from anywhere in any browser.</p>
+                            <h3>Cloud Based</h3>
+                            <p>Your Shotlist live in the cloud. Accessible from anywhere at any time.</p>
                         </div>
                         <div className="feature">
                             <div className="icon">
                                 <Users size={40}/>
                             </div>
-                            <h2>Live Collaboration</h2>
+                            <h3>Live Collaboration</h3>
                             <p>Share your shotlist with friends or colleagues and create together.</p>
                             <Link
                                 href="https://docs.shotly.at/shotlist/collaboration"
@@ -263,7 +276,7 @@ export default function Landing() {
                             <div className="icon">
                                 <Blocks size={40}/>
                             </div>
-                            <h2>Templates</h2>
+                            <h3>Templates</h3>
                             <p>Save your preferred Attributes and Layouts and reuse them for future Shotlists.</p>
                             <Link
                                 href="https://docs.shotly.at/templates"
@@ -278,7 +291,7 @@ export default function Landing() {
                             <div className="icon">
                                 <FileCode size={40}/>
                             </div>
-                            <h2>Source Available</h2>
+                            <h3>Source Available</h3>
                             <p>All the code is public on GitHub - self host your shotlists or add your own features.</p>
                             <Link
                                 href="https://github.com/YanikKendler/Shotly/blob/main/README.md##License"
@@ -356,7 +369,7 @@ export default function Landing() {
                                     td.signal("Landing.Price.Pro")
                                     Auth.loginForPro()
                                 }}
-                            >Choose Pro</button>
+                            >Go unlimited</button>
                         </div>
                     </div>
                     <Link
@@ -382,7 +395,7 @@ export default function Landing() {
                             href={"https://github.com/YanikKendler/shotly"}
                             target={"_blank"}
                         >
-                            github.com/YanikKendler/shotly
+                            GitHub.com/YanikKendler/Shotly
                         </Link>
                         <p className={"copyright"}>© 2026 Yanik Kendler. Source Available under the PolyForm Noncommercial License.</p>
                     </div>
