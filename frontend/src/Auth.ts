@@ -102,6 +102,8 @@ class Auth {
                     return reject("missing accessToken")
                 }
 
+                localStorage.setItem(Config.localStorageKey.hasLoggedInBefore, JSON.stringify(true))
+
                 this.auth0.client.userInfo(authResult.accessToken, (err, user) => {
                     resolve(authResult.appState?.targetUrl || '/dashboard');
                 })
@@ -137,6 +139,7 @@ class Auth {
             sub: authResult.idTokenPayload.sub,
             isSocial: authResult.idTokenPayload.sub.startsWith("google-oauth2|")
         }
+
         localStorage.setItem(Config.localStorageKey.isLoggedIn, JSON.stringify(true))
     }
 
@@ -149,7 +152,7 @@ class Auth {
             this.auth0.checkSession({}, (err, authResult) => {
                 if (err) {
                     console.error(err)
-                    localStorage.removeItem(Config.localStorageKey.isLoggedIn);
+                    localStorage.setItem(Config.localStorageKey.isLoggedIn, "false");
                     /*errorNotification({
                         title: "Silent authentication failed",
                         sub: "Please reload the page and log in again."
@@ -164,6 +167,10 @@ class Auth {
 
     isAuthenticated() {
         return JSON.parse(localStorage.getItem(Config.localStorageKey.isLoggedIn) || 'false');
+    }
+
+    hasLoggedInBefore() {
+        return JSON.parse(localStorage.getItem(Config.localStorageKey.hasLoggedInBefore) || 'false');
     }
 }
 

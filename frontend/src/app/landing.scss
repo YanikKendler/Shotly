@@ -33,7 +33,7 @@ main.landing{
     z-index: 100;
 
     a, button{
-      font-size: min(4vw, 1rem);
+      font-size: clamp(.85rem, 1.3vw, 1rem);
 
       @media screen and (max-width: 600px) {
         svg{
@@ -154,13 +154,13 @@ main.landing{
       }
 
       svg{
-        width: 40rem;
+        width: clamp(30rem, 50vw, 40rem);
         max-width: 90vw;
         color: var(--accent);
       }
 
       p.tagline{
-        font-size: min(3.5vw, 1rem);
+        font-size: clamp(.85rem, 1.3vw, 1rem);
         /*color: var(--accent-20);*/
         color: var(--text-25);
         font-weight: 400;
@@ -174,11 +174,13 @@ main.landing{
       button, a{
         font-weight: 600;
         color: var(--accent);
-        border: .2rem solid var(--accent);
-        padding: .7rem 3rem;
-        margin-top: clamp(2rem, 5vw, 4rem);
+        border: .2em solid var(--accent);
+        padding: .7em 3em;
+        margin-top: clamp(2rem, 5vw, 3rem);
+        font-size: clamp(.85rem, 1.3vw, 1rem);
         transition: scale ease-out .3s, background-color ease-out .3s, rotate ease-out .3s;
-        font-size: min(4vw, 1rem);
+        max-width: 90vw;
+        justify-content: center;
 
         &:hover{
           background-color: var(--accent);
@@ -190,7 +192,7 @@ main.landing{
 
       small{
         text-align: center;
-        font-size: min(3vw, .8rem);
+        font-size: clamp(.7rem, 1vw, .8rem);
         margin-top: .5rem;
         color: var(--text-50);
       }
@@ -199,10 +201,10 @@ main.landing{
         position: absolute;
         top: -1.3rem;
         right: 0;
-        font-size: min(1rem, 3vw);
+        font-size: clamp(.7rem, 1.8vw, .9rem);
         background-color: var(--beta-chip-bg);
         border: .1rem solid var(--accent);
-        padding: 0.375rem min(1.5rem, 4vw);
+        padding: 0.375em min(1.5em, 4vw);
         border-radius: 1.5rem;
         font-weight: 600;
         color: var(--accent);
@@ -279,18 +281,22 @@ main.landing{
         animation-delay: 4s;
       }
 
-      @media screen and (max-width: 1200px) {
+      @media screen and (max-width: 1300px) {
         scale: 90%;
+
+        --shift: 3%;
 
         &.first{
           display: none;
         }
       }
 
-      @media screen and (max-width: 900px) {
-        scale: 80%;
+      @media screen and (max-width: 1000px) {
+        scale: 70%;
 
         --shift: 5%;
+
+        opacity: 70%;
 
         &.second{
           display: none;
@@ -299,6 +305,8 @@ main.landing{
 
       @media screen and (max-width: 400px) {
         scale: 60%;
+
+        opacity: 70%;
 
         --shift: 50px;
       }
@@ -352,14 +360,11 @@ main.landing{
 
     > p {
       font-size: clamp(.8rem, 4vw, 1rem);
-    }
-
-    p.explainer{
-      color: var(--text-30);
-      max-width: 55ch;
-      margin-inline: .5rem;
+      max-width: 50ch;
       text-align: center;
       line-height: 155%;
+      margin-inline: .5rem;
+      color: var(--text-30);
     }
 
     p.extra{

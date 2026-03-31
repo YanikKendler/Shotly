@@ -4,7 +4,7 @@ import React, {useContext, useEffect, useRef, useState} from 'react';
 import "./accountDialog.scss"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
-import {Monitor, Moon, Sun, X} from "lucide-react"
+import {BookText, Bug, LogOut, LucideMail, Mail, Monitor, Moon, Sun, Trash, X} from "lucide-react"
 import Auth from "@/Auth"
 import {Query, UserDto, UserTier} from "../../../../lib/graphql/generated"
 import {RadioGroup, Switch, VisuallyHidden} from "radix-ui"
@@ -425,7 +425,9 @@ export function useAccountDialog() {
                         href={"https://docs.shotly.at"}
                         target={"_blank"}
                         onClick={() => {td.signal("Account.Support.Docs")}}
-                    >Shotly Docs</Link>
+                    >
+                        <BookText size={16} />Shotly Docs
+                    </Link>
                 </div>
                 <div className="row">
                     <p>Report a bug or request a feature</p>
@@ -433,7 +435,9 @@ export function useAccountDialog() {
                         href={"https://github.com/YanikKendler/shotly/issues/new/choose"}
                         target={"_blank"}
                         onClick={() => {td.signal("Account.Support.NewIssue")}}
-                    >New issue</Link>
+                    >
+                        <Bug size={16}/> New issue
+                    </Link>
                 </div>
                 <div className="row">
                     <p>Contact me via email</p>
@@ -441,21 +445,33 @@ export function useAccountDialog() {
                         href={"mailto:yanik@shotly.at"}
                         target={"_blank"}
                         onClick={() => {td.signal("Account.Support.Mail")}}
-                    >yanik@shotly.at</Link>
+                    >
+                        <Mail size={16}/>yanik@shotly.at
+                    </Link>
                 </div>
 
                 <Separator text={"Account"}/>
 
                 <div className="row">
                     <p>Use another account</p>
-                    <button className={"logout"} onClick={() => Auth.logout()}>Sign out</button>
+                    <button
+                        className={"logout"} onClick={() => Auth.logout()}
+                    >
+                        <LogOut size={16}/>Sign out
+                    </button>
                 </div>
                 {
                     query.loading ?
                     <Skeleton height={"2.5rem"}/> :
                     <div className="row">
                         <p>Delete your account</p>
-                        <button className={"delete bad"} onClick={deleteAccount}>Delete account</button>
+                        <button
+                            className={"delete bad"}
+                            onClick={deleteAccount}
+                        >
+                            <Trash size={16}/>
+                            Delete account
+                        </button>
                     </div>
                 }
 

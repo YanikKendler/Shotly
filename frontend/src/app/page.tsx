@@ -130,7 +130,8 @@ export default function Landing() {
                     <div className="center">
                         <Wordmark/>
                         <p className={"tagline"}>
-                            The free shotlist tool for filmmakers.
+                            Shotlist creation made easy!
+                            <br/>
                             Customize your shots, collaborate with your crew, and export to PDF for the shoot day.
                         </p>
                         <div className="arrowContainer">
@@ -141,13 +142,20 @@ export default function Landing() {
                                         onClick={() => td.signal("Landing.Hero.Dashboard")}
                                     >To your Dashboard</Link>
                                 }
+                                hasBeenAuthenticatedBefore={
+                                    <button
+                                        onClick={() => {
+                                            td.signal("Landing.Hero.Dashboard")
+                                            Auth.login()
+                                        }}
+                                    >To your Dashboard</button>
+                                }
                                 unauthenticated={
                                     <>
                                         <button onClick={() => {
                                             td.signal("Landing.Hero.GetStarted")
                                             Auth.login()
-                                        }}>Create your first shotlist
-                                        </button>
+                                        }}>Create your first shotlist</button>
                                         <small>free, no credit card required</small>
                                     </>
                                 }
@@ -202,10 +210,11 @@ export default function Landing() {
                 <section className="features" id={"features"}>
                     <h2>Why Shotly?</h2>
                     <p className="explainer">
-                        Tired of shotlists in messy spreadsheets? Rows that break when someone edits the wrong
-                        cell. No way to filter by scene or location. Emailing v7_FINAL_FINAL.xlsx to your crew the night before the shoot.
+                        Stop fighting broken cells and rigid rows. Forget the nightmare of messy exports
+                        and the being unable to filter by scene or location.
                     </p>
-                    <p className="extra">There is a better way.</p>
+                    <p className="extra">
+                        Shotly replaces spreadsheet chaos with a workspace that adjusts to your needs.</p>
                     <div className="content">
                         <div className="feature">
                             <div className="icon">

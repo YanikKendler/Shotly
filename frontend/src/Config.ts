@@ -44,6 +44,7 @@ export default class Config {
         shotlistTourCompleted: "shotly-shotlist-tour-completed",
         templateTourCompleted: "shotly-template-tour-completed",
         isLoggedIn: "shotly-is-logged-in",
+        hasLoggedInBefore: "shotly-has-logged-in-before",
         userIdentifier: "shotly-user-identifier"
     }
 

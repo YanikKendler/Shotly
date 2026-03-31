@@ -12,7 +12,7 @@ export default function NotAllowed() {
                 },
                 {
                     href: "/",
-                    text: "Landing",
+                    text: "Landing Page",
                 }
             ]}
         />
