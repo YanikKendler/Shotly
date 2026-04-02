@@ -162,7 +162,7 @@ export default function Landing() {
                             />
                             <Image
                                 className={"arrow"}
-                                src={"/home-doodles/arrow.svg"}
+                                src={"/hero-doodles/arrow.svg"}
                                 width={80}
                                 height={97}
                                 alt={"<--"}
@@ -171,34 +171,62 @@ export default function Landing() {
                         </div>
                         <div className="beta">Beta</div>
                     </div>
-                    <Image className={""} id={"clapboard"} src={"/home-doodles/doodle-0.svg"} alt={"doodle"} width={128} height={118} fetchPriority={"low"}/>
-                    <Image className={"first"} id={"brush"} src={"/home-doodles/doodle-1.svg"} alt={"doodle"} width={97} height={85} fetchPriority={"low"}/>
-                    <Image className={""} id={"shotlist"} src={"/home-doodles/doodle-2.svg"} alt={"doodle"} width={179} height={111} fetchPriority={"low"}/>
-                    <Image className={"third"} id={"close-up"} src={"/home-doodles/doodle-3.svg"} alt={"doodle"} width={118} height={52} fetchPriority={"low"}/>
-                    <Image className={"second"} id={"clipboard"} src={"/home-doodles/doodle-4.svg"} alt={"doodle"} width={85} height={113} fetchPriority={"low"}/>
-                    <Image className={"third"} id={"medium-shot"} src={"/home-doodles/doodle-5.svg"} alt={"doodle"} width={126} height={37} fetchPriority={"low"}/>
-                    <Image className={"second"} id={"thoughts"} src={"/home-doodles/doodle-6.svg"} alt={"doodle"} width={59} height={52} fetchPriority={"low"}/>
-                    <Image className={"first"} id={"camera"} src={"/home-doodles/doodle-7.svg"} alt={"doodle"} width={120} height={94} fetchPriority={"low"}/></div>
+                    <Image className={""} id={"clapboard"} src={"/hero-doodles/doodle-0.svg"} alt={"doodle"} width={128} height={118} fetchPriority={"low"}/>
+                    <Image className={"first"} id={"brush"} src={"/hero-doodles/doodle-1.svg"} alt={"doodle"} width={97} height={85} fetchPriority={"low"}/>
+                    <Image className={""} id={"shotlist"} src={"/hero-doodles/doodle-2.svg"} alt={"doodle"} width={179} height={111} fetchPriority={"low"}/>
+                    <Image className={"third"} id={"close-up"} src={"/hero-doodles/doodle-3.svg"} alt={"doodle"} width={118} height={52} fetchPriority={"low"}/>
+                    <Image className={"second"} id={"clipboard"} src={"/hero-doodles/doodle-4.svg"} alt={"doodle"} width={85} height={113} fetchPriority={"low"}/>
+                    <Image className={"third"} id={"medium-shot"} src={"/hero-doodles/doodle-5.svg"} alt={"doodle"} width={126} height={37} fetchPriority={"low"}/>
+                    <Image className={"second"} id={"thoughts"} src={"/hero-doodles/doodle-6.svg"} alt={"doodle"} width={59} height={52} fetchPriority={"low"}/>
+                    <Image className={"first"} id={"camera"} src={"/hero-doodles/doodle-7.svg"} alt={"doodle"} width={120} height={94} fetchPriority={"low"}/></div>
             </section>
             <div className="coverHero">
                 <section className="image">
                     <ThemeSwitcher
                         light={
-                            <Image
-                                src={"/shotlist-light.jpg"}
-                                alt={"Image of a shotlist with its scenes listet in the left sidebar and multiple shots listed on the right"}
-                                width={1681}
-                                height={1000}
-                                ref={imageRef}
+                            <ViewPortSwitcher
+                                breakpoint={500}
+                                over={
+                                    <Image
+                                        src={"/landing-shotlist-image/shotlist-light-desktop.webp"}
+                                        alt={"Image of a shotlist with its scenes listet in the left sidebar and multiple shots listed on the right"}
+                                        width={2095}
+                                        height={1396}
+                                        ref={imageRef}
+                                    />
+                                }
+                                under={
+                                    <Image
+                                        src={"/landing-shotlist-image/shotlist-light-mobile.webp"}
+                                        alt={"Image of a shotlist with multiple shots listed and floating buttons to open the shotlist options"}
+                                        width={580}
+                                        height={1069}
+                                        ref={imageRef}
+                                    />
+                                }
                             />
                         }
                         dark={
-                            <Image
-                                src={"/shotlist-dark.jpg"}
-                                alt={"Image of a shotlist with its scenes listet in the left sidebar and multiple shots listed on the right"}
-                                width={1643}
-                                height={1000}
-                                ref={imageRef}
+                            <ViewPortSwitcher
+                                breakpoint={500}
+                                over={
+                                    <Image
+                                        src={"/landing-shotlist-image/shotlist-dark-desktop.webp"}
+                                        alt={"Image of a shotlist with its scenes listet in the left sidebar and multiple shots listed on the right"}
+                                        width={2096}
+                                        height={1397}
+                                        ref={imageRef}
+                                    />
+                                }
+                                under={
+                                    <Image
+                                        src={"/landing-shotlist-image/shotlist-dark-mobile.webp"}
+                                        alt={"Image of a shotlist with multiple shots listed and floating buttons to open the shotlist options"}
+                                        width={583}
+                                        height={1071}
+                                        ref={imageRef}
+                                    />
+                                }
                             />
                         }
                         loader={
@@ -211,7 +239,7 @@ export default function Landing() {
                     <h2>Why Shotly?</h2>
                     <p className="explainer">
                         Stop fighting broken cells and rigid rows. Forget the nightmare of messy exports
-                        and the being unable to filter by scene or location.
+                        and the being unable to filter by scene, location or actor.
                     </p>
                     <p className="extra">
                         Shotly replaces spreadsheet chaos with a workspace that adjusts to your needs.</p>

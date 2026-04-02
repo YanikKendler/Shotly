@@ -1,28 +1,32 @@
+'use client'
+
+import { useEffect, useState } from "react"
+
 export default function ViewPortSwitcher({
     under,
     over,
     breakpoint
 }: {
-    under: string,
-    over: string,
+    under: React.ReactElement | string
+    over: React.ReactElement | string
     breakpoint: number
 }) {
-    const id = `vps-${breakpoint}`;
+    const [windowWidth, setWindowWidth] = useState<number | null>(null)
 
-    return (
-        <>
-            <style>{`
-                .${id}-under { display: inline; }
-                .${id}-over  { display: none; }
-                
-                @media (min-width: ${breakpoint}px) {
-                    .${id}-under { display: none; }
-                    .${id}-over  { display: inline; }
-                }
-            `}</style>
+    useEffect(() => {
+        const handleResize = () => setWindowWidth(window.innerWidth)
 
-            <span className={`${id}-under`}>{under}</span>
-            <span className={`${id}-over`}>{over}</span>
-        </>
-    );
+        handleResize()
+
+        window.addEventListener('resize', handleResize)
+
+        return () => window.removeEventListener('resize', handleResize)
+    }, [])
+
+    if (windowWidth === null) return null
+
+    if(windowWidth > breakpoint)
+        return over
+    else
+        return under
 }

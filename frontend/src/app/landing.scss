@@ -33,7 +33,7 @@ main.landing{
     z-index: 100;
 
     a, button{
-      font-size: clamp(.85rem, 1.3vw, 1rem);
+      font-size: clamp(.9rem, 1.3vw, 1rem);
 
       @media screen and (max-width: 600px) {
         svg{
@@ -85,7 +85,7 @@ main.landing{
         gap: .5rem;
 
         a, button{
-          padding: .3rem 1rem;
+          padding: .4rem 1rem;
           font-weight: 600;
 
           &.main{
@@ -325,10 +325,9 @@ main.landing{
     padding-top: 2rem;
     background: linear-gradient(0deg, var(--contrast) 50%, hsla(0,0%,0%, 0%) 100%);
 
-    @media screen and (max-width: 400px) {
-      display: none;
+    img {
+      filter: saturate(130%); //fixing webp per default being a little de-saturated
     }
-
     img, .skeleton{
       width: 80vw;
       max-width: 1100px;
@@ -360,7 +359,7 @@ main.landing{
 
     > p {
       font-size: clamp(.8rem, 4vw, 1rem);
-      max-width: 50ch;
+      max-width: 55ch;
       text-align: center;
       line-height: 155%;
       margin-inline: .5rem;
@@ -370,6 +369,7 @@ main.landing{
     p.extra{
       margin-top: 1em;
       color: var(--text-30);
+      max-width: 50ch;
     }
 
     .content{
@@ -610,11 +610,13 @@ main.landing{
   footer{
     display: flex;
     justify-content: center;
-    gap: 3rem;
+    column-gap: 3rem;
+    row-gap: 1.5rem;
     padding-block: 5rem;
     padding-inline: 2rem;
     background-color: var(--footer-bg);
     z-index: 10;
+    font-size: .9rem;
 
     @media screen and (max-width: 900px) {
       flex-direction: column;
@@ -632,6 +634,8 @@ main.landing{
       }
 
       a{
+        font-size: inherit;
+
         &:hover{
           text-decoration: underline;
           color: var(--text);
@@ -662,7 +666,7 @@ main.landing{
 
         .copyright{
           margin-top: .3rem;
-          font-size: .85rem;
+          font-size: .8rem;
         }
       }
     }
