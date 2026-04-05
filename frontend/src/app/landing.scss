@@ -6,6 +6,7 @@
   --pricing-tier-bg: hsl(24, 20%, 8%);
   --footer-bg: hsl(0, 0%, 5%);
   --feature-unavailable-bg: hsla(0, 0%, 10%, 0.6);
+  --scroll-button-bg: radial-gradient(circle, hsla(18, 100%, 47%, 100%) 0%, hsla(18, 100%, 47%, 10%) 60%, hsla(18, 100%, 47%, 0%) 70%);
 }
 
 main.landing{
@@ -19,6 +20,10 @@ main.landing{
 
   overflow-y: auto;
   height: 100%;
+
+  &.scrolled section.image button.scroll{
+    opacity: 0;
+  }
 
   nav{
     display: grid;
@@ -112,7 +117,6 @@ main.landing{
 
   section.hero{
     height: 80vh;
-    min-height: 80vh;
     display: flex;
     position: sticky;
     top: 30px;
@@ -154,13 +158,13 @@ main.landing{
       }
 
       svg{
-        width: clamp(30rem, 50vw, 40rem);
+        width: clamp(30rem, 55vw, 40rem);
         max-width: 90vw;
         color: var(--accent);
       }
 
       p.tagline{
-        font-size: clamp(.85rem, 1.3vw, 1rem);
+        font-size: clamp(.85rem, 1.4vw, 1rem);
         /*color: var(--accent-20);*/
         color: var(--text-25);
         font-weight: 400;
@@ -169,6 +173,11 @@ main.landing{
         text-align: center;
         line-height: 150%;
         margin-inline: .5rem;
+
+        span {
+          font-weight: 700;
+          line-height: 200%;
+        }
       }
 
       button, a{
@@ -230,6 +239,7 @@ main.landing{
       z-index: -1;
       user-select: none;
       pointer-events: none;
+      opacity: 85%;
 
       --shift: 0px;
 
@@ -324,6 +334,11 @@ main.landing{
     padding-bottom: 4rem;
     padding-top: 2rem;
     background: linear-gradient(0deg, var(--contrast) 50%, hsla(0,0%,0%, 0%) 100%);
+    scroll-margin-top: 150px;
+
+    @media screen and (max-width: 500px) {
+      padding-bottom: 0;
+    }
 
     img {
       filter: saturate(130%); //fixing webp per default being a little de-saturated
@@ -342,6 +357,39 @@ main.landing{
     .skeleton{
       aspect-ratio: 2/1;
     }
+
+    button.scroll{
+      z-index: 10;
+      position: absolute;
+      top: 3rem;
+      transition: opacity .5s, color .2s;
+      padding: 3vw;
+      border-radius: 100%;
+      display: grid;
+      place-items: center;
+
+      *, &::after{
+        grid-area: 1 / 1 / 2 / 2;
+      }
+
+      &::after{
+        content: "";
+        width: 4.5rem;
+        aspect-ratio: 1;
+        background: var(--scroll-button-bg);
+        z-index: -1;
+        opacity: 50%;
+        transition: opacity .5s;
+      }
+
+      &:hover{
+        color: var(--contrast);
+
+        &::after{
+          opacity: 80%;
+        }
+      }
+    }
   }
 
   section.features{
@@ -355,13 +403,14 @@ main.landing{
       font-size: clamp(2rem, 6vw, 2.5rem);
       font-weight: 600;
       margin-bottom: .5em;
+      scroll-margin: 1rem;
     }
 
     > p {
       font-size: clamp(.8rem, 4vw, 1rem);
-      max-width: 55ch;
+      max-width: 45ch;
       text-align: center;
-      line-height: 155%;
+      line-height: 160%;
       margin-inline: .5rem;
       color: var(--text-30);
     }
@@ -369,7 +418,6 @@ main.landing{
     p.extra{
       margin-top: 1em;
       color: var(--text-30);
-      max-width: 50ch;
     }
 
     .content{
@@ -635,6 +683,7 @@ main.landing{
 
       a{
         font-size: inherit;
+        margin-bottom: .2rem;
 
         &:hover{
           text-decoration: underline;

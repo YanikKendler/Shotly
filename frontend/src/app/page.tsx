@@ -13,7 +13,7 @@ import {
     FileCode,
     Heart,
     Info, Blocks,
-    Users
+    Users, ArrowDown
 } from "lucide-react"
 import Image from "next/image"
 import AuthSwitcher from "@/components/utility/authSwitcher/authSwitcher"
@@ -28,8 +28,20 @@ import ViewPortSwitcher from "@/components/utility/viewportSwitcher/viewPortSwit
 export default function Landing() {
     const pageRef = useRef<HTMLDivElement>(null);
     const imageRef = useRef<HTMLImageElement>(null);
+    const whyShotlyRef = useRef<HTMLDivElement>(null);
 
-    function scaleImageOnScroll() {
+    const handleScroll = () => {
+        if(!pageRef.current) return;
+
+        scaleImageOnScroll()
+
+        if(pageRef.current.scrollTop <= 50)
+            pageRef.current.classList.remove("scrolled")
+        else
+            pageRef.current.classList.add("scrolled")
+    }
+
+    const scaleImageOnScroll = () => {
         if(!imageRef.current) return;
 
         const rect = imageRef.current.getBoundingClientRect();
@@ -59,9 +71,9 @@ export default function Landing() {
         }
 
         if(pageRef.current) {
-            pageRef.current.addEventListener('scroll', scaleImageOnScroll);
-            window.addEventListener('resize', scaleImageOnScroll);
-            scaleImageOnScroll(); // Initial call
+            pageRef.current.addEventListener('scroll', handleScroll);
+            window.addEventListener('resize', handleScroll);
+            handleScroll(); // Initial call
         }
     }, []);
 
@@ -130,7 +142,7 @@ export default function Landing() {
                     <div className="center">
                         <Wordmark/>
                         <p className={"tagline"}>
-                            Shotlist creation made easy!
+                            <span>Shotlist creation made easy!</span>
                             <br/>
                             Customize your shots, collaborate with your crew, and export to PDF for the shoot day.
                         </p>
@@ -182,10 +194,16 @@ export default function Landing() {
             </section>
             <div className="coverHero">
                 <section className="image">
+                    <button
+                        className={"scroll"}
+                        onClick={() => whyShotlyRef.current?.scrollIntoView({ block: "end" })}
+                    >
+                        <ArrowDown strokeWidth={2.5}/>
+                    </button>
                     <ThemeSwitcher
                         light={
                             <ViewPortSwitcher
-                                breakpoint={500}
+                                breakpoint={400}
                                 over={
                                     <Image
                                         src={"/landing-shotlist-image/shotlist-light-desktop.webp"}
@@ -208,7 +226,7 @@ export default function Landing() {
                         }
                         dark={
                             <ViewPortSwitcher
-                                breakpoint={500}
+                                breakpoint={400}
                                 over={
                                     <Image
                                         src={"/landing-shotlist-image/shotlist-dark-desktop.webp"}
@@ -233,13 +251,11 @@ export default function Landing() {
                             <Skeleton className={"skeleton"}/>
                         }
                     />
-
                 </section>
                 <section className="features" id={"features"}>
-                    <h2>Why Shotly?</h2>
+                    <h2 ref={whyShotlyRef}>Why Shotly?</h2>
                     <p className="explainer">
-                        Stop fighting broken cells and rigid rows. Forget the nightmare of messy exports
-                        and the being unable to filter by scene, location or actor.
+                        Stop fighting broken cells and rigid rows.<br/> Forget the nightmare of messy unfiltered exports.
                     </p>
                     <p className="extra">
                         Shotly replaces spreadsheet chaos with a workspace that adjusts to your needs.</p>
@@ -292,7 +308,7 @@ export default function Landing() {
                                 </svg>
                             </div>
                             <h3>Cloud Based</h3>
-                            <p>Your Shotlist live in the cloud. Accessible from anywhere at any time.</p>
+                            <p>Your Shotlist lives in the cloud. Accessible from anywhere at any time.</p>
                         </div>
                         <div className="feature">
                             <div className="icon">
