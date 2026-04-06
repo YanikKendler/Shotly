@@ -4,7 +4,21 @@ import React, {useContext, useEffect, useRef, useState} from 'react';
 import "./accountDialog.scss"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
-import {BookText, Bug, LogOut, LucideMail, Mail, Monitor, Moon, Sun, Trash, X} from "lucide-react"
+import {
+    BookText,
+    Bug, GraduationCap,
+    LogOut,
+    LucideMail,
+    Mail,
+    Monitor,
+    Moon,
+    Rocket,
+    Sun,
+    Trash,
+    User,
+    UserRound,
+    X
+} from "lucide-react"
 import Auth from "@/Auth"
 import {Query, UserDto, UserTier} from "../../../../lib/graphql/generated"
 import {RadioGroup, Switch, VisuallyHidden} from "radix-ui"
@@ -289,15 +303,22 @@ export function useAccountDialog() {
                             {
                                 query.data.currentUser?.tier == UserTier.Basic ?
                                     query.data.currentUser?.hasCancelled == true ?
-                                        <button onClick={PaymentService.manageSubscription}>Renew subscription</button> :
-                                        <Link className={"accent"} href={"/pro"}>Upgrade to Pro</Link> :
+                                        <button className={"primary"} onClick={PaymentService.manageSubscription}><Rocket size={18}/>Renew subscription</button> :
+                                        <Link className={"primary"} href={"/pro"}><Rocket size={18}/>Upgrade to Pro</Link> :
                                 query.data.currentUser?.tier == UserTier.Pro ?
-                                    <button onClick={PaymentService.manageSubscription}>Manage subscription</button> :
+                                    <button onClick={PaymentService.manageSubscription}><User size={18}/>Manage subscription</button> :
                                 query.data.currentUser?.tier == UserTier.ProStudent ?
-                                    <Link href={"/pro"}>Pro for students {"<3"}</Link>:
+                                    <Link href={"/pro"}><GraduationCap size={18}/>Pro for students</Link>:
                                 query.data.currentUser?.tier == UserTier.ProFree ?
                                     <Link href={"/pro"}>( ͡° ͜ʖ ͡°)</Link> :
-                                    <SimpleTooltip text={"This is an error - please contact me at: yanik@shotly.at"} delay={0}>
+                                    <SimpleTooltip
+                                        content={
+                                            <>
+                                                <p>This is an error - please contact me at: <Link className={"inline noPadding accent"} href={"mailto:yanik@shotly.at"}>yanik@shotly.at</Link></p>
+                                            </>
+                                        }
+                                        delay={0}
+                                    >
                                         <p className={"value error"}>Unknown</p>
                                     </SimpleTooltip>
                             }
@@ -496,7 +517,7 @@ export function useAccountDialog() {
         )
 
     const AccountDialog = (
-        <Dialog contentClassName={"accountDialogContent"} ref={dialogElementRef}>
+        <Dialog contentClassName={"accountDialogContent"} ref={dialogElementRef} showScrollGradient>
             <div className="top sticky">
                 <h2 className={"title"}>Account</h2>
                 <button className={"close"} onClick={dialogElementRef.current?.close}>
