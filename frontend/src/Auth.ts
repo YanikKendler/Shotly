@@ -2,6 +2,7 @@ import auth0, {Auth0DecodedHash, Auth0ParseHashError, WebAuth} from 'auth0-js';
 import Config from "@/Config"
 import {errorNotification} from "@/service/NotificationService"
 import {td} from "@/service/Analytics"
+import {wuConstants, wuGeneral} from "@yanikkendler/web-utils/dist"
 
 export interface AuthUser {
     email: string;
@@ -19,6 +20,7 @@ class Auth {
     private auth0: WebAuth
     private idToken: string = "no-token"
     private authUser: AuthUser | null = null
+    private expiresAt: number = 0
 
     constructor() {
         this.auth0 = new auth0.WebAuth({
@@ -112,7 +114,7 @@ class Auth {
     }
 
     setSession(authResult: Auth0DecodedHash) {
-        if(!authResult || !authResult.idToken) {
+        if(!authResult || !authResult.idToken || !authResult.expiresIn) {
             console.error("missing id token")
             errorNotification({
                 title: "Authentication failed",
@@ -122,6 +124,8 @@ class Auth {
         }
 
         this.idToken = authResult.idToken;
+
+        this.expiresAt = (authResult.expiresIn * 1000) + Date.now();
 
         if(!authResult.idTokenPayload.sub || !authResult.idTokenPayload.email || !authResult.idTokenPayload.name){
             console.error("missing data in id token payload")
@@ -143,34 +147,34 @@ class Auth {
         localStorage.setItem(Config.localStorageKey.isLoggedIn, JSON.stringify(true))
     }
 
-    silentAuth() {
-        if(!this.isAuthenticated()) {
-            return null
+    async silentAuth(): Promise<boolean> {
+        if (!this.isAuthenticated()) return false;
+
+        if (typeof document !== 'undefined' && !document.hasFocus()) return false;
+
+        const buffer = wuConstants.Time.msPerMinute * 30;
+        if (this.idToken !== "no-token" && Date.now() < (this.expiresAt - buffer)) {
+            return false;
         }
 
-        return new Promise<Auth0DecodedHash>((resolve, reject) => {
+        return new Promise<boolean>((resolve, reject) => {
             this.auth0.checkSession({}, (err, authResult) => {
                 if (err) {
-                    console.error(err)
                     localStorage.setItem(Config.localStorageKey.isLoggedIn, "false");
-                    /*errorNotification({
-                        title: "Silent authentication failed",
-                        sub: "Please reload the page and log in again."
-                    })*/
                     return reject(err);
                 }
                 this.setSession(authResult);
-                resolve(authResult);
+                resolve(true);
             });
         });
     }
 
     isAuthenticated() {
-        return JSON.parse(localStorage.getItem(Config.localStorageKey.isLoggedIn) || 'false');
+        return JSON.parse(localStorage.getItem(Config.localStorageKey.isLoggedIn) || "false");
     }
 
     hasLoggedInBefore() {
-        return JSON.parse(localStorage.getItem(Config.localStorageKey.hasLoggedInBefore) || 'false');
+        return JSON.parse(localStorage.getItem(Config.localStorageKey.hasLoggedInBefore) || "false");
     }
 }
 

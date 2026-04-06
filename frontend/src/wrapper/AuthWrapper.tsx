@@ -1,12 +1,11 @@
 'use client';
 
 import {useEffect, useState} from 'react';
-import {usePathname, useRouter} from 'next/navigation';
+import {usePathname} from 'next/navigation';
 import auth from "@/Auth"
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-
     const [version, setVersion] = useState(0);
 
     const forceUpdate = () => setVersion(v => v + 1);
@@ -19,10 +18,11 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
         if (pathname === '/callback') return;
 
         try {
-            await auth.silentAuth();
+            const sessionWasRefreshed = await auth.silentAuth();
 
-            if(pathname !== "/" && pathname !== "")
-                forceUpdate()
+            if (sessionWasRefreshed) {
+                forceUpdate();
+            }
         } catch (err: any) {
             if (err.error === 'login_required') {
                 auth.logout();
@@ -30,7 +30,6 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
             }
             console.error('Silent auth error:', err.error);
         }
-
     }
 
     return <div className={"AuthWrapper"} key={version}>{children}</div>;
