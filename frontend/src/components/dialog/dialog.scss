@@ -50,4 +50,19 @@ div.dialog {
   @media screen and (max-width: 600px) {
     padding: .5rem;
   }
+
+  &.scrollGradient::after {
+    content: "";
+    display: block;
+    position: sticky;
+    bottom: -1rem;
+    left: 0;
+    right: 0;
+    height: 2rem;
+    margin-top: -1.5rem;
+    flex-shrink: 0;
+    background: linear-gradient(to bottom, transparent, var(--contrast));
+    pointer-events: none;
+    z-index: 5;
+  }
 }

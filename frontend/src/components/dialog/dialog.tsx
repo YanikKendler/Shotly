@@ -9,6 +9,7 @@ interface DialogProps {
     onRenderFinish?: () => void
     contentClassName?: string
     keyBinds?: KeyBindingMap
+    showScrollGradient?: boolean
 }
 
 export interface DialogRef {
@@ -24,7 +25,8 @@ const Dialog = forwardRef<DialogRef, DialogProps>(({
     onOpenChange = () => {},
     onRenderFinish = () => {},
     contentClassName = "",
-    keyBinds = {}
+    keyBinds = {},
+    showScrollGradient = false
 }, ref) => {
     const dialogElement = useRef<HTMLDivElement>(null)
     const removeKeyBinds = useRef<() => void>(() => {})
@@ -112,7 +114,7 @@ const Dialog = forwardRef<DialogRef, DialogProps>(({
             ref={dialogElement}
             tabIndex={-1}
         >
-            <div className={`content ${contentClassName}`} onScroll={handleScroll}>
+            <div className={`content ${contentClassName} ${showScrollGradient && "scrollGradient"}`} onScroll={handleScroll}>
                 {children}
             </div>
             <div className="overlay" onClick={close}/>
