@@ -3,6 +3,7 @@ package me.kendler.yanik.repositories.scene;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.dto.scene.SceneDTO;
 import me.kendler.yanik.dto.scene.SceneEditDTO;
@@ -34,12 +35,19 @@ public class SceneRepository implements PanacheRepositoryBase<Scene, UUID> {
         return scene;
     }
 
+    public Scene findByIdValidatedWithLock(UUID sceneId) {
+        return find("id", sceneId)
+                .withLock(LockModeType.PESSIMISTIC_WRITE)
+                .firstResultOptional()
+                .orElseThrow(() -> new ShotlyException("This Scene does not exist", ShotlyErrorCode.NOT_FOUND));
+    }
+
     public List<SceneDTO> listAllForShotlist(UUID shotlistId) {
         return list("shotlist.id", shotlistId).stream().map(Scene::toDTO).toList();
     }
 
     public SceneDTO create(UUID shotlistId) {
-        Shotlist shotlist = shotlistRepository.findByIdValidated(shotlistId);
+        Shotlist shotlist = shotlistRepository.findByIdValidatedWithLock(shotlistId);
         shotlist.registerEdit();
         Scene scene = new Scene(shotlist);
         persist(scene);

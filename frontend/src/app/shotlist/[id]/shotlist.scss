@@ -97,6 +97,7 @@ main.shotlist{
     display: flex;
     align-items: center;
     gap: .5rem;
+    z-index: 10;
 
     .reloading{
       font-size: .9rem;

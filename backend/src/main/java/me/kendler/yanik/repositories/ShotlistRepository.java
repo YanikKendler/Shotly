@@ -3,6 +3,7 @@ package me.kendler.yanik.repositories;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.dto.StatCounts;
 import me.kendler.yanik.dto.shotlist.ShotlistCollection;
@@ -63,6 +64,13 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
             throw new ShotlyException("This Shotlist does not exist", ShotlyErrorCode.NOT_FOUND);
         }
         return shotlist;
+    }
+
+    public Shotlist findByIdValidatedWithLock(UUID id) {
+        return find("id", id)
+                .withLock(LockModeType.PESSIMISTIC_WRITE)
+                .firstResultOptional()
+                .orElseThrow(() -> new ShotlyException("This Scene does not exist", ShotlyErrorCode.NOT_FOUND));
     }
 
     public ShotlistDTO findAsDTO(UUID id) {

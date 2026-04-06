@@ -281,8 +281,6 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
             return
         }
 
-        console.log(cellRefs.current)
-
         shotlistContext.setSaveState("createShot", "saving")
 
         setCreationLoaderVisibility(true)

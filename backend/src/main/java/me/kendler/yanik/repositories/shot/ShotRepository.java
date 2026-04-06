@@ -41,7 +41,7 @@ public class ShotRepository implements PanacheRepositoryBase<Shot, UUID> {
     }
 
     public ShotDTO create(UUID sceneId) {
-        Scene scene = sceneRepository.findByIdValidated(sceneId);
+        Scene scene = sceneRepository.findByIdValidatedWithLock(sceneId);
         Shot shot = new Shot(scene);
         scene.shotlist.registerEdit();
         persist(shot);
