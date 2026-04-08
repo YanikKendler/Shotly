@@ -34,7 +34,7 @@ on:
     paths:
         - 'frontend/**'
     branches:
-      - '"dev"'
+      - dev
   workflow_dispatch: {}
 
 env:
