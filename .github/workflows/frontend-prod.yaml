@@ -1,19 +1,19 @@
-name: 'Deploy frontend development'
-run-name: 'Deploy frontend development - ${{ github.sha }}'
+name: 'Deploy frontend production'
+run-name: 'Deploy frontend production'
 
 on:
   push:
     paths:
         - 'frontend/**'
     branches:
-      - dev
+      - main
 
 env:
   PROJECT_ID: 'shotlist-tool'
   REGION: 'europe-west1'
-  SERVICE: 'shotly-frontend-development'
+  SERVICE: 'shotly-frontend-production'
   WORKLOAD_IDENTITY_PROVIDER: 'projects/566625943723/locations/global/workloadIdentityPools/github/providers/shotly'
-  SERVICE_ACCOUNT: 'shotly-frontend-dev-runner@shotlist-tool.iam.gserviceaccount.com'
+  SERVICE_ACCOUNT: 'shotly-frontend-runner@shotlist-tool.iam.gserviceaccount.com'
   IMAGE_NAME: 'frontend'
 
 jobs:
@@ -48,9 +48,12 @@ jobs:
 
       - name: 'Build and Push Container'
         run: |-
-          DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-          docker build --tag "${DOCKER_TAG}" ./frontend
-          docker push "${DOCKER_TAG}"
+          VERSION=$(jq -r .version frontend/package.json)
+
+          IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.IMAGE_NAME }}"
+          docker build --tag "${IMAGE_PATH}:${VERSION}" --tag "${IMAGE_PATH}:${{ github.sha }}" ./frontend
+
+          docker push --all-tags "${IMAGE_PATH}"
 
       - name: 'Deploy to Cloud Run'
 

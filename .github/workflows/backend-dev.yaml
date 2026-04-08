@@ -1,20 +1,20 @@
-name: 'Deploy frontend development'
-run-name: 'Deploy frontend development - ${{ github.sha }}'
+name: 'Deploy backend development'
+run-name: 'Deploy backend development - ${{ github.sha }}'
 
 on:
   push:
     paths:
-        - 'frontend/**'
+        - 'backend/**'
     branches:
       - dev
 
 env:
   PROJECT_ID: 'shotlist-tool'
   REGION: 'europe-west1'
-  SERVICE: 'shotly-frontend-development'
+  SERVICE: 'shotly-backend-development'
   WORKLOAD_IDENTITY_PROVIDER: 'projects/566625943723/locations/global/workloadIdentityPools/github/providers/shotly'
-  SERVICE_ACCOUNT: 'shotly-frontend-dev-runner@shotlist-tool.iam.gserviceaccount.com'
-  IMAGE_NAME: 'frontend'
+  SERVICE_ACCOUNT: 'shotly-backend-dev-runner@shotlist-tool.iam.gserviceaccount.com'
+  IMAGE_NAME: 'backend'
 
 jobs:
   deploy:
