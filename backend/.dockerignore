@@ -1,6 +1,24 @@
-*
-!target/*-runner
-!target/*-runner.jar
-!target/lib/*
-!target/quarkus-app/*
-!target/shotlist-tool-backend-runner.jar
+# Ignore local build artifacts and IDE files
+target/
+bin/
+.idea/
+.vscode/
+.settings/
+.classpath/
+.project/
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore local environment files
+.env
+*.log
+
+# Ignore git metadata (optional, but keeps context small)
+.git/
+.gitignore
+
+# Ensure Maven wrapper (if you use it) is included
+# !mvnw
+# !.mvn/
