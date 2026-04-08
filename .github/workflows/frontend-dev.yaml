@@ -28,6 +28,7 @@
 # 3. Change the values in the "env" block to match your values.
 
 name: 'Deploy frontend development'
+run-name: 'Deploy frontend development - ${{ github.sha }}'
 
 on:
   push:
