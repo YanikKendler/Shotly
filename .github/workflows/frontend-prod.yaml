@@ -51,7 +51,7 @@ jobs:
           VERSION=$(jq -r .version frontend/package.json)
 
           IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.IMAGE_NAME }}"
-          docker build --tag "${IMAGE_PATH}:${VERSION}" --tag "${IMAGE_PATH}:${{ github.sha }}" ./frontend
+          docker build --tag "${IMAGE_PATH}:${VERSION}" --tag "${IMAGE_PATH}:${{ github.sha }}" --build-arg BUILD_FOR_PROD=true ./frontend
 
           docker push --all-tags "${IMAGE_PATH}"
 
@@ -67,5 +67,4 @@ jobs:
       
       - name: 'Show output'
         run: |-
-
           echo ${{ steps.deploy.outputs.url }}

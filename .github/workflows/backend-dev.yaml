@@ -64,5 +64,4 @@ jobs:
       
       - name: 'Show output'
         run: |-
-
           echo ${{ steps.deploy.outputs.url }}
