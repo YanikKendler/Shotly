@@ -35,6 +35,7 @@ on:
         - 'frontend/**'
     branches:
       - '"dev"'
+  workflow_dispatch: {}
 
 env:
   PROJECT_ID: 'shotlist-tool'
