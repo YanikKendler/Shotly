@@ -12,7 +12,7 @@ on:
 env:
   PROJECT_ID: 'shotlist-tool'
   REGION: 'europe-west1'
-  SERVICE: 'shotly-documentation-production'
+  SERVICE: 'shotly-documentation'
   WORKLOAD_IDENTITY_PROVIDER: 'projects/566625943723/locations/global/workloadIdentityPools/github/providers/shotly'
   SERVICE_ACCOUNT: 'shotly-documentation-runner@shotlist-tool.iam.gserviceaccount.com'
   IMAGE_NAME: 'documentation'
