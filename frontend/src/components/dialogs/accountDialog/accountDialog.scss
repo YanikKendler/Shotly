@@ -1,0 +1,113 @@
+.accountDialogContent{
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+  max-width: 600px;
+  scrollbar-width: thin;
+
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h2{
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    button.close{
+      padding: .4rem;
+      background-color: var(--dialog-close-button-bg);
+      border-radius: 1rem;
+
+      &:hover{
+        background-color: var(--dialog-close-button-hover-bg);
+      }
+    }
+  }
+
+
+  .row{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    justify-content: space-between;
+    min-height: 2rem;
+
+    p{
+      font-size: .9rem;
+      color: var(--text-20);
+
+      &.value{
+        color: var(--text-30);
+        font-weight: bold;
+
+        &.error{
+          color: var(--bad);
+          text-decoration: underline;
+        }
+      }
+    }
+
+    &:not(.legal) {
+      button:not(.SwitchRoot), a {
+        border: 2px solid var(--default-interactable-border);
+        color: var(--text-30);
+        font-weight: 500;
+        width: fit-content;
+        padding: .4rem .6rem;
+        font-size: .9rem;
+
+        &.primary {
+          color: var(--text-100);
+          border: none;
+          font-weight: bold;
+          background-color: var(--accent);
+          padding-block: .5rem;
+
+          &:hover {
+            background-color: var(--accent-55);
+          }
+        }
+
+        &.bad:hover{
+          border-color: var(--bad);
+          color: var(--bad-10);
+        }
+
+        &:not([disabled]):not(.bad):not(.primary):hover {
+          background-color: var(--transparent-gray-10);
+          color: var(--text);
+          border-color: var(--default-interactable-border-hover);
+        }
+      }
+    }
+
+    &.legal{
+      flex-wrap: wrap;
+
+      a{
+        font-size: .85rem;
+        color: var(--text-60);
+
+        &:hover{
+          color: var(--text);
+          text-decoration: underline;
+        }
+      }
+    }
+
+    &.bottom{
+      padding-inline: .5rem;
+    }
+  }
+
+  small{
+    font-size: .8rem;
+    color: var(--text-70);
+    text-align: center;
+  }
+}
+

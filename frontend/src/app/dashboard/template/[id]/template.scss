@@ -1,0 +1,195 @@
+[data-theme="dark"] main.template{
+  --attribute-hover-border: hsl(0, 0%, 30%);
+  --attribute-bg: hsl(0, 0%, 12%);
+}
+
+main.template{
+  --attribute-hover-border: hsl(0, 0%, 70%); //unused
+  --attribute-bg: hsl(0, 0%, 97%);
+
+  .top{
+    display: flex;
+    justify-content: space-between;
+
+    button{
+      font-size: .9rem;
+      translate: -.3rem 0;
+      color: var(--text-40);
+
+      @media screen and (max-width: 600px){
+        span{
+          display: none;
+        }
+      }
+    }
+  }
+
+  h2{
+    position: relative;
+    display: grid;
+    translate: -.3rem 0;
+    width: 100%;
+
+    *{
+      grid-area: 1/1/2/2;
+    }
+
+    input.templateName, .spacer{
+      font-size: 1.25rem;
+      outline: none;
+      border: none;
+      font-weight: 600;
+      border-radius: .5rem;
+    }
+
+    input.templateName{
+      &:hover{
+        background-color: var(--transparent-gray-10);
+      }
+      &:focus{
+        background-color: var(--transparent-accent-10);
+      }
+    }
+
+    .spacerContainer{
+      pointer-events: none;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      z-index: 1;
+
+      .spacer{
+        visibility: hidden;
+        width: fit-content;
+      }
+
+      svg{
+        color: var(--text-30);
+      }
+    }
+
+    &:has(*:hover){
+      .spacerContainer {
+        svg {
+          color: var(--text);
+        }
+      }
+    }
+  }
+
+  h3{
+    font-weight: 500;
+    color: var(--text-35);
+    margin-top: 1rem;
+    margin-bottom: .5rem;
+  }
+
+  .attributeTemplates{
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    margin-bottom: .8rem;
+
+    .empty{
+      margin-left: 1rem;
+      font-size: .9rem;
+      color: var(--text-50);
+      margin-block: 1rem;
+    }
+  }
+
+  .add{
+    color: var(--text-50);
+    font-size: .95rem;
+    translate: -.2rem 0;
+    min-width: 20ch;
+
+    &:hover{
+      color: var(--text);
+      background-color: var(--transparent-gray-10);
+    }
+  }
+}
+
+.addAttributeTemplatePopup{
+  button{
+    justify-content: flex-start;
+    color: var(--text-20);
+    font-weight: 500;
+
+    svg{
+      color: var(--accent-40);
+    }
+
+    &:hover{
+      background-color: var(--transparent-gray-10);
+      color: var(--text);
+    }
+  }
+}
+
+.editAttributeOptionTemplatesPopup{
+  .option{
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+
+    input{
+      outline: none;
+      border: none;
+      border-radius: 0;
+      border-bottom: .1rem solid var(--default-interactable-border);
+      padding: .2rem;
+      width: 100%;
+
+      &:hover{
+        border-color: var(--default-interactable-hover-border);
+      }
+
+      &:focus{
+        border-color: var(--accent);
+      }
+    }
+
+    button{
+      color: var(--text-40);
+    }
+  }
+
+  > button{
+    color: var(--text-40);
+    justify-content: flex-start;
+
+    svg{
+      color: var(--text-40);
+    }
+
+    &:hover{
+      background-color: var(--transparent-gray-10);
+      color: var(--text);
+      svg{
+        color: var(--text);
+      }
+    }
+  }
+}
+
+.popoverContent.templateInfo{
+  font-size: .9rem;
+  color: var(--text-30);
+  max-width: min(50ch, 95vw);
+  background-color: var(--sidebar-bg);
+
+  .dark{
+    color: var(--text-20);
+    font-weight: 500;
+  }
+
+  a{
+    text-decoration: underline;
+
+    &:hover{
+      color: var(--accent-40);
+    }
+  }
+}

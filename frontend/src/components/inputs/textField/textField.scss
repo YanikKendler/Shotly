@@ -1,0 +1,105 @@
+div.textField{
+  display: flex;
+  flex-direction: column;
+
+  --border: var(--default-interactable-border);
+  --border-hover: var(--default-interactable-hover-border);
+  --focus-border: var(--accent);
+  --focus-border-hover: var(--accent-40);
+  --background: var(--contrast);
+
+  &.accent{
+    --border: var(--accent);
+    --border-hover: var(--accent-40);
+    --focus-border: var(--accent-55);
+    --focus-border-hover: var(--accent-60);
+  }
+
+  label{
+    font-size: .9em;
+    color: var(--text-40);
+    margin-bottom: .2rem;
+    margin-left: .2rem;
+    font-weight: 500;
+  }
+
+  .infoContainer{
+    display: flex;
+    align-items: center;
+    gap: .2rem;
+
+    button{
+      color: var(--text-60);
+      border-radius: 50%;
+      padding: .3rem;
+
+      &:hover{
+        color: var(--text-20);
+        background-color: var(--transparent-gray-10);
+      }
+    }
+  }
+
+  .errorContainer{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    p.error{
+      font-size: .9rem;
+      color: #e89200;
+      font-weight: 500;
+      text-align: end;
+      margin-right: .2rem;
+
+      &.max{
+        color: var(--bad);
+      }
+    }
+  }
+
+  .clearButtonContainer{
+    position: relative;
+
+    button.clear {
+      position: absolute;
+      right: .3rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-50);
+      background-color: var(--background);
+      z-index: 10;
+
+      &:hover {
+        color: var(--bad);
+      }
+    }
+  }
+
+  input{
+    background-color: var(--background);
+    border-radius: .3rem;
+    border: 2px solid var(--border);
+    padding: .5rem .3rem;
+    width: 100%;
+    font-size: inherit;
+
+    &:not([disabled]):not(:focus-visible):hover{
+      border-color: var(--border-hover);
+    }
+
+    &:focus-visible{
+      outline: none;
+      border-color: var(--focus-border);
+
+      &:hover{
+        border-color: var(--focus-border-hover);
+      }
+    }
+
+    &[disabled]{
+      color: var(--text-50);
+      cursor: initial;
+    }
+  }
+}

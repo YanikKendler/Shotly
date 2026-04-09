@@ -1,0 +1,58 @@
+.separator{
+  flex-shrink: 0;
+  --color: var(--text-90);
+  display: flex;
+  gap: .5rem;
+  place-items: center;
+
+  &.horizontal {
+    --offset: 0rem;
+    width: calc(100% - var(--offset) * 2);
+    margin-inline: var(--offset);
+    margin-block: .5rem;
+  }
+
+  &.vertical {
+    --offset: 0rem;
+    height: calc(100% - var(--offset) * 2);
+    margin-block: var(--offset);
+    margin-inline: .5rem;
+    flex-direction: column;
+  }
+
+  .RdxSeparator {
+    background-color: var(--color);
+    margin: 0;
+
+    &[data-orientation="horizontal"] {
+      height: 2px;
+      width: 100%;
+
+      &.split.short{
+        width: 5%;
+      }
+    }
+
+    &[data-orientation="vertical"] {
+      width: 2px;
+      height: 100%;
+
+      &.split.short{
+        height: 10%;
+      }
+    }
+  }
+
+  .text{
+    font-size: .85rem;
+    color: var(--text-50);
+    font-weight: bold;
+    text-wrap: nowrap;
+
+    .vertical{
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+    }
+  }
+}
+

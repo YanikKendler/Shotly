@@ -1,0 +1,59 @@
+.createShotlistDialogContent{
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+
+  .title{
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: .8rem;
+
+    &.center{
+      text-align: center;
+      color: var(--accent-40);
+    }
+  }
+
+  .buttons{
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+
+    :where(button), :where(a){
+      font-weight: bold;
+      color: var(--text-20);
+      padding-inline: 2rem;
+      width: 100%;
+      justify-content: center;
+
+      &:where(:not([disabled]):hover){
+        background-color: var(--transparent-gray-10);
+      }
+
+      &.confirm{
+        background-color: var(--accent);
+        color: var(--contrast);
+
+        &:not([disabled]):hover {
+          background-color: var(--accent-60);
+          color: var(--contrast);
+        }
+      }
+    }
+  }
+
+  .loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 2rem;
+    gap: 1rem;
+
+    p{
+      color: var(--text-50);
+    }
+  }
+}
+

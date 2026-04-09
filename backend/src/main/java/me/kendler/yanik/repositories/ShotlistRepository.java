@@ -1,26 +1,43 @@
 package me.kendler.yanik.repositories;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
-import io.vertx.ext.auth.impl.jose.JWT;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
+import me.kendler.yanik.dto.StatCounts;
+import me.kendler.yanik.dto.shotlist.ShotlistCollection;
 import me.kendler.yanik.dto.shotlist.ShotlistCreateDTO;
+import me.kendler.yanik.dto.shotlist.ShotlistDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistEditDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
+import me.kendler.yanik.model.Collaboration;
 import me.kendler.yanik.model.User;
 import me.kendler.yanik.model.Shotlist;
+import me.kendler.yanik.model.UserTier;
 import me.kendler.yanik.model.scene.Scene;
+import me.kendler.yanik.model.scene.attributeDefinitions.SceneAttributeDefinitionBase;
+import me.kendler.yanik.model.shot.attributeDefinitions.ShotAttributeDefinitionBase;
 import me.kendler.yanik.model.template.Template;
+import me.kendler.yanik.repositories.scene.SceneAttributeDefinitionRepository;
 import me.kendler.yanik.repositories.scene.SceneRepository;
+import me.kendler.yanik.repositories.shot.ShotAttributeDefinitionRepository;
+import me.kendler.yanik.repositories.template.SceneAttributeTemplateRepository;
 import me.kendler.yanik.repositories.template.TemplateRepository;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.time.ZonedDateTime;
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
 @Transactional
 public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID> {
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(ShotlistRepository.class);
     @Inject
     UserRepository userRepository;
 
@@ -30,10 +47,69 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
     @Inject
     TemplateRepository templateRepository;
 
+    @Inject
+    CollaborationRepository collaborationRepository;
+
+    @Inject
+    ShotAttributeDefinitionRepository shotAttributeDefinitionRepository;
+
+    @Inject
+    SceneAttributeDefinitionRepository sceneAttributeDefinitionRepository;
+
     private static final Logger LOGGER = Logger.getLogger(ShotlistRepository.class);
 
-    public Shotlist create(ShotlistCreateDTO createDTO, JsonWebToken jwt){
+    public Shotlist findByIdValidated(UUID id){
+        Shotlist shotlist = findById(id);
+        if (shotlist == null) {
+            throw new ShotlyException("This Shotlist does not exist", ShotlyErrorCode.NOT_FOUND);
+        }
+        return shotlist;
+    }
+
+    public Shotlist findByIdValidatedWithLock(UUID id) {
+        return find("id", id)
+                .withLock(LockModeType.PESSIMISTIC_WRITE)
+                .firstResultOptional()
+                .orElseThrow(() -> new ShotlyException("This Scene does not exist", ShotlyErrorCode.NOT_FOUND));
+    }
+
+    public ShotlistDTO findAsDTO(UUID id) {
+        Shotlist shotlist = findById(id);
+        if (shotlist == null) {
+            throw new ShotlyException("This Shotlist does not exist", ShotlyErrorCode.NOT_FOUND);
+        }
+        return shotlist.toDTO();
+    }
+
+    public ShotlistCollection findAllForUser(JsonWebToken jwt) {
         User user = userRepository.findOrCreateByJWT(jwt);
+
+        List<ShotlistDTO> personalShotlists = user
+                .shotlists
+                .stream()
+                .map(Shotlist::toDTO)
+                .toList();
+
+        List<ShotlistDTO> sharedShotlists = find(
+                "select distinct s from Shotlist s join s.collaborations c where c.user.id = ?1 AND c.collaborationState = 'ACCEPTED'",
+                user.id
+        )
+            .stream()
+            .map(Shotlist::toDTO)
+            .toList();
+
+        return new ShotlistCollection(
+            personalShotlists,
+            sharedShotlists
+        );
+    }
+
+    public ShotlistDTO create(ShotlistCreateDTO createDTO, JsonWebToken jwt){
+        User user = userRepository.findOrCreateByJWT(jwt);
+
+        if(user.tier == UserTier.BASIC && !user.shotlists.isEmpty()){
+            throw new ShotlyException("Basic users can only have one shotlist", ShotlyErrorCode.SHOTLIST_LIMIT_REACHED);
+        }
 
         Shotlist shotlist;
 
@@ -43,34 +119,74 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
         else {
             Template template = templateRepository.findById(createDTO.templateId());
             if(template == null) {
-                throw new IllegalArgumentException("Template not found");
+                throw new ShotlyException("Template not found", ShotlyErrorCode.NOT_FOUND);
             }
             shotlist = new Shotlist(user, template, createDTO.name());
         }
 
-        LOGGER.infof("Created new shotlist: %s", shotlist.toString());
+        LOGGER.infof("Created new shotlist: %s for user %s", shotlist.name, user.email);
 
         persist(shotlist);
 
-        return shotlist;
+        sceneRepository.create(shotlist.id);
+
+        return shotlist.toDTO();
     }
 
-    public Shotlist update(ShotlistEditDTO editDTO){
+    public ShotlistDTO update(ShotlistEditDTO editDTO){
         Shotlist shotlist = findById(editDTO.id());
         shotlist.name = editDTO.name();
         shotlist.registerEdit();
-        return shotlist;
+        return shotlist.toDTO();
     }
 
-    public Shotlist delete(UUID id){
+    public ShotlistDTO delete(UUID id) {
         Shotlist shotlist = findById(id);
-        if(shotlist != null) {
-            for (Scene scene : shotlist.scenes) {
+        if (shotlist != null) {
+            // copies to avoid ConcurrentModificationException
+            List<Scene> scenesToDelete = List.copyOf(shotlist.scenes);
+            List<Collaboration> collabsToDelete = List.copyOf(shotlist.collaborations);
+            List<ShotAttributeDefinitionBase> shotDefsToDelete = List.copyOf(shotlist.shotAttributeDefinitions);
+            List<SceneAttributeDefinitionBase> sceneDefsToDelete = List.copyOf(shotlist.sceneAttributeDefinitions);
+
+            // fyi: the order of these loops matters to avoid one deleting something the next still needs
+            // like scenes deleting shots which errors the ShotAttributeDefinition
+            for (Collaboration collab : collabsToDelete) {
+                collaborationRepository.delete(collab.id);
+            }
+            for (ShotAttributeDefinitionBase definition : shotDefsToDelete) {
+                shotAttributeDefinitionRepository.delete(definition.id);
+            }
+            for (SceneAttributeDefinitionBase definition : sceneDefsToDelete) {
+                sceneAttributeDefinitionRepository.delete(definition.id);
+            }
+            for (Scene scene : scenesToDelete) {
                 sceneRepository.delete(scene.id);
             }
             delete(shotlist);
-            return shotlist;
+            return shotlist.toDTO();
         }
         return null;
+    }
+
+    public StatCounts calculateRecentCreatedShotlistStats() {
+        ZonedDateTime now = ZonedDateTime.now();
+
+        int lastHour = (int) countCreatedSince(now.minusHours(1));
+        int fourHours = (int) countCreatedSince(now.minusHours(4));
+        int eightHours = (int) countCreatedSince(now.minusHours(8));
+        int twentyFourHours = (int) countCreatedSince(now.minusHours(24));
+        int sevenDays = (int) countCreatedSince(now.minusDays(7));
+        int thirtyDays = (int) countCreatedSince(now.minusDays(30));
+
+        return new StatCounts(lastHour, fourHours, eightHours, twentyFourHours, sevenDays, thirtyDays);
+    }
+
+    private long countCreatedSince(ZonedDateTime since) {
+        Long count = getEntityManager()
+                .createQuery("SELECT COUNT(s) FROM Shotlist s WHERE s.createdAt >= :since", Long.class)
+                .setParameter("since", since)
+                .getSingleResult();
+        return count == null ? 0L : count;
     }
 }

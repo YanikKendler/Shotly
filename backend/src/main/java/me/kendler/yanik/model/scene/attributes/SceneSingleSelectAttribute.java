@@ -10,7 +10,7 @@ import me.kendler.yanik.model.scene.attributeDefinitions.SceneSingleSelectAttrib
 
 @Entity
 public class SceneSingleSelectAttribute extends SceneAttributeBase{
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     public SceneSelectAttributeOptionDefinition value;
 
     public SceneSingleSelectAttribute() { super(); }

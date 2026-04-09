@@ -1,197 +1,117 @@
-main.dashboard{
-  height: 100lvh;
-  width: 100%;
-  background-color: var(--sidebar-bg);
+@media screen and (max-width: 500px){
+  .headerContainer:not(.template){
+    display: none !important;
+  }
+}
 
-  .sidebar{
-    >.content{
-      gap: 1rem;
-
-      .list{
-        gap: .5rem;
-      }
-    }
-
-    .CollapsibleRoot.dashboardSidebar{
-      button{
-        width: 100%;
-        font-size: .9rem;
-        font-weight: 500;
-        color: var(--text-30);
-        padding: .3rem;
-
-        &:hover{
-          background-color: var(--hover-bg-10);
-          color: var(--text);
-        }
-
-        svg.chevron{
-          transition: rotate .2s;
-        }
-      }
-
-      a{
-        padding: .2rem;
-        padding-left: .4rem;
-        justify-content: left;
-        gap: .3rem;
-        color: var(--text-20);
-        font-weight: 500;
-
-        &:hover{
-          background-color: var(--hover-bg-10);
-          text-decoration: underline;
-          color: var(--text);
-        }
-
-        span.italic{
-          font-style: italic;
-        }
-      }
-
-      &[data-state="open"] svg.chevron{
-        rotate: 180deg;
-      }
-
-      .empty{
-        margin-left: .4rem;
-        width: calc(100% - .4rem);
-        color: var(--text-30);
-        font-size: .9rem;
-        display: block;
-
-        span {
-          font-weight: bold;
-          text-decoration: underline;
-        }
-      }
-    }
+main.overview{
+  h2{
+    font-size: .95rem;
+    color: var(--text-40);
+    font-weight: 500;
+    margin-bottom: .5rem;
+    margin-left: .1rem;
   }
 
-  .content{
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    margin-left: 1px;
+  .grid{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
 
-    .header{
-      display: flex;
-      justify-content: end;
-      padding: .3rem .5rem;
-      gap: .5rem;
-
-      button{
-        padding: .2rem .8rem;
-        box-sizing: border-box;
-        font-size: .95rem;
-        transition: none;
-
-        &.shotlist{
-          background-color: var(--accent);
-          color: var(--contrast);
-
-          &:hover{
-            background-color: var(--accent-55);
-          }
-        }
-
-        &.template{
-          font-weight: 600;
-          color: var(--accent);
-          border: .15rem solid var(--accent);
-
-          /*&:hover{
-            color: var(--accent-60);
-            border-color: var(--accent-60);
-          }*/
-        }
-      }
+    @media (max-width: 1200px){
+      grid-template-columns: 1fr 1fr 1fr;
     }
 
-    .main{
-      background-color: var(--contrast);
-      height: 100%;
-      width: 100%;
-      border-top-left-radius: 1rem;
-      padding: 1.5rem;
-      padding-bottom: 5rem;
+    @media (max-width: 1100px){
+      grid-template-columns: 1fr 1fr;
+    }
 
-      h2{
-        font-size: .95rem;
-        color: var(--text-40);
-        font-weight: 500;
-        margin-bottom: .5rem;
-        margin-left: .1rem;
+    @media (max-width: 700px){
+      grid-template-columns: 1fr;
+    }
+
+    .gridItem{
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      padding: .75rem 1rem;
+      border-radius: .5rem;
+      gap: 0;
+      border: 1px solid var(--text-60);
+      width: 100%;
+      overflow: hidden;
+
+      &.add{
+        display: grid;
+        place-content: center;
+        min-height: 3rem;
+
+        span{
+          display: flex;
+          align-items: center;
+          color: var(--text-60);
+          font-size: .95rem;
+          gap: .2rem;
+          font-weight: 500;
+        }
       }
 
-      .grid{
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-        gap: 1rem;
+      &:hover{
+        background-color: var(--accent-98);
+        border-color: var(--accent);
+      }
 
-        @media (max-width: 1200px){
-          grid-template-columns: 1fr 1fr 1fr;
+      .top{
+        display: flex;
+        gap: .3rem;
+        width: 100%;
+        align-items: center;
+        margin-bottom: .3rem;
+
+        svg{
+          color: var(--accent);
         }
 
-        .gridItem{
-          display: flex;
-          flex-direction: column;
-          padding: .75rem 1rem;
-          border-radius: .5rem;
-          align-items: start;
-          gap: 0;
-          border: 1px solid var(--text-60);
-
-          &.add{
-            display: grid;
-            place-content: center;
-
-            span{
-              display: flex;
-              align-items: center;
-              color: var(--text-60);
-              font-size: .95rem;
-              gap: .2rem;
-            }
-          }
+        h3{
+          font-size: 1.15rem;
+          font-weight: 600;
+          color: var(--accent);
+          display: inline-block;
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
 
           &:hover{
-            background-color: var(--accent-98);
-            border-color: var(--accent);
+            color: var(--accent-55);
           }
 
-          label{
-            display: flex;
-            gap: .2rem;
-            align-items: center;
-            font-size: .9rem;
+          span.italic{
+            font-style: italic;
             color: var(--text-30);
           }
-
-          h3{
-            font-size: 1.15rem;
-            font-weight: 600;
-            margin-bottom: .3rem;
-            color: var(--text-10);
-
-            span.italic{
-              font-style: italic;
-              color: var(--text-30);
-            }
-          }
-
-          p{
-            color: var(--text-35);
-            margin-top: .2rem;
-            font-size: .95rem;
-          }
-
-          .bold{
-            font-weight: 500;
-            color: var(--text-10);
-          }
         }
+      }
+
+
+      p{
+        color: var(--text-35);
+        margin-top: .2rem;
+        font-size: .95rem;
+        display: flex;
+        width: 100%;
+        gap: .5ch;
+      }
+
+      .bold{
+        font-weight: 500;
+        color: var(--text-10);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
       }
     }
   }

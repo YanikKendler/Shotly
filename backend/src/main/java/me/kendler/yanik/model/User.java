@@ -2,8 +2,12 @@ package me.kendler.yanik.model;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
+import me.kendler.yanik.dto.user.UserDTO;
+import me.kendler.yanik.dto.user.UserMinimalDTO;
 import me.kendler.yanik.model.template.Template;
+import org.hibernate.annotations.BatchSize;
 
+import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
@@ -20,15 +24,28 @@ public class User extends PanacheEntityBase {
     public String auth0Sub;
     public String name;
     public String email;
-    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
+    @BatchSize(size = 5)
     public Set<Shotlist> shotlists = new HashSet<>();
-    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
+    @BatchSize(size = 5)
     public Set<Template> templates = new HashSet<>();
     public ZonedDateTime createdAt;
-    public boolean isPro = false;
+    public ZonedDateTime lastActiveAt;
+    @Enumerated(EnumType.STRING)
+    public UserTier tier = UserTier.BASIC;
+    public String stripeCustomerId;
+    public boolean hasCancelled = false;
+    public boolean isActive = true;
+    public LocalDate revokeProAfter;
+    public String howDidYouHearReason;
+    //public Boolean allowAnalytics = null;
+    @Version
+    public Long version; //for blocking and retrying actions if user version is outdated
 
     public User() {
         this.createdAt = ZonedDateTime.now(ZoneOffset.UTC);
+        this.lastActiveAt = ZonedDateTime.now(ZoneOffset.UTC);
     }
 
     public User(String auth0Sub, String name, String email) {
@@ -51,5 +68,37 @@ public class User extends PanacheEntityBase {
                 ", email='" + email + '\'' +
                 ", createdAt=" + createdAt +
                 '}';
+    }
+
+    public UserDTO toDTO() {
+        return new UserDTO(
+                id,
+                auth0Sub,
+                name,
+                email,
+                isActive,
+                shotlists,
+                templates,
+                shotlists.size(),
+                templates.size(),
+                createdAt,
+                lastActiveAt,
+                tier,
+                stripeCustomerId,
+                hasCancelled,
+                revokeProAfter,
+                howDidYouHearReason
+        );
+    }
+
+    public UserMinimalDTO toMinimalDTO() {
+        return new UserMinimalDTO(
+                id,
+                email,
+                auth0Sub,
+                name,
+                tier,
+                createdAt
+        );
     }
 }

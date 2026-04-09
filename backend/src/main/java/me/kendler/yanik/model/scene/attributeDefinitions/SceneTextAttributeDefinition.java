@@ -19,8 +19,8 @@ public class SceneTextAttributeDefinition extends SceneAttributeDefinitionBase {
         super(shotlist);
     }
 
-    public SceneTextAttributeDefinition(Shotlist shotlist, String name) {
-        super(shotlist, name);
+    public SceneTextAttributeDefinition(Shotlist shotlist, String name, int position) {
+        super(shotlist, name, position);
     }
 
     @Override

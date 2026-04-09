@@ -18,4 +18,9 @@ public record SceneSingleSelectAttributeDTO(
     public SceneAttributeDefinitionBaseDTO getDefinition() {
         return definition;
     }
+
+    @Override
+    public String getType() {
+        return "SceneSingleSelectAttributeDTO";
+    }
 }

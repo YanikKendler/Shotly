@@ -1,0 +1,99 @@
+.exportPreview {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  color: var(--text);
+  font-size: .8rem;
+  border: 1px solid hsl(0, 0%, 30%);
+  border-radius: .5rem;
+
+  .row {
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid hsl(0, 0%, 30%);
+    align-items: stretch;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .cell {
+    flex: 1 1 0px;
+    padding: .5rem;
+    border-right: 1px solid hsl(0, 0%, 30%);
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+
+  /* Header Styles */
+  .header {
+    background-color: hsl(0, 0%, 30%);
+    border-color: hsl(0, 0%, 10%);
+
+    &.sceneAttributes {
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
+    .cell {
+      border-color: hsl(0, 0%, 10%);
+    }
+  }
+
+  .sceneAttributeDefinitions {
+    background-color: hsl(0, 0%, 20%);
+    border-top-left-radius: .5rem;
+    border-top-right-radius: .5rem;
+
+    .numberCell {
+      border-top-left-radius: .5rem;
+    }
+
+    .cell:last-of-type {
+      border-top-right-radius: .5rem;
+    }
+  }
+
+  /* Shot Rows */
+  .shotRow {
+    background-color: hsl(0, 0%, 10%);
+
+    &.rowOdd {
+      background-color: hsl(0, 0%, 15%);
+    }
+  }
+
+  .sceneGroup:last-of-type {
+    .shotRow:last-of-type{
+      border-bottom-left-radius: .5rem;
+      border-bottom-right-radius: .5rem;
+
+      .numberCell {
+        border-bottom-left-radius: .5rem;
+      }
+
+      .cell:last-of-type {
+        border-bottom-right-radius: .5rem;
+      }
+    }
+  }
+
+  /* Fixed-width Column for Numbers */
+  .numberCell {
+    flex: 0 0 min(4rem, 10vw);
+    text-align: center;
+  }
+
+  .empty {
+    padding: 2rem;
+    text-align: center;
+    border: 1px dashed hsl(0, 0%, 30%);
+  }
+}

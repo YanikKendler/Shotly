@@ -13,6 +13,7 @@ import me.kendler.yanik.model.scene.attributeDefinitions.SceneAttributeDefinitio
 import me.kendler.yanik.model.scene.attributes.SceneAttributeBase;
 import me.kendler.yanik.model.shot.Shot;
 import me.kendler.yanik.model.Shotlist;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 public class Scene extends PanacheEntityBase {
@@ -22,9 +23,11 @@ public class Scene extends PanacheEntityBase {
     @ManyToOne
     @JsonIgnore
     public Shotlist shotlist;
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
+    @BatchSize(size = 5)
     public Set<SceneAttributeBase> attributes = new HashSet<>();
-    @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "scene", fetch = FetchType.LAZY)
+    @BatchSize(size = 20)
     public Set<Shot> shots = new HashSet<>();
     public int position;
     public ZonedDateTime createdAt;
@@ -50,7 +53,6 @@ public class Scene extends PanacheEntityBase {
     public SceneDTO toDTO() {
         return new SceneDTO(
             this.id,
-            this.shotlist,
             this.attributes.stream()
                     .sorted(Comparator.comparingInt(attr -> attr.definition.position))
                     .map(SceneAttributeBase::toDTO)
@@ -60,7 +62,8 @@ public class Scene extends PanacheEntityBase {
                     .map(Shot::toDTO)
                     .collect(Collectors.toList()),
             this.position,
-            this.createdAt
+            this.createdAt,
+            this.shots.size()
         );
     }
 }

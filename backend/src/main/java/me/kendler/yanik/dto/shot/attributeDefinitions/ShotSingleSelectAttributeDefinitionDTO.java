@@ -25,4 +25,9 @@ public record ShotSingleSelectAttributeDefinitionDTO(
     public int getPosition() {
         return position;
     }
+
+    @Override
+    public String getType() {
+        return "ShotSingleSelectAttributeDefinitionDTO";
+    }
 }

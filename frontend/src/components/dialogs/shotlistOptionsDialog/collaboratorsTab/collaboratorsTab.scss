@@ -1,0 +1,143 @@
+div.shotlistOptionsDialogCollaboratorsTab{
+
+  .collaborators{
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+  .collaborator{
+    display: flex;
+    align-items: center;
+    font-size: .95rem;
+
+    p{
+      margin-left: .5rem;
+      line-height: 1.4em;
+
+      @media screen and (max-width: 700px){
+        font-size: .9rem;
+      }
+    }
+
+    .simpleTooltipTrigger{
+      color: var(--text-20);
+      margin-left: .3rem;
+
+      svg{
+        height: .9rem;
+      }
+    }
+
+    .simpleSelect{
+      margin-left: auto;
+      font-size: .9rem;
+    }
+
+    .inlineButtons{
+      display: flex;
+      gap: .3rem;
+      margin-left: auto;
+
+      @media screen and (max-width: 700px){
+        display: none;
+      }
+    }
+
+    .optionsTrigger{
+      display: none;
+      margin-left: auto;
+
+      @media screen and (max-width: 700px){
+        display: flex;
+      }
+    }
+
+    button{
+      color: var(--text-30);
+      border: 2px solid var(--default-interactable-border);
+      border-radius: .3rem;
+    }
+  }
+
+  .empty{
+    margin-left: .5rem;
+    margin-top: .5rem;
+    font-size: .95rem;
+    color: var(--text-50);
+  }
+
+  .leave{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    color: var(--text-20);
+    font-size: .95rem;
+
+    button{
+      border: 2px solid var(--default-interactable-border);
+
+      &:hover{
+        border-color: var(--bad-60);
+      }
+    }
+  }
+
+  .new{
+    display: flex;
+    align-items: flex-end;
+    gap: .8rem;
+    margin-top: 2rem;
+
+    .textField input{
+      font-size: .9rem;
+      border-color: var(--default-interactable-light-border);
+
+      &:focus-visible{
+        border-color: var(--accent);
+      }
+    }
+
+    button{
+      font-weight: 600;
+      font-size: .9rem;
+      padding-block: .55rem;
+      padding-inline: 1rem;
+
+      background-color: var(--transparent-accent-10);
+      color: var(--accent);
+      border: 2px solid var(--accent);
+
+      &:not([disabled]):hover {
+        background-color: var(--transparent-accent-20);
+        color: var(--accent-30);
+        border-color: var(--accent-40);
+      }
+
+      &[disabled]{
+        opacity: 40%;
+      }
+    }
+
+    > .error{
+      margin-top: 1rem;
+      color: var(--text-40);
+    }
+  }
+
+  .invalid{
+    font-size: .9rem;
+    color: var(--bad);
+    margin-top: .2rem;
+  }
+}
+
+.collaboratorOptionsPopup{
+  .simpleSelect button{
+    border: none;
+  }
+
+  button{
+    padding: .3rem;
+  }
+}

@@ -1,0 +1,242 @@
+.sheetManager .sheetCell{
+  --cell-background: var(--row-bg);
+
+  border: 1px solid var(--cell-border);
+  position: relative;
+  background-color: var(--cell-background);
+  min-height: calc(40px * var(--shotlist-scale));
+  
+  transition: border-color .1s;
+
+  display: grid;
+  align-items: center;
+
+  font-size: calc(.9rem * var(--shotlist-scale));
+
+  &:not(.number){
+    width: 100%;
+    min-width: var(--shotAttribute-width);
+  }
+
+  &.create{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: {
+      right: calc(.4rem * var(--shotlist-scale));
+      left: calc(.2rem * var(--shotlist-scale));
+    }
+
+    &:hover{
+      --preview-cell-border: var(--preview-cell-hover-border);
+    }
+
+    border-color: var(--preview-cell-border);
+    transition: color .1s, border-color .1s;
+    color: var(--text-60);
+
+    &:not(.number):hover{
+      cursor: text;
+      color: var(--text-40);
+    }
+
+    p {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      width: calc(100% - 2rem);
+    }
+  }
+
+  &.number{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 4ch;
+    font-weight: 600;
+    z-index: 50;
+    position: sticky;
+    background-color: var(--row-bg);
+    user-select: none;
+    left: 0;
+    color: var(--number-color);
+
+    &::after{
+      content: '';
+      height: calc(100% + 2px);
+      width: 1.5rem;
+      background: linear-gradient(90deg,color-mix(in srgb, var(--contrast), transparent 80%) 0%, var(--contrast) 100%);
+      position: absolute;
+      right: calc(100% + 1px);
+    }
+
+    @media screen and (max-width: 600px){
+      left: -1.5rem;
+    }
+
+    .grip{
+      position: absolute;
+      right: 100%;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      padding: 0;
+      opacity: 0;
+      color: var(--grip-color);
+      cursor: pointer;
+      box-sizing: border-box;
+      display: grid;
+      place-items: center;
+      transition: color .3s, opacity .1s;
+      translate: -1.5rem 0;
+      z-index: 10;
+
+      &:hover{
+        color: var(--grip-hover-color);
+
+        &::before{
+          background-color: var(--transparent-black-30);
+        }
+      }
+
+      &:focus-visible {
+        opacity: 1;
+        background-color: red;
+        color: var(--accent);
+      }
+
+      &::before{
+        content: '';
+        border-radius: .3rem;
+        height: 32px;
+        width: 80%;
+        background-color: var(--contrast);
+        grid-area: 1/1/2/2;
+      }
+
+      *{
+        grid-area: 1/1/2/2;
+      }
+
+      @media (pointer: coarse){
+        opacity: 1;
+      }
+    }
+  }
+
+  &.loader{
+    line-height: 1;
+    overflow: hidden;
+    display: flex;
+
+    span{
+      font-size: 2.2rem;
+      flex: 1;
+      width: 100%;
+      border-radius: 0;
+    }
+  }
+
+  .inputWrapper{
+    height: 100%;
+  }
+
+  .cellInput {
+    cursor: text;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    align-items: center;
+
+    > *{
+      grid-area: 1 / 1 / 2 / 2;
+    }
+
+    .text{
+      width: 100%;
+      height: fit-content;
+      color: var(--text);
+      padding: .2rem;
+      vertical-align: middle;
+      border: none;
+      outline: none;
+      min-width: 0;
+    }
+
+    .select{
+      width: 100%;
+      height: 100%;
+    }
+
+    .placeholder{
+      font-weight: 400;
+      color: var(--cell-placeholder-color);
+      position: absolute;
+      margin-left: .2rem;
+      justify-self: start;
+      pointer-events: none;
+    }
+
+    .icon{
+      position: absolute;
+      margin-right: .4rem;
+      justify-self: end;
+      pointer-events: none;
+    }
+  }
+
+  .readOnlyValue{
+    padding: .2rem;
+    min-width: 0;
+    word-wrap: break-word;
+
+    &.empty{
+      font-style: italic;
+      color: var(--text-50);
+    }
+  }
+
+  &::before{
+    content: "";
+    position: absolute;
+    z-index: 5;
+    inset: -2px;
+    border: 2px solid transparent;
+    border-radius: .3rem;
+    pointer-events: none;
+    transition: border-color .1s;
+  }
+
+  &:not(.number):not(.create):not(.readOnly) {
+    &:not(:focus-within):hover{
+      /*--cell-background: var(--cell-hover-bg);*/
+      border-color: var(--cell-hover-border);
+    }
+
+    &:focus-within {
+      &::before {
+        border-color: var(--accent);
+      }
+
+      .icon {
+        display: none;
+      }
+    }
+  }
+
+  &.collaboratorHighlight{
+    color: var(--collaborator-text);
+
+    *{
+      pointer-events: none;
+    }
+
+    &::before{
+      border-color: var(--collaborator);
+    }
+  }
+
+  svg{
+    scale: var(--shotlist-scale);
+  }
+}

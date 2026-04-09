@@ -1,197 +1,180 @@
 'use client'
 
-import gql from "graphql-tag"
 import Link from "next/link"
-import {useApolloClient, useQuery, useSuspenseQuery} from "@apollo/client"
 import "./dashboard.scss"
-import LoadingPage from "@/pages/loadingPage/loadingPage"
-import React, {useEffect, useState} from "react"
-import ErrorPage from "@/pages/errorPage/errorPage"
-import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
-import {ChevronDown, House, NotepadText, Plus, User} from "lucide-react"
-import {ShotlistDto} from "../../../lib/graphql/generated"
-import {Collapsible, Separator, Tooltip} from "radix-ui"
-import {wuGeneral, wuTime} from "@yanikkendler/web-utils/dist"
-import auth from "@/Auth"
-import {useRouter} from "next/navigation"
-import {useCreateShotlistDialog} from "@/components/dialog/createShotlistDialog/createShotlistDialog"
-import {useAccountDialog} from "@/components/dialog/accountDialog/accountDialog"
+import React, {useContext, useEffect, useState} from "react"
+import ErrorPage from "@/components/feedback/errorPage/errorPage"
+import {Blocks, NotepadText, Plus,} from "lucide-react"
+import {ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
+import {wuTime} from "@yanikkendler/web-utils"
+import {useCreateShotlistDialog} from "@/components/dialogs/createShotlistDialog/createShotlistDialog"
 import Utils from "@/util/Utils"
-import Image from "next/image"
-import Iconmark from "@/components/iconmark"
+import Config from "@/Config"
+import {useCreateTemplateDialog} from "@/components/dialogs/createTemplateDialog/createTemplateDialog"
+import {driver} from "driver.js"
+import "driver.js/dist/driver.css";
+import Skeleton from "react-loading-skeleton"
+import {DashboardContext, DialogStep} from "@/context/DashboardContext"
+import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 
-export default function Dashboard() {
-    const [shotlists, setShotlists] = useState<{data: ShotlistDto[] , loading: boolean, error: any}>({data: [], loading: true, error: null})
+export default function Overview() {
+    const dashboardContext = useContext(DashboardContext)
 
-    const client = useApolloClient()
-    const router = useRouter()
+    const [shotlists, setShotlists] = useState<ShotlistDto[]>([])
+    const [templates, setTemplates] = useState<TemplateDto[]>([])
 
     const { openCreateShotlistDialog, CreateShotlistDialog } = useCreateShotlistDialog()
-    const { openAccountDialog, AccountDialog } = useAccountDialog()
+    const { openCreateTemplateDialog, CreateTemplateDialog } = useCreateTemplateDialog()
+
+    const driverObj = driver({
+        showProgress: true,
+        allowClose: true,
+        steps: [
+            { popover: { title: 'Welcome to Shotly', description: 'You will now get a quick tour of the Dashboard.' } },
+            { element: '.sidebar', popover: {
+                title: 'The Sidebar',
+                description: 'Here you see all your shotlists and Templates. You currently dont have any Shotlists, but a default Template was automatically created!',
+                side: "right",
+                align: 'center'
+            }},
+            { element: '.sidebar .content .list .bottom', popover: {
+                title: 'Account & Activity',
+                description: 'If someone invites you to their shotlist the request will be visible under "Collaborations". Using the "Account" button you can modify your account and change your settings.',
+                side: "right",
+                align: 'center'
+            }},
+/*
+            { element: '.sidebar .template', popover: { description: 'You can use it when creating your first shotlist to start with a default attribute for shots and scenes.', side: "right", align: 'center' }},
+*/
+            { element: '.gridItem.add.shotlist', popover: { description: 'Click here to create a new Shotlist.', side: "bottom", align: 'center' }},
+        ],
+        onDestroyed: () => {
+            dashboardContext.incrementDialogStep(DialogStep.TOUR)
+        },
+    })
+
+    //dashboard tour
+    useEffect(() => {
+        if(dashboardContext.dialogStep !== DialogStep.TOUR) return
+
+        if(localStorage.getItem(Config.localStorageKey.dashboardTourCompleted) != "true" || Config.OVERRIDE_INTRO_CHECKS){
+            localStorage.setItem(Config.localStorageKey.dashboardTourCompleted, "true")
+            driverObj.drive()
+        }
+        else{
+            dashboardContext.incrementDialogStep(DialogStep.TOUR)
+        }
+    }, [dashboardContext.dialogStep])
 
     useEffect(() => {
-        if(!auth.isAuthenticated()){
-            router.replace('/')
-            return
-        }
+        if(!dashboardContext.query || !dashboardContext.query.data || !dashboardContext.query.data.shotlists) return;
 
-        if(!auth.getUser()) return
+        const newShotlists = [
+            ...dashboardContext.query.data.shotlists.personal || [],
+            ...dashboardContext.query.data.shotlists.shared || []
+        ]
 
-        loadShotlists()
-    }, []);
+        setShotlists((newShotlists as ShotlistDto[]).sort(Utils.oderShotlistsByChangeDate))
+        setTemplates(dashboardContext.query.data.templates as TemplateDto[])
+    }, [dashboardContext.query]);
 
-    const loadShotlists = async (noCache: boolean = true) => {
-        const { data, errors, loading } = await client.query({query: gql`
-                query shotlists{
-                    shotlists{
-                        id
-                        name
-                        sceneCount
-                        shotCount
-                        editedAt
-                    }
-                }`,
-            fetchPolicy: noCache ? "no-cache" : "cache-first"})
+    if(dashboardContext.query.error) return (
+        <main className="overview dashboardContent">
+            <ErrorPage
+                title='Data could not be loaded'
+                description={dashboardContext.query.error.message}
+                reload
+                noLink
+            />
+        </main>
+    )
 
-        setShotlists({data: data.shotlists, loading: loading, error: errors})
-    }
+    if(dashboardContext.query.errors) return (
+        <main className="overview dashboardContent">
+            <ErrorPage
+                title='Data could not be loaded'
+                description={dashboardContext.query.errors.map(e => e.message).join(", ")}
+                reload
+                noLink
+            />
+        </main>
+    )
 
-    if(shotlists.error) return <ErrorPage settings={{
-        title: 'Data could not be loaded',
-        description: shotlists.error.message,
-        link: {
-            text: 'Dashboard',
-            href: '../dashboard'
-        }
-    }}/>
-    if(shotlists.loading) return <LoadingPage text={"loading your dashboard"}/>
+    if(dashboardContext.query.loading) return (
+        <main className="overview dashboardContent">
+            <h2>Shotlists</h2>
+            <div className="grid">
+                <Skeleton height={125}/>
+                <Skeleton height={125}/>
+            </div>
+            <h2>Templates</h2>
+            <div className="grid">
+                <Skeleton height={125}/>
+                <Skeleton height={125}/>
+            </div>
+        </main>
+    )
 
     return (
-        <main className="dashboard">
-            <p className="noMobile">Sorry, mobile mode is not supported yet since this is a alpha
-                test. An
-                acceptable mobile version will be available in the full release.</p>
-            <PanelGroup autoSaveId={"shotly-dashboard-sidebar-width"} direction="horizontal" className={"PanelGroup"}>
-                <Panel defaultSize={20} maxSize={30} minSize={12} className="sidebar">
-                    <div className="content">
-                        <div className="top">
-                            <Tooltip.Root>
-                                <Tooltip.Trigger className={"noPadding gripTooltipTrigger"} asChild>
-                                    <Link href={`../dashboard`} onClick={e => {
-                                        wuGeneral.onNthClick(() => {
-                                            console.log("forward")
-                                            window.open("https://orteil.dashnet.org/cookieclicker", '_blank')?.focus()
-                                        }, e.nativeEvent, 10)
-                                    }}>
-                                        <House strokeWidth={2.5} size={20}/>
-                                    </Link>
-                                </Tooltip.Trigger>
-                                <Tooltip.Portal>
-                                    <Tooltip.Content className={"TooltipContent"}>
-                                        <Tooltip.Arrow/>
-                                        <p><span className="bold">Click</span> to go back to the Dashboard</p>
-                                    </Tooltip.Content>
-                                </Tooltip.Portal>
-                            </Tooltip.Root>
-                            <p>/</p>
-                            <h1>Dashboard</h1>
-                        </div>
-                        <div className="list">
-                            <Collapsible.Root className={"CollapsibleRoot dashboardSidebar"} defaultOpen={true}>
-                                <Collapsible.Trigger className={"noClickFx"}>
-                                    my shotlists <ChevronDown size={18} className={"chevron"}/>
-                                </Collapsible.Trigger>
-                                <Collapsible.Content
-                                    className="CollapsibleContent dashboardSidebar"
-                                >
-                                    {
-                                        shotlists.data.length === 0 ? (
-                                                <button onClick={openCreateShotlistDialog} className={"empty"}>Start
-                                                    by <span>creating a new shotlist</span> :)</button>) :
-                                            shotlists.data.sort(Utils.orderShotlistsByName).map((shotlist) => (
-                                                <Link key={shotlist.id} href={`../shotlist/${shotlist.id}`}>
-                                                    <NotepadText size={18}/>
-                                                    {shotlist.name || (<span className={"italic"}>Unnamed</span>)}
-                                                </Link>
-                                            ))
-                                    }
-                                </Collapsible.Content>
-                            </Collapsible.Root>
-
-                            <Collapsible.Root className={"CollapsibleRoot dashboardSidebar"} defaultOpen={false}>
-                                <Collapsible.Trigger className={"noClickFx"}>
-                                    shared shotlists <ChevronDown size={18} className={"chevron"}/>
-                                </Collapsible.Trigger>
-                                <Collapsible.Content
-                                    className="CollapsibleContent dashboardSidebar"
-                                >
-                                    <p>work in progress</p>
-                                </Collapsible.Content>
-                            </Collapsible.Root>
-
-                            <Separator.Separator decorative orientation="horizontal" className={"Separator"}/>
-
-                            <Collapsible.Root className={"CollapsibleRoot dashboardSidebar"} defaultOpen={false}>
-                                <Collapsible.Trigger className={"noClickFx"}>
-                                    my templates <ChevronDown size={18} className={"chevron"}/>
-                                </Collapsible.Trigger>
-                                <Collapsible.Content
-                                    className="CollapsibleContent dashboardSidebar"
-                                >
-                                    <p>work in progress</p>
-                                </Collapsible.Content>
-                            </Collapsible.Root>
-                            <Collapsible.Root className={"CollapsibleRoot dashboardSidebar"} defaultOpen={false}>
-                                <Collapsible.Trigger className={"noClickFx"}>
-                                    shared templates <ChevronDown size={18} className={"chevron"}/>
-                                </Collapsible.Trigger>
-                                <Collapsible.Content
-                                    className="CollapsibleContent dashboardSidebar"
-                                >
-                                    <p>work in progress</p>
-                                </Collapsible.Content>
-                            </Collapsible.Root>
-
-                            <div className="bottom">
-                                <button onClick={openAccountDialog}>Account <User size={18}/></button>
+        <main className="overview dashboardContent">
+            <h2>Shotlists</h2>
+            <div className="grid">
+                {shotlists.slice(0, 8).map((shotlist: ShotlistDto) => (
+                    <Link href={`/shotlist/${shotlist.id}`} key={shotlist.id} className="gridItem shotlist">
+                        <SimpleTooltip text={shotlist.name || "Unnamed"}>
+                            <div className="top">
+                                <NotepadText size={18}/>
+                                <h3>{shotlist.name || <span className='italic'>Unnamed</span>}</h3>
                             </div>
-                        </div>
-                    </div>
-                    <div className="bottom">
-                        <Link className="shotlistTool" href={"../dashboard"}><Iconmark/>shotly.at</Link>
-                    </div>
-                </Panel>
-                <PanelResizeHandle className="PanelResizeHandle"/>
-                <Panel className="content">
-                    <div className="header">
-                        {/*<button className="template" disabled>new template</button>*/}
-                        <button className="shotlist" onClick={openCreateShotlistDialog}>new shotlist</button>
-                    </div>
-                    <div className="main">
-                        <h2>Shotlists</h2>
-                        <div className="grid">
-                            {/*TODO limit to X shotlists*/}
-                            {shotlists.data.sort(Utils.oderShotlistsByChangeDate).map((shotlist: ShotlistDto) => (
-                                <Link href={`./shotlist/${shotlist.id}`} key={shotlist.id}
-                                      className="gridItem shotlist">
-                                    <label><NotepadText size={15}/>Shotlist</label>
-                                    <h3>{shotlist.name || <span className='italic'>Unnamed</span>}</h3>
-                                    <p className={"bold"}>{shotlist.sceneCount} scene • {shotlist.shotCount} shots</p>
-                                    <p>created by: <span className={"bold"}>Yanik Kendler</span></p>
-                                    <p>last edited: <span
-                                        className={"bold"}>{wuTime.toRelativeTimeString(shotlist.editedAt)}</span></p>
-                                </Link>
-                            ))}
-                            <button className={"gridItem add"} onClick={openCreateShotlistDialog}>
-                                <span><Plus/>new shotlist</span>
-                            </button>
-                        </div>
-                    </div>
-                </Panel>
-            </PanelGroup>
+                        </SimpleTooltip>
+                        <p className={"bold"}>
+                            {shotlist.sceneCount} scene{shotlist.sceneCount && shotlist.sceneCount === 1 ? "" : "s"}
+                            {" • "}
+                            {shotlist.shotCount} shot{shotlist.shotCount && shotlist.shotCount === 1 ? "" : "s"}
+                        </p>
+                        <p>Created by: <span className={"bold"}>{shotlist.owner?.name}</span></p>
+                        <p>Last edited: <span className={"bold"}>{wuTime.toRelativeString(shotlist.editedAt, {precision: 1, separator: ":"}) || "Unkown"}</span></p>
+                    </Link>
+                ))}
+                <button className={"gridItem add shotlist"} onClick={() => {
+                    driverObj.destroy()
+                    openCreateShotlistDialog()
+                }}>
+                    <span><Plus/>New Shotlist</span>
+                </button>
+            </div>
+            <h2>Templates</h2>
+            <div className="grid">
+                {templates.slice(0, 8).sort(Utils.orderShotlistsOrTemplatesByName).map((template: TemplateDto) => (
+                    <Link href={`dashboard/template/${template.id}`} key={template.id} className="gridItem template">
+                        <SimpleTooltip text={template.name || "Unnamed"}>
+                            <div className="top">
+                                <Blocks size={18}/>
+                                <h3>{template.name || <span className='italic'>Unnamed</span>}</h3>
+                            </div>
+                        </SimpleTooltip>
+                        <p>
+                            {"Scenes: "}
+                            <span className={"bold"}>
+                                {template.sceneAttributeCount} Attribute{template.sceneAttributeCount && template.sceneAttributeCount === 1 ? "" : "s"}
+                            </span>
+                        </p>
+                        <p>
+                            {"Shots: "}
+                            <span className={"bold"}>
+                                {template.shotAttributeCount} Attribute{template.shotAttributeCount && template.shotAttributeCount === 1 ? "" : "s"}
+                            </span>
+                        </p>
+                        <p>Created by: <span className={"bold"}>{template.owner?.name}</span></p>
+                    </Link>
+                ))}
+                <button className={"gridItem add"} onClick={openCreateTemplateDialog}>
+                    <span><Plus/>New Template</span>
+                </button>
+            </div>
 
             {CreateShotlistDialog}
-            {AccountDialog}
+            {CreateTemplateDialog}
         </main>
     );
 }

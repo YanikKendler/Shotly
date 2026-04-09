@@ -9,10 +9,12 @@ import me.kendler.yanik.dto.shot.attributes.ShotMultiSelectAttributeDTO;
 import me.kendler.yanik.model.shot.Shot;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotMultiSelectAttributeDefinition;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotSelectAttributeOptionDefinition;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 public class ShotMultiSelectAttribute extends ShotAttributeBase {
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @BatchSize(size = 10)
     public Set<ShotSelectAttributeOptionDefinition> value = new HashSet<>();
 
     public ShotMultiSelectAttribute() { }
@@ -26,7 +28,7 @@ public class ShotMultiSelectAttribute extends ShotAttributeBase {
         return new ShotMultiSelectAttributeDTO(
             id,
             definition.toDTO(),
-            value.stream().sorted(Comparator.comparing(option -> option.name)).toList()
+            value.stream().sorted(Comparator.comparing(option -> option.name.toUpperCase())).toList()
         );
     }
 }

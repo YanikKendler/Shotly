@@ -20,8 +20,8 @@ public class ShotTextAttributeDefinition extends ShotAttributeDefinitionBase {
         super(shotlist);
     }
 
-    public ShotTextAttributeDefinition(Shotlist shotlist, String name) {
-        super(shotlist, name);
+    public ShotTextAttributeDefinition(Shotlist shotlist, String name, int position) {
+        super(shotlist, name, position);
     }
 
     @Override

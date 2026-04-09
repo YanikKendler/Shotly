@@ -7,6 +7,8 @@ import jakarta.transaction.Transactional;
 import me.kendler.yanik.dto.scene.SceneSelectAttributeOptionCreateDTO;
 import me.kendler.yanik.dto.scene.SceneSelectAttributeOptionEditDTO;
 import me.kendler.yanik.dto.scene.SceneSelectAttributeOptionSearchDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.scene.attributeDefinitions.SceneAttributeDefinitionBase;
 import me.kendler.yanik.model.scene.attributeDefinitions.SceneMultiSelectAttributeDefinition;
@@ -49,7 +51,7 @@ public class SceneSelectAttributeOptionDefinitionRepository implements PanacheRe
     public SceneSelectAttributeOptionDefinition update(SceneSelectAttributeOptionEditDTO editDTO) {
         SceneSelectAttributeOptionDefinition option = findById(editDTO.id());
         if (option == null) {
-            throw new IllegalArgumentException("SceneSelectAttributeOptionDefinition not found");
+            throw new ShotlyException("SceneSelectAttributeOptionDefinition not found", ShotlyErrorCode.NOT_FOUND);
         }
         option.name = editDTO.name();
 
@@ -64,38 +66,42 @@ public class SceneSelectAttributeOptionDefinitionRepository implements PanacheRe
 
     public SceneSelectAttributeOptionDefinition delete(Long id){
         SceneSelectAttributeOptionDefinition sceneSelectAttributeOptionDefinition = findById(id);
-        if(sceneSelectAttributeOptionDefinition != null) {
-            switch (sceneSelectAttributeOptionDefinition.sceneAttributeDefinition){
-                case SceneMultiSelectAttributeDefinition attributeDefinition: {
-                    List<SceneMultiSelectAttribute> relevantAttributes = getEntityManager()
-                            .createQuery("select sa from SceneMultiSelectAttribute sa where sa.definition = :definition", SceneMultiSelectAttribute.class)
-                            .setParameter("definition", attributeDefinition)
-                            .getResultList();
 
-                    for (SceneMultiSelectAttribute relevantAttribute : relevantAttributes) {
-                        relevantAttribute.value.remove(sceneSelectAttributeOptionDefinition);
-                    }
-
-                    break;
-                }
-                case SceneSingleSelectAttributeDefinition attributeDefinition: {
-                    getEntityManager().createQuery("update SceneSingleSelectAttribute sa set sa.value = null where sa.definition = :definition")
-                            .setParameter("definition", attributeDefinition)
-                            .executeUpdate();
-                    break;
-                }
-                default:
-                    throw new IllegalStateException("Unexpected value: " + sceneSelectAttributeOptionDefinition.sceneAttributeDefinition);
-            }
-
-            delete(sceneSelectAttributeOptionDefinition);
-
-             getEntityManager().createQuery("select s from Shotlist s join s.sceneAttributeDefinitions sad where sad = :definition"
-                    , Shotlist.class)
-                    .setParameter("definition", sceneSelectAttributeOptionDefinition.sceneAttributeDefinition)
-                    .getSingleResult()
-            .registerEdit();
+        if(sceneSelectAttributeOptionDefinition == null) {
+            throw new ShotlyException("SceneSelectAttributeOptionDefinition not found", ShotlyErrorCode.NOT_FOUND);
         }
-        return sceneSelectAttributeOptionDefinition;
+
+        switch (sceneSelectAttributeOptionDefinition.sceneAttributeDefinition){
+            case SceneMultiSelectAttributeDefinition attributeDefinition: {
+                List<SceneMultiSelectAttribute> relevantAttributes = getEntityManager()
+                        .createQuery("select sa from SceneMultiSelectAttribute sa where :option MEMBER OF sa.value", SceneMultiSelectAttribute.class)
+                        .setParameter("option", sceneSelectAttributeOptionDefinition)
+                        .getResultList();
+
+                for (SceneMultiSelectAttribute relevantAttribute : relevantAttributes) {
+                    relevantAttribute.value.remove(sceneSelectAttributeOptionDefinition);
+                }
+
+                break;
+            }
+            case SceneSingleSelectAttributeDefinition attributeDefinition: {
+                getEntityManager().createQuery("update SceneSingleSelectAttribute sa set sa.value = null where sa.value = :option")
+                        .setParameter("option", sceneSelectAttributeOptionDefinition)
+                        .executeUpdate();
+                break;
+            }
+            default:
+                throw new ShotlyException("Unexpected value: " + sceneSelectAttributeOptionDefinition.sceneAttributeDefinition, ShotlyErrorCode.IMPOSSIBLE_INPUT);
+        }
+
+        delete(sceneSelectAttributeOptionDefinition);
+
+         getEntityManager().createQuery("select s from Shotlist s join s.sceneAttributeDefinitions sad where sad = :definition"
+                , Shotlist.class)
+                .setParameter("definition", sceneSelectAttributeOptionDefinition.sceneAttributeDefinition)
+                .getSingleResult()
+        .registerEdit();
+
+         return sceneSelectAttributeOptionDefinition;
     }
 }

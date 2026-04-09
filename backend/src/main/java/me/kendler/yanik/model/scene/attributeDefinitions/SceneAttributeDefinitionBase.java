@@ -28,9 +28,10 @@ public abstract class SceneAttributeDefinitionBase extends PanacheEntity {
         shotlist.sceneAttributeDefinitions.add(this);
     }
 
-    public SceneAttributeDefinitionBase(Shotlist shotlist, String name) {
+    public SceneAttributeDefinitionBase(Shotlist shotlist, String name, int position) {
         this(shotlist);
         this.name = name;
+        this.position = position;
     }
 
     public void update(SceneAttributeDefinitionEditDTO editDTO){

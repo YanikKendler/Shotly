@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
+import me.kendler.yanik.dto.scene.attributeDefinitions.SceneAttributeDefinitionBaseDTO;
 import me.kendler.yanik.dto.shot.attributeDefinitions.ShotAttributeDefinitionBaseDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistDTO;
 import me.kendler.yanik.model.scene.Scene;
@@ -16,6 +17,9 @@ import me.kendler.yanik.model.shot.attributeDefinitions.ShotAttributeDefinitionB
 import me.kendler.yanik.model.template.Template;
 import me.kendler.yanik.model.template.sceneAttributes.SceneAttributeTemplateBase;
 import me.kendler.yanik.model.template.shotAttributes.ShotAttributeTemplateBase;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "shotlist")
@@ -26,17 +30,24 @@ public class Shotlist extends PanacheEntityBase {
     @ManyToOne
     @JsonIgnore
     public User owner;
-    @ManyToOne
+    @ManyToOne()
     public Template template;
 
-    @OneToMany(mappedBy = "shotlist", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "shotlist", fetch = FetchType.LAZY)
+    @BatchSize(size = 10)
     public Set<Scene> scenes = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
+    @BatchSize(size = 5)
     public Set<SceneAttributeDefinitionBase> sceneAttributeDefinitions = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
+    @BatchSize(size = 5)
     public Set<ShotAttributeDefinitionBase> shotAttributeDefinitions = new HashSet<>();
+
+    @OneToMany(mappedBy = "shotlist", fetch = FetchType.LAZY)
+    @BatchSize(size = 5)
+    public Set<Collaboration> collaborations = new HashSet<>();
 
     public String name;
     public ZonedDateTime createdAt;
@@ -81,14 +92,15 @@ public class Shotlist extends PanacheEntityBase {
     public ShotlistDTO toDTO() {
         return new ShotlistDTO(
             this.id,
-            this.owner,
+            this.owner.toDTO(),
             this.template,
             this.scenes.stream()
                     .sorted(Comparator.comparingInt(scene -> scene.position))
                     .map(Scene::toDTO)
                     .collect(Collectors.toList()),
             this.sceneAttributeDefinitions.stream()
-                    .sorted(Comparator.comparingInt(definition -> definition.position))
+                    .map(SceneAttributeDefinitionBase::toDTO)
+                    .sorted(Comparator.comparingInt(SceneAttributeDefinitionBaseDTO::getPosition))
                     .collect(Collectors.toList()),
             this.shotAttributeDefinitions.stream()
                     .map(ShotAttributeDefinitionBase::toDTO)
@@ -96,6 +108,13 @@ public class Shotlist extends PanacheEntityBase {
                     .collect(Collectors.toList()),
             this.scenes.size(),
             this.scenes.stream().map(scene -> scene.shots.size()).reduce(0, Integer::sum),
+            this.sceneAttributeDefinitions.size(),
+            this.shotAttributeDefinitions.size(),
+            this.collaborations.stream()
+                    .sorted(Comparator.comparing( c -> c.user.name.toUpperCase()))
+                    .map(Collaboration::toDTO)
+                    .collect(Collectors.toList()),
+            this.collaborations.size(),
             this.name,
             this.createdAt,
             this.editedAt

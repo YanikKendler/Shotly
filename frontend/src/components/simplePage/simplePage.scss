@@ -1,0 +1,162 @@
+[data-theme="dark"] main.simplePage{
+  --nav-bg: hsl(0, 0%, 15%);
+}
+
+main.simplePage{
+  --nav-bg: hsl(0, 0%, 95%);
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+
+  display: flex;
+  flex-direction: column;
+
+  nav{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .3rem;
+    background-color: var(--nav-bg);
+    position: sticky;
+    top: 0;
+
+    .wordmark{
+      height: 1.6rem;
+      color: var(--accent);
+    }
+
+    a:not(.middle){
+      background-color: var(--transparent-accent-10);
+      color: var(--accent);
+      font-weight: 500;
+
+      &:hover{
+        background-color: var(--transparent-accent-20);
+      }
+
+      .iconmark{
+        height: 16px;
+      }
+    }
+
+    .left, .right{
+      width: 30vw;
+      display: flex;
+
+      &.right{
+        justify-content: flex-end;
+      }
+    }
+  }
+
+  .content{
+    max-width: 60ch;
+    margin-inline: auto;
+    margin-block: 5em;
+    color: var(--text-20);
+    padding-inline: .5em;
+    display: flex;
+    flex-direction: column;
+    height: calc(100% + 15em);
+
+    @media screen and (max-width: 700px){
+      font-size: .9rem;
+    }
+
+    h1{
+      font-size: 2em;
+      margin-bottom: .5em;
+    }
+
+    h2{
+      font-size: 1.3em;
+      margin-top: 1em;
+      margin-bottom: .5em;
+    }
+
+    h3{
+      font-size: 1.15em;
+      margin-top: 1em;
+      margin-bottom: .5em;
+      font-weight: 500;
+    }
+
+    p{
+      color: var(--text-20);
+      margin-bottom: .5em;
+      line-height: 140%;
+
+      &.small{
+        font-size: .9em;
+        color: var(--text-50);
+      }
+    }
+
+    ul{
+      margin-left: 1em;
+      margin-top: .5em;
+
+      ::marker {
+        color: var(--accent-40);
+      }
+
+      li{
+        margin-bottom: .3em;
+      }
+    }
+
+    .buttons{
+      display: flex;
+      gap: .5em;
+      margin-top: 2em;
+
+      button, a{
+        justify-content: center;
+        font-weight: 600;
+        padding-inline: .6em;
+        padding-block: .4em;
+        font-size: 1em;
+
+        &.filled{
+          background-color: var(--accent);
+          color: var(--text-100);
+
+          &:hover{
+            background-color: var(--accent-60);
+          }
+        }
+
+        &.outlined{
+          background-color: transparent;
+          color: var(--accent);
+          border: 2px solid var(--accent);
+
+          &:hover{
+            background-color: var(--transparent-accent-10);
+            color: var(--accent-40);
+          }
+        }
+
+        &.text{
+          background-color: transparent;
+          color: var(--accent);
+
+          &:hover{
+            background-color: var(--transparent-accent-10);
+            color: var(--accent-40);
+          }
+        }
+      }
+    }
+
+    a.inline{
+      padding: 0;
+      color: var(--accent-40);
+
+      &:hover{
+        text-decoration: underline;
+        color: var(--accent);
+      }
+    }
+  }
+}

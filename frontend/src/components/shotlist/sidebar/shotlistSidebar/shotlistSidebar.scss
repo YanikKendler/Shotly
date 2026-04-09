@@ -1,0 +1,67 @@
+[data-theme="dark"] .shotlist .sidebar{
+  --collaborators-hover-bg: hsl(20, 10%, 12%);
+}
+
+.shotlist .sidebar{
+  --collaborators-hover-bg: hsl(20, 20%, 90%);
+
+  .top{
+    gap: 0;
+
+    p{
+      margin-left: .2rem;
+    }
+
+    input{
+      padding-inline: .2rem;
+      text-overflow: ellipsis;
+
+      &:focus-visible{
+        outline-color: var(--accent);
+      }
+    }
+  }
+
+  #sceneList{
+    padding-top: .5rem;
+  }
+
+  .list {
+    &.reloading{
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    #scenes > .empty {
+      text-align: center;
+      color: var(--text-40);
+      font-size: .9rem;
+      margin-block: 1rem;
+    }
+
+    > .bottom {
+      .collaborators {
+        display: flex;
+        border: none;
+        background-color: hsla(20, 20%, 5%, 50%);
+        padding: .3rem;
+
+        &:hover, &[data-state=open]{
+          background-color: var(--collaborators-hover-bg);
+        }
+
+        .collaborator {
+          border-radius: 50%;
+          aspect-ratio: 1;
+          background-color: var(--collaborator);
+          display: grid;
+          height: 1.75rem;
+          place-items: center;
+          color: var(--contrast);
+          font-weight: bold;
+        }
+      }
+    }
+  }
+
+}

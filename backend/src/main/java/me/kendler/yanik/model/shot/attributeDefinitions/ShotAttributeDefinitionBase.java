@@ -25,9 +25,10 @@ public abstract class ShotAttributeDefinitionBase extends PanacheEntity {
         shotlist.shotAttributeDefinitions.add(this);
     }
 
-    public ShotAttributeDefinitionBase(Shotlist shotlist, String name) {
+    public ShotAttributeDefinitionBase(Shotlist shotlist, String name, int position) {
         this(shotlist);
         this.name = name;
+        this.position = position;
     }
 
     abstract public ShotAttributeBase createAttribute(Shot shot);

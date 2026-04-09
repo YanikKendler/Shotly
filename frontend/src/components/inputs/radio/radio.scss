@@ -1,0 +1,66 @@
+[data-theme="dark"] .radio{
+  --radio-check-bg: hsl(0, 0%, 30%);
+  --radio-check-hover-bg: hsl(18, 50%, 30%);
+}
+
+.radio {
+  --radio-check-bg: hsl(0, 0%, 85%);
+  --radio-check-hover-bg: hsl(18, 50%, 60%);
+
+  display: flex;
+  flex-direction: column;
+
+  &:has(.radioItem:focus-visible){
+    outline: 2px solid var(--accent) !important;
+    outline-offset: 5px;
+    border-radius: 5px;
+  }
+
+  .radioItem {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem .3rem;
+    border-radius: .5rem;
+    justify-content: flex-start;
+    font-size: inherit;
+
+    &:hover, &:focus-visible {
+      background-color: var(--transparent-gray-10);
+      outline: none;
+
+      .radioCheck {
+        background-color: var(--radio-check-hover-bg);
+        border-color: var(--accent-80);
+      }
+    }
+
+    p {
+      color: var(--text);
+      font-size: inherit;
+    }
+
+    .radioCheck{
+      aspect-ratio: 1;
+      width: 20px;
+      background-color: var(--radio-check-bg);
+      border-radius: 100%;
+      display: grid;
+      place-items: center;
+      border: 1.5px solid var(--text-60);
+
+      &:has(.checkIndicator) {
+        background-color: var(--accent-70);
+        border: none;
+      }
+
+      .checkIndicator {
+        aspect-ratio: 1;
+        width: 10px;
+        background-color: var(--accent);
+        border-radius: 100%;
+        translate: -0.3px -0.3px;
+      }
+    }
+  }
+}

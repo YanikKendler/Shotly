@@ -1,0 +1,51 @@
+div.shotlistOptionsDialogGeneralTab{
+  .separator{
+    margin-block: .8rem;
+  }
+
+  .details{
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    color: var(--text-30);
+    font-size: .9rem;
+
+    b {
+      color: var(--text);
+    }
+  }
+
+  .row{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-inline: .5rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+
+    p{
+      color: var(--text-30);
+      font-size: .9rem;
+    }
+  }
+
+  .bottom {
+    .row {
+      width: 100%;
+      margin: 0;
+    }
+
+    button.deleteShotlist{
+      color: var(--text-40);
+      border: 2px solid var(--default-interactable-border);
+      font-weight: bold;
+      font-size: .95rem;
+
+      &:not([disabled]):hover{
+        background-color: var(--transparent-bad-10);
+        color: var(--bad);
+        border-color: var(--bad);
+      }
+    }
+  }
+}

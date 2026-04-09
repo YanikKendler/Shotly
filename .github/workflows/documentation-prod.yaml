@@ -1,0 +1,70 @@
+name: 'Deploy documentation production'
+run-name: 'Deploy documentation production'
+
+on:
+  push:
+    paths:
+        - 'documentation/**'
+    branches:
+      - main
+
+env:
+  PROJECT_ID: 'shotlist-tool'
+  REGION: 'europe-west1'
+  SERVICE: 'shotly-documentation-production'
+  WORKLOAD_IDENTITY_PROVIDER: 'projects/566625943723/locations/global/workloadIdentityPools/github/providers/shotly'
+  SERVICE_ACCOUNT: 'shotly-documentation-runner@shotlist-tool.iam.gserviceaccount.com'
+  IMAGE_NAME: 'documentation'
+
+jobs:
+  deploy:
+    runs-on: 'ubuntu-latest'
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332' # actions/checkout@v4
+
+      # Configure Workload Identity Federation and generate an access token.
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@f112390a2df9932162083945e46d439060d66ec2' # google-github-actions/auth@v2
+        with:
+          token_format: 'access_token'
+          workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
+          service_account: '${{ env.SERVICE_ACCOUNT }}'
+
+      # BEGIN - Docker auth and build
+    
+      - name: 'Docker Auth'
+        uses: 'docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567' # docker/login-action@v3
+        with:
+          username: 'oauth2accesstoken'
+          password: '${{ steps.auth.outputs.access_token }}'
+          registry: '${{ env.REGION }}-docker.pkg.dev'
+
+      - name: 'Build and Push Container'
+        run: |-
+          VERSION=$(jq -r .version documentation/package.json)
+
+          IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.IMAGE_NAME }}"
+          docker build --tag "${IMAGE_PATH}:${VERSION}" --tag "${IMAGE_PATH}:${{ github.sha }}" ./documentation
+
+          docker push --all-tags "${IMAGE_PATH}"
+
+      - name: 'Deploy to Cloud Run'
+
+        # END - Docker auth and build
+
+        uses: 'google-github-actions/deploy-cloudrun@33553064113a37d688aa6937bacbdc481580be17' # google-github-actions/deploy-cloudrun@v2
+        with:
+          service: '${{ env.SERVICE }}'
+          region: '${{ env.REGION }}'
+          image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.IMAGE_NAME }}:${{ github.sha }}'
+      
+      - name: 'Show output'
+        run: |-
+          echo ${{ steps.deploy.outputs.url }}

@@ -1,0 +1,49 @@
+.confirmDialogContent{
+  padding: 1rem;
+
+  .title{
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: .8rem;
+  }
+
+  .description{
+    font-size: 1rem;
+    color: var(--text-10);
+  }
+
+  .buttons{
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+
+    :where(button){
+      font-weight: bold;
+      color: var(--text-10);
+      padding-inline: 2rem;
+      width: 100%;
+      justify-content: center;
+
+      &:not([disabled]) {
+        &:where(:hover) {
+          background-color: var(--transparent-gray-10);
+        }
+      }
+
+      &.confirm.bad{
+        background-color: var(--transparent-bad-10);
+        color: var(--bad-40);
+
+        &:not([disabled]) {
+          &:where(:hover) {
+            background-color: var(--bad);
+            color: var(--contrast);
+          }
+        }
+      }
+    }
+  }
+}
+

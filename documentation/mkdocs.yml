@@ -1,0 +1,34 @@
+site_name: Shotly Docs
+site_url: https://docs.shotly.at/
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: custom
+    accent: custom
+  favicon: /assets/logo/shotly-docs-iconmark_o2.png
+  logo: /assets/logo/shotly-iconmark_white.png
+  features:
+  - search.suggest
+  - navigation.sections
+extra_css:
+  - /assets/stylesheets/extra.css
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+extra:
+  homepage: https://shotly.at
+nav:
+- Overview: index.md
+- Dashboard: dashboard.md
+- Account and Settings: account.md
+- Templates: templates.md
+- Shotlist:
+  - Navigation: shotlist/navigation.md
+  - Attributes: shotlist/attributes.md
+  - Collaborators: shotlist/collaboration.md
+  - Export: shotlist/export.md
+plugins:
+  - open-in-new-tab
+  - search

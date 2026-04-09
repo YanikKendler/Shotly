@@ -9,6 +9,9 @@ import me.kendler.yanik.model.scene.SceneAttributeType;
 import me.kendler.yanik.model.scene.attributes.SceneAttributeBase;
 import me.kendler.yanik.model.scene.attributes.SceneMultiSelectAttribute;
 
+import java.util.LinkedList;
+import java.util.List;
+
 @Entity
 @DiscriminatorValue("SceneMultiSelect")
 public class SceneMultiSelectAttributeDefinition extends SceneAttributeDefinitionBase {
@@ -18,8 +21,8 @@ public class SceneMultiSelectAttributeDefinition extends SceneAttributeDefinitio
         super(shotlist);
     }
 
-    public SceneMultiSelectAttributeDefinition(Shotlist shotlist, String name) {
-        super(shotlist, name);
+    public SceneMultiSelectAttributeDefinition(Shotlist shotlist, String name, int position) {
+        super(shotlist, name, position);
     }
 
     @Override
@@ -33,7 +36,7 @@ public class SceneMultiSelectAttributeDefinition extends SceneAttributeDefinitio
             id,
             name,
             position,
-            null
+            new LinkedList<>(List.of(new SceneSelectAttributeOptionDefinition("Sorry, I'm lazy - this does not actually list the options, please use the specific shotAttributeDefinitions query", null)))
         );
     }
 }

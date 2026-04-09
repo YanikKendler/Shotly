@@ -1,13 +1,11 @@
 import React from "react"
-import "./legal.scss"
-import Wordmark from "@/components/wordmark"
-import Link from "next/link"
+import SimplePage from "@/components/simplePage/simplePage"
 
-export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
+export default function Legal({children}: Readonly<{children: React.ReactNode}>) {
     return (
-        <main className="legal">
-            <Link href={"/"}><Wordmark/></Link>
+        <SimplePage>
+            <title>Shotly | Legal</title>
             {children}
-        </main>
+        </SimplePage>
     )
 }

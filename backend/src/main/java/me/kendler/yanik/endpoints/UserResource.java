@@ -1,8 +1,10 @@
 package me.kendler.yanik.endpoints;
 
 import jakarta.inject.Inject;
+import me.kendler.yanik.dto.user.UserDTO;
 import me.kendler.yanik.dto.user.UserEditDTO;
 import me.kendler.yanik.model.User;
+import me.kendler.yanik.rateLimiting.RateLimited;
 import me.kendler.yanik.repositories.UserRepository;
 import org.eclipse.microprofile.graphql.GraphQLApi;
 import org.eclipse.microprofile.graphql.Mutation;
@@ -10,6 +12,7 @@ import org.eclipse.microprofile.graphql.Query;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 @GraphQLApi
+@RateLimited()
 public class UserResource {
     @Inject
     JsonWebToken jwt;
@@ -18,8 +21,8 @@ public class UserResource {
     UserRepository userRepository;
 
     @Query
-    public User getCurrentUser() {
-        return userRepository.findOrCreateByJWT(jwt);
+    public UserDTO getCurrentUser() {
+        return userRepository.getCurrentUserDTO(jwt);
     }
 
     @Mutation
@@ -33,7 +36,18 @@ public class UserResource {
     }
 
     @Mutation
+    @RateLimited("strict")
     public String triggerPasswordReset() {
         return userRepository.triggerPasswordReset(jwt);
     }
+
+    @Mutation
+    public User setHowDidYourHearReason(String reason) {
+        return userRepository.setHowDidYourHearReason(jwt, reason);
+    }
+
+    /*@Mutation
+    public User setAllowAnalytics(boolean allow){
+        return userRepository.setAllowAnalytics(jwt, allow);
+    }*/
 }

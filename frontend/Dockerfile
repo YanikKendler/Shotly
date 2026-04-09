@@ -1,5 +1,9 @@
 FROM node:20 AS builder
 
+ARG BUILD_FOR_PROD
+
+ENV NEXT_PUBLIC_BUILD_FOR_PROD=${BUILD_FOR_PROD}
+
 # Set the working directory inside the container
 WORKDIR /app
 

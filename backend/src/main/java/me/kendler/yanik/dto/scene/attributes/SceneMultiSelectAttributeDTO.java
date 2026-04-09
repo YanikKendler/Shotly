@@ -21,4 +21,9 @@ public record SceneMultiSelectAttributeDTO(
     public SceneAttributeDefinitionBaseDTO getDefinition() {
         return definition;
     }
+
+    @Override
+    public String getType() {
+        return "SceneMultiSelectAttributeDTO";
+    }
 }

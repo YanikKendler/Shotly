@@ -1,26 +1,33 @@
 import auth0, {Auth0DecodedHash, Auth0ParseHashError, WebAuth} from 'auth0-js';
+import Config from "@/Config"
+import {errorNotification} from "@/service/NotificationService"
+import {td} from "@/service/Analytics"
+import {wuConstants, wuGeneral} from "@yanikkendler/web-utils/dist"
 
 export interface AuthUser {
     email: string;
     sub: string;
+    isSocial?: boolean;
+}
+
+interface CustomAuthResult extends Auth0DecodedHash {
+    appState?: {
+        targetUrl?: string;
+    };
 }
 
 class Auth {
     private auth0: WebAuth
-    private readonly authFlag: string
     private idToken: string = "no-token"
     private authUser: AuthUser | null = null
-    private FRONTEND_URL: string = process.env.NODE_ENV == "development" ? "http://localhost:3000" : "https://shotly.at"
-    //private FRONTEND_URL: string = "http://localhost:3000"
+    private expiresAt: number = 0
 
     constructor() {
-        console.log("Auth constructor", this.FRONTEND_URL)
-
         this.auth0 = new auth0.WebAuth({
             domain: 'login.shotly.at',
             clientID: '4FPKDtlCQjAToOwAEiG6ZrL0eW2UXlx4',
             responseType: 'id_token token',
-            redirectUri: this.FRONTEND_URL + '/callback',
+            redirectUri: Config.frontendURL + '/callback',
             audience: 'https://dev-pvlm4i5qpteni14h.us.auth0.com/api/v2/',
             scope: 'openid profile email',
             overrides: {
@@ -33,20 +40,29 @@ class Auth {
         this.logout = this.logout.bind(this)
         this.handleAuthentication = this.handleAuthentication.bind(this)
         this.isAuthenticated = this.isAuthenticated.bind(this)
-        this.getTokenSilently = this.getTokenSilently.bind(this)
         this.silentAuth = this.silentAuth.bind(this)
-
-        this.authFlag = 'isLoggedIn'
     }
 
     login() {
         this.auth0.authorize()
     }
 
+    register() {
+        this.auth0.authorize({
+            screen_hint: "signup"
+        });
+    }
+
+    loginForPro(){
+        this.auth0.authorize({
+            appState: { targetUrl: '/pro' }
+        });
+    }
+
     logout() {
-        localStorage.setItem(this.authFlag, JSON.stringify(false));
+        localStorage.setItem(Config.localStorageKey.isLoggedIn, JSON.stringify(false));
         this.auth0.logout({
-            returnTo: this.FRONTEND_URL,
+            returnTo: Config.frontendURL,
         });
     }
 
@@ -58,91 +74,108 @@ class Auth {
         return this.authUser
     }
 
-    async getTokenSilently() {
-        return new Promise((resolve, reject) => {
-            this.auth0.checkSession({},(err, authResult) => {
-                if (err) {
-                    console.error("Silent auth error", err)
-                    return reject(err)
-                }
-
-                this.setSession(authResult)
-                resolve(authResult.accessToken)
-            })
-        })
-    }
-
     handleAuthentication() {
-        return new Promise((resolve, reject) => {
-            /*this.auth0.parseHash((err, authResult) => {
-                if (err) return reject(err)
-                if (!authResult || !authResult.idToken) {
-                    return reject(err)
-                }
-                this.setSession(authResult)
-                resolve()
-            })*/
-            this.auth0.parseHash({ hash: window.location.hash }, (error: Auth0ParseHashError | null, authResult: Auth0DecodedHash | null) => {
+        return new Promise<string>((resolve, reject) => {
+            this.auth0.parseHash({ hash: window.location.hash }, (error: Auth0ParseHashError | null, authResult: CustomAuthResult | null) => {
                 if (error) {
+                    console.error(error)
+                    errorNotification({
+                        title: "Authentication failed",
+                        sub: "Please reload the page and log in again."
+                    })
                     reject(error)
-                    console.log(error)
                 }
 
                 if(!authResult) {
+                    errorNotification({
+                        title: "Authentication failed",
+                        sub: "Please reload the page and log in again."
+                    })
                     return reject("authResult is null")
                 }
 
                 this.setSession(authResult)
 
                 if(!authResult.accessToken) {
+                    errorNotification({
+                        title: "Authentication failed",
+                        sub: "Please reload the page and log in again."
+                    })
                     return reject("missing accessToken")
                 }
 
+                localStorage.setItem(Config.localStorageKey.hasLoggedInBefore, JSON.stringify(true))
+
                 this.auth0.client.userInfo(authResult.accessToken, (err, user) => {
-                    console.log(user)
-                    resolve(user)
+                    resolve(authResult.appState?.targetUrl || '/dashboard');
                 })
             })
         })
     }
 
     setSession(authResult: Auth0DecodedHash) {
-        if(!authResult || !authResult.idToken) {
+        if(!authResult || !authResult.idToken || !authResult.expiresIn) {
             console.error("missing id token")
+            errorNotification({
+                title: "Authentication failed",
+                sub: "Please reload the page and log in again."
+            })
             return
         }
+
         this.idToken = authResult.idToken;
+
+        this.expiresAt = (authResult.expiresIn * 1000) + Date.now();
+
         if(!authResult.idTokenPayload.sub || !authResult.idTokenPayload.email || !authResult.idTokenPayload.name){
             console.error("missing data in id token payload")
+            errorNotification({
+                title: "Authentication failed",
+                sub: "Please reload the page and log in again."
+            })
             return
         }
+
+        //td.clientUser = authResult.idTokenPayload.sub
+
         this.authUser = {
             email: authResult.idTokenPayload.email,
             sub: authResult.idTokenPayload.sub,
+            isSocial: authResult.idTokenPayload.sub.startsWith("google-oauth2|")
         }
-        console.log(authResult);
-        localStorage.setItem(this.authFlag, JSON.stringify(true));
+
+        localStorage.setItem(Config.localStorageKey.isLoggedIn, JSON.stringify(true))
     }
 
-    silentAuth() {
-        if(!this.isAuthenticated()) return null
+    async silentAuth(): Promise<boolean> {
+        if (!this.isAuthenticated()) {
+            this.logout()
+            return false
+        }
 
-        return new Promise<Auth0DecodedHash>((resolve, reject) => {
+        const buffer = wuConstants.Time.msPerMinute * 30
+        if (this.idToken !== "no-token" && Date.now() < (this.expiresAt - buffer)) {
+            return false
+        }
+
+        return new Promise<boolean>((resolve, reject) => {
             this.auth0.checkSession({}, (err, authResult) => {
                 if (err) {
-                    console.error(err)
-                    localStorage.removeItem(this.authFlag);
-                    return reject(err);
+                    localStorage.setItem(Config.localStorageKey.isLoggedIn, "false")
+                    return reject(err)
                 }
-                this.setSession(authResult);
-                resolve(authResult);
-            });
-        });
+                this.setSession(authResult)
+                resolve(true)
+            })
+        })
     }
 
     isAuthenticated() {
-        if (typeof window === "undefined") return false;
-        return JSON.parse(localStorage.getItem(this.authFlag) || 'false');
+        return JSON.parse(localStorage.getItem(Config.localStorageKey.isLoggedIn) || "false");
+    }
+
+    hasLoggedInBefore() {
+        return JSON.parse(localStorage.getItem(Config.localStorageKey.hasLoggedInBefore) || "false");
     }
 }
 

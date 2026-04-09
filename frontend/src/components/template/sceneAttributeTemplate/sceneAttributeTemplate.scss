@@ -1,0 +1,65 @@
+div.sceneAttributeTemplate{
+  display: flex;
+  gap: .3rem;
+  padding: .3rem;
+  border-radius: .5rem;
+  align-items: center;
+  background-color: var(--attribute-bg);
+
+  &:hover{
+    border-color: var(--attribute-hover-border);
+  }
+
+  .grip{
+    color: var(--text-50);
+    display: flex;
+    align-items: center;
+    padding: .3rem .1rem;
+    border-radius: .3rem;
+    transition: color .2s ease-in-out, background-color .2s ease-in-out;
+    cursor: pointer;
+    margin-right: .3rem;
+
+    &:hover{
+      color: var(--text-20);
+      background-color: var(--transparent-gray-10);
+    }
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  .nameInput{
+    padding-block: .5rem;
+    outline: 1px solid transparent;
+    font-weight: 500;
+    border: 2px solid var(--default-interactable-border);
+
+    &::placeholder{
+      font-weight: normal;
+    }
+
+    &:focus-visible{
+      outline-color: var(--accent);
+    }
+  }
+
+  .editOptions{
+    font-size: .9rem;
+    border: 2px solid var(--default-interactable-border);
+    align-self: stretch;
+    gap: 1rem;
+    color: var(--text-40);
+
+    &:hover{
+      color: var(--text);
+      border-color: var(--default-interactable-hover-border);
+    }
+  }
+
+  .delete{
+    margin-left: auto;
+    color: var(--text-40);
+  }
+}

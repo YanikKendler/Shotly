@@ -1,0 +1,207 @@
+div.shotlistOptionsDialogExportTab{
+
+  .filters{
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+
+    .filter{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      width: 100%;
+      min-height: 2.5rem;
+
+      .left{
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        color: var(--text-20);
+        font-weight: 500;
+        font-size: .9rem;
+
+        @media screen and (max-width: 600px) {
+          font-size: .85rem;
+        }
+
+        svg{
+          color: var(--text-30);
+        }
+      }
+
+      .right{
+        display: flex;
+        gap: .5rem;
+
+        button.remove{
+          color: var(--text-30);
+          border: 2px solid var(--default-interactable-border);
+
+          &:hover{
+            color: var(--bad);
+            border-color: var(--bad);
+          }
+        }
+
+      }
+
+      .textField{
+        width: 100%;
+        font-size: .9rem;
+      }
+    }
+
+    .combinationInfo{
+      color: var(--text-60);
+      font-size: .85rem;
+      margin-left: 1rem;
+      text-wrap: nowrap;
+    }
+  }
+
+  .separator{
+    margin-block: .8rem;
+  }
+
+  button.addFilter{
+    border: 2px solid var(--default-interactable-border);
+    color: var(--text-30);
+    padding-block: .4rem;
+    padding-inline: .6rem;
+    font-weight: 500;
+    font-size: .9rem;
+    width: fit-content;
+    margin-top: 2rem;
+
+    &:not([disabled]):hover{
+      border-color: var(--default-interactable-hover-border);
+      color: var(--text-10);
+    }
+  }
+
+  .bottom{
+    button{
+      padding: .5rem .8rem;
+      font-size: .95rem;
+      width: fit-content;
+
+      &.export{
+        font-weight: bold;
+        color: var(--contrast);
+        background-color: var(--accent);
+
+        &:hover{
+          background-color: var(--accent-55);
+        }
+      }
+
+      &.secondary{
+        color: var(--text-20);
+        /*border: 2px solid var(--default-interactable-light-border);*/
+        background-color: var(--transparent-gray-20);
+
+        &:hover{
+          background-color: var(--transparent-gray-30);
+          color: var(--text);
+        }
+      }
+
+      @media screen and (max-width: 600px) {
+        span {
+          display: none;
+        }
+      }
+    }
+
+    .helpLink{
+      margin-left: auto;
+    }
+  }
+}
+
+.popoverContent.addFilterPopup{
+  text-align: left;
+  min-width: var(--radix-popover-trigger-width);
+
+  h3{
+    color: var(--text-50);
+    font-weight: bold;
+    font-size: .9rem;
+  }
+
+  .empty{
+    color: var(--text-50);
+    font-style: italic;
+    text-align: center;
+  }
+
+  button{
+    font-size: .95rem;
+    color: var(--text);
+
+    &:hover{
+      background-color: var(--transparent-gray-10);
+    }
+  }
+}
+
+.pdfPreviewDialogContent{
+  width: 800px;
+  max-width: 95vw;
+  display: flex;
+  flex-direction: column;
+
+  .top {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+
+    h2{
+      font-size: 1rem;
+      font-weight: bold;
+
+      span{
+        font-weight: normal;
+        color: var(--text-30);
+        font-size: .9rem;
+      }
+    }
+
+    button {
+      padding: .5rem .8rem;
+      font-size: .9rem;
+      font-weight: bold;
+
+      &.export {
+        margin-left: auto;
+        color: var(--accent);
+        background-color: var(--transparent-accent-10);
+
+        &:hover {
+          background-color: var(--transparent-accent-20);
+        }
+      }
+
+      &.close {
+        background-color: var(--transparent-gray-10);
+
+        &:hover {
+          background-color: var(--transparent-gray-20);
+        }
+      }
+
+      @media screen and (max-width: 600px) {
+        span {
+          display: none;
+        }
+      }
+    }
+  }
+
+  .small{
+    font-size: .8rem;
+    color: var(--text-60);
+    margin-top: 1rem;
+  }
+}

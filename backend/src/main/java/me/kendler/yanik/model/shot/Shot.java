@@ -12,6 +12,7 @@ import me.kendler.yanik.dto.shot.ShotDTO;
 import me.kendler.yanik.model.scene.Scene;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotAttributeDefinitionBase;
 import me.kendler.yanik.model.shot.attributes.ShotAttributeBase;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 public class Shot extends PanacheEntityBase {
@@ -21,7 +22,8 @@ public class Shot extends PanacheEntityBase {
     @ManyToOne
     @JsonIgnore
     public Scene scene;
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
+    @BatchSize(size = 5)
     public Set<ShotAttributeBase> attributes = new HashSet<>();
     public int position;
     public boolean isSubshot;
@@ -36,7 +38,6 @@ public class Shot extends PanacheEntityBase {
         this.scene = scene;
         this.position = scene.shots.size();
         scene.shots.add(this);
-        scene.shotlist.registerEdit();
         for(ShotAttributeDefinitionBase attributeDefinition : scene.shotlist.shotAttributeDefinitions) {
             ShotAttributeBase attribute = attributeDefinition.createAttribute(this);
             persist(attribute);
@@ -47,7 +48,7 @@ public class Shot extends PanacheEntityBase {
     public ShotDTO toDTO() {
         return new ShotDTO(
             this.id,
-            this.scene,
+            this.scene.id,
             this.attributes.stream()
                     .sorted(Comparator.comparingInt(attr -> attr.definition.position))
                     .map(ShotAttributeBase::toDTO)

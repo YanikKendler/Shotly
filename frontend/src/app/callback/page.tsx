@@ -3,25 +3,31 @@
 import {useEffect} from "react"
 import auth from "@/Auth"
 import { useRouter } from 'next/navigation'
-import LoadingPage from "@/pages/loadingPage/loadingPage"
+import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
 import Auth from "@/Auth"
+import {td} from "@/service/Analytics"
+import Config from "@/Config"
 
+/**
+ * User is sent here after a login on the auth0 hosted login.shotly.at page
+ * @constructor
+ */
 export default function CallbackPage() {
     const router = useRouter()
 
     useEffect(() => {
         auth.handleAuthentication()
-            .then(() => {
-                console.log("redirecting to dashboard")
-                router.push('/dashboard')
+            .then((targetUrl) => {
+                td.signal("Callback.UserLogin")
+                router.push(targetUrl)
             })
             .catch((error) => {
                 console.error("Error during authentication:", error);
-                Auth.logout()
+                auth.logout()
             });
     }, []);
 
     return (
-        <LoadingPage text={"logging you in"}/>
+        <LoadingPage title={Config.loadingMessage.login}/>
     )
 }

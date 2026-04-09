@@ -10,9 +10,9 @@ import java.util.UUID;
 
 public record SceneDTO (
     UUID id,
-    Shotlist shotlist,
     List<SceneAttributeBaseDTO> attributes,
     List<ShotDTO> shots,
     int position,
-    ZonedDateTime createdAt
+    ZonedDateTime createdAt,
+    int shotCount
 ){ }

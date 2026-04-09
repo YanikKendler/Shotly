@@ -4,26 +4,23 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import me.kendler.yanik.dto.scene.SceneAttributeDefinitionEditDTO;
 import me.kendler.yanik.dto.shot.ShotAttributeDefinitionCreateDTO;
 import me.kendler.yanik.dto.shot.ShotAttributeDefinitionEditDTO;
 import me.kendler.yanik.dto.shot.attributeDefinitions.ShotAttributeDefinitionBaseDTO;
 import me.kendler.yanik.dto.shot.attributeDefinitions.ShotMultiSelectAttributeDefinitionDTO;
 import me.kendler.yanik.dto.shot.attributeDefinitions.ShotSingleSelectAttributeDefinitionDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.Shotlist;
-import me.kendler.yanik.model.scene.attributeDefinitions.SceneAttributeDefinitionBase;
 import me.kendler.yanik.model.shot.Shot;
 import me.kendler.yanik.model.shot.attributeDefinitions.*;
 import me.kendler.yanik.model.shot.attributes.ShotAttributeBase;
 import me.kendler.yanik.model.shot.attributes.ShotMultiSelectAttribute;
 import me.kendler.yanik.model.shot.attributes.ShotSingleSelectAttribute;
-import me.kendler.yanik.model.shot.attributes.ShotTextAttribute;
 import me.kendler.yanik.repositories.ShotlistRepository;
-import me.kendler.yanik.repositories.UserRepository;
 import org.jboss.logging.Logger;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 @Transactional
@@ -34,13 +31,16 @@ public class ShotAttributeDefinitionRepository implements PanacheRepository<Shot
     @Inject
     ShotAttributeRepository shotAttributeRepository;
 
+    @Inject
+    ShotSelectAttributeOptionDefinitionRepository shotSelectAttributeOptionDefinitionRepository;
+
     private static final Logger LOGGER = Logger.getLogger(ShotAttributeDefinitionRepository.class);
 
     public List<ShotAttributeDefinitionBaseDTO> getAll(UUID shotlistId) {
-        Shotlist shotlist = shotlistRepository.findById(shotlistId);
+        Shotlist shotlist = shotlistRepository.findByIdValidated(shotlistId);
 
         if (shotlist == null) {
-            throw new IllegalArgumentException("Shotlist not found");
+            throw new ShotlyException("Shotlist not found", ShotlyErrorCode.NOT_FOUND);
         }
 
         if(shotlist.shotAttributeDefinitions == null || shotlist.shotAttributeDefinitions.isEmpty()) {
@@ -53,6 +53,7 @@ public class ShotAttributeDefinitionRepository implements PanacheRepository<Shot
 
         List<ShotAttributeDefinitionBaseDTO> attributeDefinitionDTOs = new ArrayList<>();
 
+        //map attribute definitions to DTOs (cannot be a class method because of mapping the options)
         attributeDefinitions.forEach(definition -> {
             switch (definition) {
                 case ShotSingleSelectAttributeDefinition singleSelectAttribute -> {
@@ -80,22 +81,23 @@ public class ShotAttributeDefinitionRepository implements PanacheRepository<Shot
         return attributeDefinitionDTOs.stream().sorted(Comparator.comparingInt(ShotAttributeDefinitionBaseDTO::getPosition)).toList();
     }
 
-    public ShotAttributeDefinitionBase create(ShotAttributeDefinitionCreateDTO createDTO) {
+    public ShotAttributeDefinitionBaseDTO create(ShotAttributeDefinitionCreateDTO createDTO) {
         if(createDTO == null) {
-            throw new IllegalArgumentException("ShotAttributeDefinitionCreateDTO cannot be null");
+            throw new ShotlyException("ShotAttributeDefinitionCreateDTO cannot be null", ShotlyErrorCode.INVALID_INPUT);
         }
         if(createDTO.shotlistId() == null) {
-            throw new IllegalArgumentException("Shotlist ID cannot be null");
+            throw new ShotlyException("Shotlist ID cannot be null", ShotlyErrorCode.NOT_FOUND);
         }
         if(createDTO.type() == null) {
-            throw new IllegalArgumentException("ShotAttributeDefinition type cannot be null");
+            throw new ShotlyException("ShotAttributeDefinition type cannot be null", ShotlyErrorCode.NOT_FOUND);
         }
 
         ShotAttributeDefinitionBase attributeDefinition = null;
-        Shotlist shotlist = shotlistRepository.findById(createDTO.shotlistId());
+        Shotlist shotlist = shotlistRepository.findByIdValidated(createDTO.shotlistId());
 
         shotlist.registerEdit();
 
+        //create different definition type based on selected type in create DTO
         switch (createDTO.type()) {
             case ShotSingleSelectAttribute -> {
                 attributeDefinition = new ShotSingleSelectAttributeDefinition(shotlist);
@@ -109,11 +111,12 @@ public class ShotAttributeDefinitionRepository implements PanacheRepository<Shot
         }
 
         if(attributeDefinition == null) {
-            throw new IllegalArgumentException("Invalid attribute definition type");
+            throw new ShotlyException("Invalid attribute definition type", ShotlyErrorCode.IMPOSSIBLE_INPUT);
         }
 
         persist(attributeDefinition);
 
+        //add the newly created definition to all existing shots
         ShotAttributeDefinitionBase finalAttributeDefinition = attributeDefinition;
         shotlist.scenes.forEach(scene -> {
             scene.shots.forEach(shot -> {
@@ -121,13 +124,14 @@ public class ShotAttributeDefinitionRepository implements PanacheRepository<Shot
             });
         });
 
-        return attributeDefinition;
+        return attributeDefinition.toDTO();
     }
 
-    public ShotAttributeDefinitionBase update(ShotAttributeDefinitionEditDTO editDTO) {
+    public ShotAttributeDefinitionBaseDTO update(ShotAttributeDefinitionEditDTO editDTO) {
         ShotAttributeDefinitionBase attribute = findById(editDTO.id());
+
         if (attribute == null) {
-            throw new IllegalArgumentException("Attribute not found");
+            throw new ShotlyException("Attribute not found", ShotlyErrorCode.NOT_FOUND);
         }
 
         Shotlist shotlist = getShotlistByDefinitionId(editDTO.id());
@@ -138,56 +142,92 @@ public class ShotAttributeDefinitionRepository implements PanacheRepository<Shot
         }
         if(editDTO.position() != null && attribute.position != editDTO.position()){
 
+            if(editDTO.position() < 0 || editDTO.position() >= shotlist.shotAttributeDefinitions.size()) {
+                throw new ShotlyException("Position must be between 0 and " + (shotlist.shotAttributeDefinitions.size() - 1), ShotlyErrorCode.INVALID_INPUT);
+            }
+
+            //attr was moved back
+            //0 1 2 3 New 5 6 Old
             shotlist.shotAttributeDefinitions.stream()
                     .filter(a -> a.position < attribute.position && a.position >= editDTO.position())
                     .forEach(a -> a.position++);
+            //attr was moved forward
+            //0 1 2 3 Old 5 6 New
             shotlist.shotAttributeDefinitions.stream()
                     .filter(a -> a.position > attribute.position && a.position <= editDTO.position())
                     .forEach(a -> a.position--);
 
             attribute.position = editDTO.position();
         }
-        return attribute;
+        return attribute.toDTO();
     }
 
-    public ShotAttributeDefinitionBase delete(Long id){
+    public ShotAttributeDefinitionBaseDTO delete(Long id){
         ShotAttributeDefinitionBase attributeDefinition = findById(id);
 
-        if(attributeDefinition != null) {
-            List<ShotAttributeBase> relevantAttributes = getEntityManager()
-                    .createQuery("select sa from ShotAttributeBase sa where sa.definition.id = :definitionId", ShotAttributeBase.class)
-                    .setParameter("definitionId", id)
-                    .getResultList();
-
-            List<Shot> relevantShots = getEntityManager()
-                    .createQuery("select s from Shot s join s.attributes sab where sab.definition.id = :definitionId", Shot.class)
-                    .setParameter("definitionId", id)
-                    .getResultList();
-
-            relevantShots.forEach(shot -> {
-                relevantAttributes.forEach(shot.attributes::remove);
-            });
-
-            Shotlist relevantShotlist = getShotlistByDefinitionId(id);
-
-            relevantShotlist.shotAttributeDefinitions.remove(attributeDefinition);
-
-            delete(attributeDefinition);
-
-            relevantShotlist.registerEdit();
-
-            return attributeDefinition;
+        if(attributeDefinition == null) {
+            throw new ShotlyException("Attribute definition not found", ShotlyErrorCode.NOT_FOUND);
         }
-        return null;
+
+        List<ShotAttributeBase> relevantAttributes = getEntityManager()
+                .createQuery("select sa from ShotAttributeBase sa where sa.definition.id = :definitionId", ShotAttributeBase.class)
+                .setParameter("definitionId", id)
+                .getResultList();
+
+        List<ShotSelectAttributeOptionDefinition> relevantOptions = getEntityManager()
+                .createQuery("select o from ShotSelectAttributeOptionDefinition o where o.shotAttributeDefinition.id = :definitionId", ShotSelectAttributeOptionDefinition.class)
+                .setParameter("definitionId", id)
+                .getResultList();
+
+        List<Shot> relevantShots = getEntityManager()
+                .createQuery("select s from Shot s join s.attributes sab where sab.definition.id = :definitionId", Shot.class)
+                .setParameter("definitionId", id)
+                .getResultList();
+
+        relevantAttributes.forEach(a -> {
+            if (a instanceof ShotSingleSelectAttribute ssa) {
+                ssa.value = null;
+            } else if (a instanceof ShotMultiSelectAttribute msa) {
+                msa.value.clear();
+            }
+        });
+
+        relevantShots.forEach(shot -> {
+            relevantAttributes.forEach(a -> {
+                shot.attributes.remove(a);
+                a.definition = null;
+            });
+        });
+
+        relevantOptions.forEach(o -> {
+            shotSelectAttributeOptionDefinitionRepository.delete(o.id);
+        });
+
+        Shotlist relevantShotlist = getShotlistByDefinitionId(id);
+
+        relevantShotlist.shotAttributeDefinitions.remove(attributeDefinition);
+
+        relevantShotlist.shotAttributeDefinitions.stream()
+                .filter(d -> d.position > attributeDefinition.position)
+                .forEach(d -> d.position--);
+
+        deleteById(id);
+
+        relevantShotlist.registerEdit();
+
+        return attributeDefinition.toDTO();
     }
 
     public Shotlist getShotlistByDefinitionId(Long id) {
         Shotlist result = getEntityManager()
-                .createQuery("select s from Shotlist s join s.shotAttributeDefinitions d where d.id = :definitionId", Shotlist.class)
+                .createQuery(
+                    "select s from Shotlist s join s.shotAttributeDefinitions d where d.id = :definitionId"
+                    , Shotlist.class
+                )
                 .setParameter("definitionId", id)
-                .getSingleResult();
+                .getSingleResultOrNull();
         if(result == null) {
-            throw new IllegalArgumentException("Shotlist not found for definition ID: " + id);
+            throw new ShotlyException("Shotlist not found for definition ID: " + id, ShotlyErrorCode.NOT_FOUND);
         }
 
         return result;

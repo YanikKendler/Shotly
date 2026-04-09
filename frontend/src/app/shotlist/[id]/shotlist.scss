@@ -1,32 +1,11 @@
 main.shotlist{
-  height: 100lvh;
+  height: 100%;
   width: 100%;
   background-color: var(--sidebar-bg);
-
-  .sidebar{
-    .top{
-      gap: 0;
-
-      p{
-        margin-left: .2rem;
-      }
-
-      input{
-        padding-inline: .2rem;
-        text-overflow: ellipsis;
-
-        &:focus-visible{
-          outline-color: var(--accent);
-        }
-      }
-    }
-    .list >.empty{
-      text-align: center;
-      color: var(--text-40);
-      font-size: .9rem;
-      margin-block: 1rem;
-    }
-  }
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
 
   .content{
     display: flex;
@@ -35,30 +14,240 @@ main.shotlist{
     height: 100%;
     margin-left: 1px;
 
+    &.reloading{
+      pointer-events: none;
+      opacity: .5;
+    }
+
     .header{
       display: flex;
       align-items: center;
-      padding-inline: 1.5rem 2.5rem;
+      padding-left: 1.5rem;
+      padding-right: 1.8rem;
+      overflow-x: auto;
+      position: relative;
+
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+
+      &::-webkit-scrollbar {
+        display: none; /*Chrome, Safari and Opera */
+      }
+
+      @media screen and (max-width: 500px){
+        padding-inline: 1.5rem .5rem;
+      }
 
       div{
         width: 100%;
         padding: .5rem .3rem;
         font-weight: bold;
-        font-size: .95rem;
+        font-size: calc(.9rem * var(--shotlist-scale));
 
         &.number{
-          width: 5ch;
+          width: 4ch;
           flex-shrink: 0;
           text-align: center;
           color: var(--text-40);
+          position: sticky;
+          left: 0;
+          background-color: var(--sidebar-bg);
+
+          @media screen and (max-width: 500px){
+            left: -1.5rem;
+          }
+        }
+
+        &.attribute{
+          min-width: var(--shotAttribute-width);
+
+          p {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
         }
       }
 
       .empty{
-        font-size: .9rem;
+        font-size: .85rem;
         color: var(--text-40);
         margin-inline: auto;
       }
+
+      .add{
+        position: fixed;
+        right: .3rem;
+        color: var(--text-50);
+        padding: .4rem;
+        background-color: var(--sidebar-bg);
+
+        &:hover{
+          color: var(--text);
+          background-color: var(--contrast);
+        }
+      }
+    }
+  }
+
+  .floater{
+    position: absolute;
+    bottom: 1.3rem;
+    right: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    z-index: 10;
+
+    .reloading{
+      font-size: .9rem;
+      border: 2px solid var(--accent-70);
+      height: 35px;
+      display: flex;
+      align-items: center;
+      padding-inline: .5rem;
+      border-radius: 3rem;
+      background-color: var(--contrast);
+      color: var(--accent-20);
+    }
+
+    .openSidebar{
+      background-color: var(--contrast);
+      border: 2px solid var(--default-interactable-border);
+      border-radius: 100%;
+      padding: .6rem;
+      display: none;
+
+      @media screen and (max-width:500px){
+        display: flex;
+      }
+    }
+
+    .saveIndicator{
+      background-color: var(--contrast);
+      border: 2px solid var(--default-interactable-border);
+      border-radius: 5rem;
+      font-size: .8rem;
+      height: 35px;
+      display: grid;
+      align-items: center;
+      justify-content: center;
+      padding-inline: .5rem;
+      transition: max-width 300ms ease-in, border 200ms;
+      max-width: 10ch;
+      overflow: hidden;
+      user-select: none;
+
+      /*There is an unused setup here that would allow changing the width of the indicator to display text*/
+
+      &::before{
+        position: absolute;
+        max-width: 30ch;
+        right: 0;
+        bottom: 40px;
+        width: max-content;
+        padding: .3rem;
+        background-color: var(--contrast);
+        border: 2px solid var(--default-interactable-border);
+        border-radius: .3rem;
+        white-space: pre-line;
+        z-index: 9999;
+
+        display: none;
+      }
+
+      &:hover{
+        border-color: var(--default-interactable-hover-border);
+
+        &::before {
+          display: block;
+        }
+      }
+
+      .saved, .saving, .error{
+        opacity: 0;
+        color: var(--text-30);
+        grid-area: 1/1/2/2;
+        transition: opacity 300ms;
+        display: flex;
+        justify-content: center;
+      }
+
+      .error{
+        color: var(--text);
+        font-size: 20px;
+        font-weight: bold;
+      }
+
+      .saving{
+        animation: spin 1s linear infinite;
+      }
+
+      &[data-state="saving"] {
+        max-width: 35px;
+
+        .saving {
+          opacity: 1;
+        }
+
+        &::before{
+          content: "Your changes are being saved to Shotly's servers, this should only take a second.";
+        }
+      }
+
+      &[data-state="saved"]{
+        max-width: 35px;
+
+        .saved{
+          opacity: 1;
+        }
+
+        &::before{
+          content: 'All changes saved.';
+        }
+      }
+
+      &[data-state="error"] {
+        max-width: 35px;
+        background-color: var(--bad-60);
+        border-color: var(--bad-80);
+
+        .error {
+          opacity: 1;
+        }
+
+        &::before{
+          content: 'At least some of your changes could not be saved, please stop editing and try again later by refreshing the page.\A\AIf the problem persists, report it using "account > new issue". See the browser console for more details.';
+          border-color: var(--bad-60);
+        }
+
+        &:hover {
+          border-color: var(--bad-90);
+        }
+      }
+    }
+  }
+}
+
+.readOnlyBanner{
+  width: 100%;
+  padding: .5rem;
+  background-color: var(--accent-92);
+  font-size: .95rem;
+  text-align: center;
+  position: relative;
+
+  @media screen and (max-width: 500px) {
+    font-size: .85rem;
+  }
+
+  button{
+    position: absolute;
+    right: 1rem;
+    top: 0;
+
+    &:hover{
+      background-color: var(--transparent-accent-10);
     }
   }
 }

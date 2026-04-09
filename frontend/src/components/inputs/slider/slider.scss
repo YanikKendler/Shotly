@@ -1,0 +1,82 @@
+[data-theme="dark"] .SliderRoot{
+  --slider-track-bg: hsl(0, 0%, 20%);
+  --slider-marker-bg: hsl(0, 0%, 40%);
+}
+
+.SliderRoot {
+  --slider-track-bg: hsl(0, 0%, 80%);
+  --slider-marker-bg: hsl(0, 0%, 40%);
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  touch-action: none;
+  width: 200px;
+  height: 20px;
+  margin-inline: 1.5rem;
+
+  .SliderMarkers{
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    position: absolute;
+    padding-inline: .5rem;
+
+    .marker{
+      width: 2px;
+      height: 12px;
+      display: block;
+      background-color: var(--slider-track-bg);
+    }
+  }
+
+  .SliderNumbers{
+    position: absolute;
+    width: calc(100% + 3rem);
+    left: -1.5rem;
+    display: flex;
+    justify-content: space-between;
+
+    .number{
+      font-size: .75rem;
+      color: var(--slider-marker-bg);
+      width: 1.5rem;
+      user-select: none;
+      text-align: center;
+    }
+  }
+
+  .SliderTrack {
+    background-color: var(--slider-track-bg);
+    position: relative;
+    flex-grow: 1;
+    border-radius: 9999px;
+    height: 3px;
+    margin-inline: .5rem;
+  }
+
+  .SliderRange {
+    position: absolute;
+    background-color: var(--accent-20);
+    border-radius: 9999px;
+    height: 100%;
+  }
+
+  .SliderThumb {
+    display: block;
+    width: 20px;
+    height: 20px;
+    background-color: var(--accent);
+    box-shadow: 0 2px 10px hsl(0, 0%, 20%);
+    border-radius: 10px;
+  }
+  .SliderThumb:hover {
+    background-color: var(--accent-60);
+  }
+  .SliderThumb:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 5px var(--transparent-accent-10);
+  }
+}
+

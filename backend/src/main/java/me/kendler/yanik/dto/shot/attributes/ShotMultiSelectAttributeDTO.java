@@ -21,4 +21,9 @@ public record ShotMultiSelectAttributeDTO(
     public ShotAttributeDefinitionBaseDTO getDefinition() {
         return definition;
     }
+
+    @Override
+    public String getType() {
+        return "ShotMultiSelectAttributeDTO";
+    }
 }

@@ -5,9 +5,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.dto.shot.ShotAttributeEditDTO;
+import me.kendler.yanik.dto.shot.attributes.ShotAttributeBaseDTO;
+import me.kendler.yanik.error.ShotlyErrorCode;
+import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.Shotlist;
-import me.kendler.yanik.model.scene.attributes.SceneMultiSelectAttribute;
-import me.kendler.yanik.model.shot.attributeDefinitions.ShotSelectAttributeOptionDefinition;
 import me.kendler.yanik.model.shot.attributes.ShotAttributeBase;
 import me.kendler.yanik.model.shot.attributes.ShotMultiSelectAttribute;
 import me.kendler.yanik.model.shot.attributes.ShotSingleSelectAttribute;
@@ -20,18 +21,12 @@ import java.util.stream.Collectors;
 public class ShotAttributeRepository implements PanacheRepository<ShotAttributeBase> {
     @Inject ShotSelectAttributeOptionDefinitionRepository shotSelectAttributeOptionDefinitionRepository;
 
-    public ShotAttributeBase update(ShotAttributeEditDTO editDTO) {
+    public ShotAttributeBaseDTO update(ShotAttributeEditDTO editDTO) {
         ShotAttributeBase attribute = findById(editDTO.id());
-
-        getEntityManager().createQuery("select s from Shotlist s join s.shotAttributeDefinitions sad where sad = :definition"
-                , Shotlist.class)
-                .setParameter("definition", attribute.definition)
-                .getSingleResult()
-        .registerEdit();
 
         switch (attribute) {
             case null -> {
-                throw new IllegalArgumentException("Attribute not found");
+                throw new ShotlyException("Attribute not found", ShotlyErrorCode.NOT_FOUND);
             }
             case ShotTextAttribute shotTextAttribute -> {
                 shotTextAttribute.value = editDTO.textValue();
@@ -46,10 +41,16 @@ public class ShotAttributeRepository implements PanacheRepository<ShotAttributeB
                         .collect(Collectors.toSet());
             }
             default -> {
-                throw new IllegalArgumentException("Attribute update failed");
+                throw new ShotlyException("Attribute update failed", ShotlyErrorCode.IMPOSSIBLE_INPUT);
             }
         }
 
-        return attribute;
+        getEntityManager().createQuery("select s from Shotlist s join s.shotAttributeDefinitions sad where sad = :definition"
+                , Shotlist.class)
+                .setParameter("definition", attribute.definition)
+                .getSingleResult()
+                .registerEdit();
+
+        return attribute.toDTO();
     }
 }
