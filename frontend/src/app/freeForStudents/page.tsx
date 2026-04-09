@@ -8,7 +8,7 @@ export default function freeForStudents(){
             <h1>Shotly for Students</h1>
             <p>Are you a student? Shotly is available to you completely free of charge!</p>
             <p>
-                Shotly was born when I was a Student myself and did not want to pay wild amounts for other shotlist tools.
+                Shotly was born when I was a student myself and did not want to pay wild amounts for other shotlist tools.
                 If you feel that the free-tier is not enough for your needs and you genuinely cannot afford Shotly Pro,
                 please reach out to me at <Link className={"inline"} href={"mailto:yanik@shotly.at"}>yanik@shotly.at</Link>
             </p>

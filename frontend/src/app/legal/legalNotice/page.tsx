@@ -14,7 +14,7 @@ export default function LegalNotice() {
             <p>Email: <Link className={"inline"} href="mailto:yanik@shotly.at">yanik@shotly.at</Link></p>
             <p>
                 <strong>Activity:</strong>
-                Provision of the "Shotly" web application for creating and managing shot lists
+                Provision of the "Shotly" web application for creating and managing shotlists
                 for film and video productions.
             </p>
             <p>

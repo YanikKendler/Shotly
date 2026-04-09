@@ -80,11 +80,11 @@ export default function Privacy(){
             <p>The following data is collected, among other things:</p>
 
             <ul>
-                <li>an anonymized, untraceable user ID (per app installation),</li>
-                <li>actions defined by the app publisher (e.g., "app launched," "settings opened"),</li>
-                <li>a rounded timestamp (to the nearest hour),</li>
-                <li>device metadata (e.g., system version, app version, device type),</li>
-                <li>additional metadata defined by the app publisher (e.g., "number of items in the database").</li>
+                <li>An anonymized, untraceable user ID (per browser used to access the app),</li>
+                <li>Actions defined by the app publisher (e.g., "app launched," "settings opened"),</li>
+                <li>A rounded timestamp (to the nearest hour),</li>
+                <li>Device metadata (e.g., system version, app version, device type),</li>
+                <li>Additional metadata defined by the app publisher (e.g., "number of items in the database").</li>
             </ul>
 
             <h3>What is not stored?</h3>
@@ -92,21 +92,19 @@ export default function Privacy(){
             <ul>
                 <li>No IP addresses (not in logs, not in the database),</li>
                 <li>No cookies or tracking technologies,</li>
-                <li>no persistent identifiers that could be traced back to individuals.</li>
+                <li>No persistent identifiers that could be traced back to individuals.</li>
             </ul>
 
             <br/>
 
             <p>
-                The source code of the TelemetryDeck SDK is completely open source and available on GitHub: <Link
-                className={"inline"} href="https://github.com/TelemetryDeck">https://github.com/TelemetryDeck</Link>
+                The source code of the TelemetryDeck SDK is completely open source and available on GitHub:
+                <Link className={"inline"} href="https://github.com/TelemetryDeck">https://github.com/TelemetryDeck</Link>
             </p>
             <p>
-                Further information on the exact data processing by TelemetryDeck can be found at: <Link
-                className={"inline"}
-                href="https://telemetrydeck.com/privacy">https://telemetrydeck.com/privacy</Link> and at <Link
-                className={"inline"}
-                href="https://telemetrydeck.com/docs/guides/privacy-faq/">https://telemetrydeck.com/docs/guides/privacy-faq/</Link>
+                Further information on the exact data processing by TelemetryDeck can be found at:
+                <Link className={"inline"} href="https://telemetrydeck.com/privacy">https://telemetrydeck.com/privacy</Link>
+                and at <Link className={"inline"} href="https://telemetrydeck.com/docs/guides/privacy-faq/">https://telemetrydeck.com/docs/guides/privacy-faq/</Link>
             </p>
             <br/>
             <br/>

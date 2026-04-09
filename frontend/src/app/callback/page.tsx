@@ -23,7 +23,7 @@ export default function CallbackPage() {
             })
             .catch((error) => {
                 console.error("Error during authentication:", error);
-                Auth.logout()
+                auth.logout()
             });
     }, []);
 

@@ -12,7 +12,7 @@ import {
     Mail,
     Monitor,
     Moon,
-    Rocket,
+    Rocket, SquareArrowOutUpRight,
     Sun,
     Trash,
     User,
@@ -306,7 +306,7 @@ export function useAccountDialog() {
                                         <button className={"primary"} onClick={PaymentService.manageSubscription}><Rocket size={18}/>Renew subscription</button> :
                                         <Link className={"primary"} href={"/pro"}><Rocket size={18}/>Upgrade to Pro</Link> :
                                 query.data.currentUser?.tier == UserTier.Pro ?
-                                    <button onClick={PaymentService.manageSubscription}><User size={18}/>Manage subscription</button> :
+                                    <button onClick={PaymentService.manageSubscription}>Manage subscription<SquareArrowOutUpRight size={16}/></button> :
                                 query.data.currentUser?.tier == UserTier.ProStudent ?
                                     <Link href={"/pro"}><GraduationCap size={18}/>Pro for students</Link>:
                                 query.data.currentUser?.tier == UserTier.ProFree ?
