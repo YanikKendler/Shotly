@@ -7,6 +7,7 @@ on:
         - 'backend/**'
     branches:
       - main
+  workflow_dispatch:
 
 env:
   PROJECT_ID: 'shotlist-tool'
