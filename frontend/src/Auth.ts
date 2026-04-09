@@ -148,25 +148,26 @@ class Auth {
     }
 
     async silentAuth(): Promise<boolean> {
-        if (!this.isAuthenticated()) return false;
+        if (!this.isAuthenticated()) {
+            this.logout()
+            return false
+        }
 
-        if (typeof document !== 'undefined' && !document.hasFocus()) return false;
-
-        const buffer = wuConstants.Time.msPerMinute * 30;
+        const buffer = wuConstants.Time.msPerMinute * 30
         if (this.idToken !== "no-token" && Date.now() < (this.expiresAt - buffer)) {
-            return false;
+            return false
         }
 
         return new Promise<boolean>((resolve, reject) => {
             this.auth0.checkSession({}, (err, authResult) => {
                 if (err) {
-                    localStorage.setItem(Config.localStorageKey.isLoggedIn, "false");
-                    return reject(err);
+                    localStorage.setItem(Config.localStorageKey.isLoggedIn, "false")
+                    return reject(err)
                 }
-                this.setSession(authResult);
-                resolve(true);
-            });
-        });
+                this.setSession(authResult)
+                resolve(true)
+            })
+        })
     }
 
     isAuthenticated() {

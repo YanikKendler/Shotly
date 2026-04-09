@@ -8,12 +8,10 @@ import {BookText, Bug, Lightbulb, Mail} from "lucide-react"
 export default function HelpLink({
     link,
     floating = false,
-    delay,
     name
 }: {
     link: string
     floating?: boolean
-    delay?: number
     name: string
 }) {
     return (
