@@ -149,7 +149,6 @@ class Auth {
 
     async silentAuth(): Promise<boolean> {
         if (!this.isAuthenticated()) {
-            this.logout()
             return false
         }
 
