@@ -249,7 +249,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             ...current,
             data: {
                 ...current.data,
-                templates: result.data
+                templates: result.data.templates
             }
         }))
     }
@@ -498,7 +498,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                                 Create new <Plus size={16}/>
                                             </button>
                                         ) :
-                                        (query.data.shotlists.personal as ShotlistDto[]).sort(Utils.orderShotlistsOrTemplatesByName).map((shotlist) => (
+                                        (query.data.shotlists.personal as ShotlistDto[])?.sort(Utils.orderShotlistsOrTemplatesByName)?.map((shotlist) => (
                                             <SimpleTooltip text={shotlist.name || "Unnamed"} key={shotlist.id}>
                                                 <Link href={`/shotlist/${shotlist.id}`}>
                                                     <NotepadText size={18}/>
@@ -529,7 +529,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                         !query.data.shotlists?.shared || query.data.shotlists.shared.length <= 0 ? (
                                             <p className={"empty"}>No shared shotlists yet</p>
                                         ) :
-                                        (query.data.shotlists.shared as ShotlistDto[]).sort(Utils.orderShotlistsOrTemplatesByName).map((shotlist) => (
+                                        (query.data.shotlists.shared as ShotlistDto[])?.sort(Utils.orderShotlistsOrTemplatesByName)?.map((shotlist) => (
                                             <SimpleTooltip text={shotlist.name || "Unnamed"} key={shotlist.id}>
                                                 <Link href={`/shotlist/${shotlist.id}`}>
                                                     <NotepadText size={18}/>
@@ -559,7 +559,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                         !query.data.templates || query.data.templates.length === 0 ? (
                                             <p className="empty">Nothing here yet</p>
                                         ) :
-                                        (query.data.templates as TemplateDto[]).sort(Utils.orderShotlistsOrTemplatesByName).map((template) => (
+                                        (query.data.templates as TemplateDto[])?.sort(Utils.orderShotlistsOrTemplatesByName)?.map((template) => (
                                             <SimpleTooltip text={template.name || "Unnamed"} key={template.id}>
                                                 <Link href={`/dashboard/template/${template.id}`}
                                                       className={"template"}>

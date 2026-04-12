@@ -347,7 +347,7 @@ export default function Landing() {
                             <h3>Source Available</h3>
                             <p>All the code is public on GitHub - self host your shotlists or add your own features.</p>
                             <Link
-                                href="https://github.com/YanikKendler/Shotly/blob/main/README.md##License"
+                                href="https://github.com/YanikKendler/Shotly/blob/main/README.md#about-the-license"
                                 className={"noPadding"}
                                 target={"_blank"}
                                 onClick={() => td.signal("Landing.Clicked.LearnMore.License")}

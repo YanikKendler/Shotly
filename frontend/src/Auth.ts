@@ -174,7 +174,9 @@ class Auth {
     }
 
     hasLoggedInBefore() {
-        return JSON.parse(localStorage.getItem(Config.localStorageKey.hasLoggedInBefore) || "false");
+        const LSBoolean = JSON.parse(localStorage.getItem(Config.localStorageKey.hasLoggedInBefore)  || "false")
+        const isLoggedInExists = localStorage.getItem(Config.localStorageKey.isLoggedIn) != null
+        return LSBoolean || isLoggedInExists;
     }
 }
 

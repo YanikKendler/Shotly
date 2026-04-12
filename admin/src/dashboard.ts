@@ -88,7 +88,7 @@ export class Dashboard extends LitElement {
             z-index: 100;
 
             img {
-                height: 2rem;
+                height: 1.8rem;
             }
             
             .right {
@@ -839,7 +839,7 @@ export class Dashboard extends LitElement {
 
         return html`
             <nav>
-                <img src="../Shotly-Admin.png" alt="A"/>
+                <img src="/Shotly-Admin.png" alt="A"/>
                 <h1>Admin</h1>
                 <div class="right">
                     <button
