@@ -74,7 +74,7 @@ export default function Overview() {
             ...dashboardContext.query.data.shotlists.shared || []
         ]
 
-        setShotlists((newShotlists as ShotlistDto[]).sort(Utils.oderShotlistsByChangeDate))
+        setShotlists((newShotlists as ShotlistDto[])?.sort(Utils.oderShotlistsByChangeDate))
         setTemplates(dashboardContext.query.data.templates as TemplateDto[])
     }, [dashboardContext.query]);
 
@@ -145,7 +145,7 @@ export default function Overview() {
             </div>
             <h2>Templates</h2>
             <div className="grid">
-                {templates.slice(0, 8).sort(Utils.orderShotlistsOrTemplatesByName).map((template: TemplateDto) => (
+                {templates.slice(0, 8)?.sort(Utils.orderShotlistsOrTemplatesByName)?.map((template: TemplateDto) => (
                     <Link href={`dashboard/template/${template.id}`} key={template.id} className="gridItem template">
                         <SimpleTooltip text={template.name || "Unnamed"}>
                             <div className="top">
