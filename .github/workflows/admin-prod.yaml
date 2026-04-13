@@ -7,11 +7,12 @@ on:
         - 'admin/**'
     branches:
       - main
+  workflow_dispatch:
 
 env:
   PROJECT_ID: 'shotlist-tool'
   REGION: 'europe-west1'
-  SERVICE: 'shotly-admin-production'
+  SERVICE: 'shotly-admin'
   WORKLOAD_IDENTITY_PROVIDER: 'projects/566625943723/locations/global/workloadIdentityPools/github/providers/shotly'
   SERVICE_ACCOUNT: 'shotly-admin-runner@shotlist-tool.iam.gserviceaccount.com'
   IMAGE_NAME: 'admin'

@@ -7,11 +7,12 @@ on:
         - 'documentation/**'
     branches:
       - main
+  workflow_dispatch:
 
 env:
   PROJECT_ID: 'shotlist-tool'
   REGION: 'europe-west1'
-  SERVICE: 'shotly-documentation-production'
+  SERVICE: 'shotly-documentation'
   WORKLOAD_IDENTITY_PROVIDER: 'projects/566625943723/locations/global/workloadIdentityPools/github/providers/shotly'
   SERVICE_ACCOUNT: 'shotly-documentation-runner@shotlist-tool.iam.gserviceaccount.com'
   IMAGE_NAME: 'documentation'
@@ -48,10 +49,9 @@ jobs:
 
       - name: 'Build and Push Container'
         run: |-
-          VERSION=$(jq -r .version documentation/package.json)
 
           IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.IMAGE_NAME }}"
-          docker build --tag "${IMAGE_PATH}:${VERSION}" --tag "${IMAGE_PATH}:${{ github.sha }}" ./documentation
+          docker build --tag "${IMAGE_PATH}:${{ github.sha }}" ./documentation
 
           docker push --all-tags "${IMAGE_PATH}"
 
