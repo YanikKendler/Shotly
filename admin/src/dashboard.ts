@@ -359,10 +359,10 @@ export class Dashboard extends LitElement {
             (u1, u2) => {
                 const time1 = u1.createdAt
                     ? new Date(u1.createdAt).getTime()
-                    : Number.MAX_SAFE_INTEGER
+                    : 0
                 const time2 = u2.createdAt
                     ? new Date(u2.createdAt).getTime()
-                    : Number.MAX_SAFE_INTEGER
+                    : 0
 
                 return time1 - time2
             },
@@ -385,10 +385,10 @@ export class Dashboard extends LitElement {
             (u1, u2) => {
                 const time1 = u1.lastActiveAt
                     ? new Date(u1.lastActiveAt).getTime()
-                    : Number.MAX_SAFE_INTEGER
+                    : 0
                 const time2 = u2.lastActiveAt
                     ? new Date(u2.lastActiveAt).getTime()
-                    : Number.MAX_SAFE_INTEGER
+                    : 0
 
                 return time2 - time1
             },
@@ -498,13 +498,13 @@ export class Dashboard extends LitElement {
         this.templates = (result.data.allTemplates as TemplateDto[]) || []
         this.recentActiveUsers = (result.data.recentActiveUserStats as StatCounts) || {}
         this.recentCreatedUsers = (result.data.recentCreatedUserStats as StatCounts) || {}
-        this.recentCreatedShotlists =(result.data.recentCreatedShotlistStats as StatCounts) || {}
+        this.recentCreatedShotlists = (result.data.recentCreatedShotlistStats as StatCounts) || {}
 
-        const notyf = new Notyf()
+        const notyf = new Notyf({position: {x: "center", y: "bottom"}})
         if (result.errors)
-            notyf.error(
-                `Failed to load data - ${result.errors[0].extensions.code}`
-            )
+            notyf.error(`Failed to load data - ${result.errors[0].extensions.code}`)
+        else
+          notyf.success('Loaded data successfully')
     }
 
     storeChange(user: UserDto, target: HTMLElement) {
@@ -854,6 +854,9 @@ export class Dashboard extends LitElement {
                     >
                         Save Changes
                     </button>
+                    <button @click=${() => this.getData()}>
+                        Refresh
+                    </button>
                     <button @click=${() => authService.logout()}>
                         Log Out
                     </button>
@@ -1000,7 +1003,7 @@ export class Dashboard extends LitElement {
                   <option value="Name" selected>Name</option>
                   <option value="CreatedAt">Oldest</option>
                   <option value="CreatedAtReverse">Newest</option>
-                  <option value="ActiveAt">Active At</option>
+                  <option value="ActiveAt">Last Active</option>
                   <option value="Tier">Tier</option>
                 </select>
                 <input type="text" placeholder="search" @input=${(e: Event) => {
