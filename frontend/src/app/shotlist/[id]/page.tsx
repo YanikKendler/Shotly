@@ -216,7 +216,7 @@ export default function Shotlist() {
 
     useEffect(() => {
         if(!auth.isAuthenticated()){
-            router.replace('/')
+            auth.login()
             return
         }
 
