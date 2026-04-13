@@ -15,7 +15,7 @@ import Link from "next/link"
 
 export const metadata: Metadata = {
     description:
-        "A freemium, source available, no-AI, clean and simple shotlist creation tool for filmmakers.",
+        "A clean and simple shotlist creation tool for filmmakers. Freemium, source available, no AI.",
     keywords: [
         "shotlist",
         "shotlist creation",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: "Shotly | Shotlist creation made easy",
         description:
-            "A freemium, source available, no-AI, clean and simple shotlist creation tool for filmmakers.",
+            "A clean and simple shotlist creation tool for filmmakers. Freemium, source available, no AI.",
         url: "https://shotly.at",
         siteName: "Shotly",
         images: [
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: "Shotly | Shotlist creation made easy",
         description:
-            "Create clean, professional shotlists with Shotly. Source available and no AI.",
+            "A clean and simple shotlist creation tool for filmmakers. Freemium, source available, no AI.",
         images: ["https://shotly.at/og-image.jpg"],
     },
     authors: [{ name: "Yanik Kendler", url: "https://yanik.kendler.me" }],
