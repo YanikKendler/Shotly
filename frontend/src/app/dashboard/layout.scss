@@ -1,9 +1,9 @@
 [data-theme="dark"] main.home{
-  --howDidYouhearBg: hsl(0, 0%, 5%);
+  --floaterDialogBg: hsl(0, 0%, 5%);
 }
 
 main.home{
-  --howDidYouhearBg: hsl(0, 0%, 100%);
+  --floaterDialogBg: hsl(0, 0%, 100%);
 
   height: 100%;
   width: 100%;
@@ -198,7 +198,7 @@ main.home{
     }
   }
 
-  .introQuestions{
+  .dialogFloater{
     position: absolute;
     right: .5rem;
     bottom: .5rem;
@@ -208,9 +208,11 @@ main.home{
     display: flex;
     flex-direction: column;
     gap: .5rem;
+    max-height: 100svh;
+    overflow-y: auto;
 
     > div{
-      background-color: var(--howDidYouhearBg);
+      background-color: var(--floaterDialogBg);
       padding: 1rem;
       border-radius: .5rem;
       box-shadow: 5px 5px 15px 5px hsla(0, 0%, 0%, 20%);
@@ -238,11 +240,40 @@ main.home{
         }
       }
 
+      ul {
+        font-size: .9rem;
+        margin-bottom: .75rem;
+
+        li {
+          margin-left: 1rem;
+          margin-top: .3rem;
+          color: var(--text-20);
+
+          &::marker {
+            color: var(--accent-40);
+          }
+        }
+      }
+
       .textField{
         font-size: .9rem;
       }
 
-      > button, .buttons button {
+     a:not(.buttons a) {
+        color: var(--text-40);
+        padding: 0;
+        text-decoration: underline;
+
+        &:hover {
+          color: var(--text);
+        }
+
+        &.small {
+          font-size: .9em;
+        }
+      }
+
+      > button, .buttons button, .buttons a{
         width: 100%;
         justify-content: center;
         font-size: .9rem;
@@ -263,6 +294,11 @@ main.home{
             background-color: var(--transparent-accent-20);
           }
         }
+      }
+
+      div.top{
+        display: flex;
+        justify-content: space-between;
       }
 
       div.buttons{

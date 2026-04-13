@@ -51,6 +51,7 @@ main.simplePage{
 
   .content{
     max-width: 60ch;
+    width: 100%;
     margin-inline: auto;
     margin-block: 5em;
     color: var(--text-20);
@@ -95,6 +96,7 @@ main.simplePage{
     ul{
       margin-left: 1em;
       margin-top: .5em;
+      margin-bottom: .5em;
 
       ::marker {
         color: var(--accent-40);

@@ -135,6 +135,12 @@ export default class Utils {
             return {...o, label: "<unnamed>"}
         return o
     }
+
+    static cleanMarkdownString = (str: string) =>
+        str.split('\n')
+            .map(line => line.trim())
+            .join('\n')
+            .trim();
 }
 
 export const reactSelectTheme: ThemeConfig = (theme) => ({

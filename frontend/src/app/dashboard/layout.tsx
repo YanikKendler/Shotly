@@ -31,7 +31,10 @@ import Radio, {RadioResult} from "@/components/inputs/radio/radio"
 import JustBoughtProDialog from "@/components/dialogs/justBoughtProDialog/justBoughtProDialog"
 import TextField from "@/components/inputs/textField/textField"
 import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys"
-import Image from "next/image" //package has incorrectly configured type exports
+import Image from "next/image"
+import {BUILD_INFO} from "../../../buildinfo"
+import {marked} from "marked"
+import {CHANGELOG} from "@/data/changelog" //package has incorrectly configured type exports
 
 export default function DashboardLayout({children}: { children: React.ReactNode }) {
     const client = useApolloClient()
@@ -60,10 +63,11 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const [howDidYouHearReason, setHowDidYouHearReason] = useState("")
     const [howDidYouHearText, setHowDidYouHearText] = useState("")
 
+    const [changelogDialogOpen, setChangelogDialogOpen] = useState(false)
+
     const [easterEggOpen, setEasterEggOpen] = useState(false)
 
-    //const [analyticsDialogOpen, setAnalyticsDialogOpen] = useState(false)
-
+    //register keybinds
     useEffect(() => {
         let unsubscribe = tinykeys(window, {
             "Alt+N": event => {
@@ -99,6 +103,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         }
     }, [])
 
+    //Show floater Dialogs
     useEffect(() => {
         if(!query.data.currentUser) return
 
@@ -117,11 +122,14 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             setEnterNameDialogOpen(true)
         }
 
-        /*if(query.data.currentUser.allowAnalytics == null || Config.OVERRIDE_INTRO_CHECKS){
-            setAnalyticsDialogOpen(true)
-        }*/
+        const latestVersionUsed = localStorage.getItem(Config.localStorageKey.latestVersionUsed)
+        if(latestVersionUsed && latestVersionUsed != "" && latestVersionUsed != CHANGELOG[0].version){
+            setChangelogDialogOpen(true)
+        }
+        localStorage.setItem(Config.localStorageKey.latestVersionUsed, CHANGELOG[0].version)
     }, [dialogStep, query.data.currentUser])
 
+    // load Data
     useEffect(() => {
         if(!auth.isAuthenticated()){
             router.replace('/')
@@ -135,6 +143,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         setCollaborationReloadAllowed(true)
     }, [])
 
+    //initialize dialogs
     useEffect(() => {
         if(!query.loading && dialogStep == DialogStep.LOADING) {
             setDialogStep(1)
@@ -406,28 +415,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
         setHowDidYouHearDialogOpen(false)
     }
-
-    /*const handleAnalyticsSubmit = (decision: boolean) => {
-        client.mutate({
-            mutation: gql`
-                mutation setAllowAnalytics($allow: Boolean!){
-                    allowAnalytics(allow: $allow) {
-                        id
-                    }
-                }
-            `,
-            variables: {allow: decision}
-        }).then(({errors}) => {
-            if(errors){
-                console.error(errors)
-                errorNotification({
-                    title: "Failed to set analytics preference",
-                })
-            }
-        })
-
-        setAnalyticsDialogOpen(false)
-    }*/
 
     if(query.error) return <ErrorPage
         title='Data could not be loaded'
@@ -726,7 +713,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                 </Dialog.Portal>
             </Dialog.Root>
 
-            <div className={"introQuestions"}>
+            <div className={"dialogFloater"}>
                 {
                     enterNameDialogOpen &&
                     <div className="enterName">
@@ -783,35 +770,25 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                         </button>
                     </div>
                 }
-                {/*
-                    analyticsDialogOpen &&
-                    <div className="howDidYouHear">
-                        <h3>Analytics</h3>
-                        <p>
-                            To improve Shotly, I would like to collect non personal analytics data.
-                            <br/>
-                            Like what features of Shotly (Templates, Export, etc.) you use.
-                            Or how actively you use Shotly.
-                        </p>
-                        <p className="small">
-                            You can always opt out again via the Account settings.
-                        </p>
+                {
+                    changelogDialogOpen &&
+                    <div className="changelog">
+                        <div className={"top"}>
+                            <h3>Whats new?</h3>
+                            <span className={"bold small gray"}>Shotly v{CHANGELOG[0].version}</span>
+                        </div>
+                        <div dangerouslySetInnerHTML={{__html: marked.parse(Utils.cleanMarkdownString(CHANGELOG[0].changes))}}></div>
                         <div className="buttons">
                             <button
-                                className={"secondary"}
-                                onClick={() => handleAnalyticsSubmit(false)}
-                            >
-                                Decline
-                            </button>
-                            <button
+                                onClick={() => setChangelogDialogOpen(false)}
                                 className={"main"}
-                                onClick={() => handleAnalyticsSubmit(true)}
                             >
-                                Accept
+                                Close
                             </button>
+                            <Link href={"/changelog"} target={"_blank"} className={"secondary"}>Changelog</Link>
                         </div>
                     </div>
-                */}
+                }
             </div>
         </main>
         </DashboardContext.Provider>
