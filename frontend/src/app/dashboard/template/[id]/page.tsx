@@ -445,16 +445,20 @@ export default function Template (){
     if(query.errors && query.errors.length > 0) {
         switch (query.errors[0]?.extensions?.code as ShotlyErrorCode) {
             case ShotlyErrorCode.NOT_FOUND:
-                return <ErrorPage
-                    title='404'
-                    description='Sorry, we could not find the Template you were looking for. Please check the URL or return to the Dashboard.'
-                />
+                return <main className="template dashboardContent">
+                    <ErrorPage
+                        title='404'
+                        description='Sorry, we could not find the Template you were looking for. Please check the URL or return to the Dashboard.'
+                    />
+                </main>
             case ShotlyErrorCode.WRITE_NOT_ALLOWED:
             case ShotlyErrorCode.READ_NOT_ALLOWED:
-                return <ErrorPage
-                    title='405'
-                    description='Sorry, you are not allowed to access this Template. Please check the URL or return to the Dashboard.'
-                />
+                return <main className="template dashboardContent">
+                    <ErrorPage
+                        title='405'
+                        description='Sorry, you are not allowed to access this Template. Please check the URL or return to the Dashboard.'
+                    />
+                </main>
         }
     }
 

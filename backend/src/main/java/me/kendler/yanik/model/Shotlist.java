@@ -50,6 +50,9 @@ public class Shotlist extends PanacheEntityBase {
     public Set<Collaboration> collaborations = new HashSet<>();
 
     public String name;
+
+    public boolean isArchived = false;
+
     public ZonedDateTime createdAt;
     public ZonedDateTime editedAt;
 
@@ -116,6 +119,7 @@ public class Shotlist extends PanacheEntityBase {
                     .collect(Collectors.toList()),
             this.collaborations.size(),
             this.name,
+            this.isArchived,
             this.createdAt,
             this.editedAt
         );

@@ -27,6 +27,16 @@ div.shotlistOptionsDialogGeneralTab{
       color: var(--text-30);
       font-size: .9rem;
     }
+
+    .left{
+      display: flex;
+      align-items: center;
+      gap: .1rem;
+    }
+
+    button.popoverTrigger{
+      color: var(--text-20);
+    }
   }
 
   .bottom {
@@ -35,7 +45,7 @@ div.shotlistOptionsDialogGeneralTab{
       margin: 0;
     }
 
-    button.deleteShotlist{
+    button.danger{
       color: var(--text-40);
       border: 2px solid var(--default-interactable-border);
       font-weight: bold;

@@ -12,7 +12,8 @@ import Separator from "@/components/separator/separator"
 import {errorNotification} from "@/service/NotificationService"
 import Skeleton from "react-loading-skeleton"
 import {DialogRef} from "@/components/dialog/dialog"
-import {X} from "lucide-react"
+import {Info, X} from "lucide-react"
+import SimplePopover from "@/components/popover/simplePopover"
 
 export default function GeneralTab({
     shotlist,
@@ -116,6 +117,48 @@ export default function GeneralTab({
         }
     }
 
+    const setIsArchived = async (isArchived: boolean) => {
+        if(!shotlist) return
+
+        let decision = await confirm({
+            title: 'Are you sure?',
+            message: `Do you want to archive the shotlist "${shotlist.name}"? You can always unarchive it later.`,
+            buttons: {
+                confirm: {
+                    text: 'Archive Shotlist',
+                    className: 'bad'
+                }
+            },
+            checkbox: true
+        })
+
+        if(!decision) return
+
+        const { errors } = await client.mutate({
+            mutation: gql`
+                mutation archiveShotlist($id: String!, $isArchived: Boolean!) {
+                    updateShotlistAsOwner(
+                        editDTO: {
+                            id: $id,
+                            isArchived: $isArchived
+                        }
+                    ) {
+                        id
+                    }
+                }
+            `,
+            variables: { id: shotlist.id, isArchived: isArchived },
+        });
+
+        if(errors) {
+            errorNotification({
+                title: "Failed update archived status",
+                tryAgainLater: true
+            })
+            console.error(errors)
+        }
+    }
+
     if(!shotlist || !currentUser) return (
         <div className={"shotlistOptionsDialogGeneralTab shotlistOptionsDialogPage"}>
             <div className="top">
@@ -170,10 +213,38 @@ export default function GeneralTab({
                 shotlist.owner?.id == currentUser?.id &&
                 <div className={"bottom"}>
                     <div className="row">
+                        <div className="left">
+                            <p>Mark this shotlist as archived and read-only</p>
+                            <SimplePopover
+                                content={
+                                    <p>
+                                        Archived shotlists can not be edited and are not displayed on the dashboard.
+                                        <br/>
+                                        You can change the archive status at any time.
+                                        <br/>
+                                        <br/>
+                                        Shotlists can only be archived and unarchived by the shotlist owner. (you)
+                                    </p>
+                                }
+                                fontSize={0.85}
+                                className={"noClickFx default round"}
+                            >
+                                <Info size={18}/>
+                            </SimplePopover>
+                        </div>
+                        <button
+                            disabled={isReadOnly}
+                            className="danger bad"
+                            onClick={setIsArchived}
+                        >
+                            Archive
+                        </button>
+                    </div>
+                    <div className="row">
                         <p>Permanently delete the shotlist "{shotlist.name}"</p>
                         <button
                             disabled={isReadOnly}
-                            className="deleteShotlist bad"
+                            className="danger bad"
                             onClick={deleteShotlist}
                         >
                             Delete Shotlist

@@ -25,6 +25,7 @@ public record ShotlistDTO(
     List<CollaborationDTO> collaborations,
     Integer collaboratorCount,
     String name,
+    Boolean isArchived,
     ZonedDateTime createdAt,
     ZonedDateTime editedAt
 ) { }

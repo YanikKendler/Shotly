@@ -1,0 +1,31 @@
+main.archive{
+  div.top{
+    display: flex;
+    align-items: center;
+    gap: .1rem;
+
+    button {
+      color: var(--text-30);
+    }
+  }
+
+  h2{
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  h3{
+    font-size: .95rem;
+    color: var(--text-40);
+    font-weight: 500;
+    margin-top: 1rem;
+    margin-bottom: .5rem;
+    margin-left: .1rem;
+  }
+
+  .empty{
+    font-size: .9rem;
+    color: var(--text-50);
+    margin-left: 1rem;
+  }
+}

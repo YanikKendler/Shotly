@@ -7,7 +7,20 @@ import "./layout.scss"
 import React, {useEffect, useRef, useState} from "react"
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
-import {Blocks, Check, ChevronDown, House, Inbox, Menu, NotepadText, Plus, RefreshCw, User, X} from "lucide-react"
+import {
+    Archive,
+    Blocks,
+    Check,
+    ChevronDown,
+    House,
+    Inbox,
+    Menu,
+    NotepadText,
+    Plus,
+    RefreshCw,
+    User,
+    X
+} from "lucide-react"
 import {CollaborationDto, CollaborationState, Query, ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
 import {Collapsible, Dialog, Popover, VisuallyHidden} from "radix-ui"
 import {wuGeneral} from "@yanikkendler/web-utils"
@@ -66,6 +79,8 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const [changelogDialogOpen, setChangelogDialogOpen] = useState(false)
 
     const [easterEggOpen, setEasterEggOpen] = useState(false)
+
+    const [pagename, setPagename] = useState("Dashboard")
 
     //register keybinds
     useEffect(() => {
@@ -149,6 +164,15 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             setDialogStep(1)
         }
     }, [query.loading])
+
+    useEffect(() => {
+        if(pathname.includes("template"))
+            setPagename("Template")
+        else if(pathname.includes("archive"))
+            setPagename("Archive")
+        else
+            setPagename("Dashboard")
+    }, [pathname]);
 
     const loadData = async () => {
         const result = await client.query({
@@ -464,7 +488,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                 </Link>
                             </SimpleTooltip>
                             <p>/</p>
-                            <h1>Dashboard</h1>
+                            <h1>{pagename}</h1>
                         </div>
                         <div className="list">
                             <Collapsible.Root className={"CollapsibleRoot dashboardSidebar"} id={"yourShotlists"}
@@ -648,6 +672,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                 <SimpleTooltip content={<p><span className="key">Alt</span> + <span className="key">A</span></p>}>
                                     <button onClick={openAccountDialog}>Account <User size={18}/></button>
                                 </SimpleTooltip>
+                                <Link href={"/dashboard/archive"}>Archive<Archive size={18}/></Link>
                             </div>
                         </div>
                     </div>

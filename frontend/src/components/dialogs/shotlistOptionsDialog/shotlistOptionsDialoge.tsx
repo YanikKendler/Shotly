@@ -94,6 +94,7 @@ export default function ShotlistOptionsDialog({
                     shotlist(id: $shotlistId){
                         id
                         name
+                        archived
                         template {
                             name
                         }

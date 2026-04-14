@@ -1,27 +1,12 @@
-.simpleTooltipTrigger{
+.popoverTrigger{
   position: relative;
   height: fit-content;
   display: flex;
-
-  .expansion {
-    position: absolute;
-    pointer-events: auto;
-    background-color: transparent;
-    border-radius: .5rem;
-  }
-
-  &:hover .expansion {
-    background-color: var(--transparent-gray-10);
-  }
 }
 
-.tooltipContent{
+.popoverContent{
   .scrollArea{
     overflow-y: auto;
     scrollbar-width: thin;
-  }
-
-  .tooltipArrow{
-
   }
 }

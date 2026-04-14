@@ -2,12 +2,9 @@ package me.kendler.yanik.endpoints;
 
 import io.quarkus.panache.common.Sort;
 import jakarta.inject.Inject;
-import me.kendler.yanik.dto.shotlist.ShotlistCollection;
+import me.kendler.yanik.dto.shotlist.*;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationCreateDTO;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationDTO;
-import me.kendler.yanik.dto.shotlist.ShotlistCreateDTO;
-import me.kendler.yanik.dto.shotlist.ShotlistDTO;
-import me.kendler.yanik.dto.shotlist.ShotlistEditDTO;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationEditDTO;
 import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.rateLimiting.RateLimited;
@@ -46,7 +43,12 @@ public class ShotlistResource {
 
     @Query
     public ShotlistCollection getShotlists() {
-        return shotlistRepository.findAllForUser(jwt);
+        return shotlistRepository.findAllForUser(jwt, false);
+    }
+
+    @Query
+    public ShotlistCollection getArchivedShotlists() {
+        return shotlistRepository.findAllForUser(jwt, true);
     }
 
     @Query
@@ -72,6 +74,12 @@ public class ShotlistResource {
     public ShotlistDTO updateShotlist(ShotlistEditDTO editDTO) {
         userRepository.checkShotlistEditRights(shotlistRepository.findByIdValidated(editDTO.id()), jwt);
         return shotlistRepository.update(editDTO);
+    }
+
+    @Mutation
+    public ShotlistDTO updateShotlistAsOwner(ShotlistEditAsOwnerDTO editDTO) {
+        userRepository.checkShotlistOwner(shotlistRepository.findByIdValidated(editDTO.id()), jwt);
+        return shotlistRepository.updateAsOwner(editDTO);
     }
 
     @Mutation

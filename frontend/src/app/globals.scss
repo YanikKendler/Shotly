@@ -363,6 +363,10 @@ button, a{
     user-select: auto;
   }
 
+  &.round{
+    border-radius: 100%;
+  }
+
   svg{
     flex-shrink: 0;
   }
@@ -567,7 +571,7 @@ span.key{
         left: .5rem;
         right: .5rem;
 
-        button{
+        button, a{
           background-color: var(--sidebar-bottom-button-bg);
           border: 1px solid var(--sidebar-bottom-button-border);
           width: 100%;
