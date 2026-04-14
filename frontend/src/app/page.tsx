@@ -466,6 +466,7 @@ export default function Landing() {
                         <Link className={"noPadding"} href={"https://github.com/YanikKendler/shotly/issues/new/choose"} target={"_blank"}>Report a Bug</Link>
                         <Link className={"noPadding"} href={"https://github.com/YanikKendler/shotly/issues/new/choose"} target={"_blank"}>Suggest a Feature</Link>
                         <Link className={"noPadding"} href={"/freeForStudents"}>Free for Students</Link>
+                        <Link className={"noPadding"} href={"/changelog"}>Changelog</Link>
                     </div>
                 </footer>
             </div>

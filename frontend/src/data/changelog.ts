@@ -5,15 +5,15 @@ export interface Change {
 }
 
 export const CHANGELOG: Change[] = [
-    {
+    /*{
         version: "1.4.2",
-        date: "2026-04-13",
+        date: "",
         changes: `
         **Features**
             
         - Added this changelog display
         `
-    },
+    },*/
     {
         version: "1.4.1",
         date: "2026-04-12",
