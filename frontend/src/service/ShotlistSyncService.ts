@@ -14,8 +14,6 @@ import {SceneAttributeParser, ShotAttributeParser} from "@/util/AttributeParser"
 import {ShotlistSidebarRef} from "@/components/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
 import {SelectedScene} from "@/app/shotlist/[id]/page"
 import {ApolloQueryResult} from "@apollo/client"
-import {audit} from "rxjs"
-import auth from "@/Auth"
 
 export enum ShotlistUpdateType {
     USER_JOINED = "USER_JOINED",

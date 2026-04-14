@@ -6,7 +6,6 @@ import {
     ShotlistOptionsDialogSubPage
 } from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {GenericError, SelectOption} from "@/util/Types"
-import {newAnchorRef} from "yaml-ast-parser"
 import {SaveState} from "@/app/shotlist/[id]/page"
 
 export interface ShotlistContextProps {
