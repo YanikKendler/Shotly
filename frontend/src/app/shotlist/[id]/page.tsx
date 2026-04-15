@@ -6,7 +6,8 @@ import {ApolloQueryResult, InteropApolloQueryResult, useApolloClient} from "@apo
 import {
     CollaborationDto,
     CollaborationType,
-    Query, SceneDto,
+    Query,
+    SceneDto,
     ShotAttributeDefinitionBase,
     UserDto,
     UserTier
@@ -33,6 +34,7 @@ import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/shotlist/sidebar
 import Skeleton from "react-loading-skeleton"
 import {
     CollaborationPayload,
+    ShotlistPayload,
     ShotlistSyncService,
     ShotlistUpdateDTO,
     ShotlistUpdateType,
@@ -44,7 +46,7 @@ import Link from "next/link"
 import DotLoader from "@/components/DotLoader"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import {errorNotification, infoNotification} from "@/service/NotificationService"
-import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys"//package has incorrectly configured type exports
+import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys" //package has incorrectly configured type exports
 import {DialogRef} from "@/components/dialog/dialog"
 
 export interface SelectedScene {
@@ -596,6 +598,36 @@ export default function Shotlist() {
                     break
                 case "selectedSceneAttribute":
                     syncService.current.setCollaboratorSceneAttributeHighlight(updateDTO, selectedSceneRef.current, sidebarRef.current)
+                    break
+                case "shotlist":
+                    const shotlistPayload = updateDTO.payload as ShotlistPayload
+                    switch (updateDTO.type) {
+                        case ShotlistUpdateType.SHOTLIST_UPDATED:
+                            setQuery(current => ({
+                                ...current,
+                                data: {
+                                    ...current.data,
+                                    shotlist: {
+                                        ...current.data.shotlist,
+                                        name: shotlistPayload.shotlist.name,
+                                        archived: shotlistPayload.shotlist.isArchived
+                                    }
+                                }
+                            }))
+                            setIsArchived(shotlistPayload.shotlist.isArchived)
+                            break
+                        case ShotlistUpdateType.SHOTLIST_DELETED:
+                            setReloadInProgress(true)
+                            errorNotification({
+                                title: "This Shotlist has been deleted",
+                                message: "It appears this shotlist has just been deleted, you will be sent to your dashboard in 5 seconds."
+                            })
+                            setTimeout(() => {
+                                router.push("/dashboard")
+                            },5000)
+                            break
+                    }
+                    break
                 case "empty":
                     switch (updateDTO.type) {
                         case ShotlistUpdateType.SHOTLIST_OPTIONS_UPDATED:

@@ -28,4 +28,16 @@ public record ShotlistDTO(
     Boolean isArchived,
     ZonedDateTime createdAt,
     ZonedDateTime editedAt
-) { }
+) {
+    public ShotlistMinimalDTO toMinimalDTO(){
+        return new ShotlistMinimalDTO(
+            id,
+            owner.id(),
+            template.id,
+            name,
+            isArchived,
+            createdAt,
+            editedAt
+        );
+    }
+}

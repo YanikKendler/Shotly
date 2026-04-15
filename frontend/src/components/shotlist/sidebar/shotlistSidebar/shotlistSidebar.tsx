@@ -68,6 +68,8 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
     const sceneRefs = useRef<Map<number, SidebarSceneRef | null>>(new Map())
     const creationLoaderRef = useRef<HTMLDivElement>(null)
 
+    const nameInputRef = useRef<HTMLInputElement>(null);
+
     useImperativeHandle(ref, () => ({
         getScene: (position: number) => sceneRefs.current.get(position) || null,
         findScene: (sceneId: string): SidebarSceneRef | null =>
@@ -131,7 +133,12 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                 }
             })
         }
-    }, [query]);
+    }, [query])
+
+    useEffect(() => {
+        if(nameInputRef.current && query.data.shotlist?.name)
+            nameInputRef.current.value = query.data.shotlist.name
+    }, [query.data.shotlist?.name]);
 
     const setCreationLoaderVisibility = (visible: boolean) => {
         if(!creationLoaderRef.current) return
@@ -364,7 +371,8 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                         placeholder={"shotlist name"}
                         onInput={e => debounceUpdateShotlistName(e.currentTarget.value)}
                         role={"heading"}
-                        disabled={isReadOnly}
+                        disabled={isReadOnly /*TODO add collaborator blocking I guess*/}
+                        ref={nameInputRef}
                     />
                 </div>
                 <div className={`list ${reloadInProgress && "reloading"}`} id={`sceneList`}>

@@ -32,7 +32,10 @@ export enum ShotlistUpdateType {
     SHOT_SELECT_OPTION_CREATED = "SHOT_SELECT_OPTION_CREATED",
     SHOTLIST_OPTIONS_UPDATED = "SHOTLIST_OPTIONS_UPDATED",
     COLLABORATOR_CELL_SELECTED = "COLLABORATOR_CELL_SELECTED",
-    COLLABORATOR_SCENE_ATTRIBUTE_SELECTED = "COLLABORATOR_SCENE_ATTRIBUTE_SELECTED"
+    COLLABORATOR_SCENE_ATTRIBUTE_SELECTED = "COLLABORATOR_SCENE_ATTRIBUTE_SELECTED",
+    SHOTLIST_UPDATED = "SHOTLIST_UPDATED",
+    SHOTLIST_DELETED = "SHOTLIST_DELETED",
+
 }
 
 /**
@@ -105,6 +108,11 @@ export interface SelectedSceneAttributePayload {
     sceneId: string
 }
 
+export interface ShotlistPayload {
+    kind: "shotlist"
+    shotlist: ShotlistMinimalDTO
+}
+
 export interface EmptyPayload {
     kind: "empty"
 }
@@ -121,6 +129,7 @@ export type ShotlistUpdatePayload =
     ShotAttributeOptionPayload |
     SelectedCellPayload |
     SelectedSceneAttributePayload |
+    ShotlistPayload |
     EmptyPayload
 
 /* other stuff */
@@ -132,6 +141,16 @@ export interface UserMinimalDTO {
     name: string,
     tier: UserTier,
     createdAt: Date
+}
+
+export interface ShotlistMinimalDTO {
+    id: string
+    ownerId: string
+    templateId: string
+    name: string
+    isArchived: boolean
+    createdAt: Date
+    editedAt: Date
 }
 
 export class ShotlistSyncService {
