@@ -57,6 +57,11 @@ export interface ReadOnlyState {
     reason?: "tooManyShotlists" | "collaborationViewOnly" | "archived"
 }
 
+export interface PresentCollaborator {
+    updatedAt: Date
+    user: UserMinimalDTO
+}
+
 export type SaveState = "saved" | "saving" | "error"
 
 export default function Shotlist() {
@@ -92,7 +97,7 @@ export default function Shotlist() {
     const [shotCount, setShotCount] = useState(0)
     const [sceneCount, setSceneCount] = useState(0)
 
-    const [presentCollaborators, setPresentCollaborators] = useState<Map<string, UserMinimalDTO>>()
+    const [presentCollaborators, setPresentCollaborators] = useState<Map<string, PresentCollaborator>>()
 
     const selectedSceneRef = useRef<SelectedScene>(selectedScene)
     const focusedCell = useRef({row: -1, column:-1})
@@ -505,24 +510,37 @@ export default function Shotlist() {
                     break
                 case "user":
                     const userPayload = updateDTO.payload as UserPayload
+
+                    // skip if current state is newer than incoming
+                    // don't update if the user has been updated from a later message already
+                    // (avoid desyncs due to delayed messages)
+                    if(
+                        (presentCollaborators?.get(userPayload.user.id)?.updatedAt.getTime() || Infinity)
+                        < new Date(updateDTO.timestamp).getTime()
+                    ) {
+                        return
+                    }
+
                     if(updateDTO.type == ShotlistUpdateType.USER_JOINED){
                         setPresentCollaborators(prev => {
                             const newMap = new Map(prev)
-                            newMap.set(userPayload.user.id, userPayload.user)
+                            newMap.set(userPayload.user.id, {
+                                updatedAt: new Date(updateDTO.timestamp),
+                                user: userPayload.user
+                            })
                             return newMap
                         })
                     }
                     else if(updateDTO.type == ShotlistUpdateType.USER_LEFT){
                         setPresentCollaborators(prev => {
                             const newMap = new Map(prev)
-                            newMap.forEach(user => {
-                                if(user.id == userPayload.user.id)
-                                    newMap.delete(user.id)
+                            newMap.forEach(collab => {
+                                if(collab.user.id == userPayload.user.id)
+                                    newMap.delete(collab.user.id)
                             })
                             return newMap
                         })
                     }
-
                     break
                 case "collaboration":
                     switch (updateDTO.type){
@@ -547,8 +565,8 @@ export default function Shotlist() {
                     }
                     break
                 case "presentCollaborators":
-                    const collabMap = new Map<string, UserMinimalDTO>()
-                    updateDTO.payload.collaborators.forEach(user => collabMap.set(user.id, user))
+                    const collabMap = new Map<string, PresentCollaborator>()
+                    updateDTO.payload.collaborators.forEach(user => collabMap.set(user.id, {user: user, updatedAt: updateDTO.timestamp}))
                     setPresentCollaborators(collabMap)
                     break
                 case "sceneAttribute":
@@ -911,7 +929,7 @@ export default function Shotlist() {
                                     driverObj.destroy()
                                 }}
 
-                                presentCollaborators={Array.from(presentCollaborators?.values() || [])}
+                                presentCollaborators={Array.from(presentCollaborators?.values().map(c => c.user) || [])}
 
                                 ref={sidebarRef}
                             />
