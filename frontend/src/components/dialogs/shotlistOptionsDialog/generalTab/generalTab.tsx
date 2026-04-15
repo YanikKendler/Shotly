@@ -220,8 +220,13 @@ export default function GeneralTab({
                 <p>Last edited at: <b>{wuTime.toDateTimeString(shotlist.editedAt) || "Unknown"}</b></p>
                 <p><b>{shotlist.sceneCount}</b> scene{shotlist.sceneCount == 1 ? "" : "s"} • <b>{shotlist.shotCount}</b> shot{shotlist.shotCount == 1 ? "" : "s"}</p>
                 {
-                    shotlist.template &&
-                    <p>Based on Template: <b>{shotlist.template.name}</b></p>
+                    shotlist.template ?
+                    <p>Based on template: <b>{shotlist.template.name}</b></p> :
+                    <p>Created without any template</p>
+                }
+                {
+                    isArchived &&
+                    <p className={"archiveNotice"}>This shotlist is: <b>Archived</b></p>
                 }
             </div>
 

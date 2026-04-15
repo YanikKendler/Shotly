@@ -921,7 +921,7 @@ export default function Shotlist() {
                             ' [unknown reason]'
                     }
                     .
-                    <button onClick={() => setReadOnlyBannerVisible(false)}><X size={18}/></button>
+                    <button className={"round"} onClick={() => setReadOnlyBannerVisible(false)}><X size={18}/></button>
                 </div>
             }
             <main className={`shotlist`} key={reloadKey}>

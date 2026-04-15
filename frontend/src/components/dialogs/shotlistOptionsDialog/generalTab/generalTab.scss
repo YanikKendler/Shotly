@@ -13,6 +13,14 @@ div.shotlistOptionsDialogGeneralTab{
     b {
       color: var(--text);
     }
+
+    .archiveNotice{
+      margin-top: .5rem;
+
+      b{
+        color: var(--accent);
+      }
+    }
   }
 
   .row{
