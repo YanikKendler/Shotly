@@ -1,30 +1,41 @@
 "use client"
 
-import React, {useEffect, useState} from "react"
+import React, {useEffect, useRef, useState} from "react"
 import "./archive.scss"
 import gql from "graphql-tag"
-import {errorNotification} from "@/service/NotificationService"
+import {errorNotification, successNotification} from "@/service/NotificationService"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {Query, ShotlistDto} from "../../../../lib/graphql/generated"
 import Utils from "@/util/Utils"
 import Skeleton from "react-loading-skeleton"
 import DashboardGrid from "@/components/dashboard/dashboardGrid/dashboardGrid"
 import DashboardGridShotlist from "@/components/dashboard/dashboardGridItem/dashboardGridShotlist"
-import {Info, Plus} from "lucide-react"
+import {Info, Plus, RefreshCw} from "lucide-react"
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
 import SimplePopover from "@/components/popover/simplePopover"
 import Link from "next/link"
+import SimpleTooltip from "@/components/tooltip/simpleTooltip"
+import {wuConstants} from "@yanikkendler/web-utils"
 
 export default function Archive(){
     const client = useApolloClient()
 
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
+    const refreshButtonRef = useRef<HTMLButtonElement>(null)
+
+    const [refreshBlocked, setRefreshBlocked] = useState(false)
+
     useEffect(() => {
         loadData()
     }, []);
 
     const loadData = async () => {
+        setQuery(current => ({
+            ...current,
+            loading: true,
+        }))
+
         const result = await client.query({query: gql`
             query archive{
                 archivedShotlists {
@@ -67,6 +78,28 @@ export default function Archive(){
         setQuery(result)
     }
 
+    const refresh = () => {
+        if(refreshBlocked) return
+
+        setRefreshBlocked(true)
+
+        loadData().then(() => {
+            successNotification({
+                title: "Refreshed archived shotlists."
+            })
+        })
+
+        if(refreshButtonRef.current)
+            refreshButtonRef.current.animate([
+                { transform: 'rotate(0deg)' },
+                { transform: 'rotate(360deg)' }
+            ], { duration: 300, iterations: 1 });
+
+        setTimeout(() => {
+            setRefreshBlocked(false)
+        },wuConstants.Time.msPerSecond * 5)
+    }
+
     if(query.errors || (!query.loading && !query.data.archivedShotlists)) return(
         <main className="archive dashboardContent">
             <ErrorPage
@@ -97,6 +130,16 @@ export default function Archive(){
                 >
                     <Info size={16}/>
                 </SimplePopover>
+                <SimpleTooltip text={refreshBlocked ? "please wait a few seconds" : "refresh"}>
+                    <button
+                        className={"default round right noClickFx"}
+                        ref={refreshButtonRef}
+                        onClick={refresh}
+                        disabled={refreshBlocked}
+                    >
+                        <RefreshCw size={18}/>
+                    </button>
+                </SimpleTooltip>
             </div>
             {
                 query.loading ?

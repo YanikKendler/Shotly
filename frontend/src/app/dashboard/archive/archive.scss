@@ -3,9 +3,14 @@ main.archive{
     display: flex;
     align-items: center;
     gap: .1rem;
+    width: 100%;
 
     button {
       color: var(--text-40);
+    }
+
+    .right{
+      margin-left: auto;
     }
   }
 
