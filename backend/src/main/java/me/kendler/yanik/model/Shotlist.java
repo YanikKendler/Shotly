@@ -130,7 +130,7 @@ public class Shotlist extends PanacheEntityBase {
         return new ShotlistMinimalDTO(
             id,
             owner.id,
-            template.id,
+            template != null ? template.id : null,
             name,
             isArchived,
             createdAt,
