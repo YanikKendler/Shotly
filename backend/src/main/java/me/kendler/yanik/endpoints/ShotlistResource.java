@@ -73,18 +73,21 @@ public class ShotlistResource {
     @Mutation
     public ShotlistDTO updateShotlist(ShotlistEditDTO editDTO) {
         userRepository.checkShotlistEditRights(shotlistRepository.findByIdValidated(editDTO.id()), jwt);
+        //TODO add collaboration support
         return shotlistRepository.update(editDTO);
     }
 
     @Mutation
     public ShotlistDTO updateShotlistAsOwner(ShotlistEditAsOwnerDTO editDTO) {
         userRepository.checkShotlistOwner(shotlistRepository.findByIdValidated(editDTO.id()), jwt);
+        //TODO add collaboration support
         return shotlistRepository.updateAsOwner(editDTO);
     }
 
     @Mutation
     public ShotlistDTO deleteShotlist(UUID id) {
         userRepository.checkShotlistOwner(shotlistRepository.findByIdValidated(id), jwt);
+        //TODO add collaboration support
         return shotlistRepository.delete(id);
     }
 

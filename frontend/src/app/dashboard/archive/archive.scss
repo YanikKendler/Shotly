@@ -1,11 +1,11 @@
 main.archive{
-  div.top{
+  > div.top{
     display: flex;
     align-items: center;
     gap: .1rem;
 
     button {
-      color: var(--text-30);
+      color: var(--text-40);
     }
   }
 
@@ -24,8 +24,9 @@ main.archive{
   }
 
   .empty{
-    font-size: .9rem;
+    font-size: .85rem;
     color: var(--text-50);
-    margin-left: 1rem;
+    margin-top: .5rem;
+    line-height: 150%;
   }
 }

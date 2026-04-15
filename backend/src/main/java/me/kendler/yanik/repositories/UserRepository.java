@@ -310,6 +310,11 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
 
     // SHOTLIST
 
+    /**
+     * Checks if the shotlists owner has reached the maximum allowed shotlists which would make it readOnly
+     * @param shotlist to be checked
+     * @return true or false
+     */
     @Transactional
     public boolean shotlistIsEditable(Shotlist shotlist) {
         //refetch owner to prevent lazy loading issues
@@ -362,6 +367,9 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     }
 
     public void checkShotlistEditRights(Shotlist shotlist, JsonWebToken jwt) {
+        if(shotlist.isArchived) {
+            throw new ShotlyException("This shotlist is archived and cannot be edited", ShotlyErrorCode.WRITE_NOT_ALLOWED);
+        }
         if(!shotlistIsEditable(shotlist)) {
             throw new ShotlyException("This shotlist is read only", ShotlyErrorCode.SHOTLIST_LIMIT_REACHED);
         }

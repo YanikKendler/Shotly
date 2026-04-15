@@ -54,7 +54,7 @@ export interface SelectedScene {
 
 export interface ReadOnlyState {
     isReadOnly: boolean
-    reason?: "tooManyShotlists" | "collaborationViewOnly"
+    reason?: "tooManyShotlists" | "collaborationViewOnly" | "archived"
 }
 
 export type SaveState = "saved" | "saving" | "error"
@@ -87,6 +87,7 @@ export default function Shotlist() {
     const [reloadInProgress, setReloadInProgress] = useState(false)
 
     const [readOnlyState, setReadOnlyState] = useState<ReadOnlyState>({isReadOnly: false})
+    const [isArchived, setIsArchived] = useState(false)
 
     const [shotCount, setShotCount] = useState(0)
     const [sceneCount, setSceneCount] = useState(0)
@@ -302,6 +303,10 @@ export default function Shotlist() {
         }
     }, [shotSelectOptionsCache, sceneSelectOptionsCache]);
 
+    useEffect(() => {
+        calculateReadOnlyState()
+    }, [isArchived]);
+
     const loadData = async (noCache: boolean = false) => {
         const result = await client.query({
             query: gql`
@@ -309,6 +314,7 @@ export default function Shotlist() {
                     shotlist(id: $id){
                         id
                         name
+                        archived
                         scenes{
                             id
                             position
@@ -378,6 +384,8 @@ export default function Shotlist() {
         }
 
         setSceneCount(result.data.shotlist?.scenes?.length || 0)
+
+        setIsArchived(result.data.shotlist.archived == true)
 
         setQuery(result)
 
@@ -752,6 +760,13 @@ export default function Shotlist() {
             }
         })
 
+        if(isArchived) {
+            newState = {
+                isReadOnly: true,
+                reason: "archived"
+            }
+        }
+
         if(newState.isReadOnly != readOnlyState.isReadOnly) {
             setReadOnlyState(newState)
         }
@@ -765,7 +780,7 @@ export default function Shotlist() {
 
         const url = new URL(window.location.href)
         url.searchParams.set("sid", id || "")
-        router.push(url.toString())
+        router.replace(url.toString())
     }
 
     const openShotlistOptionsDialog = (page: { main: ShotlistOptionsDialogPage, sub?: ShotlistOptionsDialogSubPage }) => {
@@ -848,9 +863,14 @@ export default function Shotlist() {
                     This Shotlist is in <span className={"bold"}>read-only</span> mode because
                     {
                         readOnlyState.reason == "tooManyShotlists" ?
-                        " the shotlists owner has exceeded the maximum number of Shotlist available with the basic tier" :
-                        ' the shotlists owner set your collaboration type to "viewer"'
-                    }.
+                            " the shotlists owner has exceeded the maximum number of Shotlist available with the basic tier" :
+                        readOnlyState.reason == "collaborationViewOnly" ?
+                            ' the shotlists owner set your collaboration type to "viewer"' :
+                        readOnlyState.reason == "archived" ?
+                            ' it has been marked as archived' :
+                            ' [unknown reason]'
+                    }
+                    .
                     <button onClick={() => setReadOnlyBannerVisible(false)}><X size={18}/></button>
                 </div>
             }
@@ -978,6 +998,8 @@ export default function Shotlist() {
                         websocketRef.current?.send(JSON.stringify(updateDTO))
                     },300)
                 }}
+                isArchived={isArchived}
+                setIsArchived={setIsArchived}
                 isReadOnly={readOnlyState.isReadOnly}
             ></ShotlistOptionsDialog>
         </ShotlistContext.Provider>

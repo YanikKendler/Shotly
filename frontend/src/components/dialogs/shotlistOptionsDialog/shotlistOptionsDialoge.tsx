@@ -42,13 +42,17 @@ export default function ShotlistOptionsDialog({
     selectedPage,
     shotlistId,
     refreshShotlist,
-    isReadOnly
+    isReadOnly,
+    isArchived,
+    setIsArchived,
 }: {
     ref: RefObject<DialogRef | null>
     selectedPage: { main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage } | null,
     shotlistId: string | null,
     refreshShotlist: () => void,
     isReadOnly: boolean,
+    isArchived: boolean,
+    setIsArchived: (isArchived: boolean) => void,
 }) {
     const [sceneAttributeDefinitions, setSceneAttributeDefinitions] = useState<AnySceneAttributeDefinition[] | null>(null);
     const [shotAttributeDefinitions, setShotAttributeDefinitions] = useState<AnyShotAttributeDefinition[] | null>(null);
@@ -94,7 +98,6 @@ export default function ShotlistOptionsDialog({
                     shotlist(id: $shotlistId){
                         id
                         name
-                        archived
                         template {
                             name
                         }
@@ -228,7 +231,7 @@ export default function ShotlistOptionsDialog({
             url.searchParams.delete("sp") // sub page
         }
 
-        router.push(url.toString())
+        router.replace(url.toString())
     }
 
     function runRefreshShotlistCheck(){
@@ -298,6 +301,8 @@ export default function ShotlistOptionsDialog({
                         isReadOnly={isReadOnly}
                         currentUser={currentUser}
                         shotlistOptionsDialogRef={ref}
+                        isArchived={isArchived}
+                        setIsArchived={setIsArchived}
                     />
                 </Tabs.Content>
                 <Tabs.Content value={"attributes"} className={"content"}>

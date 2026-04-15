@@ -4,7 +4,7 @@ import Link from "next/link"
 import "./dashboard.scss"
 import React, {useContext, useEffect, useState} from "react"
 import ErrorPage from "@/components/feedback/errorPage/errorPage"
-import {Blocks, NotepadText, Plus,} from "lucide-react"
+import {ArrowRight, Blocks, NotepadText, Plus,} from "lucide-react"
 import {ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
 import {wuTime} from "@yanikkendler/web-utils"
 import {useCreateShotlistDialog} from "@/components/dialogs/createShotlistDialog/createShotlistDialog"
@@ -141,6 +141,7 @@ export default function Overview() {
                     <span><Plus/>New Template</span>
                 </button>
             </DashboardGrid>
+            <Link href={"/dashboard/archive"} className={"archive default"}>Archive <ArrowRight size={16} strokeWidth={2}/></Link>
 
             {CreateShotlistDialog}
             {CreateTemplateDialog}

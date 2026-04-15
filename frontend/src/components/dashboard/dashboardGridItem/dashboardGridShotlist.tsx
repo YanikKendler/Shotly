@@ -10,7 +10,7 @@ export default function DashboardGridShotlist({shotlist}:{shotlist: ShotlistDto}
         <SimpleTooltip text={shotlist.name || "Unnamed"}>
             <div className="top">
                 <NotepadText size={18}/>
-                <h3>{shotlist.name || <span className='italic'>Unnamed</span>}</h3>
+                <p className={"name"} role={"heading"}>{shotlist.name || <span className='italic'>Unnamed</span>}</p>
             </div>
         </SimpleTooltip>
         <p className={"bold"}>
@@ -21,7 +21,7 @@ export default function DashboardGridShotlist({shotlist}:{shotlist: ShotlistDto}
         <p>Created by: <span className={"bold"}>{shotlist.owner?.name}</span></p>
         <p>
             {"Last edited: "}
-            <span className={"bold"}>{wuTime.toRelativeString(shotlist.editedAt, {precision: 1, separator: ":"}) || "Unkown"}</span>
+            <span className={"bold"}>{wuTime.toRelativeString(shotlist.editedAt, {precision: 1, separator: ":"}) || "Unknown"}</span>
         </p>
     </Link>
 }

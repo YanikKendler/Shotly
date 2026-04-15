@@ -106,7 +106,7 @@ export default function Pro(){
                 <p>Since you are a student living off student money and stuff :D</p>
                 <p>Lets hope you are not american.. then you would be living off student debt :(</p>
                 <br/>
-                <p>Your pro subscription will be revoked after {wuTime.toDateString(currentUser.revokeProAfter) || "unkown"}.</p>
+                <p>Your pro subscription will be revoked after {wuTime.toDateString(currentUser.revokeProAfter) || "unknown"}.</p>
 
                 <div className="buttons">
                     <Link className={"filled"} href={"/dashboard"}>To your Dashboard</Link>
@@ -122,7 +122,7 @@ export default function Pro(){
                 <br/>
                 {
                     currentUser.revokeProAfter &&
-                    <p>Your pro subscription will be revoked after {wuTime.toDateString(currentUser.revokeProAfter) || "unkown"}.</p>
+                    <p>Your pro subscription will be revoked after {wuTime.toDateString(currentUser.revokeProAfter) || "unknown"}.</p>
                 }
 
                 <div className="buttons">

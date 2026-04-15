@@ -5,11 +5,18 @@
 }
 
 main.overview{
-  h2{
+  h2, a.archive{
     font-size: .95rem;
     color: var(--text-40);
     font-weight: 500;
     margin-bottom: .5rem;
     margin-left: .1rem;
+  }
+
+  a.archive{
+    margin-left: -.4rem;
+    color: var(--text-60);
+    gap: .3rem;
+    width: fit-content;
   }
 }

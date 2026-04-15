@@ -9,7 +9,7 @@ export default function DashboardGridTemplate({template}:{template: TemplateDto}
         <SimpleTooltip text={template.name || "Unnamed"}>
             <div className="top">
                 <Blocks size={18}/>
-                <h3>{template.name || <span className='italic'>Unnamed</span>}</h3>
+                <p className={"name"} role={"heading"}>{template.name || <span className='italic'>Unnamed</span>}</p>
             </div>
         </SimpleTooltip>
         <p>

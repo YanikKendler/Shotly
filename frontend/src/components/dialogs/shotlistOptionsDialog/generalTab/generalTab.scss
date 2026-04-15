@@ -45,13 +45,18 @@ div.shotlistOptionsDialogGeneralTab{
       margin: 0;
     }
 
-    button.danger{
+    button.action{
       color: var(--text-40);
       border: 2px solid var(--default-interactable-border);
       font-weight: bold;
       font-size: .95rem;
 
       &:not([disabled]):hover{
+        border-color: var(--default-interactable-hover-border);
+        color: var(--text);
+      }
+
+      &.danger:not([disabled]):hover{
         background-color: var(--transparent-bad-10);
         color: var(--bad);
         border-color: var(--bad);

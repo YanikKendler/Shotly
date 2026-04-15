@@ -669,10 +669,17 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                         </Popover.Content>
                                     </Popover.Portal>
                                 </Popover.Root>
-                                <SimpleTooltip content={<p><span className="key">Alt</span> + <span className="key">A</span></p>}>
+                                <Link
+                                    href={"/dashboard/archive"}
+                                    className={pathname.includes("archive") ? "selected noClickFx" : ""}
+                                >
+                                    Archive <Archive size={18}/>
+                                </Link>
+                                <SimpleTooltip content={
+                                    <p><span className="key">Alt</span> + <span className="key">A</span></p>
+                                }>
                                     <button onClick={openAccountDialog}>Account <User size={18}/></button>
                                 </SimpleTooltip>
-                                <Link href={"/dashboard/archive"}>Archive<Archive size={18}/></Link>
                             </div>
                         </div>
                     </div>

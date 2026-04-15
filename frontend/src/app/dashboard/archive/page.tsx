@@ -49,7 +49,8 @@ export default function Archive(){
                         }
                     }
                 }
-            }`
+            }`,
+            fetchPolicy: "no-cache"
         })
 
         if(result.errors){
@@ -61,12 +62,10 @@ export default function Archive(){
             return
         }
 
-        console.log(result.data.archivedShotlists)
-
         setQuery(result)
     }
 
-    if(query.errors || !query.data.archivedShotlists) return(
+    if(query.errors || (!query.loading && !query.data.archivedShotlists)) return(
         <main className="archive dashboardContent">
             <ErrorPage
                 title='Data could not be loaded'
@@ -74,21 +73,6 @@ export default function Archive(){
                 reload
                 noLink
             />
-        </main>
-    )
-
-    if(query.loading) return (
-        <main className="archive dashboardContent">
-            <h3>Shotlists</h3>
-            <DashboardGrid>
-                <Skeleton height={125}/>
-                <Skeleton height={125}/>
-            </DashboardGrid>
-            <h3>Templates</h3>
-            <DashboardGrid>
-                <Skeleton height={125}/>
-                <Skeleton height={125}/>
-            </DashboardGrid>
         </main>
     )
 
@@ -109,29 +93,59 @@ export default function Archive(){
                     fontSize={0.85}
                     className={"noClickFx default round"}
                 >
-                    <Info size={18}/>
+                    <Info size={16}/>
                 </SimplePopover>
             </div>
-            <h3>Personal</h3>
-            <DashboardGrid>
-                {
-                    !query.data.archivedShotlists.personal || query.data.archivedShotlists.personal.length == 0 ?
-                        <p className="empty">Nothing here yet</p> :
-                        (query.data.archivedShotlists.personal as ShotlistDto[]).map((shotlist: ShotlistDto) => (
-                            <DashboardGridShotlist shotlist={shotlist} key={shotlist.id}/>
-                        ))
-                }
-            </DashboardGrid>
-            <h3>Shared</h3>
-            <DashboardGrid>
-                {
-                    !query.data.archivedShotlists.shared || query.data.archivedShotlists.shared.length == 0 ?
-                        <p className="empty">Nothing here yet</p> :
-                        (query.data.archivedShotlists.shared as ShotlistDto[]).map((shotlist: ShotlistDto) => (
-                            <DashboardGridShotlist shotlist={shotlist} key={shotlist.id}/>
-                        ))
-                }
-            </DashboardGrid>
+            {
+                query.loading ?
+                <>
+                    <h3>My Shotlists</h3>
+                    <DashboardGrid>
+                        <Skeleton height={125}/>
+                        <Skeleton height={125}/>
+                    </DashboardGrid>
+                    <h3>Shared</h3>
+                    <DashboardGrid>
+                        <Skeleton height={125}/>
+                        <Skeleton height={125}/>
+                    </DashboardGrid>
+                </> :
+                <>
+                    {
+                        //no results
+                        (!query.data.archivedShotlists?.personal && !query.data.archivedShotlists?.shared) ||
+                        //result list is empty
+                        ((query.data.archivedShotlists?.personal?.length || 0) + (query.data.archivedShotlists?.shared?.length || 0) <= 0)
+                        &&
+                        <p className="empty">
+                            Nothing here yet. <br/>
+                            You can archive shotlists via the "Shotlist options" modal.
+                        </p>
+                    }
+                    {
+                        query.data.archivedShotlists?.personal && query.data.archivedShotlists.personal.length > 0 &&
+                        <>
+                            <h3>My Shotlists</h3>
+                            <DashboardGrid>
+                                {(query.data.archivedShotlists.personal as ShotlistDto[]).map((shotlist: ShotlistDto) => (
+                                    <DashboardGridShotlist shotlist={shotlist} key={shotlist.id}/>
+                                ))}
+                            </DashboardGrid>
+                        </>
+                    }
+                    {
+                        query.data.archivedShotlists?.shared && query.data.archivedShotlists.shared.length > 0 &&
+                        <>
+                            <h3>Shared</h3>
+                            <DashboardGrid>
+                                {(query.data.archivedShotlists.shared as ShotlistDto[]).map((shotlist: ShotlistDto) => (
+                                    <DashboardGridShotlist shotlist={shotlist} key={shotlist.id}/>
+                                ))}
+                            </DashboardGrid>
+                        </>
+                    }
+                </>
+            }
         </main>
     )
 }

@@ -945,7 +945,7 @@ export type ShotlistCreateDtoInput = {
 
 export type ShotlistDto = {
   __typename?: 'ShotlistDTO';
-  archived: Scalars['Boolean']['output'];
+  archived?: Maybe<Scalars['Boolean']['output']>;
   collaborations?: Maybe<Array<Maybe<CollaborationDto>>>;
   collaboratorCount?: Maybe<Scalars['Int']['output']>;
   /** ISO-8601 */
@@ -1542,12 +1542,20 @@ export type DeleteShotlistMutationVariables = Exact<{
 
 export type DeleteShotlistMutation = { __typename?: 'Mutation', deleteShotlist?: { __typename?: 'ShotlistDTO', id?: string | null } | null };
 
+export type ArchiveShotlistMutationVariables = Exact<{
+  id: Scalars['String']['input'];
+  isArchived: Scalars['Boolean']['input'];
+}>;
+
+
+export type ArchiveShotlistMutation = { __typename?: 'Mutation', updateShotlistAsOwner?: { __typename?: 'ShotlistDTO', id?: string | null } | null };
+
 export type DataQueryVariables = Exact<{
   shotlistId: Scalars['String']['input'];
 }>;
 
 
-export type DataQuery = { __typename?: 'Query', shotlist?: { __typename?: 'ShotlistDTO', id?: string | null, name?: string | null, sceneCount?: number | null, shotCount?: number | null, editedAt?: any | null, createdAt?: any | null, template?: { __typename?: 'Template', name?: string | null } | null, owner?: { __typename?: 'UserDTO', id?: string | null, name?: string | null, tier?: UserTier | null, shotlistCount?: number | null } | null, collaborations?: Array<{ __typename?: 'CollaborationDTO', id?: string | null, collaborationState?: CollaborationState | null, collaborationType?: CollaborationType | null, user?: { __typename?: 'UserDTO', id?: string | null, email?: string | null, name?: string | null, auth0Sub?: string | null } | null } | null> | null } | null, shotAttributeDefinitions?: Array<
+export type DataQuery = { __typename?: 'Query', shotlist?: { __typename?: 'ShotlistDTO', id?: string | null, name?: string | null, archived?: boolean | null, sceneCount?: number | null, shotCount?: number | null, editedAt?: any | null, createdAt?: any | null, template?: { __typename?: 'Template', name?: string | null } | null, owner?: { __typename?: 'UserDTO', id?: string | null, name?: string | null, tier?: UserTier | null, shotlistCount?: number | null } | null, collaborations?: Array<{ __typename?: 'CollaborationDTO', id?: string | null, collaborationState?: CollaborationState | null, collaborationType?: CollaborationType | null, user?: { __typename?: 'UserDTO', id?: string | null, email?: string | null, name?: string | null, auth0Sub?: string | null } | null } | null> | null } | null, shotAttributeDefinitions?: Array<
     | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null, options?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null }
     | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null, options?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null }
     | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
@@ -3753,11 +3761,46 @@ export function useDeleteShotlistMutation(baseOptions?: Apollo.MutationHookOptio
 export type DeleteShotlistMutationHookResult = ReturnType<typeof useDeleteShotlistMutation>;
 export type DeleteShotlistMutationResult = Apollo.MutationResult<DeleteShotlistMutation>;
 export type DeleteShotlistMutationOptions = Apollo.BaseMutationOptions<DeleteShotlistMutation, DeleteShotlistMutationVariables>;
+export const ArchiveShotlistDocument = gql`
+    mutation archiveShotlist($id: String!, $isArchived: Boolean!) {
+  updateShotlistAsOwner(editDTO: {id: $id, isArchived: $isArchived}) {
+    id
+  }
+}
+    `;
+export type ArchiveShotlistMutationFn = Apollo.MutationFunction<ArchiveShotlistMutation, ArchiveShotlistMutationVariables>;
+
+/**
+ * __useArchiveShotlistMutation__
+ *
+ * To run a mutation, you first call `useArchiveShotlistMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useArchiveShotlistMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [archiveShotlistMutation, { data, loading, error }] = useArchiveShotlistMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      isArchived: // value for 'isArchived'
+ *   },
+ * });
+ */
+export function useArchiveShotlistMutation(baseOptions?: Apollo.MutationHookOptions<ArchiveShotlistMutation, ArchiveShotlistMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ArchiveShotlistMutation, ArchiveShotlistMutationVariables>(ArchiveShotlistDocument, options);
+      }
+export type ArchiveShotlistMutationHookResult = ReturnType<typeof useArchiveShotlistMutation>;
+export type ArchiveShotlistMutationResult = Apollo.MutationResult<ArchiveShotlistMutation>;
+export type ArchiveShotlistMutationOptions = Apollo.BaseMutationOptions<ArchiveShotlistMutation, ArchiveShotlistMutationVariables>;
 export const DataDocument = gql`
     query data($shotlistId: String!) {
   shotlist(id: $shotlistId) {
     id
     name
+    archived
     template {
       name
     }

@@ -582,6 +582,11 @@ span.key{
             border-color: var(--text-20);
           }
 
+          &.selected {
+            border-color: var(--accent);
+            color: var(--accent-40);
+          }
+
           @media screen and (max-width: 600px){
             padding-block: .6rem;
           }

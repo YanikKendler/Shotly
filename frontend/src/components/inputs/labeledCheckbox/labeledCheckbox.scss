@@ -7,5 +7,6 @@ div.labeledCheckbox{
   label{
     font-size: .95rem;
     color: var(--text-30);
+    user-select: none;
   }
 }

@@ -9,10 +9,10 @@ import "./generalTab.scss"
 import TextField from "@/components//inputs/textField/textField"
 import Loader from "@/components/feedback/loader/loader"
 import Separator from "@/components/separator/separator"
-import {errorNotification} from "@/service/NotificationService"
+import {errorNotification, successNotification} from "@/service/NotificationService"
 import Skeleton from "react-loading-skeleton"
 import {DialogRef} from "@/components/dialog/dialog"
-import {Info, X} from "lucide-react"
+import {Archive, ArchiveRestore, Info, Trash, X} from "lucide-react"
 import SimplePopover from "@/components/popover/simplePopover"
 
 export default function GeneralTab({
@@ -21,14 +21,18 @@ export default function GeneralTab({
     dataChanged,
     isReadOnly,
     currentUser,
-    shotlistOptionsDialogRef
+    shotlistOptionsDialogRef,
+    isArchived,
+    setIsArchived,
 }: {
     shotlist: ShotlistDto | null,
     setShotlist: React.Dispatch<React.SetStateAction<ShotlistDto | null>>,
     dataChanged: () => void,
     isReadOnly: boolean,
     currentUser: UserDto | null,
-    shotlistOptionsDialogRef: RefObject<DialogRef | null>
+    shotlistOptionsDialogRef: RefObject<DialogRef | null>,
+    isArchived: boolean,
+    setIsArchived: (isArchived: boolean) => void,
 
 }) {
     const client = useApolloClient()
@@ -117,22 +121,25 @@ export default function GeneralTab({
         }
     }
 
-    const setIsArchived = async (isArchived: boolean) => {
+    const toggleIsArchived = async () => {
         if(!shotlist) return
+
+        const newState = !isArchived
 
         let decision = await confirm({
             title: 'Are you sure?',
-            message: `Do you want to archive the shotlist "${shotlist.name}"? You can always unarchive it later.`,
+            message: `Do you want to ${newState ? "archive" : "unarchive"} the shotlist "${shotlist.name}"? You can always ${newState ? "unarchive" : "archive"} it again later.`,
             buttons: {
                 confirm: {
-                    text: 'Archive Shotlist',
+                    text: `${newState ? "Archive" : "Unarchive"} shotlist`,
                     className: 'bad'
                 }
-            },
-            checkbox: true
+            }
         })
 
         if(!decision) return
+
+        setIsArchived(newState)
 
         const { errors } = await client.mutate({
             mutation: gql`
@@ -147,7 +154,7 @@ export default function GeneralTab({
                     }
                 }
             `,
-            variables: { id: shotlist.id, isArchived: isArchived },
+            variables: { id: shotlist.id, isArchived: newState },
         });
 
         if(errors) {
@@ -155,7 +162,11 @@ export default function GeneralTab({
                 title: "Failed update archived status",
                 tryAgainLater: true
             })
+            setIsArchived(!newState)
             console.error(errors)
+        }
+        else {
+            successNotification({title: "Archival status updated", message: `This shotlist is ${newState ? "now archived" : "no longer archived"}.`})
         }
     }
 
@@ -201,7 +212,7 @@ export default function GeneralTab({
 
             <div className="details">
                 <p>Created at: <b>{wuTime.toDateTimeString(shotlist.createdAt)}</b> by: <b>{shotlist.owner?.name}</b></p>
-                <p>Last edited at: <b>{wuTime.toDateTimeString(shotlist.editedAt) || "Unkown"}</b></p>
+                <p>Last edited at: <b>{wuTime.toDateTimeString(shotlist.editedAt) || "Unknown"}</b></p>
                 <p><b>{shotlist.sceneCount}</b> scene{shotlist.sceneCount == 1 ? "" : "s"} • <b>{shotlist.shotCount}</b> shot{shotlist.shotCount == 1 ? "" : "s"}</p>
                 {
                     shotlist.template &&
@@ -214,7 +225,7 @@ export default function GeneralTab({
                 <div className={"bottom"}>
                     <div className="row">
                         <div className="left">
-                            <p>Mark this shotlist as archived and read-only</p>
+                            <p>{isArchived ? "Mark this shotlist as no longer archived" : "Mark this shotlist as archived and read-only"}</p>
                             <SimplePopover
                                 content={
                                     <p>
@@ -223,7 +234,7 @@ export default function GeneralTab({
                                         You can change the archive status at any time.
                                         <br/>
                                         <br/>
-                                        Shotlists can only be archived and unarchived by the shotlist owner. (you)
+                                        Shotlists can only be archived and unarchived by the shotlist owner (you).
                                     </p>
                                 }
                                 fontSize={0.85}
@@ -233,21 +244,22 @@ export default function GeneralTab({
                             </SimplePopover>
                         </div>
                         <button
-                            disabled={isReadOnly}
-                            className="danger bad"
-                            onClick={setIsArchived}
+                            className={`action ${isArchived ? "default" : "danger"}`}
+                            onClick={toggleIsArchived}
                         >
-                            Archive
+                            {isArchived ?
+                                <><ArchiveRestore size={18}/>Unarchive</> :
+                                <><Archive size={18}/>Archive</>
+                            }
                         </button>
                     </div>
                     <div className="row">
                         <p>Permanently delete the shotlist "{shotlist.name}"</p>
                         <button
-                            disabled={isReadOnly}
-                            className="danger bad"
+                            className="action danger"
                             onClick={deleteShotlist}
                         >
-                            Delete Shotlist
+                            <Trash size={18}/> Delete Shotlist
                         </button>
                     </div>
                 </div>
