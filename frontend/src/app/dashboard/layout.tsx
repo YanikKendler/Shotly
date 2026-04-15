@@ -39,7 +39,7 @@ import Config from "@/Config"
 import HelpLink from "@/components/helpLink/helpLink"
 import Separator from "@/components/separator/separator"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
-import {errorNotification} from "@/service/NotificationService"
+import {errorNotification, successNotification} from "@/service/NotificationService"
 import Radio, {RadioResult} from "@/components/inputs/radio/radio"
 import JustBoughtProDialog from "@/components/dialogs/justBoughtProDialog/justBoughtProDialog"
 import TextField from "@/components/inputs/textField/textField"
@@ -81,6 +81,10 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const [easterEggOpen, setEasterEggOpen] = useState(false)
 
     const [pagename, setPagename] = useState("Dashboard")
+
+    const refreshButtonRef = useRef<HTMLButtonElement>(null)
+    const [refreshBlocked, setRefreshBlocked] = useState(false)
+    const [refreshSignal, setRefreshSignal] = useState(0)
 
     //register keybinds
     useEffect(() => {
@@ -177,6 +181,11 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     }, [pathname]);
 
     const loadData = async () => {
+        setQuery(current => ({
+            ...current,
+            loading: true,
+        }))
+
         const result = await client.query({
                 query: gql`
                     query home{
@@ -447,6 +456,35 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         setHowDidYouHearDialogOpen(false)
     }
 
+    const refresh = () => {
+        if(refreshBlocked) return
+
+        setRefreshBlocked(true)
+        setRefreshSignal(current => current + 1)
+
+        loadData()
+            .then(() => {
+                successNotification({
+                    title: "Refreshed dashboard data."
+                })
+            })
+            .catch(() => {
+                errorNotification({
+                    title: "Failed to refresh dashboard data.",
+                })
+            })
+
+        if(refreshButtonRef.current)
+            refreshButtonRef.current.animate([
+                { transform: 'rotate(0deg)' },
+                { transform: 'rotate(360deg)' }
+            ], { duration: 300, iterations: 1 });
+
+        setTimeout(() => {
+            setRefreshBlocked(false)
+        },wuConstants.Time.msPerSecond * 5)
+    }
+
     if(query.error) return <ErrorPage
         title='Data could not be loaded'
         description={query.error.message}
@@ -467,7 +505,8 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             pendingCollaborations: pendingCollaborations,
             setPendingCollaborations: setPendingCollaborations,
             dialogStep: dialogStep,
-            incrementDialogStep: incrementDialogStep
+            incrementDialogStep: incrementDialogStep,
+            refreshSignal: refreshSignal
         }}>
         <title>Shotly | Dashboard</title>
         <main className="home">
@@ -726,6 +765,16 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             </PanelGroup>
 
             <div className="floater">
+                <SimpleTooltip text={refreshBlocked ? "please wait a few seconds" : "refresh"}>
+                    <button
+                        className={"default round right noClickFx"}
+                        ref={refreshButtonRef}
+                        onClick={refresh}
+                        disabled={refreshBlocked}
+                    >
+                        <RefreshCw size={16}/>
+                    </button>
+                </SimpleTooltip>
                 <HelpLink
                     link={`https://docs.shotly.at/${isTemplatePage ? "templates" : "dashboard"}`}
                     name={isTemplatePage ? "Template" : "Dashboard"}

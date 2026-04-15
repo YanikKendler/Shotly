@@ -185,11 +185,20 @@ main.home{
     align-items: center;
     gap: .5rem;
 
-    .openSidebar {
+    button {
       background-color: var(--contrast);
       border: 2px solid var(--default-interactable-border);
       border-radius: 100%;
-      padding: .6rem;
+      height: 35px;
+      width: 35px;
+      display: grid;
+      place-content: center;
+      color: var(--text-30);
+    }
+
+    .openSidebar {
+      height: 45px;
+      width: 45px;
       display: none;
 
       @media screen and (max-width: 500px) {
