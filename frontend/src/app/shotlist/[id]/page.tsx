@@ -905,7 +905,7 @@ export default function Shotlist() {
                             query.loading ?
                             <div style={{display: "flex", flexDirection: "column", padding: ".5rem", height: "100%"}} className={"content"}>
                                 <div className={"top"}>
-                                    <Link href={`../dashboard`}>
+                                    <Link href={`/dashboard`}>
                                         <House strokeWidth={2.5} size={20}/>
                                     </Link>
                                     <Skeleton height="2rem" width={"18ch"} style={{marginLeft: ".5rem"}}/>

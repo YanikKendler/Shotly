@@ -353,7 +353,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                             <p><span className="key">Alt</span> + <span className="key">H</span></p>
                         </div>}
                     >
-                        <Link href={`../dashboard`}>
+                        <Link href={`/dashboard`}>
                             <House strokeWidth={2.5} size={20}/>
                         </Link>
                     </SimpleTooltip>
