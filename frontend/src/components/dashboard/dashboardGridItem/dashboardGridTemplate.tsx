@@ -26,7 +26,7 @@ export default function DashboardGridTemplate({template}:{template: TemplateDto}
         </p>
         <p>
             {"Created by:"}
-            <span className={"bold"}>{template.owner?.name}</span>
+            <SimpleTooltip text={template.owner?.email || "Unknown email"}><span className={"bold"}>{template.owner?.name}</span></SimpleTooltip>
         </p>
     </Link>
 }

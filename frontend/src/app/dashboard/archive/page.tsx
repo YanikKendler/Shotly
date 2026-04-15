@@ -36,6 +36,7 @@ export default function Archive(){
                         editedAt
                         owner {
                             name
+                            email
                         }
                     }
                     shared {
@@ -46,6 +47,7 @@ export default function Archive(){
                         editedAt
                         owner {
                             name
+                            email
                         }
                     }
                 }

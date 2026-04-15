@@ -14,6 +14,7 @@ import Skeleton from "react-loading-skeleton"
 import {DialogRef} from "@/components/dialog/dialog"
 import {Archive, ArchiveRestore, Info, Trash, X} from "lucide-react"
 import SimplePopover from "@/components/popover/simplePopover"
+import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 
 export default function GeneralTab({
     shotlist,
@@ -211,7 +212,11 @@ export default function GeneralTab({
             <Separator/>
 
             <div className="details">
-                <p>Created at: <b>{wuTime.toDateTimeString(shotlist.createdAt)}</b> by: <b>{shotlist.owner?.name}</b></p>
+                <p>
+                    Created at: <b>{wuTime.toDateTimeString(shotlist.createdAt)}</b>
+                    {" by: "}
+                    <SimpleTooltip text={shotlist.owner?.email || "Unknown email"}><b>{shotlist.owner?.name}</b></SimpleTooltip>
+                </p>
                 <p>Last edited at: <b>{wuTime.toDateTimeString(shotlist.editedAt) || "Unknown"}</b></p>
                 <p><b>{shotlist.sceneCount}</b> scene{shotlist.sceneCount == 1 ? "" : "s"} • <b>{shotlist.shotCount}</b> shot{shotlist.shotCount == 1 ? "" : "s"}</p>
                 {

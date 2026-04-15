@@ -189,6 +189,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                 editedAt
                                 owner {
                                     name
+                                    email
                                 }
                             }
                             shared {
@@ -199,6 +200,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                 editedAt
                                 owner {
                                     name
+                                    email
                                 }
                             }
                         }
@@ -209,6 +211,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                             sceneAttributeCount
                             owner {
                                 name
+                                email
                             }
                         }
                         pendingCollaborations{
@@ -216,6 +219,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                             user {
                                 id
                                 name
+                                email
                             }
                             shotlist {
                                 name
@@ -310,6 +314,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                             id
                             owner {
                                 name
+                                email
                             }
                             shotlist {
                                 name
@@ -634,7 +639,9 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                                 (pendingCollaborations.data.pendingCollaborations as CollaborationDto[])?.map((collab) => (
                                                     <div key={collab.id} className={"collaborationRequest"}>
                                                         <p>
-                                                            <span className={"bold"}>{collab.owner?.name}</span> has invited you to the shotlist <span className={"bold"}>{collab.shotlist?.name || "Unnamed"}</span>
+                                                            <SimpleTooltip text={collab.owner?.email || "Unknown email"}><span className={"bold"}>{collab.owner?.name}</span></SimpleTooltip>
+                                                            {" has invited you to the shotlist "}
+                                                            <span className={"bold"}>{collab.shotlist?.name || "Unnamed"}</span>
                                                         </p>
                                                         <SimpleTooltip text="Accept collaboration">
                                                             <button

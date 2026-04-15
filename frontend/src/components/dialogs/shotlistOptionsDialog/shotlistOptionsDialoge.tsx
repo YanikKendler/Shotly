@@ -110,6 +110,7 @@ export default function ShotlistOptionsDialog({
                             name
                             tier
                             shotlistCount
+                            email
                         }
                         collaborations {
                             id

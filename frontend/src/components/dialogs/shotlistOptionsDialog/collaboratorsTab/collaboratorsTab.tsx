@@ -50,11 +50,9 @@ export default function CollaboratorsTab(
     const [emailInvalid, setEmailInvalid] = useState<boolean>(false)
 
     useEffect(() => {
-        setUserIsAlreadyAMember(
-            collaborations?.some(c => c.user?.email == inputValue) ||
-            auth.getUser()?.email == inputValue ||
-            false
-        )
+        const isAlreadyACollaborator = collaborations?.some(c => c.user?.email == inputValue) || false
+        const isOwner = auth.getUser()?.email == inputValue
+        setUserIsAlreadyAMember(isAlreadyACollaborator || isOwner)
     }, [inputValue]);
 
     const addCollaborator = async () => {

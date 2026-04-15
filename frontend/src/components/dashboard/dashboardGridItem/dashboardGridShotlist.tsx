@@ -18,7 +18,7 @@ export default function DashboardGridShotlist({shotlist}:{shotlist: ShotlistDto}
             {" • "}
             {shotlist.shotCount} shot{shotlist.shotCount && shotlist.shotCount === 1 ? "" : "s"}
         </p>
-        <p>Created by: <span className={"bold"}>{shotlist.owner?.name}</span></p>
+        <p>Created by: <SimpleTooltip text={shotlist.owner?.email || "Unknown email"}><span className={"bold"}>{shotlist.owner?.name}</span></SimpleTooltip></p>
         <p>
             {"Last edited: "}
             <span className={"bold"}>{wuTime.toRelativeString(shotlist.editedAt, {precision: 1, separator: ":"}) || "Unknown"}</span>
