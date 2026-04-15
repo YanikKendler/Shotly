@@ -138,9 +138,11 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         }
 
         const latestVersionUsed = localStorage.getItem(Config.localStorageKey.latestVersionUsed)
-        if(latestVersionUsed && latestVersionUsed != "" && latestVersionUsed != CHANGELOG[0].version){
+
+        if(Utils.isNewerVersion(latestVersionUsed, CHANGELOG[0].version)){
             setChangelogDialogOpen(true)
         }
+
         localStorage.setItem(Config.localStorageKey.latestVersionUsed, CHANGELOG[0].version)
     }, [dialogStep, query.data.currentUser])
 

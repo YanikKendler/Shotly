@@ -141,6 +141,41 @@ export default class Utils {
             .map(line => line.trim())
             .join('\n')
             .trim();
+
+    /**
+     * Compares two versions. Returns true if newVersion is strictly
+     * newer than oldVersion.
+     */
+    static isNewerVersion(
+        oldVersion: string | null | undefined,
+        newVersion: string | null | undefined
+    ): boolean {
+        const versionRegex = /^\d+\.\d+\.\d+$/;
+
+        // Validate presence and format
+        if (
+            !oldVersion ||
+            !newVersion ||
+            !versionRegex.test(oldVersion) ||
+            !versionRegex.test(newVersion)
+        ) {
+            return false;
+        }
+
+        const currentParts = oldVersion.split('.').map(Number);
+        const targetParts = newVersion.split('.').map(Number);
+
+        for (let i = 0; i < 3; i++) {
+            // If target segment is higher, it's a newer version
+            if (targetParts[i] > currentParts[i]) return true;
+
+            // If target segment is lower, it's an older version
+            if (targetParts[i] < currentParts[i]) return false;
+        }
+
+        // Versions are identical
+        return false;
+    }
 }
 
 export const reactSelectTheme: ThemeConfig = (theme) => ({
