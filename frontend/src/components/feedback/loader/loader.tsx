@@ -49,7 +49,7 @@ export default function Loader({
                     !text ?
                         "loading.." :
                     Array.isArray(text) ?
-                        <TextCycle text={text} switchInterval={800}/> :
+                        <TextCycle text={text} switchInterval={1200}/> :
                         text
                 }
             </p>

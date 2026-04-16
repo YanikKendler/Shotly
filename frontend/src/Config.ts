@@ -58,6 +58,9 @@ export default class Config {
             "Requesting user",
             "Preparing view",
             "Connecting to service",
+            "Applying styles",
+            "Authorizing session",
+            "Resolving endpoint",
             "Getting things ready",
             "Just a moment",
             "Petting the dog"
