@@ -71,7 +71,7 @@ export default function Pro(){
         setIsLoading(false);
     }
 
-    if(isLoading || !auth.getUser()) return <LoadingPage title={Config.loadingMessage.authGetUser}/>
+    if(isLoading || !auth.getUser()) return <LoadingPage/>
 
     let content;
 

@@ -1,8 +1,18 @@
 import React from "react"
 import "./loader.scss"
+import TextCycle from "@/components/textCycle/textCycle"
+import {Arapey} from "next/dist/compiled/@next/font/dist/google"
 
 
-export default function Loader({ text, scale = 1, mt }: { text?: string; scale?: number, mt?: string }) {
+export default function Loader({
+    text,
+    scale = 1,
+    mt
+}: {
+    text?: string | string[]
+    scale?: number
+    mt?: string
+}) {
     return (
         <div className="loader" style={{marginTop: mt}}>
             <svg
@@ -37,7 +47,13 @@ export default function Loader({ text, scale = 1, mt }: { text?: string; scale?:
             <p style={{
                 marginTop: `${2 * scale}rem`,
             }}>
-                {text || "loading.."}
+                {
+                    !text ?
+                        "loading.." :
+                    Array.isArray(text) ?
+                        <TextCycle text={text} switchInterval={800}/> :
+                        text
+                }
             </p>
         </div>
     );

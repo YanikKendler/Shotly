@@ -28,6 +28,6 @@ export default function CallbackPage() {
     }, []);
 
     return (
-        <LoadingPage title={Config.loadingMessage.login}/>
+        <LoadingPage/>
     )
 }

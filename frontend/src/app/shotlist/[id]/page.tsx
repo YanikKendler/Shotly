@@ -846,7 +846,7 @@ export default function Shotlist() {
     })
 
     if(!auth.getUser())
-        return <LoadingPage title={Config.loadingMessage.authGetUser}/>
+        return <LoadingPage/>
 
     if(query.errors && query.errors.length > 0) {
         switch (query.errors[0]?.extensions?.code as ShotlyErrorCode) {

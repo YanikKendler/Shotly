@@ -493,7 +493,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     />
 
     if(!auth.getUser())
-        return <LoadingPage title={Config.loadingMessage.authGetUser}/>
+        return <LoadingPage/>
 
     //yeah i know this is ugly
     const isTemplatePage = pathname.includes("template")

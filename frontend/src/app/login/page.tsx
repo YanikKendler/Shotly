@@ -16,6 +16,6 @@ export default function LoginRedirectPage() {
     }, []);
 
     return (
-        <LoadingPage title={Config.loadingMessage.login}/>
+        <LoadingPage/>
     )
 }

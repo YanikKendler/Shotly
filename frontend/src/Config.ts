@@ -50,9 +50,8 @@ export default class Config {
     }
 
     static readonly loadingMessage = {
-        authGetUser: "Logging you in...",
         redirect: "You will be redirected shortly...",
-        login: "Logging you in...",
+        generics: ["Fetching data", "Loading document", "Rendering elements", "Requesting user", "Preparing view", "Finalizing setup"]
     }
 
     static readonly constant = {

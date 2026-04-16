@@ -1,0 +1,12 @@
+.textCycle{
+  //outline: 1px solid red;
+  overflow: hidden;
+  height: 1em;
+  line-height: 1em;
+  display: grid;
+
+  span{
+    display: block;
+    grid-area: 1 / 1 / 2 / 2;
+  }
+}
