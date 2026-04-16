@@ -6,11 +6,11 @@ div.loader{
   margin: auto;
 
   svg{
-    width: 60px;
+    width: 40px;
     height: auto;
 
     *{
-      fill: var(--text-30);
+      fill: var(--text-40);
     }
   }
 
@@ -20,7 +20,7 @@ div.loader{
 
   p{
     text-align: center;
-    font-size: .9rem;
+    font-size: .85rem;
     color: var(--text-20);
   }
 }

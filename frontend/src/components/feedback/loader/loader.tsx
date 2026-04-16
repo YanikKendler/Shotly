@@ -1,8 +1,6 @@
 import React from "react"
 import "./loader.scss"
 import TextCycle from "@/components/textCycle/textCycle"
-import {Arapey} from "next/dist/compiled/@next/font/dist/google"
-
 
 export default function Loader({
     text,

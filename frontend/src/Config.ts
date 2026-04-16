@@ -51,7 +51,17 @@ export default class Config {
 
     static readonly loadingMessage = {
         redirect: "You will be redirected shortly...",
-        generics: ["Fetching data", "Loading document", "Rendering elements", "Requesting user", "Preparing view", "Finalizing setup"]
+        generics: [
+            "Fetching data",
+            "Loading document",
+            "Rendering elements",
+            "Requesting user",
+            "Preparing view",
+            "Connecting to service",
+            "Getting things ready",
+            "Just a moment",
+            "Petting the dog"
+        ]
     }
 
     static readonly constant = {
