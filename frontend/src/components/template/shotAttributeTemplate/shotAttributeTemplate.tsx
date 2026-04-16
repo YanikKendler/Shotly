@@ -18,7 +18,7 @@ import {wuGeneral} from "@yanikkendler/web-utils/dist"
 import {Popover} from "radix-ui"
 import "./shotAttributeTemplate.scss"
 import TextField from "@/components//inputs/textField/textField"
-import {errorNotification} from "@/service/NotificationService"
+import {errorNotification, successNotification} from "@/service/NotificationService"
 
 export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { attributeTemplate: ShotAttributeTemplateBaseDto, onDelete: (id: number) => void }) {
     const [attribute, setAttribute] = useState<AnyShotAttributeTemplate>({} as AnyShotAttributeTemplate)
@@ -88,12 +88,16 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
 
         if(errors) {
             errorNotification({
-                title: "Failed to delete attribute definition template",
+                title: "Failed to delete attribute template.",
                 tryAgainLater: true
             })
             console.error(errors)
             return
         }
+
+        successNotification({
+            title: "Successfully deleted attribute template.",
+        })
 
         onDelete(attribute.id)
     }

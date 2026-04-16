@@ -18,7 +18,7 @@ import {wuGeneral} from "@yanikkendler/web-utils/dist"
 import {Popover} from "radix-ui"
 import "./sceneAttributeTemplate.scss"
 import TextField from "@/components//inputs/textField/textField"
-import {errorNotification} from "@/service/NotificationService"
+import {errorNotification, successNotification} from "@/service/NotificationService"
 
 export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { attributeTemplate: SceneAttributeTemplateBaseDto, onDelete: (id: number) => void }) {
     const [attribute, setAttribute] = useState<AnySceneAttributeTemplate>({} as AnySceneAttributeTemplate)
@@ -88,15 +88,18 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
 
         if(errors) {
             errorNotification({
-                title: "Failed to delete attribute template",
+                title: "Failed to delete attribute template.",
                 tryAgainLater: true
             })
             console.error(errors)
             return
         }
-        else{
-            onDelete(attribute.id)
-        }
+
+        successNotification({
+            title: "Successfully deleted attribute template.",
+        })
+
+        onDelete(attribute.id)
     }
 
     const createSelectOption = async () => {

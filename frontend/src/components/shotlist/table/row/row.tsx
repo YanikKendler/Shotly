@@ -24,6 +24,7 @@ import {
     ShotlistOptionsDialogSubPage
 } from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys"
+import {successNotification} from "@/service/NotificationService"
 
 export interface RowRef {
     closeContextOptions: () => void,
@@ -132,6 +133,10 @@ const RowBase = forwardRef<RowRef, RowProps>(({
             setMarkAsDeleted(false)
             return
         }
+
+        successNotification({
+            title: "Shot deleted successfully"
+        })
 
         onDelete(shot.id as string)
 

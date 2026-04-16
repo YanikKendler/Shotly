@@ -308,45 +308,51 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         setDialogStep(currentStep + 1)
     }
 
-    const loadPendingCollaborations = async () => {
-        try {
-            setCollaborationReloadAllowed(false)
-            setPendingCollaborations(current => ({
-                ...current,
-                loading: true
-            }))
+    const loadPendingCollaborations = async (showNotification = false) => {
+        setCollaborationReloadAllowed(false)
+        setPendingCollaborations(current => ({
+            ...current,
+            loading: true
+        }))
 
-            const result = await client.query({
-                query: gql`
-                    query pendingCollaborations{
-                        pendingCollaborations{
-                            id
-                            owner {
-                                name
-                                email
-                            }
-                            shotlist {
-                                name
-                            }
-                            collaborationState
-                            collaborationType
+        const result = await client.query({
+            query: gql`
+                query pendingCollaborations{
+                    pendingCollaborations{
+                        id
+                        owner {
+                            name
+                            email
                         }
-                    }`,
-                fetchPolicy: "no-cache"
-            })
+                        shotlist {
+                            name
+                        }
+                        collaborationState
+                        collaborationType
+                    }
+                }`,
+            fetchPolicy: "no-cache"
+        })
 
-            setTimeout(()=> {
-                setCollaborationReloadAllowed(true)
-            }, wuConstants.Time.msPerSecond * 5)
+        setTimeout(()=> {
+            setCollaborationReloadAllowed(true)
+        }, wuConstants.Time.msPerSecond * 5)
 
-            setPendingCollaborations(result)
-        }
-        catch (error) {
+
+        if(result.errors) {
             errorNotification({
                 title: "Failed to load collaboration requests",
                 tryAgainLater: true
             })
+            return
         }
+
+        setPendingCollaborations(result)
+
+        if(showNotification)
+            successNotification({
+                title: "Refreshed collaborations",
+            })
     }
 
     const acceptOrDeclineCollaboration = async (collaborationId: string, newState: CollaborationState) => {
@@ -704,7 +710,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
                                             <button
                                                 className={"reload"}
-                                                onClick={loadPendingCollaborations}
+                                                onClick={() => loadPendingCollaborations(true)}
                                                 disabled={!collaborationReloadAllowed}
                                             >
                                                 <RefreshCw size={16}/>

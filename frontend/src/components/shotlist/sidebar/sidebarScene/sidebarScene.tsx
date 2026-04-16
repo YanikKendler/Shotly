@@ -19,6 +19,7 @@ import {
 } from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import Separator from "@/components/separator/separator"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
+import {successNotification} from "@/service/NotificationService"
 
 export interface SidebarSceneRef {
     closePopover: () => void
@@ -119,6 +120,10 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
 
         onDelete(scene.id as string)
         onSelect(null, null)
+
+        successNotification({
+            title: "Scene deleted successfully"
+        })
 
         shotlistContext.setSaveState("deleteScene", "saved")
     }

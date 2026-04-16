@@ -37,7 +37,7 @@ import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import {wuTime} from "@yanikkendler/web-utils"
 import Utils from "@/util/Utils"
 import toast from "react-hot-toast"
-import {errorNotification} from "@/service/NotificationService"
+import {errorNotification, successNotification} from "@/service/NotificationService"
 import {td} from "@/service/Analytics"
 import Dialog, {DialogRef} from "@/components/dialog/dialog"
 
@@ -69,6 +69,8 @@ export function useAccountDialog() {
     const [settingsLoaded, setSettingsLoaded] = useState(false)
     
     useEffect(() => {
+        if(settingsLoaded) return
+
         //load appearance from localstorage
         const appearance = localStorage.getItem(Config.localStorageKey.theme)
         if(appearance != null) {
@@ -115,11 +117,13 @@ export function useAccountDialog() {
                 document.documentElement.setAttribute('data-theme', systemPref)
                 break
         }
+
+        showSettingsSavedToast()
     }, [selectedAppearance])
 
     //write settings to localstorage
     useEffect(() => {
-        if(settingsLoaded == false) return
+        if(!settingsLoaded) return
 
         writeSettingsToLocalStorage()
     }, [userSettings])
@@ -154,6 +158,12 @@ export function useAccountDialog() {
         }
 
         setQuery(result)
+    }
+
+    const showSettingsSavedToast = () => {
+        successNotification({
+            title: "Preferences updated."
+        })
     }
 
     const writeSettingsToLocalStorage = () => {
@@ -257,6 +267,11 @@ export function useAccountDialog() {
             console.error("Error updating usename:", errors);
             return;
         }
+
+        successNotification({
+            title: "Username updated",
+            message: `Your name is now "${name}"`
+        })
     }
 
     let dialogContent
@@ -367,6 +382,7 @@ export function useAccountDialog() {
                                 checked={userSettings.saveExportSettingsInLocalstorage}
                                 onCheckedChange={(checked) => {
                                     td.signal("Account.Settings.RememberExportSettings")
+                                    showSettingsSavedToast()
                                     setUserSettings(current => ({
                                         ...current,
                                         saveExportSettingsInLocalstorage: checked
@@ -384,6 +400,7 @@ export function useAccountDialog() {
                                 checked={userSettings.displaySceneNumbersNextToShotNumbers}
                                 onCheckedChange={(checked) => {
                                     td.signal("Account.Settings.SceneNumbers")
+                                    showSettingsSavedToast()
                                     setUserSettings(current => ({
                                         ...current,
                                         displaySceneNumbersNextToShotNumbers: checked
@@ -402,6 +419,7 @@ export function useAccountDialog() {
                                 value={userSettings.shotNumberingAfterZ}
                                 onValueChange={(value) => {
                                     td.signal("Account.Settings.ShotNumbering")
+                                    showSettingsSavedToast()
                                     setUserSettings(current => ({
                                         ...current,
                                         shotNumberingAfterZ: value as "different" | "repeating"
@@ -427,6 +445,8 @@ export function useAccountDialog() {
                                 step={0.01}
                                 markerCount={5}
                                 onChange={(value) => {
+                                    td.signal("Account.Settings.ShotlistScale", {scale: value})
+                                    showSettingsSavedToast()
                                     setUserSettings(current => ({
                                         ...current,
                                         shotlistScale: value

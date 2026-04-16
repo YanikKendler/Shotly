@@ -18,8 +18,9 @@ import AttributeTab from "@/components/dialogs/shotlistOptionsDialog/attributeTa
 import CollaboratorsTab from "@/components/dialogs/shotlistOptionsDialog/collaboratorsTab/collaboratorsTab"
 import Separator from "@/components/separator/separator"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialog"
-import {errorNotification} from "@/service/NotificationService"
+import {errorNotification, infoNotification, successNotification} from "@/service/NotificationService"
 import Dialog, {DialogRef} from "@/components/dialog/dialog"
+import {wuConstants} from "@yanikkendler/web-utils/dist"
 
 export enum ShotlistOptionsDialogPage {
     general = "general",
@@ -79,7 +80,9 @@ export default function ShotlistOptionsDialog({
         }
     }, [selectedPage]);
 
+    //check for changes and refresh even after dialog close
     useEffect(() => {
+        //avoid double refresh with default behaviour
         if(Date.now() - lastRefresh.current < 500) return
 
         //sometimes a fetch only completes after the dialog was closed (delete attribute and instantly close)
@@ -241,8 +244,20 @@ export default function ShotlistOptionsDialog({
         let currentAttributeData = JSON.stringify(shotAttributeDefinitions) + JSON.stringify(sceneAttributeDefinitions) + JSON.stringify(shotlist)
 
         if(dataChanged || (stringifiedAttributeData != "" && currentAttributeData != stringifiedAttributeData)) {
+            successNotification({
+                title: "Saved all changes",
+                message: "The shotlist will now be refreshed"
+            })
+
             refreshShotlist()
             lastRefresh.current = Date.now()
+        }
+        else {
+            if(Date.now() - lastRefresh.current > 10 * wuConstants.Time.msPerSecond)
+                infoNotification({
+                    title: "No refresh needed",
+                    message: "No changes were detected"
+                })
         }
     }
 

@@ -19,7 +19,7 @@ import GoogleLogo from "@/components/googleLogo"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import Config from "@/Config"
 import HelpLink from "@/components/helpLink/helpLink"
-import {errorNotification} from "@/service/NotificationService"
+import {errorNotification, successNotification} from "@/service/NotificationService"
 import {DialogRef} from "@/components/dialog/dialog"
 import auth from "@/Auth"
 import {ShotlyErrorCode} from "@/util/Types"
@@ -195,7 +195,7 @@ export default function CollaboratorsTab(
         })
         if (result.errors) {
             errorNotification({
-                title: "Failed to resend Collaboration",
+                title: "Failed to resend collaboration",
                 tryAgainLater: true
             })
             console.error(result.errors);

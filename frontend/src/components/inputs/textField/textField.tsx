@@ -40,6 +40,7 @@ export default function TextField(
         color = "gray",
         visible = true,
         clearable = false,
+        ignoreOuterWhitespace = true
     }
     :
     {
@@ -59,7 +60,8 @@ export default function TextField(
         loading?: boolean
         color?: "gray" | "accent"
         visible?: boolean,
-        clearable?: boolean
+        clearable?: boolean,
+        ignoreOuterWhitespace?: boolean
     }
 ) {
     const [currentValue, setCurrentValue] = useState<string>(value || defaultValue);
@@ -105,13 +107,18 @@ export default function TextField(
     function handleInput(value: string){
         if(disabled) return
 
+        const trimmedValue = ignoreOuterWhitespace ? value.trim() : value
+        const onlyWhiteSpaceChange = trimmedValue == currentValue.trim()
+
         validateInput(value)
         setCurrentValue(value)
 
+        if(onlyWhiteSpaceChange && ignoreOuterWhitespace) return
+
         if(debounceValueChange && debouncedValueChange)
-            debouncedValueChange(value)
+            debouncedValueChange(trimmedValue)
         else
-            valueChange(value)
+            valueChange(trimmedValue)
     }
 
     const ignoreProps = !autoComplete ? {

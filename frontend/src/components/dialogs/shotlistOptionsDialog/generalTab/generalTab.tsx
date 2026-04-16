@@ -117,9 +117,12 @@ export default function GeneralTab({
             console.error(errors)
             setDeleting(false)
         }
-        else{
-            router.push("/dashboard")
-        }
+
+        successNotification({
+            title: "Successfully deleted shotlist",
+            message: `Returning to the dashboard`
+        })
+        router.push("/dashboard")
     }
 
     const toggleIsArchived = async () => {

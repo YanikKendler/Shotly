@@ -52,7 +52,7 @@ import Skeleton from "react-loading-skeleton"
 import ExportFilter from "@/components/dialogs/shotlistOptionsDialog/exportTab/exportFilter"
 import Separator from "@/components/separator/separator"
 import DotLoader from "@/components/DotLoader"
-import {errorNotification} from "@/service/NotificationService"
+import {errorNotification, infoNotification, successNotification} from "@/service/NotificationService"
 import {td} from "@/service/Analytics"
 import TextField from "@/components/inputs/textField/textField"
 import Collapse from "@/components/collapse/collapse"
@@ -299,6 +299,10 @@ export default function ExportTab(
         setSelectedScenes([])
         setCustomSceneFilters(new Map())
         setCustomShotFilters(new Map())
+
+        successNotification({
+            title: "All filters were reset to defaults"
+        })
     }
 
     const filterData = (result: ApolloQueryResult<Query>): ShotlistDto => {
@@ -436,6 +440,10 @@ export default function ExportTab(
                 exportXLSX(data)
                 break
         }
+
+        infoNotification({
+            title: "Generating your export!",
+        })
         
         setTimeout(() => {
             setExportRunning(false)

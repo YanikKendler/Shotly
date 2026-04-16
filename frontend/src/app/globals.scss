@@ -723,7 +723,6 @@ span.key{
 
 .tooltipContent, .popoverContent {
   background-color: var(--contrast);
-  padding: .4rem;
   font-size: .9rem;
   border-radius: .5rem;
   border: 2px solid var(--popup-border);
@@ -748,14 +747,12 @@ span.key{
   > span > svg {
     fill: var(--popup-border);
   }
-}
 
-.popoverContent{
-  overflow-y: auto;
-  scrollbar-width: thin;
-
-  &.noScroll{
-    overflow-y: initial;
+  .scrollArea{
+    overflow-y: auto;
+    scrollbar-width: thin;
+    max-height: 15rem;
+    padding: .5rem;
   }
 }
 
@@ -950,8 +947,16 @@ body .toast{
   &.error{
     background-color: var(--bad-95);
 
-    svg{
+    > svg{
       color: var(--bad);
+    }
+
+    > div{
+      margin-right: 0;
+    }
+
+    button.close {
+      color: var(--text-50);
     }
   }
 

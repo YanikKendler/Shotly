@@ -38,7 +38,7 @@ import {driver} from "driver.js"
 import Skeleton from "react-loading-skeleton"
 import auth from "@/Auth"
 import SimplePopover from "@/components/popover/simplePopover"
-import {errorNotification} from "@/service/NotificationService"
+import {errorNotification, successNotification} from "@/service/NotificationService"
 import {td} from "@/service/Analytics"
 
 export default function Template (){
@@ -234,6 +234,10 @@ export default function Template (){
             return;
         }
 
+        successNotification({
+            title: "Successfully deleted template",
+            message: "Returning to the dashboard"
+        })
         router.push("/dashboard");
     }
 
@@ -500,7 +504,7 @@ export default function Template (){
                             template <i>after</i> it has been edited will use the updated attributes.
                             <br/>
                             <br/>
-                            <Link href={"https://docs.shotly.at/templates"} target={"_blank"} className={"inline"}>Template Documentation</Link>
+                            <Link href={"https://docs.shotly.at/templates"} target={"_blank"} className={"inline noPadding"}>Template Documentation</Link>
                         </p>
                     }
                     className={"noClickFx default infoTrigger"}

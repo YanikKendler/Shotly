@@ -17,11 +17,6 @@
 
 .tooltipContent{
   .scrollArea{
-    overflow-y: auto;
-    scrollbar-width: thin;
-  }
-
-  .tooltipArrow{
-
+    max-height: 5rem;
   }
 }

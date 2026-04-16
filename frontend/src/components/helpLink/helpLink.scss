@@ -22,7 +22,9 @@
 }
 
 .helpLinkPopoverContent{
-  padding: .2rem;
+  .scrollArea{
+    padding: .2rem;
+  }
 
   a {
     font-size: .85rem;
