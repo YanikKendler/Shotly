@@ -105,6 +105,8 @@ export function useAccountDialog() {
     useEffect(() => {
         if(!settingsLoaded) return
 
+        if(localStorage.getItem(Config.localStorageKey.theme) == selectedAppearance) return
+
         localStorage.setItem(Config.localStorageKey.theme, selectedAppearance)
 
         switch (selectedAppearance) {

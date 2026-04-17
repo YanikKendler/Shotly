@@ -8,8 +8,8 @@
   --accent: hsl(18, 100%, 47%);
   --accent-55: hsl(18, 100%, 55%);
   --accent-60: hsl(18, 100%, 60%);
-  --accent-70: hsl(18, 100%, 70%);
-  --accent-80: hsl(18, 100%, 75%);
+  --accent-70: hsl(18, 100%, 65%);
+  --accent-80: hsl(19, 100%, 70%);
   --accent-90: hsl(19, 81%, 86%);
   --accent-92: hsl(19, 81%, 92%);
   --accent-95: hsl(19, 81%, 95%);
@@ -53,10 +53,10 @@
 
   --contrast: hsl(0, 0%, 100%);
 
-  --transparent-black-10: hsla(0, 0%, 0%, 10%);
-  --transparent-black-15: hsla(0, 0%, 0%, 15%);
-  --transparent-black-20: hsla(0, 0%, 0%, 20%);
-  --transparent-black-30: hsla(0, 0%, 0%, 30%);
+  --transparent-contrast-10: hsla(0, 0%, 90%, 10%);
+  --transparent-contrast-15: hsla(0, 0%, 90%, 15%);
+  --transparent-contrast-20: hsla(0, 0%, 90%, 20%);
+  --transparent-contrast-30: hsla(0, 0%, 90%, 30%);
 
   --transparent-gray-10: hsla(0, 0%, 50%, 10%);
   --transparent-gray-20: hsla(0, 0%, 50%, 20%);
@@ -77,7 +77,7 @@
   --sidebar-bottom-button-bg: hsl(12, 9%, 92%);
   --sidebar-bottom-button-border: hsl(0, 0%, 65%);
 
-  --popup-border: hsl(0, 0%, 82%);
+  --popup-border: hsl(0, 0%, 88%);
   --select-menu-border: hsl(0, 0%, 75%);
   --select-menu-multivalue-bg: hsl(0, 0%, 90%);
 
@@ -94,7 +94,7 @@
   --skelleton-highlight-color: hsl(0, 0%, 100%);
 
   --switch-bg: hsl(0, 0%, 80%);
-  --switch-knob-bg: hsl(0, 0%, 35%);
+  --switch-knob-bg: hsl(0, 0%, 40%);
   --switch-knob-focused-bg: hsl(0, 0%, 30%);
   --switch-knob-hover-bg: hsl(0, 0%, 15%);
 
@@ -160,6 +160,11 @@
   --text-100: hsl(0, 0%, 5%);
 
   --contrast: hsl(0, 0%, 10%);
+
+  --transparent-contrast-10: hsla(0, 0%, 0%, 10%);
+  --transparent-contrast-15: hsla(0, 0%, 0%, 15%);
+  --transparent-contrast-20: hsla(0, 0%, 0%, 20%);
+  --transparent-contrast-30: hsla(0, 0%, 0%, 30%);
 
   --sidebar-bg: hsl(20, 20%, 5%);
   --home-button-bg: hsl(14, 21%, 8%);

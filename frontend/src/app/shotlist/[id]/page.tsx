@@ -906,21 +906,23 @@ export default function Shotlist() {
             handleError: handleShotlistError
         }}>
             {
-                readOnlyBannerVisible && readOnlyState.isReadOnly == true &&
+                readOnlyBannerVisible && readOnlyState.isReadOnly &&
                 <div
                     className="readOnlyBanner"
                 >
-                    This Shotlist is in <span className={"bold"}>read-only</span> mode because
-                    {
-                        readOnlyState.reason == "tooManyShotlists" ?
-                            " the shotlists owner has exceeded the maximum number of Shotlist available with the basic tier" :
-                        readOnlyState.reason == "collaborationViewOnly" ?
-                            ' the shotlists owner set your collaboration type to "viewer"' :
-                        readOnlyState.reason == "archived" ?
-                            ' it has been marked as archived' :
-                            ' [unknown reason]'
-                    }
-                    .
+                    <p>
+                        This Shotlist is in <span className={"bold"}>read-only</span> mode because
+                        {
+                            readOnlyState.reason == "tooManyShotlists" ?
+                                " the shotlists owner has exceeded the maximum number of Shotlist available with the basic tier" :
+                            readOnlyState.reason == "collaborationViewOnly" ?
+                                ' the shotlists owner set your collaboration type to "viewer"' :
+                            readOnlyState.reason == "archived" ?
+                                ' it has been marked as archived' :
+                                ' [unknown reason]'
+                        }
+                        .
+                    </p>
                     <button className={"round"} onClick={() => setReadOnlyBannerVisible(false)}><X size={18}/></button>
                 </div>
             }

@@ -1,16 +1,23 @@
 .exportPreview {
+  --export-default-border: light-dark(hsl(0, 0%, 70%), hsl(0, 0%, 30%));
+  --export-header-bg: light-dark(hsl(0, 0%, 75%), hsl(0, 0%, 30%));
+  --export-header-border: light-dark(hsl(0, 0%, 60%), hsl(0, 0%, 10%));
+  --export-scene-attribute-defs-bg: light-dark(hsl(0, 0%, 90%), hsl(0, 0%, 20%));
+  --export-row-bg: light-dark(hsl(0, 0%, 95%), hsl(0, 0%, 10%));
+  --export-row-odd-bg: light-dark(hsl(0, 0%, 90%), hsl(0, 0%, 15%));
+
   width: 100%;
   display: flex;
   flex-direction: column;
   color: var(--text);
   font-size: .8rem;
-  border: 1px solid hsl(0, 0%, 30%);
+  border: 1px solid var(--export-default-border);
   border-radius: .5rem;
 
   .row {
     display: flex;
     width: 100%;
-    border-bottom: 1px solid hsl(0, 0%, 30%);
+    border-bottom: 1px solid var(--export-default-border);
     align-items: stretch;
 
     &:last-child {
@@ -21,7 +28,7 @@
   .cell {
     flex: 1 1 0px;
     padding: .5rem;
-    border-right: 1px solid hsl(0, 0%, 30%);
+    border-right: 1px solid var(--export-default-border);
     min-width: 0;
     white-space: nowrap;
     overflow: hidden;
@@ -34,8 +41,8 @@
 
   /* Header Styles */
   .header {
-    background-color: hsl(0, 0%, 30%);
-    border-color: hsl(0, 0%, 10%);
+    background-color: var(--export-header-bg);
+    border-color: var(--export-header-border);
 
     &.sceneAttributes {
       font-size: .9rem;
@@ -43,12 +50,12 @@
     }
 
     .cell {
-      border-color: hsl(0, 0%, 10%);
+      border-color: var(--export-header-border);
     }
   }
 
   .sceneAttributeDefinitions {
-    background-color: hsl(0, 0%, 20%);
+    background-color: var(--export-scene-attribute-defs-bg);
     border-top-left-radius: .5rem;
     border-top-right-radius: .5rem;
 
@@ -63,10 +70,10 @@
 
   /* Shot Rows */
   .shotRow {
-    background-color: hsl(0, 0%, 10%);
+    background-color: var(--export-row-bg);
 
     &.rowOdd {
-      background-color: hsl(0, 0%, 15%);
+      background-color: var(--export-row-odd-bg);
     }
   }
 
@@ -94,6 +101,6 @@
   .empty {
     padding: 2rem;
     text-align: center;
-    border: 1px dashed hsl(0, 0%, 30%);
+    border: 1px dashed var(--export-default-border);
   }
 }

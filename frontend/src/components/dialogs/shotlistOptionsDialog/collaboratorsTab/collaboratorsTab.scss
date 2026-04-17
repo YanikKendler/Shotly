@@ -1,4 +1,5 @@
 div.shotlistOptionsDialogCollaboratorsTab{
+  --collab-email-input-border: light-dark(hsl(0, 0%, 40%), hsl(0, 0%, 70%));
 
   .collaborators{
     display: flex;
@@ -91,7 +92,7 @@ div.shotlistOptionsDialogCollaboratorsTab{
 
     .textField input{
       font-size: .9rem;
-      border-color: var(--default-interactable-light-border);
+      border-color: var(--collab-email-input-border);
 
       &:focus-visible{
         border-color: var(--accent);

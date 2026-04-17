@@ -236,16 +236,16 @@ main.shotlist{
   font-size: .9rem;
   text-align: center;
   position: relative;
+  display: flex;
 
   @media screen and (max-width: 500px) {
     font-size: .85rem;
   }
 
+  p{
+    margin-inline: auto;
+  }
   button{
-    position: absolute;
-    right: 1rem;
-    top: 0;
-
     &:hover{
       background-color: var(--transparent-accent-10);
     }

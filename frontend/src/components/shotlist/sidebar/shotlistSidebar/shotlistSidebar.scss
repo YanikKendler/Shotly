@@ -1,8 +1,10 @@
 [data-theme="dark"] .shotlist .sidebar{
+  --collaborators-bg: hsla(20, 20%, 5%, 50%);
   --collaborators-hover-bg: hsl(20, 10%, 12%);
 }
 
 .shotlist .sidebar{
+  --collaborators-bg: hsla(20, 20%, 95%, 50%);
   --collaborators-hover-bg: hsl(20, 20%, 90%);
 
   .top{
@@ -43,7 +45,7 @@
       .collaborators {
         display: flex;
         border: none;
-        background-color: hsla(20, 20%, 5%, 50%);
+        background-color: var(--collaborators-bg);
         padding: .3rem;
 
         &:hover, &[data-state=open]{

@@ -115,6 +115,10 @@
       margin-bottom: .3rem;
       z-index: 10;
 
+      @media screen and (max-width: 600px){
+        padding-top: 0.3rem;
+      }
+
       h2{
         font-weight: 600;
       }
