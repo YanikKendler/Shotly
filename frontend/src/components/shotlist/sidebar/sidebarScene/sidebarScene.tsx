@@ -20,6 +20,7 @@ import {
 import Separator from "@/components/separator/separator"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import {successNotification} from "@/service/NotificationService"
+import Utils from "@/util/Utils"
 
 export interface SidebarSceneRef {
     closePopover: () => void
@@ -151,14 +152,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                     canOpen={expanded}
                 >
                     <p className="text">
-                        {
-                            sceneAttributes.every(attr => SceneAttributeParser.isEmpty(attr))
-                                ? "New Scene"
-                                : sceneAttributes
-                                    .filter(attr => !SceneAttributeParser.isEmpty(attr))
-                                    .map(attr => SceneAttributeParser.toValueString(attr))
-                                    .join(" • ")
-                        }
+                        { Utils.sceneAttributesToSceneName(sceneAttributes) }
                     </p>
                 </SimpleTooltip>
                 <div className="right">

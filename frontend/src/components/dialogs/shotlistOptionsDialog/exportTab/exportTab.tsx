@@ -60,6 +60,7 @@ import * as XLSX from 'xlsx-js-style';
 import ExportPreview from "@/components/dialogs/shotlistOptionsDialog/exportTab/exportPreview/exportPreview"
 import Dialog, {DialogRef} from "@/components/dialog/dialog"
 import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialog"
+import {wuText} from "@yanikkendler/web-utils/dist"
 
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full" | "XLSX"
 
@@ -88,7 +89,7 @@ export default function ExportTab(
     const {confirm, ConfirmDialog} = useConfirmDialog()
     const client = useApolloClient()
 
-    const [scenesAsOptions, setScenesAsOptions] = useState<SelectOption[]>([{value: "this is bad", label: "1"}])
+    const [scenesAsOptions, setScenesAsOptions] = useState<SelectOption[]>([{label: "this is bad", value: "-1"}])
 
     const [selectedFileType, setSelectedFileType] = useState<SelectedFileTypes>("PDF")
     const [pdfExportOptions, setPdfExportOptions] = useState<PDFExportOptions>({
@@ -188,9 +189,15 @@ export default function ExportTab(
 
     const extractScenesAsOptions = () => {
         let newSceneOptions: SelectOption[] = [];
-        for (let i = 0; i < (shotlist?.sceneCount || 0); i++) {
-            newSceneOptions.push({value: i.toString(), label: `${(i + 1).toString()}`});
-        }
+        shotlist?.scenes?.forEach((s, i) => {
+            newSceneOptions.push({
+                value: i.toString(),
+                label: wuText.truncate(
+                    `${(i + 1).toString()} - ${Utils.sceneAttributesToSceneName(s?.attributes as AnySceneAttribute[])}`
+                    , 35
+                )
+            });
+        })
         setScenesAsOptions(newSceneOptions)
     }
 

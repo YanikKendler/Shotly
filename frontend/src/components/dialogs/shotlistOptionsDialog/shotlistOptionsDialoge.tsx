@@ -96,7 +96,8 @@ export default function ShotlistOptionsDialog({
         setIsLoading(true)
 
         //fetching the defintions separately because im lazy and the shotlist query doesnt actually return the options hehe
-        const result = await client.query({query: gql`
+        const result = await client.query({
+            query: gql`
                 query data($shotlistId: String!){
                     shotlist(id: $shotlistId){
                         id
@@ -125,6 +126,22 @@ export default function ShotlistOptionsDialog({
                             }
                             collaborationState
                             collaborationType
+                        }
+                        scenes {
+                            attributes {
+                                type
+                                
+                                ... on SceneSingleSelectAttributeDTO{
+                                    singleSelectValue{id,name}
+                                }
+
+                                ... on SceneMultiSelectAttributeDTO{
+                                    multiSelectValue{id,name}
+                                }
+                                ... on SceneTextAttributeDTO{
+                                    textValue
+                                }
+                            }
                         }
                     }
                     shotAttributeDefinitions(shotlistId: $shotlistId){
@@ -171,8 +188,8 @@ export default function ShotlistOptionsDialog({
                         id
                     }
                 }`,
-            variables: {shotlistId: shotlistId},
-            fetchPolicy: "no-cache",
+                variables: {shotlistId: shotlistId},
+                fetchPolicy: "no-cache",
             },
         )
 

@@ -1,10 +1,11 @@
 import {wuConstants, wuText} from "@yanikkendler/web-utils/dist"
 import {ThemeConfig} from "react-select"
-import {SelectOption, ShotlistOrTemplate} from "@/util/Types"
+import {AnySceneAttribute, SelectOption, ShotlistOrTemplate} from "@/util/Types"
 import {ShotlistDto} from "../../lib/graphql/generated"
 import {NetworkStatus} from "@apollo/client"
 import {UserSettings} from "@/components/dialogs/accountDialog/accountDialog"
 import Config from "@/Config"
+import {SceneAttributeParser} from "@/util/AttributeParser"
 
 export interface fontSizeBreakpoint {
     length: number
@@ -175,6 +176,16 @@ export default class Utils {
 
         // Versions are identical
         return false;
+    }
+
+    static sceneAttributesToSceneName(attributes: AnySceneAttribute[] | null): string {
+        if(!attributes || attributes.every(attr => SceneAttributeParser.isEmpty(attr)))
+            return "New Scene"
+
+        return attributes
+            .filter(attr => !SceneAttributeParser.isEmpty(attr))
+            .map(attr => SceneAttributeParser.toValueString(attr))
+            .join(" • ")
     }
 }
 
