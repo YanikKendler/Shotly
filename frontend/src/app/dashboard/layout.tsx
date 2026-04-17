@@ -724,8 +724,8 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                                     </Popover.Portal>
                                 </Popover.Root>
                                 <Link
-                                    href={"/dashboard/archive"}
-                                    className={pathname.includes("archive") ? "selected noClickFx" : ""}
+                                    href={`/dashboard/${!pathname.includes("archive") ? "archive" : ""}`}
+                                    className={pathname.includes("archive") ? "selected" : ""}
                                 >
                                     Archive <Archive size={18}/>
                                 </Link>

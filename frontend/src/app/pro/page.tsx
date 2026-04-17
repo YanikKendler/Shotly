@@ -28,7 +28,7 @@ export default function Pro(){
 
     useEffect(() => {
         if(!auth.isAuthenticated()){
-            auth.login()
+            auth.loginForPro()
             return
         }
 

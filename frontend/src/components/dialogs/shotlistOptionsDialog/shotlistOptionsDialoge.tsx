@@ -269,13 +269,13 @@ export default function ShotlistOptionsDialog({
             refreshShotlist()
             lastRefresh.current = Date.now()
         }
-        else {
+        /*else {
             if(Date.now() - lastRefresh.current > 10 * wuConstants.Time.msPerSecond)
                 infoNotification({
                     title: "No refresh needed",
                     message: "No changes were detected"
                 })
-        }
+        }*/
     }
 
     return (

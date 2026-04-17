@@ -29,6 +29,7 @@ nav:
   - Attributes: shotlist/attributes.md
   - Collaborators: shotlist/collaboration.md
   - Export: shotlist/export.md
+  - Archive: shotlist/archive.md
 plugins:
   - open-in-new-tab
   - search

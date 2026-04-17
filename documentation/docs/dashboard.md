@@ -18,9 +18,13 @@ In the bottom-left corner, you can manage [collaboration](./shotlist/collaborati
 
 You can **accept or decline requests** by clicking the checkmark or X icon. When you accept a request, the shotlist will appear both in your sidebar and on your dashboard. If you decline the request, it will disappear and the shotlist owner can resend the request.
 
+### Archive
+
+Below the `Collaborations` button, you will find a link to the archive page. Here you can see shotlists that were [archived](./shotlist/archive.md) by their respective owners.
+
 ### Account
 
-Below the `Collaborations` button, you will find another button that opens the [Account dialog](./account.md), where you can manage your account and settings.
+The last button opens the [Account dialog](./account.md), where you can manage your account and settings.
 
 ## Templates and Shotlists
 

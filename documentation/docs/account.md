@@ -31,4 +31,4 @@ In this dialog you can also change your user settings:
 - **Shotlist Scale**: A scaling factor that can be applied to the shotlist. Double-click to reset.
 
 !!! Note
-    For now, settings are stored locally on your device. This means that you will have to configure the settings to your liking on each device individually.
+    For now, settings are stored locally on your device. This means that you will have to configure the settings to your liking on each device (browser) individually.
