@@ -51,7 +51,7 @@
       }
     }
 
-    &:not(.legal) {
+    &:not(.bottom) {
       button:not(.SwitchRoot), a {
         border: 2px solid var(--default-interactable-border);
         color: var(--text-30);
@@ -85,16 +85,15 @@
       }
     }
 
-    &.legal{
-      flex-wrap: wrap;
-      height: 100%;
-      min-height: auto;
-      gap: 0;
-      justify-content: space-between;
+    &.bottom{
+      justify-content: start;
+      gap: .8rem;
+      padding-inline: .5rem;
 
       a{
         font-size: .85rem;
-        color: var(--text-60);
+        color: var(--text-70);
+        padding: 0;
 
         &:hover{
           color: var(--text);
@@ -102,14 +101,9 @@
         }
       }
 
-      .separator {
-        height: 1.2rem;
-        margin: 0;
+      small{
+        margin-left: auto;
       }
-    }
-
-    &.bottom{
-      padding-inline: .5rem;
     }
   }
 

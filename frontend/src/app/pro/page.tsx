@@ -95,7 +95,7 @@ export default function Pro(){
 
                 <div className="buttons">
                     <button className={"text"} onClick={PaymentService.manageSubscription}>Manage Subscription</button>
-                    <Link className={"filled"} href={"/dashboard"}>To your Dashboard</Link>
+                    <Link className={"filled"} href={"/dashboard"}>My Dashboard</Link>
                 </div>
             </>
         )
@@ -109,7 +109,7 @@ export default function Pro(){
                 <p>Your pro subscription will be revoked after {wuTime.toDateString(currentUser.revokeProAfter) || "unknown"}.</p>
 
                 <div className="buttons">
-                    <Link className={"filled"} href={"/dashboard"}>To your Dashboard</Link>
+                    <Link className={"filled"} href={"/dashboard"}>My Dashboard</Link>
                 </div>
             </>
         )
@@ -126,7 +126,7 @@ export default function Pro(){
                 }
 
                 <div className="buttons">
-                    <Link className={"filled"} href={"/dashboard"}>To your Dashboard</Link>
+                    <Link className={"filled"} href={"/dashboard"}>My Dashboard</Link>
                 </div>
             </>
         )

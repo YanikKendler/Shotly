@@ -113,7 +113,7 @@ export default function Landing() {
                                 className={"main"}
                                 href={"/dashboard"}
                                 onClick={() => td.signal("Landing.Nav.Dashboard")}
-                            >Your Dashboard</Link>
+                            >My Dashboard</Link>
                         }
                         unauthenticated={
                             <>
@@ -152,7 +152,7 @@ export default function Landing() {
                                     <Link
                                         href={"/dashboard"}
                                         onClick={() => td.signal("Landing.Hero.Dashboard")}
-                                    >To your Dashboard</Link>
+                                    >My Dashboard</Link>
                                 }
                                 hasBeenAuthenticatedBefore={
                                     <button
@@ -160,7 +160,7 @@ export default function Landing() {
                                             td.signal("Landing.Hero.Dashboard")
                                             Auth.login()
                                         }}
-                                    >To your Dashboard</button>
+                                    >My Dashboard</button>
                                 }
                                 unauthenticated={
                                     <>
@@ -467,6 +467,7 @@ export default function Landing() {
                         <Link className={"noPadding"} href={"https://github.com/YanikKendler/shotly/issues/new/choose"} target={"_blank"}>Suggest a Feature</Link>
                         <Link className={"noPadding"} href={"/freeForStudents"}>Free for Students</Link>
                         <Link className={"noPadding"} href={"/changelog"}>Changelog</Link>
+                        <Link className={"noPadding"} href={"https://github.com/users/YanikKendler/projects/7/views/4"} target={"_blank"}>Issue tracker</Link>
                     </div>
                 </footer>
             </div>

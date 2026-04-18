@@ -167,7 +167,7 @@ export default function TextField(
                 {
                     info &&
                     <SimplePopover text={info}>
-                        <Info/>
+                        <Info size={20}/>
                     </SimplePopover>
                 }
             </div>

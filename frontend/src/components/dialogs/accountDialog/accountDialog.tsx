@@ -520,19 +520,10 @@ export function useAccountDialog() {
 
                 <Separator/>
 
-                <div className="row legal">
-                    <Link href={"/legal/cookies"} target={"_blank"}>Cookies</Link>
-                    <Link href={"/legal/privacy"} target={"_blank"}>Privacy</Link>
-                    <Link href={"/legal/legalNotice"} target={"_blank"}>Legal notice</Link>
-                    <Link href={"/legal/termsOfUse"} target={"_blank"}>Terms of use</Link>
-                    <Separator orientation={"vertical"}/>
-                    <Link href={"/changelog"} target={"_blank"}>Changelog</Link>
-                </div>
-
                 <div className="row bottom">
-                    <small>
-                        All changes are automatically saved.
-                    </small>
+                    <Link href={"/legal"} target={"_blank"}>Legal</Link>
+                    <Link href={"/changelog"} target={"_blank"}>Changelog</Link>
+                    <Link href={"https://github.com/users/YanikKendler/projects/7/views/4"} target={"_blank"}>Issue tracker</Link>
                     <small>
                         shotly v{BUILD_INFO.version} • {BUILD_INFO.buildTime} • {Config.mode == "prod-deployment" ? "prod" : Config.mode}
                     </small>
