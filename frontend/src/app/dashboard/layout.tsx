@@ -845,8 +845,9 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                         <Radio
                             options={[
                                 {value: "friend", label: "A friend"},
-                                {value: "work", label: "Work or colleagues"},
+                                {value: "work", label: "From work or colleagues"},
                                 {value: "reddit", label: "A Reddit post"},
+                                {value: "newsletter", label: "A Newsletter"},
                                 {value: "search", label: "A search engine (Google, Bing, etc.)"},
                                 {value: "ai", label: "An AI (GPT, Gemini, etc.)"},
                             ]}
