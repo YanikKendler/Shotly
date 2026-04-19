@@ -923,7 +923,7 @@ export default function Shotlist() {
                         }
                         .
                     </p>
-                    <button className={"round"} onClick={() => setReadOnlyBannerVisible(false)}><X size={18}/></button>
+                    <button className={"round"} onClick={() => setReadOnlyBannerVisible(false)}><X size={16}/></button>
                 </div>
             }
             <main className={`shotlist`} key={reloadKey}>
