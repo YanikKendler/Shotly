@@ -9,7 +9,7 @@ import AttributeValueSelect, {
 import {List} from "lucide-react"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
-import {CellInputRef} from "@/components/shotlist/table/cell/cell"
+import {CellInputRef} from "@/components/shotlist/table/cell/valueCell"
 import {
     ShotlistOptionsDialogPage,
     ShotlistOptionsDialogSubPage

@@ -2,7 +2,7 @@ import {wuConstants, wuGeneral} from "@yanikkendler/web-utils"
 import {Type} from "lucide-react"
 import React, {forwardRef, useEffect, useImperativeHandle, useMemo, useRef} from "react"
 import {ShotTextAttributeDto} from "../../../../../../lib/graphql/generated"
-import {CellInputRef} from "@/components/shotlist/table/cell/cell"
+import {CellInputRef} from "@/components/shotlist/table/cell/valueCell"
 import {ShotAttributeValueCollection} from "@/util/Types"
 
 interface CellTextInputProps {

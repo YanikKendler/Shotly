@@ -1,6 +1,5 @@
 import {forwardRef, memo, ReactNode, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
-import "./cell.scss"
-import {AnyShotAttribute, SelectOption, ShotAttributeValueCollection, ShotAttributeValueMultiType} from "@/util/Types"
+import {AnyShotAttribute, ShotAttributeValueCollection, ShotAttributeValueMultiType} from "@/util/Types"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import CellTextInput from "../input/cellTextInput/cellTextInput"
 import CellSingleSelectInput from "../input/cellSingleSelectInput/cellSingleSelectInput"
@@ -15,6 +14,7 @@ import {
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {wuGeneral} from "@yanikkendler/web-utils"
+import CellBase from "@/components/shotlist/table/cell/cellBase"
 
 export interface CellInputRef {
     setFocus: () => void
@@ -37,32 +37,22 @@ export interface CellRef {
 }
 
 interface CellProps {
-    attribute?: AnyShotAttribute
-    type?: ("default" | "number" | "create" | "loader")[]
-    children?: ReactNode
+    attribute: AnyShotAttribute
     row: number
     column: number
-    onClick?: () => void
-    isReadOnly?: boolean
+    isReadOnly: boolean
 }
 
 /**
  * Represents a single cell in the spreadsheet aka a shot attribute
- * @param children
- * @param type the purpose of the cell, affects styling - default or number (shot number on the left)
- * @constructor
  */
-const CellBase = forwardRef<CellRef, CellProps>(({
+const ValueCellBase = forwardRef<CellRef, CellProps>(({
     attribute,
-    type = ["default"],
-    children,
     row,
     column,
-    onClick,
     isReadOnly
 }, ref)=> {
     const inputRef = useRef<CellInputRef>(null)
-    const internalRef = useRef<HTMLDivElement>(null)
     const shotlistContext = useContext(ShotlistContext)
     const client = useApolloClient()
 
@@ -155,24 +145,14 @@ const CellBase = forwardRef<CellRef, CellProps>(({
     const readOnlyValueIsEmpty = !readOnlyValue || wuConstants.Regex.empty.test(readOnlyValue)
 
     return (
-        <div
-            className={`sheetCell ${type.join(" ")} ${isReadOnly && "readOnly"} ${isBlockedByCollaborator && "readOnly collaboratorHighlight"}`}
-            onClick={() => {
-                if(onClick) {
-                    onClick()
-                }
-            }}
+        <CellBase
+            className={`default ${isReadOnly && "readOnly"} ${isBlockedByCollaborator && "readOnly collaboratorHighlight"}`}
             onFocus={() => {
-                if(type.includes("default")) {
-                    shotlistContext.setFocusedCell(row, column)
-                }
+                shotlistContext.setFocusedCell(row, column)
             }}
             onBlur={() => {
-                if(type.includes("default")) {
-                    shotlistContext.setFocusedCell(-1, -1)
-                }
+                shotlistContext.setFocusedCell(-1, -1)
             }}
-            ref={internalRef}
         >
             { attribute &&
                 <>
@@ -190,9 +170,8 @@ const CellBase = forwardRef<CellRef, CellProps>(({
                     </div>
                 </>
             }
-            {children}
-        </div>
+        </CellBase>
     )
 })
 
-export const Cell = memo(CellBase)
+export const ValueCell = memo(ValueCellBase)

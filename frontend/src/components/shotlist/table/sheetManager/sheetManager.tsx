@@ -20,13 +20,15 @@ import {wuText} from "@yanikkendler/web-utils"
 import {ShotAttributeDefinitionParser} from "@/util/AttributeParser"
 import Skeleton from "react-loading-skeleton"
 import Sortable from 'sortablejs';
-import {Cell, CellRef} from "@/components/shotlist/table/cell/cell"
+import {ValueCell, CellRef} from "@/components/shotlist/table/cell/valueCell"
 import {Row, RowRef} from "../row/row";
 import {SelectedScene} from "@/app/shotlist/[id]/page"
 import {
     ShotlistOptionsDialogPage,
     ShotlistOptionsDialogSubPage
 } from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
+import CreatorCell from "@/components/shotlist/table/cell/creatorCell"
+import LoaderCell from "@/components/shotlist/table/cell/loaderCell"
 
 export interface SheetManagerRef {
     getCellRef: (row: number, column: number) => CellRef | null
@@ -198,8 +200,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                     }
                 }
             `,
-            variables: { sceneId: selectedScene.id },
-            fetchPolicy: "no-cache"
+            variables: { sceneId: selectedScene.id }
         })
 
         if(result.errors){
@@ -518,7 +519,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                         }}
                     >
                         {(shot.attributes as AnyShotAttribute[]).map((attribute: AnyShotAttribute, column: number)=> (
-                            <Cell
+                            <ValueCell
                                 key={attribute.id}
                                 attribute={attribute}
                                 row={row}
@@ -538,20 +539,11 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
             </div>
 
             <div ref={creationLoaderRef} style={{display: "none"}} className={"sheetRow"}>
-                <Cell row={-1} column={-1} type={["number", "loader"]}>
-                    <Skeleton height={"calc(40px * var(--shotlist-scale))"}/>
-                </Cell>
+                <LoaderCell isNumber/>
 
-                {shotAttributeDefinitions?.map((shotAttributeDefinition, index) => {
+                {shotAttributeDefinitions?.map((definition) => {
                     return (
-                        <Cell
-                            row={-1}
-                            column={index}
-                            type={["loader"]}
-                            key={shotAttributeDefinition.id}
-                        >
-                            <Skeleton height={"calc(40px * var(--shotlist-scale))"}/>
-                        </Cell>
+                        <LoaderCell key={definition.id}/>
                     )
                 })}
             </div>
@@ -559,23 +551,15 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
             {
                 !isReadOnly &&
                 <div className={"sheetRow"}>
-                    <Cell row={-1} column={-1} type={["number", "create"]}><span>#</span></Cell>
+                    <CreatorCell isNumber createShot={() => createShot(-1)}/>
 
-                    {shotAttributeDefinitions?.map((shotAttributeDefinition, index) => {
-                        let Icon = ShotAttributeDefinitionParser.toIcon(shotAttributeDefinition as AnyShotAttributeDefinition)
+                    {shotAttributeDefinitions?.map((definition, index) => {
                         return (
-                            <Cell
-                                row={-1}
-                                column={index}
-                                type={["create"]}
-                                key={shotAttributeDefinition.id}
-                                onClick={() => createShot(index)}
-                            >
-                                <p>{shotAttributeDefinition.name || "Unnamed"}</p>
-                                <div className="icon">
-                                    <Icon size={18}/>
-                                </div>
-                            </Cell>
+                            <CreatorCell
+                                shotAttributeDefinition={definition}
+                                createShot={() => createShot(index)}
+                                key={definition.id}
+                            />
                         )
                     })}
                 </div>

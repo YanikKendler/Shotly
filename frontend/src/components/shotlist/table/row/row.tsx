@@ -16,7 +16,7 @@ import {useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import {ShotDto} from "../../../../../lib/graphql/generated"
-import {Cell} from "../cell/cell"
+import {ValueCell} from "../cell/valueCell"
 import Utils from "@/util/Utils"
 import Separator from "@/components/separator/separator"
 import {
@@ -25,6 +25,7 @@ import {
 } from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys"
 import {successNotification} from "@/service/NotificationService"
+import CellBase from "@/components/shotlist/table/cell/cellBase"
 
 export interface RowRef {
     closeContextOptions: () => void,
@@ -148,10 +149,9 @@ const RowBase = forwardRef<RowRef, RowProps>(({
         className={`sheetRow ${contextOptionsOpen && "active"} ${markAsDeleted && "deleting"}`}
         data-shot-id={shot.id}
     >
-        <Cell
-            row={position}
-            column={-1}
-            type={["number"]}
+        <CellBase
+            isNumber={true}
+            className={"default"}
         >
             {Utils.numberToShotLetter(position, scenePosition)}
             {
@@ -222,7 +222,7 @@ const RowBase = forwardRef<RowRef, RowProps>(({
                     </Popover.Portal>
                 </Popover.Root>
             }
-        </Cell>
+        </CellBase>
         {children}
     </div>
     )
