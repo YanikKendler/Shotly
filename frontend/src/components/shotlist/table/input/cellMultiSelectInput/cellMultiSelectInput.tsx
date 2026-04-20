@@ -66,7 +66,7 @@ const CellMultiSelectInput = forwardRef<CellInputRef, CellMultiSelectInputProps>
 
     const updateMultiSelectValue = (value: SelectOption[] | null) => {
         setMultiSelectValue(value || [])
-        updateAttribute(attribute.id, {multiSelectValue: value?.map((option) => Number(option.value))})
+        updateAttribute(attribute.id, {multiSelectValue: value})
     }
 
     const createOption = async (inputValue: string) => {

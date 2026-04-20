@@ -41,6 +41,7 @@ interface CellProps {
     row: number
     column: number
     isReadOnly: boolean
+    onValueChange: (value: ShotAttributeValueCollection) => void
 }
 
 /**
@@ -50,7 +51,8 @@ const ValueCellBase = forwardRef<CellRef, CellProps>(({
     attribute,
     row,
     column,
-    isReadOnly
+    isReadOnly,
+    onValueChange
 }, ref)=> {
     const inputRef = useRef<CellInputRef>(null)
     const shotlistContext = useContext(ShotlistContext)
@@ -110,7 +112,12 @@ const ValueCellBase = forwardRef<CellRef, CellProps>(({
                     }
                 }
             `,
-            variables: {id: attributeId, ...value},
+            variables: {
+                id: attributeId,
+                textValue: value.textValue,
+                singleSelectValue: value.singleSelectValue?.value,
+                multiSelectValue: value.multiSelectValue?.map(m => m.value)
+            }
         })
         if (errors) {
             shotlistContext.handleError({
@@ -122,6 +129,7 @@ const ValueCellBase = forwardRef<CellRef, CellProps>(({
             return
         }
 
+        onValueChange(value)
         shotlistContext.setSaveState("updateShotAttribute", "saved")
     }
 

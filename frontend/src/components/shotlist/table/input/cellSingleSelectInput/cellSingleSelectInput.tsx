@@ -60,7 +60,7 @@ const CellSingleSelectInput = forwardRef<CellInputRef, CellSingleSelectInputProp
 
     const updateSingleSelectValue = (value: SelectOption | null) => {
         setSingleSelectValue(value || undefined)
-        updateAttribute(attribute.id, {singleSelectValue: Number(value?.value)})
+        updateAttribute(attribute.id, {singleSelectValue: value})
     }
 
     const createOption = async (inputValue: string) => {

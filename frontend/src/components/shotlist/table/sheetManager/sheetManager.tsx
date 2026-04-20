@@ -13,11 +13,16 @@ import {ShotlistContext} from "@/context/ShotlistContext";
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import ErrorDisplay from "@/components/feedback/errorDisplay/errorDisplay"
 import "./sheetManager.scss"
-import {Query, ShotAttributeDefinitionBase, ShotDto} from "../../../../../lib/graphql/generated"
-import {AnyShotAttribute, AnyShotAttributeDefinition, ShotlyErrorCode} from "@/util/Types"
+import {
+    Query,
+    ShotAttributeDefinitionBase,
+    ShotDto, ShotMultiSelectAttributeDto,
+    ShotSingleSelectAttributeDto,
+    ShotTextAttributeDto
+} from "../../../../../lib/graphql/generated"
+import {AnyShotAttribute, ShotAttributeValueCollection, ShotlyErrorCode} from "@/util/Types"
 import Utils from "@/util/Utils"
 import {wuText} from "@yanikkendler/web-utils"
-import {ShotAttributeDefinitionParser} from "@/util/AttributeParser"
 import Skeleton from "react-loading-skeleton"
 import Sortable from 'sortablejs';
 import {ValueCell, CellRef} from "@/components/shotlist/table/cell/valueCell"
@@ -49,8 +54,13 @@ export interface SheetManagerProps {
     shotlistHeaderRef: RefObject<HTMLDivElement | null>
 }
 
+interface ShotCacheEntry {
+    shots: ShotDto[]
+    timestamp: number
+}
+
 /**
- * Query's shots based on the passed sceneId and displays them in a spreadsheet, handles all spreadsheet actions
+ * Query's shots based on the selected scene and displays them in a spreadsheet, handles all spreadsheet actions
  * @constructor
  */
 const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
@@ -77,6 +87,8 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
     const handleCreateShotKeybind = useRef(() => {})
 
+    const shotCache = useRef<Map<string, ShotCacheEntry>>(new Map())
+
     useImperativeHandle(ref, () => ({
         getCellRef: getCellRef,
         findCellRef: findCellRef,
@@ -97,24 +109,41 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
             createShot(column)
         }
-    });
+    })
 
     useEffect(() => {
-        //if the scene id exists and actually differs from the currently loaded
-        if(selectedScene.id && selectedScene.id !== null && selectedScene.id != query.data.shots?.at(0)?.sceneId){
-            isSyncingScroll.current = false
-            shotIsBeingCreated.current = false
-            attributePositionToSelect.current = -1
+        //if the scene id exists
+        if(!selectedScene.id) return
 
-            setQuery(current => ({
-                ...current,
-                loading: true,
-                data: {
-                    shots: null,
-                }
-            }))
-            loadShots()
-        }
+        //actually differs from the currently loaded
+        if(selectedScene.id == query.data.shots?.at(0)?.sceneId) return
+
+        isSyncingScroll.current = false
+        shotIsBeingCreated.current = false
+        attributePositionToSelect.current = -1
+
+        cellRefs.current.clear()
+        rowRefs.current.clear()
+
+        setQuery(current => ({
+            ...current,
+            loading: true,
+            data: {
+                shots: null,
+            }
+        }))
+
+        setTimeout(() => {
+            if(selectedScene.id && shotCache.current.has(selectedScene.id)) {
+                const cacheEntry = shotCache.current.get(selectedScene.id)
+
+                if(cacheEntry)
+                    setShots(cacheEntry.shots)
+            }
+            else {
+                loadShots()
+            }
+        })
     }, [selectedScene])
 
     useEffect(() => {
@@ -127,46 +156,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
             attributePositionToSelect.current = -1
         }
-
-        if (sortableRef.current?.el) {
-            sortableRef.current.destroy()
-        }
-
-        /**
-         * creating a new SortableJS instance
-         * using a native JS library without react because the reordering is quite simple and the react re-renders
-         * were creating substantial complexity and performance issues
-         */
-        const shots = document.querySelector('#shots')
-        if(shots){
-            sortableRef.current = Sortable.create(shots as HTMLElement, {
-                handle: '.grip',
-                animation: 150,
-                forceFallback: true,
-                fallbackTolerance: 5,
-                onStart: (event) => {
-                    if(event.oldIndex === undefined) return
-
-                    shotlistContext.elementIsBeingDragged = true
-
-                    rowRefs.current.get(event.oldIndex)?.closeContextOptions()
-                },
-                onEnd: (event) => {
-                    //so that the drag ghost is hidden before re-rendering otherwise it hangs in the air for half a second
-                    requestAnimationFrame(() => {
-                        if(!event.item || event.oldIndex === undefined || event.newIndex === undefined) return
-
-                        moveShot(
-                            event.item.dataset.shotId as string,
-                            event.newIndex
-                        )
-
-                        shotlistContext.elementIsBeingDragged = false
-                    })
-                }
-            })
-        }
-    }, [query])
+    }, [query.data.shots])
 
     const loadShots = async () => {
         const result = await client.query({
@@ -200,6 +190,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                     }
                 }
             `,
+            fetchPolicy: "no-cache",
             variables: { sceneId: selectedScene.id }
         })
 
@@ -211,12 +202,34 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
             })
         }
 
-        shotlistContext.setShotCount(result.data?.shots?.length || 0)
+        setShots(result.data.shots)
+    }
 
-        cellRefs.current = new Map()
-        rowRefs.current = new Map()
+    const setShots = (shots: ShotDto[]) => {
+        shotlistContext.setShotCount(shots.length || 0)
 
-        setQuery(result)
+        updateShotCache(shots)
+
+        setQuery(current => ({
+            ...current,
+            loading: false,
+            data: {
+                ...current.data,
+                shots: shots
+            }
+        }))
+    }
+
+    const updateShotCache = (shots: ShotDto[]) => {
+        if(selectedScene.id) {
+            shotCache.current.set(selectedScene.id, {
+                shots: shots,
+                timestamp: Date.now()
+            })
+        }
+        else {
+            console.warn("Could not set scene cache because selectedScene.id is null")
+        }
     }
 
     const setCreationLoaderVisibility = (visible:boolean) => {
@@ -256,20 +269,20 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
     const setCellRef = useCallback((row: number, column: number, value: CellRef | null) => {
         if (!cellRefs.current.has(row)) {
-            cellRefs.current.set(row, new Map());
+            cellRefs.current.set(row, new Map())
         }
-        cellRefs.current.get(row)!.set(column, value);
+        cellRefs.current.get(row)!.set(column, value)
     },[cellRefs.current])
 
     const getCellRef = (row: number, column: number) => {
-        return cellRefs.current.get(row)?.get(column) || null;
+        return cellRefs.current.get(row)?.get(column) || null
     }
 
     const findCellRef = (id: number) => {
         for (let [row, columns] of cellRefs.current) {
             for (let [column, cellRef] of columns) {
                 if (cellRef && cellRef.id === id) {
-                    return cellRef;
+                    return cellRef
                 }
             }
         }
@@ -338,36 +351,17 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     }
 
     const onCreateShot = useCallback((newShot: ShotDto) => {
-        setQuery(current => {
-            const newShots = [...(current.data.shots || []), newShot]
-            shotlistContext.setShotCount(newShots.length)
+        const currentShots = query.data.shots as ShotDto[] || []
+        const newShots = [...currentShots, newShot]
 
-            return {
-                ...current,
-                data: {
-                    ...current.data,
-                    shots: newShots
-                }
-            }
-        })
+        setShots(newShots)
     }, [shotlistContext])
 
     const onDeleteShot = useCallback((shotId: string) => {
-        setQuery(current => {
-            if(!current.data.shots) return current
+        const currentShots = query.data.shots as ShotDto[] || []
+        const newShots = currentShots.filter((shot) => shot.id != shotId)
 
-            let currentShots = current.data.shots as ShotDto[]
-            let newShots = currentShots.filter((shot) => shot.id != shotId)
-            shotlistContext.setShotCount(newShots.length)
-
-            return {
-                ...current,
-                data: {
-                    ...current.data,
-                    shots: newShots
-                }
-            }
-        })
+        setShots(newShots)
     }, [shotlistContext])
 
     const moveShot = useCallback((shotId: string, to: number) => {
@@ -403,20 +397,16 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     }, [query])
 
     const onMoveShot = useCallback((shotId: string, to: number) => {
-        setQuery(current => {
-            const from = current.data.shots?.findIndex((shot) => shot?.id == shotId)
 
-            if(from == undefined || from < 0) return current
+        const from = query.data.shots?.findIndex((shot) => shot?.id == shotId)
 
-            return {
-                ...current,
-                data: {
-                    ...current.data,
-                    shots: Utils.reorderArray(current.data.shots || [], from, to)
-                }
-            }
-        })
-    }, [])
+        if(from == undefined || from < 0) return
+
+        const currentShots = query.data.shots as ShotDto[] || []
+        const newShots= Utils.reorderArray(currentShots, from, to)
+
+        setShots(newShots)
+    }, [query.data.shots])
 
     const handleScroll = () => {
         const table = shotTableElement.current
@@ -432,6 +422,91 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
             isSyncingScroll.current = false
         })
     }
+
+    const onCellValueChange = (inputValue: ShotAttributeValueCollection, shot: ShotDto, attribute: AnyShotAttribute) => {
+        const currentShots = query.data.shots as ShotDto[] || []
+        const newShots = currentShots.map(s => {
+            if(s.id != shot.id){
+                return s
+            }
+
+            const currentAttributes = s.attributes as AnyShotAttribute[] || []
+            currentAttributes.map(a => {
+                if(a.id != attribute.id)
+                    return a
+
+                switch (attribute.type) {
+                    case "ShotTextAttributeDTO":
+                        const textAttribute = attribute as ShotTextAttributeDto
+                        textAttribute.textValue = inputValue.textValue
+                        return textAttribute
+                    case "ShotSingleSelectAttributeDTO":
+                        const singleSelectAttribute = attribute as ShotSingleSelectAttributeDto
+                        if(!inputValue.singleSelectValue){
+                            singleSelectAttribute.singleSelectValue = null
+                            return singleSelectAttribute
+                        }
+
+                        singleSelectAttribute.singleSelectValue = {
+                            id: inputValue.singleSelectValue.value,
+                            name: inputValue.singleSelectValue.label
+                        }
+
+                        return singleSelectAttribute
+                    case "ShotMultiSelectAttributeDTO":
+                        const multiSelectAttribute = attribute as ShotMultiSelectAttributeDto
+                        if(!inputValue.multiSelectValue){
+                            multiSelectAttribute.multiSelectValue = null
+                            return multiSelectAttribute
+                        }
+
+                        multiSelectAttribute.multiSelectValue = inputValue.multiSelectValue.map(msv => ({
+                            id: msv.value,
+                            name: msv.label
+                        }))
+
+                        return multiSelectAttribute
+                }
+                return a
+            })
+            return s
+        })
+        updateShotCache(newShots)
+    }
+
+    const shotContainerRef = useCallback((node: HTMLDivElement | null) => {
+        if (sortableRef.current) {
+            sortableRef.current.destroy()
+            sortableRef.current = null
+        }
+
+        if (node) {
+            sortableRef.current = Sortable.create(node, {
+                handle: '.grip',
+                animation: 150,
+                forceFallback: true,
+                fallbackTolerance: 5,
+                onStart: (event) => {
+                    if (event.oldIndex === undefined) return
+
+                    shotlistContext.elementIsBeingDragged = true
+                    rowRefs.current.get(event.oldIndex)?.closeContextOptions()
+                },
+                onEnd: (event) => {
+                    //so that the drag ghost is hidden before re-rendering otherwise it hangs in the air for half a second
+                    requestAnimationFrame(() => {
+                        if(!event.item || event.oldIndex === undefined || event.newIndex === undefined) return
+
+                        moveShot(
+                            event.item.dataset.shotId as string,
+                            event.newIndex
+                        )
+                        shotlistContext.elementIsBeingDragged = false
+                    })
+                }
+            })
+        }
+    }, [moveShot, shotlistContext])
 
     if(!pageLoading && (!shotAttributeDefinitions || (!isReadOnly && shotAttributeDefinitions.length == 0))) {
         return <div className="sheetManager">
@@ -500,7 +575,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
             onScrollEnd={handleScroll}
             ref={shotTableElement}
         >
-            <div id="shots">
+            <div ref={shotContainerRef}>
                 {(query.data.shots as ShotDto[])?.map((shot: ShotDto, row: number) => (
                     <Row
                         key={shot.id}
@@ -532,6 +607,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                                     }
                                 }}
                                 isReadOnly={isReadOnly}
+                                onValueChange={(value) => onCellValueChange(value, shot, attribute)}
                             />
                         ))}
                     </Row>

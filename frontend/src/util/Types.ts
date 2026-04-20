@@ -42,8 +42,8 @@ export interface SelectOption {
 
 export interface ShotAttributeValueCollection {
     textValue?: string
-    singleSelectValue?: number
-    multiSelectValue?: number[]
+    singleSelectValue?: SelectOption | null
+    multiSelectValue?: SelectOption[] | null
 }
 
 export interface SceneAttributeValueCollection {
