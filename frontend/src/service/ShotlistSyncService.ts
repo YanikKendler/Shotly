@@ -1,5 +1,5 @@
 import {AnyShotAttribute} from "@/util/Types"
-import {SheetManagerRef} from "@/components/shotlist/table/sheetManager/sheetManager"
+import {SheetManagerRef, ShotCache} from "@/components/shotlist/table/sheetManager/sheetManager"
 import {
     CollaborationType,
     SceneAttributeBaseDto,
@@ -57,6 +57,8 @@ export interface UserPayload {
 export interface ShotAttributePayload {
     kind: "shotAttribute"
     attribute: AnyShotAttribute
+    shotId: string
+    sceneId: string
 }
 
 export interface ShotPayload {
@@ -163,29 +165,70 @@ export class ShotlistSyncService {
         this.shotlistId = shotlistId
     }
 
-    updateShotAttribute(payload: ShotAttributePayload, sheetManager: SheetManagerRef | null){
+    updateShotAttribute(payload: ShotAttributePayload, sheetManager: SheetManagerRef | null, selectedSceneId: string | null){
         const sheetCellRef = sheetManager?.findCellRef(payload.attribute.id)
 
-        sheetCellRef?.setReadOnlyValue(ShotAttributeParser.toValueString(payload.attribute, false))
-        sheetCellRef?.setValue(ShotAttributeParser.toMultiTypeValue(payload.attribute))
+        console.log("update shot payload", payload)
+
+        if(payload.sceneId == selectedSceneId) {
+            console.log("is visible change")
+            sheetCellRef?.setReadOnlyValue(ShotAttributeParser.toValueString(payload.attribute, false))
+            sheetCellRef?.setValue(ShotAttributeParser.toMultiTypeValue(payload.attribute))
+        }
+        else {
+            const valueCollection = ShotAttributeParser.toValueCollection(payload.attribute)
+            sheetManager?.onCellValueChange(valueCollection, payload.attribute.id, payload.shotId, payload.sceneId)
+        }
+
     }
 
-    createShot(payload: ShotPayload, sheetManager: SheetManagerRef | null){
+    createShot(payload: ShotPayload, sheetManager: SheetManagerRef | null, selectedSceneId: string | null){
         if(!payload.shot || !payload.shot.id || !sheetManager) return
 
-        sheetManager.onCreateShot(payload.shot)
+        if(payload.shot.sceneId == selectedSceneId) {
+            sheetManager.onCreateShot(payload.shot)
+        }
+        else{
+            const currentCache = sheetManager.shotCache.current.get(payload.shot.sceneId || "")
+
+            if(!currentCache) return
+
+            const newShots = [...currentCache.shots, payload.shot]
+            sheetManager.updateShotCache(newShots, payload.shot.sceneId)
+        }
+
     }
 
-    updateShot(payload: ShotPayload, sheetManager: SheetManagerRef | null){
+    updateShot(payload: ShotPayload, sheetManager: SheetManagerRef | null, selectedSceneId: string | null){
         if(!payload.shot || !payload.shot.id || !sheetManager) return
 
-        sheetManager.onMoveShot(payload.shot.id, payload.shot.position)
+        if(payload.shot.sceneId == selectedSceneId) {
+            sheetManager.onMoveShot(payload.shot.id, payload.shot.position)
+        }
+        else {
+            const currentCache = sheetManager.shotCache.current.get(payload.shot.sceneId || "")
+
+            if(!currentCache) return
+
+            const newShots = currentCache.shots.map(shot => shot.id == payload.shot.id ? payload.shot : shot)
+            sheetManager.updateShotCache(newShots, payload.shot.sceneId)
+        }
     }
 
-    deleteShot(payload: ShotPayload, sheetManager: SheetManagerRef | null){
+    deleteShot(payload: ShotPayload, sheetManager: SheetManagerRef | null, selectedSceneId: string | null){
         if(!payload.shot || !payload.shot.id || !sheetManager) return
 
-        sheetManager.onDeleteShot(payload.shot.id)
+        if(payload.shot.sceneId == selectedSceneId) {
+            sheetManager.onDeleteShot(payload.shot.id)
+        }
+        else {
+            const currentCache = sheetManager.shotCache.current.get(payload.shot.sceneId || "")
+
+            if(!currentCache) return
+
+            const newShots = currentCache.shots.filter(shot => shot.id != payload.shot.id)
+            sheetManager.updateShotCache(newShots, payload.shot.sceneId)
+        }
     }
 
     updateSceneAttribute(payload: SceneAttributePayload, sidebar: ShotlistSidebarRef | null){

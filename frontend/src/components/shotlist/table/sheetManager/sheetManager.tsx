@@ -44,6 +44,10 @@ export interface SheetManagerRef {
     onDeleteShot: (shotId: string) => void
     moveFocusedCell: (e:KeyboardEvent, row:number, column: number) => void
     handleCreateShotKeybind: RefObject<() => void>
+    onCellValueChange: (value: ShotAttributeValueCollection, attributeId: number, shotId: string, sceneId?: string) => void
+    shotCache: RefObject<ShotCache>
+    updateShotCache: (shots: ShotDto[], sceneId?: string | null) => void
+    selectedSceneId: string
 }
 
 export interface SheetManagerProps {
@@ -54,10 +58,12 @@ export interface SheetManagerProps {
     shotlistHeaderRef: RefObject<HTMLDivElement | null>
 }
 
-interface ShotCacheEntry {
+export interface ShotCacheEntry {
     shots: ShotDto[]
     timestamp: number
 }
+
+export type ShotCache = Map<string, ShotCacheEntry>
 
 /**
  * Query's shots based on the selected scene and displays them in a spreadsheet, handles all spreadsheet actions
@@ -87,7 +93,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
     const handleCreateShotKeybind = useRef(() => {})
 
-    const shotCache = useRef<Map<string, ShotCacheEntry>>(new Map())
+    const shotCache = useRef<ShotCache>(new Map())
 
     useImperativeHandle(ref, () => ({
         getCellRef: getCellRef,
@@ -97,7 +103,10 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         onCreateShot: onCreateShot,
         onDeleteShot: onDeleteShot,
         moveFocusedCell: moveFocusedCell,
-        handleCreateShotKeybind: handleCreateShotKeybind
+        handleCreateShotKeybind: handleCreateShotKeybind,
+        onCellValueChange: onCellValueChange,
+        shotCache: shotCache,
+        updateShotCache: updateShotCache
     }))
 
     useEffect(() => {
@@ -220,15 +229,15 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         }))
     }
 
-    const updateShotCache = (shots: ShotDto[]) => {
-        if(selectedScene.id) {
-            shotCache.current.set(selectedScene.id, {
+    const updateShotCache = (shots: ShotDto[], sceneId: string | null = selectedScene.id) => {
+        if(sceneId) {
+            shotCache.current.set(sceneId, {
                 shots: shots,
                 timestamp: Date.now()
             })
         }
         else {
-            console.warn("Could not set scene cache because selectedScene.id is null")
+            console.warn("Could not set scene cache because scene id is null")
         }
     }
 
@@ -423,25 +432,35 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         })
     }
 
-    const onCellValueChange = (inputValue: ShotAttributeValueCollection, shot: ShotDto, attribute: AnyShotAttribute) => {
-        const currentShots = query.data.shots as ShotDto[] || []
+    const onCellValueChange = (
+        inputValue: ShotAttributeValueCollection,
+        attributeId: number,
+        shotId: string,
+        sceneId: string | null = selectedScene.id
+    ) => {
+        if(!sceneId) return
+
+        const currentShots = shotCache.current.get(sceneId)?.shots
+
+        if(!currentShots) return
+
         const newShots = currentShots.map(s => {
-            if(s.id != shot.id){
+            if(s.id != shotId){
                 return s
             }
 
             const currentAttributes = s.attributes as AnyShotAttribute[] || []
             currentAttributes.map(a => {
-                if(a.id != attribute.id)
+                if(a.id != attributeId)
                     return a
 
-                switch (attribute.type) {
+                switch (a.type) {
                     case "ShotTextAttributeDTO":
-                        const textAttribute = attribute as ShotTextAttributeDto
+                        const textAttribute = a as ShotTextAttributeDto
                         textAttribute.textValue = inputValue.textValue
                         return textAttribute
                     case "ShotSingleSelectAttributeDTO":
-                        const singleSelectAttribute = attribute as ShotSingleSelectAttributeDto
+                        const singleSelectAttribute = a as ShotSingleSelectAttributeDto
                         if(!inputValue.singleSelectValue){
                             singleSelectAttribute.singleSelectValue = null
                             return singleSelectAttribute
@@ -454,7 +473,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
                         return singleSelectAttribute
                     case "ShotMultiSelectAttributeDTO":
-                        const multiSelectAttribute = attribute as ShotMultiSelectAttributeDto
+                        const multiSelectAttribute = a as ShotMultiSelectAttributeDto
                         if(!inputValue.multiSelectValue){
                             multiSelectAttribute.multiSelectValue = null
                             return multiSelectAttribute
@@ -471,7 +490,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
             })
             return s
         })
-        updateShotCache(newShots)
+        updateShotCache(newShots, sceneId)
     }
 
     const shotContainerRef = useCallback((node: HTMLDivElement | null) => {
@@ -607,7 +626,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                                     }
                                 }}
                                 isReadOnly={isReadOnly}
-                                onValueChange={(value) => onCellValueChange(value, shot, attribute)}
+                                onValueChange={(value) => onCellValueChange(value, attribute.id, shot.id || "")}
                             />
                         ))}
                     </Row>

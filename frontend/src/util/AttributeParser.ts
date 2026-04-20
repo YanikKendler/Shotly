@@ -2,7 +2,8 @@ import {
     AnySceneAttribute,
     AnySceneAttributeDefinition, AnySceneAttributeTemplate,
     AnyShotAttribute,
-    AnyShotAttributeDefinition, AnyShotAttributeTemplate, SelectOption, ShotAttributeValueMultiType
+    AnyShotAttributeDefinition, AnyShotAttributeTemplate, SelectOption,
+    ShotAttributeValueCollection, ShotAttributeValueMultiType
 } from "@/util/Types"
 import {ChevronDown, List, Type, Loader} from "lucide-react"
 import {JSX} from "react"
@@ -113,6 +114,42 @@ export abstract class ShotAttributeParser {
                 ) || []
         }
         return null
+    }
+
+    static toValueCollection(attribute: AnyShotAttribute): ShotAttributeValueCollection {
+        switch (attribute.type) {
+            case "ShotTextAttributeDTO":
+                const textAttribute = attribute as ShotTextAttributeDto
+                return {
+                    textValue: textAttribute.textValue || undefined
+                }
+            case "ShotSingleSelectAttributeDTO":
+                const singleAttribute = attribute as ShotSingleSelectAttributeDto
+
+                if(!singleAttribute.singleSelectValue)
+                    return {singleSelectValue: null}
+
+                return {
+                    singleSelectValue:  {
+                        label: singleAttribute.singleSelectValue.name || "Unnamed",
+                        value: singleAttribute.singleSelectValue.id
+                    }
+                }
+            case "ShotMultiSelectAttributeDTO":
+                const multiAttribute = attribute as ShotMultiSelectAttributeDto
+
+                if(!multiAttribute.multiSelectValue) return {multiSelectValue: null}
+
+                return {
+                    multiSelectValue: multiAttribute.multiSelectValue.map(
+                        (option) => ({
+                            label: option?.name || "Unnamed",
+                            value: option?.id || ""
+                        })
+                    )
+                }
+        }
+        return {}
     }
 }
 

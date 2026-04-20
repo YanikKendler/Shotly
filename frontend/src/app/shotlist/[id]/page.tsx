@@ -493,20 +493,18 @@ export default function Shotlist() {
 
             switch (updateDTO.payload.kind) {
                 case "shotAttribute":
-                    syncService.current.updateShotAttribute(updateDTO.payload, sheetManagerRef.current)
+                    syncService.current.updateShotAttribute(updateDTO.payload, sheetManagerRef.current, selectedSceneRef.current.id)
                     break
                 case "shot":
-                    if(updateDTO.payload.shot.sceneId != selectedSceneRef.current.id) return
-
                     switch (updateDTO.type) {
                         case ShotlistUpdateType.SHOT_ADDED:
-                            syncService.current.createShot(updateDTO.payload, sheetManagerRef.current)
+                            syncService.current.createShot(updateDTO.payload, sheetManagerRef.current, selectedSceneRef.current.id)
                             break
                         case ShotlistUpdateType.SHOT_UPDATED:
-                            syncService.current.updateShot(updateDTO.payload, sheetManagerRef.current)
+                            syncService.current.updateShot(updateDTO.payload, sheetManagerRef.current, selectedSceneRef.current.id)
                             break
                         case ShotlistUpdateType.SHOT_DELETED:
-                            syncService.current.deleteShot(updateDTO.payload, sheetManagerRef.current)
+                            syncService.current.deleteShot(updateDTO.payload, sheetManagerRef.current, selectedSceneRef.current.id)
                             break
                     }
                     break
