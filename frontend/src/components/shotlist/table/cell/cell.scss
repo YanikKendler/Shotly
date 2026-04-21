@@ -196,6 +196,30 @@
     }
   }
 
+  .collaboratorName{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: var(--collaborator);
+    height: 1.2rem;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    border-top-left-radius: 50%;
+    font-size: .75rem;
+    color: var(--collaborator-contrast);
+    font-weight: 500;
+    translate: 4px 4px;
+    cursor: default;
+    border: 3px solid var(--cell-background);
+    box-sizing: content-box;
+    transition: font-weight .3s;
+
+    &:hover{
+      font-weight: 700;
+    }
+  }
+
   &::before{
     content: "";
     position: absolute;
@@ -227,7 +251,7 @@
   &.collaboratorHighlight{
     color: var(--collaborator-text);
 
-    *{
+    *:not(.collaboratorName){
       pointer-events: none;
     }
 

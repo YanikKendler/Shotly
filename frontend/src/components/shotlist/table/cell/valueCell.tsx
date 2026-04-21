@@ -15,6 +15,8 @@ import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {wuGeneral} from "@yanikkendler/web-utils"
 import CellBase from "@/components/shotlist/table/cell/cellBase"
+import {UserMinimalDTO} from "@/service/ShotlistSyncService"
+import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 
 export interface CellInputRef {
     setFocus: () => void
@@ -60,7 +62,7 @@ const ValueCellBase = forwardRef<CellRef, CellProps>(({
 
     const [readOnlyValue, setReadOnlyValue] = useState<string>("")
 
-    const [isBlockedByCollaborator, setIsBlockedByCollaborator] = useState(false)
+    const [isBlockedByCollaborator, setIsBlockedByCollaborator] = useState<UserMinimalDTO | null>(null)
 
     useEffect(() => {
         if(attribute){
@@ -88,11 +90,15 @@ const ValueCellBase = forwardRef<CellRef, CellProps>(({
             setReadOnlyValue(value)
         },
         setCollaboratorHighlight(userId: string){
-            if(attribute)
-                setIsBlockedByCollaborator(true)
+            if(!attribute) return
+
+            const collaborator = shotlistContext.presentCollaborators.get(userId)
+
+            if(collaborator)
+                setIsBlockedByCollaborator(collaborator.user)
         },
         removeCollaboratorHighlight(userId: string){
-            setIsBlockedByCollaborator(false)
+            setIsBlockedByCollaborator(null)
         }
     }))
 
@@ -164,6 +170,7 @@ const ValueCellBase = forwardRef<CellRef, CellProps>(({
         >
             { attribute &&
                 <>
+                    {/* Needs to be handled via "display" to allow syncing of both readonly and normal value via the element */}
                     <p
                         className={`readOnlyValue ${readOnlyValueIsEmpty && "empty"}`}
                         style={{display: isReadOnly || isBlockedByCollaborator ? "block" : "none"}}
@@ -176,6 +183,13 @@ const ValueCellBase = forwardRef<CellRef, CellProps>(({
                     >
                         {renderInput()}
                     </div>
+
+                    {
+                        isBlockedByCollaborator &&
+                        <SimpleTooltip text={isBlockedByCollaborator.name} fontSize={0.8} delay={0}>
+                            <span className={"collaboratorName"}>{isBlockedByCollaborator.name.substring(0,1).toUpperCase()}</span>
+                        </SimpleTooltip>
+                    }
                 </>
             }
         </CellBase>

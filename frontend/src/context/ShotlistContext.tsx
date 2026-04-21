@@ -6,7 +6,8 @@ import {
     ShotlistOptionsDialogSubPage
 } from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {GenericError, SelectOption} from "@/util/Types"
-import {SaveState} from "@/app/shotlist/[id]/page"
+import {PresentCollaborator, SaveState} from "@/app/shotlist/[id]/page"
+import {UserMinimalDTO} from "@/service/ShotlistSyncService"
 
 export interface ShotlistContextProps {
     openShotlistOptionsDialog: (page: { main: ShotlistOptionsDialogPage, sub?: ShotlistOptionsDialogSubPage }) => void
@@ -27,10 +28,12 @@ export interface ShotlistContextProps {
     loadSceneSelectOptions: (sceneAttributeDefinitionId: number) => Promise<void>
     addSceneSelectOption: (sceneAttributeDefinitionId: number, option: SelectOption) => void
 
-    websocketRef: RefObject<WebSocket | null>,
     broadCastSceneAttributeSelect: (attributeId: number) => void
+
     setSaveState: (key: string, saveState: SaveState) => void
     handleError: (error: GenericError) => void
+
+    presentCollaborators: Map<string, PresentCollaborator>
 }
 
 export const ShotlistContext = createContext<ShotlistContextProps>({
@@ -51,12 +54,15 @@ export const ShotlistContext = createContext<ShotlistContextProps>({
     getShotSelectOption: () => [],
     loadShotSelectOptions: () => Promise.resolve(),
     addShotSelectOption: () => {},
-
+    //to get options for scene single/multi select attributes - handles caching and refetching
     getSceneSelectOption: () => [],
     loadSceneSelectOptions: () => Promise.resolve(),
     addSceneSelectOption: () => {},
-    websocketRef: { current: null },
+    //send websocket message to other clients (is not needed for other changes because the server syncs automatically)
     broadCastSceneAttributeSelect: () => {},
+    //save state display and error handling
     setSaveState: () => {},
-    handleError: () => {}
+    handleError: () => {},
+    //for displaying collaborator names from cellHighlight
+    presentCollaborators: new Map()
 })
