@@ -44,7 +44,7 @@ export interface SheetManagerRef {
     onDeleteShot: (shotId: string) => void
     moveFocusedCell: (e:KeyboardEvent, row:number, column: number) => void
     handleCreateShotKeybind: RefObject<() => void>
-    onCellValueChange: (value: ShotAttributeValueCollection, attributeId: number, shotId: string, sceneId?: string) => void
+    updateShotCacheShotAttributeValue: (value: ShotAttributeValueCollection, attributeId: number, shotId: string, sceneId?: string) => void
     shotCache: RefObject<ShotCache>
     updateShotCache: (shots: ShotDto[], sceneId?: string | null) => void
 }
@@ -103,7 +103,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         onDeleteShot: onDeleteShot,
         moveFocusedCell: moveFocusedCell,
         handleCreateShotKeybind: handleCreateShotKeybind,
-        onCellValueChange: onCellValueChange,
+        updateShotCacheShotAttributeValue: updateShotCacheShotAttributeValue,
         shotCache: shotCache,
         updateShotCache: updateShotCache
     }))
@@ -431,7 +431,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         })
     }
 
-    const onCellValueChange = (
+    const updateShotCacheShotAttributeValue = (
         inputValue: ShotAttributeValueCollection,
         attributeId: number,
         shotId: string,
@@ -625,7 +625,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                                     }
                                 }}
                                 isReadOnly={isReadOnly}
-                                onValueChange={(value) => onCellValueChange(value, attribute.id, shot.id || "")}
+                                onValueChange={(value) => updateShotCacheShotAttributeValue(value, attribute.id, shot.id || "")}
                             />
                         ))}
                     </Row>

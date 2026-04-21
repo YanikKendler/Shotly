@@ -168,18 +168,13 @@ export class ShotlistSyncService {
     updateShotAttribute(payload: ShotAttributePayload, sheetManager: SheetManagerRef | null, selectedSceneId: string | null){
         const sheetCellRef = sheetManager?.findCellRef(payload.attribute.id)
 
-        console.log("update shot payload", payload)
+        const valueCollection = ShotAttributeParser.toValueCollection(payload.attribute)
+        sheetManager?.updateShotCacheShotAttributeValue(valueCollection, payload.attribute.id, payload.shotId, payload.sceneId)
 
         if(payload.sceneId == selectedSceneId) {
-            console.log("is visible change")
             sheetCellRef?.setReadOnlyValue(ShotAttributeParser.toValueString(payload.attribute, false))
             sheetCellRef?.setValue(ShotAttributeParser.toMultiTypeValue(payload.attribute))
         }
-        else {
-            const valueCollection = ShotAttributeParser.toValueCollection(payload.attribute)
-            sheetManager?.onCellValueChange(valueCollection, payload.attribute.id, payload.shotId, payload.sceneId)
-        }
-
     }
 
     createShot(payload: ShotPayload, sheetManager: SheetManagerRef | null, selectedSceneId: string | null){
