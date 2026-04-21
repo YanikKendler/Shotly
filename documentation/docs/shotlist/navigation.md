@@ -20,7 +20,7 @@ The shotlist supports the following keybinds:
 - Scenes can be selected using `Alt + [1-9]` (`Alt` + any number from 1 - 9)
 - To open the shotlist options: `Alt + O`
 - To open the account dialog: `Alt + A`
-- To go back home to the dashboard: `Alt + H`
+- To go back to the dashboard: `Alt + D`
 
 **Spreadsheet**
 

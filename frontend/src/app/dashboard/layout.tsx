@@ -101,7 +101,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                 event.preventDefault()
                 openCreateTemplateDialog()
             },
-            "Alt+H": event => {
+            "Alt+D": event => {
                 event.preventDefault()
                 router.push("/dashboard")
             },

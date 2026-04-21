@@ -56,6 +56,6 @@ On the dashboard, or while viewing a template, you can use the following keybind
 - Create a new **Template**: `Alt + T`
 - Open the **Account dialog**: `Alt + A`
 - View **Collaboration requests**: `Alt + C`
-- Return to the **Dashboard**: `Alt + H`
+- Return to the **Dashboard**: `Alt + D`
 
 For keybinds on the shotlist page, please refer to [Shotlist / Navigation](./shotlist/navigation.md).
