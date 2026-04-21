@@ -757,7 +757,7 @@ span.key{
     overflow-y: auto;
     scrollbar-width: thin;
     max-height: 15rem;
-    padding: .5rem;
+    padding: .3rem;
   }
 }
 
@@ -959,10 +959,6 @@ body .toast{
     > div{
       margin-right: 0;
     }
-
-    button.close {
-      color: var(--text-50);
-    }
   }
 
   &.success{
@@ -971,6 +967,11 @@ body .toast{
     svg{
       color: var(--good);
     }
+  }
+
+  > div {
+    display: flex;
+    align-items: center;
   }
 
   .title{
@@ -984,9 +985,21 @@ body .toast{
 
   .sub{
     font-size: .8rem;
-    color: var(--text-20);
-    margin-top: .2rem;
+    color: var(--text-30);
+    margin-top: .1rem;
     font-weight: bold;
+  }
+
+  button.action{
+    font-size: .85rem;
+    margin-left: .3rem;
+    color: var(--text-20);
+    font-weight: 500;
+  }
+
+  button.close {
+    color: var(--text-50);
+    margin-left: .2rem;
   }
 }
 
