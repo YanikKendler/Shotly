@@ -130,7 +130,7 @@ export class Dashboard extends LitElement {
         .scrollArea {
             margin-top: 1rem;
             width: 100%;
-            max-height: 50vh;
+            max-height: 50svh;
             overflow: auto;
             -ms-overflow-style: none; /* IE and Edge */
             scrollbar-width: none; /* Firefox */
@@ -347,7 +347,7 @@ export class Dashboard extends LitElement {
     userFilter: UserDto | null = null
 
     @state()
-    selectedUserSort: SortName = SortName.Name
+    selectedUserSort: SortName = SortName.ActiveAt
 
     @state()
     userSearchQuery: string = ""
