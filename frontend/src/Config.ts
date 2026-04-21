@@ -1,4 +1,4 @@
-import {BuildMode} from "@/util/Utils"
+import {BuildMode} from "@/utility/Utils"
 
 export default class Config {
     static readonly mode: BuildMode =

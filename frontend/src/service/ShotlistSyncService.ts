@@ -1,5 +1,5 @@
-import {AnyShotAttribute} from "@/util/Types"
-import {SheetManagerRef, ShotCache} from "@/components/shotlist/table/sheetManager/sheetManager"
+import {AnyShotAttribute} from "@/utility/Types"
+import {SheetManagerRef, ShotCache} from "@/components/app/shotlist/table/sheetManager/sheetManager"
 import {
     CollaborationType,
     SceneAttributeBaseDto,
@@ -10,8 +10,8 @@ import {
     UserTier,
     Query
 } from "../../lib/graphql/generated"
-import {SceneAttributeParser, ShotAttributeParser} from "@/util/AttributeParser"
-import {ShotlistSidebarRef} from "@/components/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
+import {SceneAttributeParser, ShotAttributeParser} from "@/utility/AttributeParser"
+import {ShotlistSidebarRef} from "@/components/app/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
 import {SelectedScene} from "@/app/shotlist/[id]/page"
 import {ApolloQueryResult} from "@apollo/client"
 

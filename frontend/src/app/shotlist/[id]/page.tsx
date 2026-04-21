@@ -15,22 +15,22 @@ import {
 import {useParams, useRouter, useSearchParams} from "next/navigation"
 import {Check, House, LoaderCircle, Menu, Settings2, X} from "lucide-react"
 import './shotlist.scss'
-import ErrorPage from "@/components/feedback/errorPage/errorPage"
+import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import ShotlistOptionsDialog, {
     ShotlistOptionsDialogPage,
     ShotlistOptionsDialogSubPage
-} from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
-import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
+} from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
+import LoadingPage from "@/components/app/feedback/loadingPage/loadingPage"
 import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
 import auth from "@/Auth"
 import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
-import Utils, {uuidRegex} from "@/util/Utils"
+import Utils, {uuidRegex} from "@/utility/Utils"
 import Config from "@/Config"
-import {GenericError, SelectOption, ShotlyErrorCode} from "@/util/Types"
-import SheetManager, {SheetManagerRef} from "@/components/shotlist/table/sheetManager/sheetManager"
-import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
+import {GenericError, SelectOption, ShotlyErrorCode} from "@/utility/Types"
+import SheetManager, {SheetManagerRef} from "@/components/app/shotlist/table/sheetManager/sheetManager"
+import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/app/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
 import Skeleton from "react-loading-skeleton"
 import {
     CollaborationPayload,
@@ -41,13 +41,13 @@ import {
     UserMinimalDTO,
     UserPayload
 } from "@/service/ShotlistSyncService"
-import HelpLink from "@/components/helpLink/helpLink"
+import HelpLink from "@/components/app/helpLink/helpLink"
 import Link from "next/link"
-import DotLoader from "@/components/DotLoader"
-import SimpleTooltip from "@/components/tooltip/simpleTooltip"
+import DotLoader from "@/components/basic/DotLoader"
+import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
 import {errorNotification, infoNotification, successNotification} from "@/service/NotificationService"
 import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys" //package has incorrectly configured type exports
-import {DialogRef} from "@/components/dialog/dialog"
+import {DialogRef} from "@/components/basic/dialog/dialog"
 
 export interface SelectedScene {
     id: string | null

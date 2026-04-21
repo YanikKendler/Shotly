@@ -1,5 +1,5 @@
 import React from "react"
-import SimplePage from "@/components/simplePage/simplePage"
+import SimplePage from "@/components/app/simplePage/simplePage"
 
 export default function Legal({children}: Readonly<{children: React.ReactNode}>) {
     return (

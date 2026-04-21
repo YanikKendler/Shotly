@@ -4,8 +4,8 @@ import {createContext, RefObject} from "react"
 import {
     ShotlistOptionsDialogPage,
     ShotlistOptionsDialogSubPage
-} from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
-import {GenericError, SelectOption} from "@/util/Types"
+} from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
+import {GenericError, SelectOption} from "@/utility/Types"
 import {PresentCollaborator, SaveState} from "@/app/shotlist/[id]/page"
 import {UserMinimalDTO} from "@/service/ShotlistSyncService"
 

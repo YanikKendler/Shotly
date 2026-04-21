@@ -1,4 +1,4 @@
-import SimplePage from "@/components/simplePage/simplePage"
+import SimplePage from "@/components/app/simplePage/simplePage"
 import Link from "next/link"
 
 export default function freeForStudents(){

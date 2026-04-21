@@ -3,7 +3,7 @@
 import "./template.scss"
 import {useParams, useRouter} from "next/navigation"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
-import ErrorPage from "@/components/feedback/errorPage/errorPage"
+import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 import React, {useEffect, useState} from "react"
 import {
     Query,
@@ -14,7 +14,7 @@ import {
 import gql from "graphql-tag"
 import {wuGeneral} from "@yanikkendler/web-utils"
 import {ChevronDown, Info, List, Menu, NotepadText, Pen, Pencil, Plus, Trash, Type} from "lucide-react"
-import TextField from "@/components//inputs/textField/textField"
+import TextField from "@/components/basic/textField/textField"
 import {
     closestCenter,
     DndContext,
@@ -26,18 +26,18 @@ import {
 } from "@dnd-kit/core"
 import {arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy} from "@dnd-kit/sortable"
 import {Popover} from "radix-ui"
-import ShotAttributeTemplate from "@/components/template/shotAttributeTemplate/shotAttributeTemplate"
-import {AnyShotAttributeTemplate, ShotlyErrorCode} from "@/util/Types"
-import Utils, {uuidRegex} from "@/util/Utils"
+import ShotAttributeTemplate from "@/components/app/template/shotAttributeTemplate/shotAttributeTemplate"
+import {AnyShotAttributeTemplate, ShotlyErrorCode} from "@/utility/Types"
+import Utils, {uuidRegex} from "@/utility/Utils"
 import Config from "@/Config"
 import Link from "next/link"
-import SceneAttributeTemplate from "@/components/template/sceneAttributeTemplate/sceneAttributeTemplate"
+import SceneAttributeTemplate from "@/components/app/template/sceneAttributeTemplate/sceneAttributeTemplate"
 import {router} from "next/client"
-import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialog"
+import {useConfirmDialog} from "@/components/app/dialogs/confirmDialog/confirmDialog"
 import {driver} from "driver.js"
 import Skeleton from "react-loading-skeleton"
 import auth from "@/Auth"
-import SimplePopover from "@/components/popover/simplePopover"
+import SimplePopover from "@/components/basic/popover/simplePopover"
 import {errorNotification, successNotification} from "@/service/NotificationService"
 import {td} from "@/service/Analytics"
 

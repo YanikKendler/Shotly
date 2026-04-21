@@ -3,7 +3,7 @@
 import React, {createContext} from "react"
 import {ApolloQueryResult} from "@apollo/client"
 import {Query} from "../../lib/graphql/generated"
-import Utils from "@/util/Utils"
+import Utils from "@/utility/Utils"
 
 export enum DialogStep {
     LOADING,

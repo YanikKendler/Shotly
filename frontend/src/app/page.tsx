@@ -3,7 +3,7 @@
 import Auth from "@/Auth"
 import "./landing.scss"
 import Link from "next/link"
-import Wordmark from "@/components/wordmark"
+import Wordmark from "@/components/logo/wordmark"
 import React, {useEffect, useRef} from "react"
 import {
     BookText, CalendarCheck,
@@ -20,8 +20,8 @@ import AuthSwitcher from "@/components/utility/authSwitcher/authSwitcher"
 import ThemeSwitcher from "@/components/utility/themeSwitcher/themeSwitcher"
 import Skeleton from "react-loading-skeleton"
 import Config from "@/Config"
-import Separator from "@/components/separator/separator"
-import SimplePopover from "@/components/popover/simplePopover"
+import Separator from "@/components/basic/separator/separator"
+import SimplePopover from "@/components/basic/popover/simplePopover"
 import {td} from "@/service/Analytics"
 import ViewPortSwitcher from "@/components/utility/viewportSwitcher/viewPortSwitcher"
 

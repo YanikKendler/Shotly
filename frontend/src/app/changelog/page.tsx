@@ -1,7 +1,7 @@
-import SimplePage from "@/components/simplePage/simplePage"
+import SimplePage from "@/components/app/simplePage/simplePage"
 import {CHANGELOG} from "@/data/changelog"
 import {marked} from "marked"
-import Utils from "@/util/Utils"
+import Utils from "@/utility/Utils"
 
 export default function freeForStudents(){
     return (
