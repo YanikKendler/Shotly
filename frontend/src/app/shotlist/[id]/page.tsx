@@ -45,7 +45,7 @@ import HelpLink from "@/components/helpLink/helpLink"
 import Link from "next/link"
 import DotLoader from "@/components/DotLoader"
 import SimpleTooltip from "@/components/tooltip/simpleTooltip"
-import {errorNotification, infoNotification} from "@/service/NotificationService"
+import {errorNotification, infoNotification, successNotification} from "@/service/NotificationService"
 import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys" //package has incorrectly configured type exports
 import {DialogRef} from "@/components/dialog/dialog"
 
@@ -99,7 +99,7 @@ export default function Shotlist() {
     const [shotCount, setShotCount] = useState(0)
     const [sceneCount, setSceneCount] = useState(0)
 
-    const [presentCollaborators, setPresentCollaborators] = useState<Map<string, PresentCollaborator>>()
+    const [presentCollaborators, setPresentCollaborators] = useState<Map<string, PresentCollaborator>>(new Map())
 
     const selectedSceneRef = useRef<SelectedScene>(selectedScene)
     const focusedCell = useRef({row: -1, column:-1})
@@ -244,7 +244,7 @@ export default function Shotlist() {
         loadData(true).then((query: InteropApolloQueryResult<Query> | undefined) => {
             //use user from the promise as to not run into react state race conditions
             if(id != "" && query?.data.shotlist && query.data.shotlist.id)
-                joinShotlistWebsocket(query?.data.currentUser?.id || "unknown")
+                joinShotlistWebsocket(query?.data.currentUser?.id || "")
         })
 
         syncService.current = new ShotlistSyncService(id)
@@ -461,7 +461,7 @@ export default function Shotlist() {
     }
 
     //TODO move this to the service completely or make it a use hook or at least a ref function to avoid captures
-    const joinShotlistWebsocket = (currentUserId: string) => {
+    const joinShotlistWebsocket = (currentUserId: string, showNotifications = false) => {
         if (websocketRef.current) {
             websocketRef.current.onclose = null
             websocketRef.current.onerror = null
@@ -474,14 +474,26 @@ export default function Shotlist() {
         websocket.onopen = () => {
             console.info('Connected to WebSocket server')
             websocketRetriesRef.current = 0
+
+            if(showNotifications)
+                successNotification({
+                    title: "Connected to sync service",
+                    message: "Incoming changes can now be synced in real-time.",
+                })
         }
         websocket.onmessage = (message) => {
             let updateDTO = JSON.parse(message.data) as ShotlistUpdateDTO
 
             if(!updateDTO) {
                 errorNotification({
-                    title: "Could not sync incoming changes.",
-                    sub: "Try refreshing the page to fix the issue",
+                    title: "Could not sync incoming changes",
+                    message: "If reconnecting doesnt work please reload the page.",
+                    action: {
+                        label: "Reconnect",
+                        onClick: () => {
+                            reconnectWebsocket()
+                        }
+                    }
                 })
                 return
             }
@@ -515,7 +527,7 @@ export default function Shotlist() {
                     // don't update if the user has been updated from a later message already
                     // (avoid desyncs due to delayed messages)
                     if(
-                        (presentCollaborators?.get(userPayload.user.id)?.updatedAt.getTime() || Infinity)
+                        (presentCollaborators?.get(userPayload.user.id)?.updatedAt?.getTime() || Infinity)
                         < new Date(updateDTO.timestamp).getTime()
                     ) {
                         return
@@ -646,6 +658,16 @@ export default function Shotlist() {
 
         websocket.onerror = (error) => {
             console.error('WebSocket error:', error)
+            errorNotification({
+                title: "Could not sync incoming changes",
+                message: "If reconnecting doesnt work please reload the page.",
+                action: {
+                    label: "Reconnect",
+                    onClick: () => {
+                        reconnectWebsocket()
+                    }
+                }
+            })
         }
     }
 
@@ -665,7 +687,7 @@ export default function Shotlist() {
             websocketRetriesRef.current++
             console.info("Attempting reconnect, attempt", websocketRetriesRef.current, "with user id", currentUserRef.current?.id)
             if(currentUserRef.current?.id)
-                joinShotlistWebsocket(currentUserRef.current?.id)
+                joinShotlistWebsocket(currentUserRef.current?.id || "")
         }, delay)
     }
 
@@ -898,10 +920,12 @@ export default function Shotlist() {
             loadSceneSelectOptions: loadSceneSelectOptions,
             addSceneSelectOption: addSceneSelectOption,
 
-            websocketRef: websocketRef,
             broadCastSceneAttributeSelect: broadCastSceneAttributeSelect,
+
             setSaveState: setSaveState,
-            handleError: handleShotlistError
+            handleError: handleShotlistError,
+
+            presentCollaborators: presentCollaborators
         }}>
             {
                 readOnlyBannerVisible && readOnlyState.isReadOnly &&
@@ -962,6 +986,8 @@ export default function Shotlist() {
                                 }}
 
                                 presentCollaborators={Array.from(presentCollaborators?.values().map(c => c.user) || [])}
+
+                                refreshWebsocketConnection={() => joinShotlistWebsocket(query?.data.currentUser?.id || "", true)}
 
                                 ref={sidebarRef}
                             />

@@ -44,6 +44,7 @@ export interface ShotlistSidebarProps {
     setSidebarOpen: (open: boolean) => void
     openShotlistOptionsDialog: () => void
     presentCollaborators: UserMinimalDTO[]
+    refreshWebsocketConnection: () => void
 }
 
 const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
@@ -57,7 +58,8 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
     reloadInProgress,
     setSidebarOpen,
     openShotlistOptionsDialog,
-    presentCollaborators
+    presentCollaborators,
+    refreshWebsocketConnection
 }, ref) =>{
     const client = useApolloClient()
     const {openAccountDialog, AccountDialog} = useAccountDialog()
@@ -421,13 +423,18 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                     }
                     <div className="bottom">
                         {
+                            /*TODO add animations to new collaborators appearing and disappearing*/
                             presentCollaborators && presentCollaborators.length > 0 && (
                                 <SimplePopover
                                     content={
-                                        Array.from(presentCollaborators).map(user => (
-                                            <p key={user.id}>{user.name}</p>
-                                        ))
+                                        <>
+                                            {Array.from(presentCollaborators).map(user => (
+                                                <p key={user.id}>{user.name}</p>
+                                            ))}
+                                            <button className="refresh default" onClick={refreshWebsocketConnection}>refresh connection</button>
+                                        </>
                                     }
+                                    contentClassName={"collaborators"}
                                     className={"collaborators"}
                                 >
                                     <>

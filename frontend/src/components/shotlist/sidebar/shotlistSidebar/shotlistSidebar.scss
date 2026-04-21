@@ -65,5 +65,21 @@
       }
     }
   }
+}
 
+.popoverContent.collaborators{
+  p {
+    font-size: .9rem;
+  }
+
+  button.refresh{
+    font-size: .8rem;
+    text-decoration: underline;
+    color: var(--text-50);
+    padding: .2rem;
+
+    &:hover{
+      color: var(--text-20);
+    }
+  }
 }
