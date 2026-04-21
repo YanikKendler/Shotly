@@ -70,4 +70,8 @@ export default class Config {
     static readonly constant = {
         maxCollaboratorsInFreePlan: 5
     }
+
+    static readonly cssVar = {
+        scale: "--shotlist-scale-setting"
+    }
 }

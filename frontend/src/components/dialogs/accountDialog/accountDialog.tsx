@@ -85,12 +85,12 @@ export function useAccountDialog() {
         if(userSettingsString == null || userSettingsString == ""){
             //nothing in localstorage currently, so write the default settings
             writeSettingsToLocalStorage()
-            document.documentElement.style.setProperty("--shotlist-scale", "1")
+            document.documentElement.style.setProperty(Config.cssVar.scale, "1")
         }
         else {
             const newSettings = JSON.parse(userSettingsString) as UserSettings
             setUserSettings(newSettings)
-            document.documentElement.style.setProperty("--shotlist-scale", newSettings.shotlistScale?.toString() || "1");
+            document.documentElement.style.setProperty(Config.cssVar.scale, newSettings.shotlistScale?.toString() || "1");
         }
 
         setSettingsLoaded(true)
@@ -453,7 +453,7 @@ export function useAccountDialog() {
                                         ...current,
                                         shotlistScale: value
                                     }))
-                                    document.documentElement.style.setProperty("--shotlist-scale", value.toString())
+                                    document.documentElement.style.setProperty(Config.cssVar.scale, value.toString())
                                 }}
                             />
                         </div>

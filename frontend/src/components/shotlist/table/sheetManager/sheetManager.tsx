@@ -47,7 +47,6 @@ export interface SheetManagerRef {
     onCellValueChange: (value: ShotAttributeValueCollection, attributeId: number, shotId: string, sceneId?: string) => void
     shotCache: RefObject<ShotCache>
     updateShotCache: (shots: ShotDto[], sceneId?: string | null) => void
-    selectedSceneId: string
 }
 
 export interface SheetManagerProps {

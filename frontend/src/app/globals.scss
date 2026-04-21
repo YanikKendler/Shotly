@@ -105,7 +105,13 @@
   --sidebar-width: 400px;
   --shotAttribute-width: calc(10rem * var(--shotlist-scale));
 
-  --shotlist-scale: 1;
+  --shotlist-scale-mobile-adjust: 1;
+  --shotlist-scale-setting: 1;
+  --shotlist-scale: calc(var(--shotlist-scale-setting) * var(--shotlist-scale-mobile-adjust));
+
+  @media screen and (max-width: 500px) {
+    --shotlist-scale-mobile-adjust: 0.8;
+  }
 }
 
 [data-theme="dark"] {
