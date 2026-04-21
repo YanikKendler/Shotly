@@ -143,6 +143,13 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
         const latestVersionUsed = localStorage.getItem(Config.localStorageKey.latestVersionUsed)
 
+        if(
+            !latestVersionUsed &&
+            new Date(query.data.currentUser.createdAt).getTime() < Date.now() - wuConstants.Time.msPerHour
+        ){
+            setChangelogDialogOpen(true)
+        }
+
         if(Utils.isNewerVersion(latestVersionUsed, CHANGELOG[0].version)){
             setChangelogDialogOpen(true)
         }
@@ -240,6 +247,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                             name
                             email
                             howDidYouHearReason
+                            createdAt
                         }
                     }`,
                 fetchPolicy: "no-cache"

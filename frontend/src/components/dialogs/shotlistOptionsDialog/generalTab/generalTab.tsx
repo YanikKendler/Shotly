@@ -206,7 +206,7 @@ export default function GeneralTab({
             </div>
             <TextField
                 label={"Name"}
-                value={shotlist.name || ""}
+                defaultValue={shotlist.name || ""}
                 placeholder={"My shotlist"}
                 valueChange={debounceUpdateShotlistName}
                 disabled={isReadOnly}
