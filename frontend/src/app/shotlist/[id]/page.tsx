@@ -13,7 +13,7 @@ import {
     UserTier
 } from "../../../../lib/graphql/generated"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
-import {Check, House, LoaderCircle, Menu, Settings2, X} from "lucide-react"
+import {Check, House, LoaderCircle, Menu, RefreshCw, Settings2, X} from "lucide-react"
 import './shotlist.scss'
 import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 import {ShotlistContext} from "@/context/ShotlistContext"
@@ -48,6 +48,7 @@ import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
 import {errorNotification, infoNotification, successNotification} from "@/service/NotificationService"
 import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys" //package has incorrectly configured type exports
 import {DialogRef} from "@/components/basic/dialog/dialog"
+import {wuAnimate, wuConstants} from "@yanikkendler/web-utils"
 
 export interface SelectedScene {
     id: string | null
@@ -118,6 +119,9 @@ export default function Shotlist() {
     const currentUserRef = useRef<UserDto | null>(null)
 
     const saveStateMap = useRef<Map<string, SaveState>>(new Map())
+
+    const refreshButtonRef = useRef<HTMLButtonElement>(null)
+    const [refreshBlocked, setRefreshBlocked] = useState(false)
 
     const driverObj = driver({
         showProgress: true,
@@ -858,6 +862,21 @@ export default function Shotlist() {
         shotlistOptionsDialogRef.current?.open()
     }
 
+    const refresh = () => {
+        if(refreshBlocked) return
+
+        setRefreshBlocked(true)
+
+        refreshShotlistFunction.current()
+
+        if(refreshButtonRef.current)
+            wuAnimate.spin(refreshButtonRef.current, 300, 360)
+
+        setTimeout(() => {
+            setRefreshBlocked(false)
+        },wuConstants.Time.msPerSecond * 5)
+    }
+
     //used in the socket handler
     //has to be at the bottom because the functions have to be initialized before being used in the context value
     const shotlistContextFunctionsRef = useRef({
@@ -1034,7 +1053,7 @@ export default function Shotlist() {
                     {
                         reloadInProgress &&
                         <SimpleTooltip
-                            text={"The reload is triggered when either you or a collaborator make changes to the shotlist options like adding/removing attributes."}
+                            text={"The reload is automatically triggered when either you or a collaborator make changes to the shotlist options like adding/removing attributes."}
                             fontSize={0.85}
                             offset={0}
                             delay={0}
@@ -1044,6 +1063,16 @@ export default function Shotlist() {
                             </div>
                         </SimpleTooltip>
                     }
+                    <SimpleTooltip text={refreshBlocked ? "please wait a few seconds" : "refresh"} fontSize={0.8}>
+                        <button
+                            className={"default round right noClickFx"}
+                            ref={refreshButtonRef}
+                            onClick={refresh}
+                            disabled={refreshBlocked}
+                        >
+                            <RefreshCw size={16}/>
+                        </button>
+                    </SimpleTooltip>
                     <div className="saveIndicator" data-state="saved" ref={saveIndicatorRef} aria-hidden>
                         <span className="saving"><LoaderCircle size={18}/></span>
                         <span className="saved"><Check size={18} strokeWidth={2.5}/></span>

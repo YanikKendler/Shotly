@@ -57,7 +57,9 @@ export default function HelpLink({
         >
             <span
                 className={`helpLink ${floating && "floating"}`}
-            >?</span>
+            >
+                <SimpleTooltip text={"Click to open help menu."} fontSize={0.8} asButton showHoverArea={false}>?</SimpleTooltip>
+            </span>
         </SimplePopover>
     )
 }

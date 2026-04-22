@@ -23,7 +23,7 @@ import {
 } from "lucide-react"
 import {CollaborationDto, CollaborationState, Query, ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
 import {Collapsible, Dialog, Popover, VisuallyHidden} from "radix-ui"
-import {wuGeneral} from "@yanikkendler/web-utils"
+import {wuAnimate, wuGeneral} from "@yanikkendler/web-utils"
 import auth from "@/Auth"
 import {usePathname, useRouter} from "next/navigation"
 import {useCreateShotlistDialog} from "@/components/app/dialogs/createShotlistDialog/createShotlistDialog"
@@ -489,10 +489,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             })
 
         if(refreshButtonRef.current)
-            refreshButtonRef.current.animate([
-                { transform: 'rotate(0deg)' },
-                { transform: 'rotate(360deg)' }
-            ], { duration: 300, iterations: 1 });
+            wuAnimate.spin(refreshButtonRef.current, 300, 360)
 
         setTimeout(() => {
             setRefreshBlocked(false)

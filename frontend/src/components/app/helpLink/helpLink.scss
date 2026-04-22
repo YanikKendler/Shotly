@@ -19,6 +19,13 @@
     bottom: .75rem;
     right: .75rem;
   }
+
+  .simpleTooltipTrigger{
+    height: 35px;
+    width: 35px;
+    display: grid;
+    place-items: center;
+  }
 }
 
 .helpLinkPopoverContent{

@@ -12,6 +12,7 @@ export default function SimpleTooltip({
     hoverAreaExpansion,
     showHoverArea = true,
     asButton = false,
+    buttonClassname = "",
     delay = 500,
     canOpen = true,
 }: {
@@ -23,6 +24,7 @@ export default function SimpleTooltip({
     hoverAreaExpansion?: number
     showHoverArea?: boolean
     asButton?: boolean
+    buttonClassname?: string
     delay?: number
     canOpen?: boolean
 }){
@@ -33,7 +35,7 @@ export default function SimpleTooltip({
                     asButton ?
                     (
                         <span
-                            className="simpleTooltipTrigger"
+                            className={`simpleTooltipTrigger ${buttonClassname}`}
                         >
                             {children}
                             {
