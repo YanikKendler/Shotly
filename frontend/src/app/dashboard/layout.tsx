@@ -479,12 +479,12 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         loadData()
             .then(() => {
                 successNotification({
-                    title: "Refreshed dashboard data."
+                    title: "Refreshed dashboard data"
                 })
             })
             .catch(() => {
                 errorNotification({
-                    title: "Failed to refresh dashboard data.",
+                    title: "Failed to refresh dashboard data",
                 })
             })
 

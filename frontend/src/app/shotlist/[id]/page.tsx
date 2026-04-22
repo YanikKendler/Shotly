@@ -115,7 +115,7 @@ export default function Shotlist() {
     const websocketRetriesRef = useRef<number>(0)
 
     //this needs to be a ref to avoid captures by the websocket (should probably just have made the whole websocket logic a ref..)
-    const refreshShotlistFunction = useRef<() => void>(() => {});
+    const refreshShotlistFunction = useRef<() => Promise<void>>(async () => {});
     const currentUserRef = useRef<UserDto | null>(null)
 
     const saveStateMap = useRef<Map<string, SaveState>>(new Map())
@@ -135,14 +135,17 @@ export default function Shotlist() {
     })
 
     useEffect(() => {
-        refreshShotlistFunction.current = () => {
+        refreshShotlistFunction.current = async () => {
             setReloadInProgress(true)
-            loadData(true).then(() => {
-                setReloadInProgress(false)
-                setReloadKey(k => k + 1)
-            })
+
+            await loadData(true)
+
+            setReloadInProgress(false)
+
             setShotSelectOptionsCache(new Map())
             setSceneSelectOptionsCache(new Map())
+
+            setReloadKey(k => k + 1)
         }
 
         const handleOnline = () => reconnectWebsocket();
@@ -482,7 +485,7 @@ export default function Shotlist() {
             if(showNotifications)
                 successNotification({
                     title: "Connected to sync service",
-                    message: "Incoming changes can now be synced in real-time.",
+                    message: "Incoming changes can now be synced in real-time",
                 })
         }
         websocket.onmessage = (message) => {
@@ -867,10 +870,13 @@ export default function Shotlist() {
 
         setRefreshBlocked(true)
 
-        refreshShotlistFunction.current()
-
         if(refreshButtonRef.current)
             wuAnimate.spin(refreshButtonRef.current, 300, 360)
+
+        refreshShotlistFunction.current().then(() => {
+            successNotification({title: "Shotlist reloaded.", message: "All data is up to date."})
+        })
+
 
         setTimeout(() => {
             setRefreshBlocked(false)

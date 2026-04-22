@@ -20,7 +20,7 @@ import { Popover } from "radix-ui"
 import {useEffect, useRef, useState} from "react"
 import {wuGeneral} from "@yanikkendler/web-utils/dist"
 import Skeleton from "react-loading-skeleton"
-import {errorNotification} from "@/service/NotificationService"
+import {errorNotification, successNotification} from "@/service/NotificationService"
 
 export default function ShotAttributeDefinition({attributeDefinition, onDelete, dataChanged}: {attributeDefinition: AnyShotAttributeDefinition, onDelete: (id: number) => void, dataChanged: () => void}) {
 
@@ -114,6 +114,7 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
             return
         }
 
+        successNotification({title: "Attribute definition deleted successfully"})
         onDelete(definition.id)
     }
 

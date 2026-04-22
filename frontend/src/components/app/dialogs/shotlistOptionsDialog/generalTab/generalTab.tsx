@@ -170,7 +170,7 @@ export default function GeneralTab({
             console.error(errors)
         }
         else {
-            successNotification({title: "Archival status updated", message: `This shotlist is ${newState ? "now archived" : "no longer archived"}.`})
+            successNotification({title: "Archival status updated", message: `This shotlist is ${newState ? "now archived" : "no longer archived"}`})
         }
     }
 

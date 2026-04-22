@@ -164,7 +164,7 @@ export function useAccountDialog() {
 
     const showSettingsSavedToast = () => {
         successNotification({
-            title: "Preferences updated."
+            title: "Preferences updated"
         })
     }
 

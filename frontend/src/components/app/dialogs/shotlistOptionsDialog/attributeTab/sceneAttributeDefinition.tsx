@@ -17,7 +17,7 @@ import { Popover } from "radix-ui"
 import {useEffect, useRef, useState} from "react"
 import {wuGeneral} from "@yanikkendler/web-utils"
 import Skeleton from "react-loading-skeleton"
-import {errorNotification} from "@/service/NotificationService"
+import {errorNotification, successNotification} from "@/service/NotificationService"
 
 export default function SceneAttributeDefinition({attributeDefinition, onDelete, dataChanged}: {attributeDefinition: AnySceneAttributeDefinition, onDelete: (id: number) => void, dataChanged: () => void}) {
 
@@ -111,6 +111,7 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
             return
         }
 
+        successNotification({title: "Attribute definition deleted successfully"})
         onDelete(definition.id)
     }
 

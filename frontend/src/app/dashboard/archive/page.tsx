@@ -35,12 +35,12 @@ export default function Archive(){
         loadData()
             .then(() => {
                 successNotification({
-                    title: "Refreshed archived shotlists."
+                    title: "Refreshed archived shotlists"
                 })
             })
             .catch(() => {
                 errorNotification({
-                    title: "Failed to refresh archived shotlists.",
+                    title: "Failed to refresh archived shotlists",
                 })
             })
     }, [dashboardContext.refreshSignal]);

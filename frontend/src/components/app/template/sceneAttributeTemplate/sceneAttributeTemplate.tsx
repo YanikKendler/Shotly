@@ -96,7 +96,7 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
         }
 
         successNotification({
-            title: "Successfully deleted attribute template.",
+            title: "Successfully deleted attribute template",
         })
 
         onDelete(attribute.id)
