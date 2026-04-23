@@ -15,7 +15,7 @@ import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {wuGeneral} from "@yanikkendler/web-utils"
 import CellBase from "@/components/app/shotlist/table/cell/cellBase"
-import {UserMinimalDTO} from "@/service/ShotlistSyncService"
+import {UserMinimalDTO} from "@/service/useShotlistSync"
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
 
 export interface CellInputRef {
