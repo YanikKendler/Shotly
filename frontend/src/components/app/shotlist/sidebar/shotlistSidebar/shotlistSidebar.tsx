@@ -345,6 +345,19 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
         })
     }
 
+    if(query.loading)
+        return (
+            <div style={{display: "flex", flexDirection: "column", padding: ".5rem", height: "100%"}} className={"content"}>
+                <div className={"top"}>
+                    <Link href={`/dashboard`}>
+                        <House strokeWidth={2.5} size={20}/>
+                    </Link>
+                    <Skeleton height="2rem" width={"18ch"} style={{marginLeft: ".5rem"}}/>
+                </div>
+                <Skeleton height="2rem" count={6} style={{marginBottom: ".3rem"}}/>
+            </div>
+        )
+
     if(!query.data.shotlist?.scenes) return (
         <ErrorDisplay
             title={"Error loading scenes"}

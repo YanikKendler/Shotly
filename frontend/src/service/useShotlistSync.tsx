@@ -1,4 +1,4 @@
-import {RefObject, useEffect, useRef, useState} from "react"
+import {RefObject, useEffect, useRef, useState, Dispatch, SetStateAction} from "react"
 import {useLatestCallback} from "@/utility/useLatestCallback"
 import {AnyShotAttribute, SelectOption, ShotlyErrorCode} from "@/utility/Types"
 import {
@@ -16,7 +16,6 @@ import {errorNotification, successNotification} from "@/service/NotificationServ
 import {SheetManagerRef} from "@/components/app/shotlist/table/sheetManager/sheetManager"
 import {PresentCollaborator, SelectedScene} from "@/app/shotlist/[id]/page"
 import {SceneAttributeParser, ShotAttributeParser} from "@/utility/AttributeParser"
-import {SidebarSceneRef} from "@/components/app/shotlist/sidebar/sidebarScene/sidebarScene"
 import {ShotlistSidebarRef} from "@/components/app/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
 import {ApolloQueryResult} from "@apollo/client"
 import {useRouter} from "next/navigation"
@@ -164,9 +163,9 @@ export interface ShotlistMinimalDTO {
 export function useShotlistSync({
     shotlistId,
     userId,
-    sheetManager,
+    sheetManagerRef,
+    sidebarRef,
     selectedScene,
-    sidebar,
     setQuery,
     setIsArchived,
     setReloadInProgress,
@@ -179,16 +178,17 @@ export function useShotlistSync({
     shotlistId: string | null
     userId: string | null
 
-    sheetManager: RefObject<SheetManagerRef | null>
-    selectedScene: SelectedScene | null
-    sidebar: RefObject<ShotlistSidebarRef | null>
+    sheetManagerRef: RefObject<SheetManagerRef | null>
+    sidebarRef: RefObject<ShotlistSidebarRef | null>
 
-    setQuery: React.Dispatch<React.SetStateAction<ApolloQueryResult<Query>>>
-    setIsArchived: React.Dispatch<React.SetStateAction<boolean>>
-    setReloadInProgress: React.Dispatch<React.SetStateAction<boolean>>
+    selectedScene: SelectedScene | null
+
+    setQuery: Dispatch<SetStateAction<ApolloQueryResult<Query>>>
+    setIsArchived: Dispatch<SetStateAction<boolean>>
+    setReloadInProgress: Dispatch<SetStateAction<boolean>>
 
     presentCollaborators: Map<string, PresentCollaborator>
-    setPresentCollaborators: React.Dispatch<React.SetStateAction<Map<string, PresentCollaborator>>>
+    setPresentCollaborators: Dispatch<SetStateAction<Map<string, PresentCollaborator>>>
 
     addShotSelectOption: (shotAttributeDefinitionId: number, option: SelectOption) => void
     addSceneSelectOption: (sceneAttributeDefinitionId: number, option: SelectOption) => void
@@ -465,12 +465,12 @@ export function useShotlistSync({
     })
 
     const updateShotAttribute = (payload: ShotAttributePayload)=> {
-        if(!sheetManager.current) return
+        if(!sheetManagerRef.current) return
 
-        const sheetCellRef = sheetManager.current.findCellRef(payload.attribute.id)
+        const sheetCellRef = sheetManagerRef.current.findCellRef(payload.attribute.id)
 
         const valueCollection = ShotAttributeParser.toValueCollection(payload.attribute)
-        sheetManager.current.updateShotCacheShotAttributeValue(valueCollection, payload.attribute.id, payload.shotId, payload.sceneId)
+        sheetManagerRef.current.updateShotCacheShotAttributeValue(valueCollection, payload.attribute.id, payload.shotId, payload.sceneId)
 
         if(payload.sceneId == selectedScene?.id) {
             sheetCellRef?.setReadOnlyValue(ShotAttributeParser.toValueString(payload.attribute, false))
@@ -479,77 +479,77 @@ export function useShotlistSync({
     }
 
     const createShot = (payload: ShotPayload)=> {
-        if(!payload.shot || !payload.shot.id || !sheetManager?.current) return
+        if(!payload.shot || !payload.shot.id || !sheetManagerRef?.current) return
 
         if(payload.shot.sceneId == selectedScene?.id) {
-            sheetManager.current.onCreateShot(payload.shot)
+            sheetManagerRef.current.onCreateShot(payload.shot)
         }
         else{
-            const currentCache = sheetManager.current.shotCache.current.get(payload.shot.sceneId || "")
+            const currentCache = sheetManagerRef.current.shotCache.current.get(payload.shot.sceneId || "")
 
             if(!currentCache) return
 
             const newShots = [...currentCache.shots, payload.shot]
-            sheetManager.current.updateShotCache(newShots, payload.shot.sceneId)
+            sheetManagerRef.current.updateShotCache(newShots, payload.shot.sceneId)
         }
 
     }
 
     const updateShot = (payload: ShotPayload)=> {
-        if(!payload.shot || !payload.shot.id || !sheetManager?.current) return
+        if(!payload.shot || !payload.shot.id || !sheetManagerRef?.current) return
 
         if(payload.shot.sceneId == selectedScene?.id) {
-            sheetManager.current.onMoveShot(payload.shot.id, payload.shot.position)
+            sheetManagerRef.current.onMoveShot(payload.shot.id, payload.shot.position)
         }
         else {
-            const currentCache = sheetManager.current.shotCache.current.get(payload.shot.sceneId || "")
+            const currentCache = sheetManagerRef.current.shotCache.current.get(payload.shot.sceneId || "")
 
             if(!currentCache) return
 
             const newShots = currentCache.shots.map(shot => shot.id == payload.shot.id ? payload.shot : shot)
-            sheetManager.current.updateShotCache(newShots, payload.shot.sceneId)
+            sheetManagerRef.current.updateShotCache(newShots, payload.shot.sceneId)
         }
     }
 
     const deleteShot = (payload: ShotPayload)=> {
-        if(!payload.shot || !payload.shot.id || !sheetManager?.current) return
+        if(!payload.shot || !payload.shot.id || !sheetManagerRef?.current) return
 
         if(payload.shot.sceneId == selectedScene?.id) {
-            sheetManager?.current.onDeleteShot(payload.shot.id)
+            sheetManagerRef?.current.onDeleteShot(payload.shot.id)
         }
         else {
-            const currentCache = sheetManager?.current.shotCache.current.get(payload.shot.sceneId || "")
+            const currentCache = sheetManagerRef?.current.shotCache.current.get(payload.shot.sceneId || "")
 
             if(!currentCache) return
 
             const newShots = currentCache.shots.filter(shot => shot.id != payload.shot.id)
-            sheetManager?.current.updateShotCache(newShots, payload.shot.sceneId)
+            sheetManagerRef?.current.updateShotCache(newShots, payload.shot.sceneId)
         }
     }
 
     const updateSceneAttribute = (payload: SceneAttributePayload)=> {
-        const attributeRef = sidebar?.current?.findAttribute(payload.attribute.id)
+        const attributeRef = sidebarRef?.current?.findAttribute(payload.attribute.id)
 
         attributeRef?.setReadOnlyValue(SceneAttributeParser.toValueString(payload.attribute, false))
         attributeRef?.setValue(SceneAttributeParser.toMultiTypeValue(payload.attribute))
     }
 
     const createScene = (payload: ScenePayload)=> {
-        if(!payload.scene || !payload.scene.id || !sidebar?.current) return
+        if(!payload.scene || !payload.scene.id || !sidebarRef?.current) return
 
-        sidebar?.current.onCreateScene(payload.scene)
+        sidebarRef?.current.onCreateScene(payload.scene)
     }
 
     const updateScene = (payload: ScenePayload)=> {
-        if(!payload.scene || !payload.scene.id || !sidebar?.current) return
+        if(!payload.scene || !payload.scene.id || !sidebarRef?.current) return
 
-        sidebar?.current.onMoveScene(payload.scene.id, payload.scene.position)
+        sidebarRef?.current.onMoveScene(payload.scene.id, payload.scene.position)
     }
 
     const deleteScene = (payload: ScenePayload)=> {
-        if(!payload.scene || !payload.scene.id || !sidebar?.current) return
+        if(!payload.scene || !payload.scene.id || !sidebarRef?.current) return
 
-        sidebar?.current.onDeleteScene(payload.scene.id)
+        sidebarRef?.current.onDeleteScene(payload.scene.id)
     }
 
     const shotAttributeOptionCreated = (payload: ShotAttributeOptionPayload)=> {
@@ -605,7 +605,7 @@ export function useShotlistSync({
                 const currentlySelected = collaboratorSelectedCell.current.get(updateDTO.userId)
 
                 if (currentlySelected != updateDTO.payload) {
-                    sheetManager?.current
+                    sheetManagerRef?.current
                         ?.getCellRef(
                             currentlySelected?.row ?? -1,
                             currentlySelected?.column ?? -1
@@ -614,7 +614,7 @@ export function useShotlistSync({
                 }
             }
 
-            sheetManager?.current
+            sheetManagerRef?.current
                 ?.getCellRef(
                     updateDTO.payload?.row ?? -1,
                     updateDTO.payload?.column ?? -1
@@ -633,18 +633,18 @@ export function useShotlistSync({
                 const currentlySelected = collaboratorSelectedSceneAttribute.current.get(updateDTO.userId)
 
                 if (currentlySelected != updateDTO.payload) {
-                    sidebar?.current
+                    sidebarRef?.current
                         ?.findAttribute(currentlySelected?.attributeId ?? -1)
                         ?.removeCollaboratorHighlight(updateDTO.userId)
                 }
             }
 
-            sidebar?.current
+            sidebarRef?.current
                 ?.findAttribute(updateDTO.payload?.attributeId ?? -1)
                 ?.setCollaboratorHighlight(updateDTO.userId)
         }
         collaboratorSelectedSceneAttribute.current.set(updateDTO.userId, updateDTO.payload)
     }
 
-    return {connect, reconnect, send}
+    return {connect, send}
 }

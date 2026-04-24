@@ -12,7 +12,7 @@ import {
     UserTier
 } from "../../../../lib/graphql/generated"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
-import {Check, House, LoaderCircle, Menu, RefreshCw, Settings2, X} from "lucide-react"
+import { House, Settings2, X } from "lucide-react"
 import './shotlist.scss'
 import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 import {ShotlistContext} from "@/context/ShotlistContext"
@@ -36,15 +36,14 @@ import {
     ShotlistUpdateType,
     UserMinimalDTO,
 } from "@/service/useShotlistSync"
-import HelpLink from "@/components/app/helpLink/helpLink"
 import Link from "next/link"
-import DotLoader from "@/components/basic/DotLoader"
-import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
-import {errorNotification, infoNotification, successNotification} from "@/service/NotificationService"
-import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys" //package has incorrectly configured type exports
+import {errorNotification} from "@/service/NotificationService"
 import {DialogRef} from "@/components/basic/dialog/dialog"
-import {wuAnimate, wuConstants} from "@yanikkendler/web-utils"
 import {useShotlistSync} from "@/service/useShotlistSync"
+import useShotlistKeybinds from "@/service/useShotlistKeybinds"
+import ShotlistFloater, {ShotlistFloaterRef} from "@/components/app/shotlist/floater/shotlistFloater"
+import ReadOnlyBanner from "@/components/app/shotlist/readOnlyBanner/readOnlyBanner"
+import ShotlistHeader from "@/components/app/shotlist/header/shotlistHeader"
 
 export interface SelectedScene {
     id: string | null
@@ -83,7 +82,6 @@ export default function Shotlist() {
     const [selectedOptionsDialogPage, setSelectedOptionsDialogPage] = useState<{main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage} | null>(null)
     const [elementIsBeingDragged, setElementIsBeingDragged] = useState(false)
     const [sidebarOpen, setSidebarOpen] = useState(false)
-    const [readOnlyBannerVisible, setReadOnlyBannerVisible] = useState(true)
 
     const shotlistOptionsDialogRef = useRef<DialogRef>(null);
 
@@ -102,16 +100,13 @@ export default function Shotlist() {
 
     const headerRef = useRef<HTMLDivElement>(null)
     const sheetManagerRef = useRef<SheetManagerRef>(null)
-    const sidebarRef = useRef<ShotlistSidebarRef>(null);
-    const saveIndicatorRef = useRef<HTMLDivElement>(null)
+    const sidebarRef = useRef<ShotlistSidebarRef>(null)
+    const floaterRef = useRef<ShotlistFloaterRef>(null)
 
     const [shotSelectOptionsCache, setShotSelectOptionsCache] = useState(new Map<number, SelectOption[]>())
     const [sceneSelectOptionsCache, setSceneSelectOptionsCache] = useState(new Map<number, SelectOption[]>())
 
     const saveStateMap = useRef<Map<string, SaveState>>(new Map())
-
-    const refreshButtonRef = useRef<HTMLButtonElement>(null)
-    const [refreshBlocked, setRefreshBlocked] = useState(false)
 
     const driverObj = driver({
         showProgress: true,
@@ -123,73 +118,6 @@ export default function Shotlist() {
             { element: '#shotlistOptions', popover: { title: 'Shotlist Options', description: 'Click here to open the shotlist options menu.', side: "top", align: 'center' }},
         ]
     })
-
-    useEffect(() => {
-        //Keybinds
-        let unsubscribe = tinykeys(window, {
-            "ArrowLeft": (e) => sheetManagerRef.current?.moveFocusedCell(e, 0, -1),
-            "ArrowRight": (e) => sheetManagerRef.current?.moveFocusedCell(e, 0, 1),
-            "ArrowUp": (e) => sheetManagerRef.current?.moveFocusedCell(e, -1, 0),
-            "ArrowDown": (e) => sheetManagerRef.current?.moveFocusedCell(e, 1, 0),
-            "Control+Enter": event => {
-                event.preventDefault()
-                sheetManagerRef.current?.handleCreateShotKeybind.current()
-            },
-            "Alt+Enter": event => {
-                event.preventDefault()
-                sheetManagerRef.current?.handleCreateShotKeybind.current()
-            },
-            "Alt+N": event => {
-                event.preventDefault()
-                sheetManagerRef.current?.handleCreateShotKeybind.current()
-            },
-            "Alt+([1-9])": event => {
-                event.preventDefault()
-
-                const scenePositionToSelect = Number(event.key) - 1
-
-                const sceneIdToSelect = sidebarRef.current?.getScene(scenePositionToSelect)?.id || null
-
-                setSelectedScene({id: sceneIdToSelect, position: scenePositionToSelect})
-            },
-            "Alt+O": event => {
-                event.preventDefault()
-                shotlistOptionsDialogRef.current?.open()
-            },
-            "Alt+A": event => {
-                event.preventDefault()
-                sidebarRef.current?.openAccountDialog()
-            },
-            "Alt+H": event => { //not alt+d because that is reserved by browsers
-                event.preventDefault()
-                router.push("/dashboard")
-            },
-            "Alt+S": event => {
-                event.preventDefault()
-                sidebarRef.current?.createScene()
-            },
-            "Alt+.": event => {
-                event.preventDefault()
-                const currentRow = focusedCell.current.row
-
-                if(currentRow < 0) {
-                    infoNotification({title: "Select a cell to use this shortcut"})
-                    return
-                }
-
-                /*const cellRef = sheetManagerRef.current?.getCellRef(focusedCell.current.row, focusedCell.current.column)
-                cellRef?.closeMenu()*/
-
-                (document.activeElement as HTMLDivElement).blur()
-
-                const rowRef = sheetManagerRef.current?.getRowRef(currentRow)
-                rowRef?.openContextOptions()
-            }
-        })
-        return () => {
-            unsubscribe()
-        }
-    }, [])
 
     useEffect(() => {
         if(!auth.isAuthenticated()){
@@ -212,14 +140,8 @@ export default function Shotlist() {
         if(!auth.getUser()) return
 
         //initially load data
-
         loadData(true)
     }, [id])
-
-    useEffect(() => {
-        /*if(syncService.current)
-            syncService.current.isReadOnly = readOnlyState.isReadOnly*/
-    }, [readOnlyState]);
 
     useEffect(() => {
         //intro tour
@@ -243,22 +165,19 @@ export default function Shotlist() {
         ) {
             selectScene(query.data.shotlist.scenes[0].id, query.data.shotlist.scenes[0]?.position || null)
         }
-
-        //read only state
-        if(query.data.shotlist?.collaborations)
-            calculateReadOnlyState()
     }, [query])
 
     useEffect(() => {
-        //set page name
+        //update page name
         setTimeout(() => {
             document.title = `Shotly | ${query.data.shotlist?.name || "Shotlist"}`
         },500)
     }, [query.data.shotlist?.name]);
 
     useEffect(() => {
+        //read only state
         calculateReadOnlyState()
-    }, [isArchived]);
+    }, [isArchived, query]);
 
     const loadData = async (noCache: boolean = false) => {
         const result = await client.query({
@@ -381,9 +300,7 @@ export default function Shotlist() {
             newFinalState = "saving"
         }
 
-        if(saveIndicatorRef.current) {
-            saveIndicatorRef.current.setAttribute("data-state", newFinalState)
-        }
+        floaterRef.current?.displaySaveState(newFinalState)
     }
 
     const setFocusedCell= (row: number, column: number) => {
@@ -586,30 +503,12 @@ export default function Shotlist() {
         shotlistOptionsDialogRef.current?.open()
     }
 
-    const refresh = () => {
-        if(refreshBlocked) return
-
-        setRefreshBlocked(true)
-
-        if(refreshButtonRef.current)
-            wuAnimate.spin(refreshButtonRef.current, 300, 360)
-
-        refreshShotlist().then(() => {
-            successNotification({title: "Shotlist reloaded.", message: "All data is up to date."})
-        })
-
-
-        setTimeout(() => {
-            setRefreshBlocked(false)
-        },wuConstants.Time.msPerSecond * 5)
-    }
-
     const sync = useShotlistSync({
         shotlistId: id,
         userId: query.data.currentUser?.id || null,
-        sheetManager: sheetManagerRef,
+        sheetManagerRef: sheetManagerRef,
+        sidebarRef: sidebarRef,
         selectedScene: selectedScene,
-        sidebar: sidebarRef,
         setQuery: setQuery,
         setIsArchived: setIsArchived,
         setReloadInProgress: setReloadInProgress,
@@ -618,6 +517,14 @@ export default function Shotlist() {
         addShotSelectOption: addShotSelectOption,
         addSceneSelectOption: addSceneSelectOption,
         refreshShotlist: refreshShotlist
+    })
+
+    useShotlistKeybinds({
+        sheetManagerRef: sheetManagerRef,
+        sidebarRef: sidebarRef,
+        shotlistOptionsDialogRef: shotlistOptionsDialogRef,
+        focusedCell: focusedCell,
+        setSelectedScene: setSelectedScene,
     })
 
     if(!auth.getUser())
@@ -682,98 +589,53 @@ export default function Shotlist() {
 
             presentCollaborators: presentCollaborators
         }}>
-            {
-                readOnlyBannerVisible && readOnlyState.isReadOnly &&
-                <div
-                    className="readOnlyBanner"
-                >
-                    <p>
-                        This Shotlist is in <span className={"bold"}>read-only</span> mode because
-                        {
-                            readOnlyState.reason == "tooManyShotlists" ?
-                                " the shotlists owner has exceeded the maximum number of Shotlist available with the basic tier" :
-                            readOnlyState.reason == "collaborationViewOnly" ?
-                                ' the shotlists owner set your collaboration type to "viewer"' :
-                            readOnlyState.reason == "archived" ?
-                                ' it has been marked as archived' :
-                                ' [unknown reason]'
-                        }
-                        .
-                    </p>
-                    <button className={"round"} onClick={() => setReadOnlyBannerVisible(false)}><X size={16}/></button>
-                </div>
-            }
+            <ReadOnlyBanner readOnlyState={readOnlyState}/>
+
             <main className={`shotlist`} key={reloadKey}>
-                <PanelGroup autoSaveId={"shotly-shotlist-sidebar-width"} direction="horizontal"
-                            className={"PanelGroup"}>
+                <PanelGroup
+                    autoSaveId={"shotly-shotlist-sidebar-width"}
+                    direction="horizontal"
+                    className={"PanelGroup"}
+                >
                     <Panel
                         defaultSize={20}
                         maxSize={30}
                         minSize={12}
                         className={`sidebar collapse ${sidebarOpen ? "open" : "closed"}`}
                     >
-                        {
-                            query.loading ?
-                            <div style={{display: "flex", flexDirection: "column", padding: ".5rem", height: "100%"}} className={"content"}>
-                                <div className={"top"}>
-                                    <Link href={`/dashboard`}>
-                                        <House strokeWidth={2.5} size={20}/>
-                                    </Link>
-                                    <Skeleton height="2rem" width={"18ch"} style={{marginLeft: ".5rem"}}/>
-                                </div>
-                                <Skeleton height="2rem" count={6} style={{marginBottom: ".3rem"}}/>
-                            </div> :
-                            <ShotlistSidebar
-                                query={query}
-                                setQuery={setQuery}
-                                sceneCount={sceneCount}
-                                setSceneCount={setSceneCount}
-                                selectedScene={selectedScene}
-                                selectScene={selectScene}
+                        <ShotlistSidebar
+                            query={query}
+                            setQuery={setQuery}
+                            sceneCount={sceneCount}
+                            setSceneCount={setSceneCount}
+                            selectedScene={selectedScene}
+                            selectScene={selectScene}
 
-                                isReadOnly={readOnlyState.isReadOnly}
-                                setSidebarOpen={setSidebarOpen}
-                                reloadInProgress={reloadInProgress}
+                            isReadOnly={readOnlyState.isReadOnly}
+                            setSidebarOpen={setSidebarOpen}
+                            reloadInProgress={reloadInProgress}
 
-                                openShotlistOptionsDialog={() => {
-                                    shotlistOptionsDialogRef.current?.open()
-                                    driverObj.destroy()
-                                }}
+                            openShotlistOptionsDialog={() => {
+                                shotlistOptionsDialogRef.current?.open()
+                                driverObj.destroy()
+                            }}
 
-                                presentCollaborators={Array.from(presentCollaborators?.values().map(c => c.user) || [])}
+                            presentCollaborators={Array.from(presentCollaborators?.values().map(c => c.user) || [])}
 
-                                refreshWebsocketConnection={() => {/*joinShotlistWebsocket(query?.data.currentUser?.id || "", true)*/}}
+                            refreshWebsocketConnection={() => sync.connect(true)}
 
-                                ref={sidebarRef}
-                            />
-                        }
+                            ref={sidebarRef}
+                        />
                     </Panel>
+
                     <PanelResizeHandle className="PanelResizeHandle sidebarResize" hitAreaMargins={{fine: 5, coarse: 10}}/>
+                    
                     <Panel className={`content ${reloadInProgress && "reloading"}`} id={"shotTable"}>
-                        <div className="header" ref={headerRef}>
-                            <div className="number"><p>#</p></div>
-                            {
-                                query.loading ?
-                                <>
-                                    <Skeleton width="18vw" height="1rem" style={{marginRight: ".5rem"}}/>
-                                    <Skeleton width="18vw" height="1rem" style={{marginRight: ".5rem"}}/>
-                                    <Skeleton width="18vw" height="1rem" style={{marginRight: ".5rem"}}/>
-                                </> :
-                                !query.data.shotlist?.shotAttributeDefinitions || query.data.shotlist.shotAttributeDefinitions.length == 0 ?
-                                <p className={"empty"}>No shot attributes defined</p> :
-                                (query.data.shotlist.shotAttributeDefinitions as ShotAttributeDefinitionBase[]).map((attr: any, index) => (
-                                    <div className={`attribute`} key={attr.id}><p>{attr.name || "Unnamed"}</p></div>
-                                ))
-                            }
-                            <button
-                                className={"add"}
-                                onClick={() => openShotlistOptionsDialog({
-                                    main: ShotlistOptionsDialogPage.attributes,
-                                    sub: ShotlistOptionsDialogSubPage.shot
-                                })}
-                                /*tabIndex={-1}*/
-                            ><Settings2 size={16}/></button>
-                        </div>
+                        <ShotlistHeader
+                            ref={headerRef}
+                            query={query}
+                            openShotlistOptionsDialog={openShotlistOptionsDialog}
+                        />
                         <SheetManager
                             selectedScene={selectedScene}
                             pageLoading={query.loading}
@@ -785,38 +647,12 @@ export default function Shotlist() {
                     </Panel>
                 </PanelGroup>
 
-                <div className="floater">
-                    {
-                        reloadInProgress &&
-                        <SimpleTooltip
-                            text={"The reload is automatically triggered when either you or a collaborator make changes to the shotlist options like adding/removing attributes."}
-                            fontSize={0.85}
-                            offset={0}
-                            delay={0}
-                        >
-                            <div className="reloading">
-                                Shotlist is reloading<DotLoader/>
-                            </div>
-                        </SimpleTooltip>
-                    }
-                    <SimpleTooltip text={refreshBlocked ? "please wait a few seconds" : "refresh"} fontSize={0.8}>
-                        <button
-                            className={"default round right noClickFx"}
-                            ref={refreshButtonRef}
-                            onClick={refresh}
-                            disabled={refreshBlocked}
-                        >
-                            <RefreshCw size={16}/>
-                        </button>
-                    </SimpleTooltip>
-                    <div className="saveIndicator" data-state="saved" ref={saveIndicatorRef} aria-hidden>
-                        <span className="saving"><LoaderCircle size={18}/></span>
-                        <span className="saved"><Check size={18} strokeWidth={2.5}/></span>
-                        <span className="error">!</span>
-                    </div>
-                    <HelpLink link="https://docs.shotly.at/shotlist/navigation" name={"Shotlist"}/>
-                    <button className="openSidebar" onClick={() => setSidebarOpen(true)}><Menu/></button>
-                </div>
+                <ShotlistFloater
+                    ref={floaterRef}
+                    refreshShotlist={refreshShotlist}
+                    reloadInProgress={reloadInProgress}
+                    setSidebarOpen={setSidebarOpen}
+                />
             </main>
             <ShotlistOptionsDialog
                 ref={shotlistOptionsDialogRef}
