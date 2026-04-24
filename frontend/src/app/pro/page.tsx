@@ -28,7 +28,7 @@ export default function Pro(){
 
     useEffect(() => {
         if(!auth.isAuthenticated()){
-            router.replace('/login')
+            auth.loginForPro()
             return
         }
 

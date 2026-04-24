@@ -1,6 +1,6 @@
 {
   "name": "shotly-frontend",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "private": true,
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
