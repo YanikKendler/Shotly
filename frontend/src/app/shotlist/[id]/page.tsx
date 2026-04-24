@@ -41,9 +41,9 @@ import {errorNotification} from "@/service/NotificationService"
 import {DialogRef} from "@/components/basic/dialog/dialog"
 import {useShotlistSync} from "@/service/useShotlistSync"
 import useShotlistKeybinds from "@/service/useShotlistKeybinds"
-import ShotlistFloater, {ShotlistFloaterRef} from "@/components/app/shotlist/floater/shotlistFloater"
+import ShotlistFloater, {ShotlistFloaterRef} from "@/components/app/shotlist/shotlistFloater/shotlistFloater"
 import ReadOnlyBanner from "@/components/app/shotlist/readOnlyBanner/readOnlyBanner"
-import ShotlistHeader from "@/components/app/shotlist/header/shotlistHeader"
+import ShotlistHeader from "@/components/app/shotlist/shotlistHeader/shotlistHeader"
 
 export interface SelectedScene {
     id: string | null
@@ -629,7 +629,7 @@ export default function Shotlist() {
                     </Panel>
 
                     <PanelResizeHandle className="PanelResizeHandle sidebarResize" hitAreaMargins={{fine: 5, coarse: 10}}/>
-                    
+
                     <Panel className={`content ${reloadInProgress && "reloading"}`} id={"shotTable"}>
                         <ShotlistHeader
                             ref={headerRef}

@@ -2,7 +2,7 @@
 
 import gql from "graphql-tag"
 import Link from "next/link"
-import {ApolloQueryResult, InteropQueryResult, useApolloClient} from "@apollo/client"
+import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import "./layout.scss"
 import React, {useEffect, useRef, useState} from "react"
 import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
@@ -40,14 +40,15 @@ import HelpLink from "@/components/app/helpLink/helpLink"
 import Separator from "@/components/basic/separator/separator"
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
 import {errorNotification, successNotification} from "@/service/NotificationService"
-import Radio, {RadioResult} from "@/components/basic/radio/radio"
 import JustBoughtProDialog from "@/components/app/dialogs/justBoughtProDialog/justBoughtProDialog"
-import TextField from "@/components/basic/textField/textField"
-import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys"
+import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys" //package has incorrectly configured type exports
 import Image from "next/image"
-import {BUILD_INFO} from "../../../buildinfo"
-import {marked} from "marked"
-import {CHANGELOG} from "@/data/changelog" //package has incorrectly configured type exports
+import DashboardHeader from "@/components/app/dashboard/dashboardHeader/dashboardHeader"
+import EnterNameFloater from "@/components/app/dashboard/floaterDialogs/enterNameFloater"
+import HowDidYouHearFloater from "@/components/app/dashboard/floaterDialogs/howDidYouHearFloater"
+import ChangeLogFloater from "@/components/app/dashboard/floaterDialogs/changeLogFloater"
+import {CHANGELOG} from "@/data/changelog"
+import DashboardFloater from "@/components/app/dashboard/dashboardFloater/dashboardFloater";
 
 export default function DashboardLayout({children}: { children: React.ReactNode }) {
     const client = useApolloClient()
@@ -69,21 +70,14 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false)
     const [collaborationReloadAllowed, setCollaborationReloadAllowed] = useState<boolean>(true)
 
-    const [enterNameDialogOpen, setEnterNameDialogOpen] = useState(false)
-    const [newName, setNewName] = useState<string>("")
-
-    const [howDidYouHearDialogOpen, setHowDidYouHearDialogOpen] = useState(false)
-    const [howDidYouHearReason, setHowDidYouHearReason] = useState("")
-    const [howDidYouHearText, setHowDidYouHearText] = useState("")
-
-    const [changelogDialogOpen, setChangelogDialogOpen] = useState(false)
+    const [enterNameFloaterVisible, setEnterNameFloaterVisible] = useState(false)
+    const [howDidYouHearFloaterVisible, setHowDidYouHearFloaterVisible] = useState(false)
+    const [changelogFloaterVisible, setChangelogFloaterVisible] = useState(false)
 
     const [easterEggOpen, setEasterEggOpen] = useState(false)
 
     const [pagename, setPagename] = useState("Dashboard")
 
-    const refreshButtonRef = useRef<HTMLButtonElement>(null)
-    const [refreshBlocked, setRefreshBlocked] = useState(false)
     const [refreshSignal, setRefreshSignal] = useState(0)
 
     //register keybinds
@@ -131,14 +125,14 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         const howDidYouHearReason = query.data.currentUser?.howDidYouHearReason
 
         if(!howDidYouHearReason || wuConstants.Regex.empty.test(howDidYouHearReason) || Config.OVERRIDE_INTRO_CHECKS){
-            setHowDidYouHearDialogOpen(true)
+            setHowDidYouHearFloaterVisible(true)
         }
 
         const email = query.data.currentUser?.email
         const name = query.data.currentUser?.name
 
         if((name && email && name == email) || Config.OVERRIDE_INTRO_CHECKS){
-            setEnterNameDialogOpen(true)
+            setEnterNameFloaterVisible(true)
         }
 
         const latestVersionUsed = localStorage.getItem(Config.localStorageKey.latestVersionUsed)
@@ -147,11 +141,11 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             !latestVersionUsed &&
             new Date(query.data.currentUser.createdAt).getTime() < Date.now() - wuConstants.Time.msPerHour
         ){
-            setChangelogDialogOpen(true)
+            setChangelogFloaterVisible(true)
         }
 
         if(Utils.isNewerVersion(latestVersionUsed, CHANGELOG[0].version)){
-            setChangelogDialogOpen(true)
+            setChangelogFloaterVisible(true)
         }
 
         localStorage.setItem(Config.localStorageKey.latestVersionUsed, CHANGELOG[0].version)
@@ -275,8 +269,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     }
 
     const refetchTemplates = async () => {
-        console.log("refetch")
-
         const result = await client.query({
                 query: gql`
                     query refetchTemplates{
@@ -408,92 +400,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                 }
             }
         })
-    }
-
-    const handleNewUserNameSubmit = () => {
-        if(wuConstants.Regex.empty.test(newName)) return
-
-        client.mutate({
-                mutation: gql`
-                    mutation updateUser($name: String!){
-                        updateUser(editDTO: {
-                            name: $name
-                        }) {
-                            id
-                            name
-                        }
-                    }`,
-                variables: {name: newName.trim()},
-            },
-        ).then(({errors}) => {
-            if(errors) {
-                errorNotification({
-                    title: "Failed to update Username",
-                    tryAgainLater: true
-                })
-                console.error("Error updating username:", errors);
-            }
-        })
-
-        setEnterNameDialogOpen(false)
-    }
-
-    const handleHowDidYouHearReasonChange = (result: RadioResult) => {
-        setHowDidYouHearReason(result.value || "")
-        if(result.value == "other")
-            setHowDidYouHearText(result.otherText)
-    }
-
-    const handleHowDidYouHearReasonSubmit = () => {
-        let reason = howDidYouHearReason
-        if(howDidYouHearReason == "other")
-            reason = howDidYouHearText
-
-        client.mutate({
-            mutation: gql`
-                mutation setHowDidYourHearReason($reason: String!){
-                    howDidYourHearReason(reason: $reason) {
-                        id
-                    }
-                }
-            `,
-            variables: {reason: reason}
-        }).then(({errors}) => {
-            if(errors){
-                console.error(errors)
-                errorNotification({
-                    title: "Failed to submit feedback",
-                })
-            }
-        })
-
-        setHowDidYouHearDialogOpen(false)
-    }
-
-    const refresh = () => {
-        if(refreshBlocked) return
-
-        setRefreshBlocked(true)
-        setRefreshSignal(current => current + 1)
-
-        loadData()
-            .then(() => {
-                successNotification({
-                    title: "Refreshed dashboard data"
-                })
-            })
-            .catch(() => {
-                errorNotification({
-                    title: "Failed to refresh dashboard data",
-                })
-            })
-
-        if(refreshButtonRef.current)
-            wuAnimate.spin(refreshButtonRef.current, 300, 360)
-
-        setTimeout(() => {
-            setRefreshBlocked(false)
-        },wuConstants.Time.msPerSecond * 5)
     }
 
     if(query.error) return <ErrorPage
@@ -749,52 +655,20 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                 </Panel>
                 <PanelResizeHandle className="PanelResizeHandle sidebarResize"/>
                 <Panel className={`headerContainer ${isTemplatePage && "template"}`}>
-                    <div className="header">
-                        {
-                            query.loading ?
-                            <>
-                                <Skeleton height="2rem" width="12ch"/>
-                                <Skeleton height="2rem" width="12ch"/>
-                            </>
-                            :
-                            <>
-                                <SimpleTooltip
-                                    content={<p><span className="key">Alt</span> + <span className="key">T</span></p>}
-                                >
-                                    <button className="template" onClick={openCreateTemplateDialog}>New Template</button>
-                                </SimpleTooltip>
-                                <SimpleTooltip
-                                    content={<p><span className="key">Alt</span> + <span className="key">N</span> or <span className="key">Alt</span> + <span className="key">S</span></p>}
-                                >
-                                    <button className="shotlist" onClick={openCreateShotlistDialog}>New Shotlist</button>
-                                </SimpleTooltip>
-                            </>
-                        }
-                    </div>
+                    <DashboardHeader
+                        query={query}
+                        openCreateShotlistDialog={openCreateShotlistDialog}
+                        openCreateTemplateDialog={openCreateTemplateDialog}
+                    />
                     {children}
                 </Panel>
             </PanelGroup>
 
-            <div className="floater">
-                <SimpleTooltip text={refreshBlocked ? "please wait a few seconds" : "refresh"}>
-                    <button
-                        className={"default round right noClickFx"}
-                        ref={refreshButtonRef}
-                        onClick={refresh}
-                        disabled={refreshBlocked}
-                    >
-                        <RefreshCw size={16}/>
-                    </button>
-                </SimpleTooltip>
-                <HelpLink
-                    link={`https://docs.shotly.at/${isTemplatePage ? "templates" : "dashboard"}`}
-                    name={isTemplatePage ? "Template" : "Dashboard"}
-                />
-                {
-                    isTemplatePage &&
-                    <button className="openSidebar" onClick={() => setSidebarOpen(true)}><Menu/></button>
-                }
-            </div>
+            <DashboardFloater
+                loadData={loadData}
+                setRefreshSignal={setRefreshSignal}
+                setSidebarOpen={setSidebarOpen}
+            />
 
             {CreateShotlistDialog}
             {CreateTemplateDialog}
@@ -816,80 +690,16 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
             <div className={"dialogFloater"}>
                 {
-                    enterNameDialogOpen &&
-                    <div className="enterName">
-                        <h3>Welcome</h3>
-                        <p>
-                            <span className="bold">Please enter your name (or nickname).</span>
-                            <br/>
-                            <span className="gray">This name will be visible to others and can not be used to log in.</span>
-                        </p>
-                        <TextField
-                            value={newName}
-                            valueChange={setNewName}
-                            label={"Your name"}
-                            maxWidth={"100%"}
-                            placeholder={"Quentin Tarantino"}
-                            color={"accent"}
-                        />
-                        <p className={"small"}>You can always change your name in the Account settings.</p>
-
-                        <button
-                            disabled={wuConstants.Regex.empty.test(newName)}
-                            onClick={handleNewUserNameSubmit}
-                            className={"main"}
-                        >
-                            Done
-                        </button>
-                    </div>
+                    enterNameFloaterVisible &&
+                    <EnterNameFloater hideFloater={() => setEnterNameFloaterVisible(false)}/>
                 }
                 {
-                    howDidYouHearDialogOpen &&
-                    <div className="howDidYouHear">
-                        <h3>How did you hear about Shotly?</h3>
-                        <Radio
-                            options={[
-                                {value: "friend", label: "A friend"},
-                                {value: "work", label: "From work or colleagues"},
-                                {value: "reddit", label: "A Reddit post"},
-                                {value: "newsletter", label: "A Newsletter"},
-                                {value: "search", label: "A search engine (Google, Bing, etc.)"},
-                                {value: "ai", label: "An AI (GPT, Gemini, etc.)"},
-                            ]}
-                            value={howDidYouHearReason}
-                            onValueChange={handleHowDidYouHearReasonChange}
-                            textOption={true}
-                        />
-                        <button
-                            disabled={
-                                (howDidYouHearReason == "") ||
-                                (howDidYouHearReason == "other" && howDidYouHearText.length < 4)
-                            }
-                            onClick={handleHowDidYouHearReasonSubmit}
-                            className={"main"}
-                        >
-                            Send
-                        </button>
-                    </div>
+                    howDidYouHearFloaterVisible &&
+                    <HowDidYouHearFloater hideFloater={() => setHowDidYouHearFloaterVisible(false)}/>
                 }
                 {
-                    changelogDialogOpen &&
-                    <div className="changelog">
-                        <div className={"top"}>
-                            <h3>Whats new?</h3>
-                            <span className={"bold small gray"}>Shotly v{CHANGELOG[0].version}</span>
-                        </div>
-                        <div dangerouslySetInnerHTML={{__html: marked.parse(Utils.cleanMarkdownString(CHANGELOG[0].changes))}}></div>
-                        <div className="buttons">
-                            <button
-                                onClick={() => setChangelogDialogOpen(false)}
-                                className={"main"}
-                            >
-                                Close
-                            </button>
-                            <Link href={"/changelog"} target={"_blank"} className={"secondary"}>Changelog</Link>
-                        </div>
-                    </div>
+                    changelogFloaterVisible &&
+                    <ChangeLogFloater hideFloater={() => setChangelogFloaterVisible(false)}/>
                 }
             </div>
         </main>
