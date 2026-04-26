@@ -6,13 +6,15 @@ import {errorNotification, successNotification} from "@/service/NotificationServ
 import {wuAnimate, wuConstants} from "@yanikkendler/web-utils";
 import {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
 import {Menu, RefreshCw} from "lucide-react";
+import {ApolloQueryResult} from "@apollo/client"
+import {Query} from "../../../../../lib/graphql/generated"
 
 export default function DashboardFloater({
-    loadData,
+    reloadDashboardData,
     setRefreshSignal,
     setSidebarOpen
 }:{
-    loadData: () => Promise<void>
+    reloadDashboardData: () => Promise<ApolloQueryResult<Query>>
     setRefreshSignal: Dispatch<SetStateAction<number>>
     setSidebarOpen: Dispatch<SetStateAction<boolean>>
 }){
@@ -29,7 +31,7 @@ export default function DashboardFloater({
         setRefreshBlocked(true)
         setRefreshSignal(current => current + 1)
 
-        loadData()
+        reloadDashboardData()
             .then(() => {
                 successNotification({
                     title: "Refreshed dashboard data"
@@ -51,7 +53,7 @@ export default function DashboardFloater({
 
     return (
         <div className="floater">
-            <SimpleTooltip text={refreshBlocked ? "please wait a few seconds" : "refresh"}>
+            <SimpleTooltip text={refreshBlocked ? "please wait a few seconds" : "refresh"} fontSize={0.8}>
                 <button
                     className={"default round right noClickFx"}
                     ref={refreshButtonRef}

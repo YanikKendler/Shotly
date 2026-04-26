@@ -1,4 +1,4 @@
-import {TemplateDto} from "../../../../../lib/graphql/generated"
+import {TemplateDto} from "../../../../../../lib/graphql/generated"
 import Link from "next/link"
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
 import {Blocks} from "lucide-react"

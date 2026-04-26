@@ -787,13 +787,14 @@ span.key{
   display: flex;
   flex-direction: column;
   gap: .3rem;
+  color: var(--text-20);
 
   &.left{
     text-align: left;
   }
 
   :where(svg){
-    color: var(--text-20);
+    color: var(--text-40);
   }
 
   /* Arrow */

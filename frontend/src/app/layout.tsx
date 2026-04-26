@@ -12,6 +12,7 @@ import {Toaster} from "react-hot-toast"
 import {CircleAlert, CircleCheck} from "lucide-react"
 import Script from "next/script"
 import Link from "next/link"
+import Ralph from "@/components/app/ralph/ralph"
 
 export const metadata: Metadata = {
     description:
@@ -144,6 +145,7 @@ export default function RootLayout({
                     },
                 }}
             />
+            <Ralph/>
         </body>
         </html>
     )

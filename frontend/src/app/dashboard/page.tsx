@@ -14,9 +14,9 @@ import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
 import Skeleton from "react-loading-skeleton"
 import {DashboardContext, DialogStep} from "@/context/DashboardContext"
-import DashboardGridShotlist from "@/components/app/dashboard/dashboardGridItem/dashboardGridShotlist"
-import DashboardGridTemplate from "@/components/app/dashboard/dashboardGridItem/dashboardGridTemplate"
-import DashboardGrid from "@/components/app/dashboard/dashboardGrid/dashboardGrid"
+import DashboardGridShotlist from "@/components/app/dashboard/grid/dashboardGridItem/dashboardGridShotlist"
+import DashboardGridTemplate from "@/components/app/dashboard/grid/dashboardGridItem/dashboardGridTemplate"
+import DashboardGrid from "@/components/app/dashboard/grid/dashboardGrid/dashboardGrid"
 import LoadingPage from "@/components/app/feedback/loadingPage/loadingPage"
 
 export default function Overview() {
@@ -128,16 +128,16 @@ export default function Overview() {
                     driverObj.destroy()
                     openCreateShotlistDialog()
                 }}>
-                    <span><Plus/>New Shotlist</span>
+                    <span><Plus size={22}/>New Shotlist</span>
                 </button>
             </DashboardGrid>
             <h2>Templates</h2>
             <DashboardGrid>
-                {templates.slice(0, 8)?.sort(Utils.orderShotlistsOrTemplatesByName)?.map((template: TemplateDto) => (
+                {templates?.slice(0, 8)?.sort(Utils.orderShotlistsOrTemplatesByName)?.map((template: TemplateDto) => (
                     <DashboardGridTemplate template={template} key={template.id}/>
                 ))}
                 <button className={"dashboardGridItem add"} onClick={openCreateTemplateDialog}>
-                    <span><Plus/>New Template</span>
+                    <span><Plus size={22}/>New Template</span>
                 </button>
             </DashboardGrid>
             <Link href={"/dashboard/archive"} className={"archive default"}>Archive <ArrowRight size={16} strokeWidth={2}/></Link>

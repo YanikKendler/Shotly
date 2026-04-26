@@ -1,4 +1,4 @@
-import {ShotlistDto} from "../../../../../lib/graphql/generated"
+import {ShotlistDto} from "../../../../../../lib/graphql/generated"
 import Link from "next/link"
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
 import {NotepadText} from "lucide-react"

@@ -1,0 +1,48 @@
+main.home .sidebar{
+  @media screen and (max-width: 500px){
+    --sidebar-width: 100vw;
+  }
+
+  >.content{
+    gap: .5rem;
+
+    .top{
+      height: 2.5rem; /*Matches the nav bar*/
+    }
+
+    .list{
+      gap: .5rem;
+
+      .bottom {
+        .new {
+          color: var(--accent-40);
+          border-color: var(--accent);
+          display: none;
+
+          @media screen and (max-width: 500px) {
+            display: flex;
+          }
+        }
+      }
+
+      .collaborationRequestsTrigger{
+        position: relative;
+
+        .badge{
+          aspect-ratio: 1;
+          height: 1.4rem;
+          display: grid;
+          place-items: center;
+          border-radius: 100%;
+          font-weight: bold;
+          text-align: center;
+          background-color: var(--collaborator);
+          color: var(--contrast);
+          position: absolute;
+          right: -.5rem;
+          bottom: 1rem;
+        }
+      }
+    }
+  }
+}

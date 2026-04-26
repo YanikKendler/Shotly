@@ -15,16 +15,12 @@ export enum DialogStep {
 export const DashboardContext = createContext<{
     query: ApolloQueryResult<Query>
     setQuery: (query: ApolloQueryResult<Query>) => void,
-    pendingCollaborations: ApolloQueryResult<Query>
-    setPendingCollaborations: (query: ApolloQueryResult<Query>) => void,
     dialogStep: DialogStep,
     incrementDialogStep: (currentStep: DialogStep) => void,
     refreshSignal: number
 }>({
     query: Utils.defaultQueryResult,
     setQuery: () => {},
-    pendingCollaborations: Utils.defaultQueryResult,
-    setPendingCollaborations: () => {},
     dialogStep: DialogStep.LOADING,
     incrementDialogStep: () => {},
     refreshSignal: 0
