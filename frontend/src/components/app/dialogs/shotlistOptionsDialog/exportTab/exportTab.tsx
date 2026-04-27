@@ -10,13 +10,13 @@ import {
     Heading,
     Type,
     RotateCcw,
-    View, Eye
+    Eye
 } from "lucide-react"
 import React, {Fragment, RefObject, useEffect, useRef, useState} from "react"
 import gql from "graphql-tag"
-import {pdf, PDFViewer} from "@react-pdf/renderer"
+import {pdf} from "@react-pdf/renderer"
 import PDFExport, {PDFExportOptions} from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/PDFExport"
-import {wuGeneral, wuTime} from "@yanikkendler/web-utils"
+import {wuTime} from "@yanikkendler/web-utils"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {
     Query,
@@ -32,7 +32,7 @@ import {
     AnySceneAttributeDefinition,
     AnyShotAttribute,
     AnyShotAttributeDefinition, SceneSingleOrMultiSelectAttributeDefinition,
-    SelectOption, ShotSingleOrMultiSelectAttribute, ShotSingleOrMultiSelectAttributeDefinition
+    SelectOption, ShotSingleOrMultiSelectAttributeDefinition
 } from "@/utility/Types"
 import Utils from "@/utility/Utils"
 import Config from "@/Config"
@@ -45,7 +45,7 @@ import {
 } from "@/utility/AttributeParser"
 //@ts-ignore
 import {downloadCSV} from "../../../../../../lib/downloadCSV"
-import {Popover, Switch} from "radix-ui"
+import {Switch} from "radix-ui"
 import {MultiValue} from "react-select"
 import HelpLink from "@/components/app/helpLink/helpLink"
 import Skeleton from "react-loading-skeleton"
@@ -61,6 +61,7 @@ import ExportPreview from "@/components/app/dialogs/shotlistOptionsDialog/export
 import Dialog, {DialogRef} from "@/components/basic/dialog/dialog"
 import {useConfirmDialog} from "@/components/app/dialogs/confirmDialog/confirmDialog"
 import {wuText} from "@yanikkendler/web-utils/dist"
+import SimplePopover, {SimplePopoverRef} from "@/components/basic/popover/simplePopover"
 
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full" | "XLSX"
 
@@ -108,6 +109,8 @@ export default function ExportTab(
     const [exportRunning, setExportRunning] = useState(false)
 
     const previewDialogRef = useRef<DialogRef>(null);
+
+    const addFilterPopoverRef = useRef<SimplePopoverRef>(null);
 
     //load settings from local storage
     useEffect(() => {
@@ -659,12 +662,16 @@ export default function ExportTab(
     }
 
     const addShotFilter = (attributeDefinitionId: number) => {
+        addFilterPopoverRef.current?.close()
+
         const newCustomFilters = new Map(customShotFilters)
         newCustomFilters.set(attributeDefinitionId, [])
         setCustomShotFilters(newCustomFilters)
     }
 
     const addSceneFilter = (attributeDefinitionId: number) => {
+        addFilterPopoverRef.current?.close()
+
         const newCustomFilters = new Map(customSceneFilters)
         newCustomFilters.set(attributeDefinitionId, [])
         setCustomSceneFilters(newCustomFilters)
@@ -914,43 +921,42 @@ export default function ExportTab(
                 })}
             </div>
 
-            <Popover.Root>
-                <Popover.Trigger className={"addFilter"}>
-                    Add filter <Plus size={20}/>
-                </Popover.Trigger>
-                <Popover.Portal>
-                    <Popover.Content className="popoverContent addFilterPopup" sideOffset={5} align={"start"}>
-                            <h3>Scene</h3>
-                            {
-                                !customSceneFilterCandidates || customSceneFilterCandidates?.length <= 0 ?
-                                    <p className="empty">None left</p> :
-                                customSceneFilterCandidates?.map((attributeDefinition, index) => (
-                                    <Popover.Close asChild key={index}>
-                                        <button
-                                            onClick={() => addSceneFilter(attributeDefinition?.id || -1)}
-                                        >
-                                            {attributeDefinition?.name || "Unnamed"}
-                                        </button>
-                                    </Popover.Close>
-                                ))
-                            }
-                            <h3>Shot</h3>
-                            {
-                                !customShotFilterCandidates || customShotFilterCandidates?.length <= 0 ?
-                                    <p className="empty">None left</p> :
-                                customShotFilterCandidates.map((attributeDefinition, index) => (
-                                    <Popover.Close asChild key={index}>
-                                        <button
-                                            onClick={() => addShotFilter(attributeDefinition?.id || -1)}
-                                        >
-                                            {attributeDefinition?.name || "Unnamed"}
-                                        </button>
-                                    </Popover.Close>
-                                ))
-                            }
-                    </Popover.Content>
-                </Popover.Portal>
-            </Popover.Root>
+            <SimplePopover
+                ref={addFilterPopoverRef}
+                className={"addFilter"}
+                contentClassName={"addFilterPopup"}
+                showArrow={false}
+                content={<>
+                    <h3>Scene</h3>
+                    {
+                        !customSceneFilterCandidates || customSceneFilterCandidates?.length <= 0 ?
+                            <p className="empty">None left</p> :
+                            customSceneFilterCandidates?.map((attributeDefinition, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => addSceneFilter(attributeDefinition?.id || -1)}
+                                >
+                                    {attributeDefinition?.name || "Unnamed"}
+                                </button>
+                            ))
+                    }
+                    <h3>Shot</h3>
+                    {
+                        !customShotFilterCandidates || customShotFilterCandidates?.length <= 0 ?
+                            <p className="empty">None left</p> :
+                            customShotFilterCandidates.map((attributeDefinition, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => addShotFilter(attributeDefinition?.id || -1)}
+                                >
+                                    {attributeDefinition?.name || "Unnamed"}
+                                </button>
+                            ))
+                    }
+                </>}
+            >
+                Add filter <Plus size={20}/>
+            </SimplePopover>
 
             <span className="scrollSpacer" aria-hidden></span>
 

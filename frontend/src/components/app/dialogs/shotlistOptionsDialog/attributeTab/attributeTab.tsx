@@ -24,6 +24,7 @@ import HelpLink from "@/components/app/helpLink/helpLink"
 import Skeleton from "react-loading-skeleton"
 import {errorNotification} from "@/service/NotificationService"
 import {DialogRef} from "@/components/basic/dialog/dialog"
+import SimplePopover, {SimplePopoverRef} from "@/components/basic/popover/simplePopover"
 
 export default function AttributeTab(
     {
@@ -55,6 +56,9 @@ export default function AttributeTab(
 ) {
     const client = useApolloClient()
     const router = useRouter()
+
+    const addSceneAttributePopoverRef = useRef<SimplePopoverRef>(null)
+    const addShotAttributePopoverRef = useRef<SimplePopoverRef>(null)
 
     const sceneCreationLoaderRef = useRef<HTMLDivElement>(null)
     const shotCreationLoaderRef = useRef<HTMLDivElement>(null)
@@ -96,6 +100,8 @@ export default function AttributeTab(
 
     async function createShotAttributeDefinition(type: ShotAttributeType) {
         setCreationLoaderVisibility("shot", true)
+
+        addShotAttributePopoverRef.current?.close()
 
         const {data, errors} = await client.mutate({
             mutation: gql`
@@ -180,6 +186,8 @@ export default function AttributeTab(
 
     async function createSceneAttributeDefinition(type: SceneAttributeType) {
         setCreationLoaderVisibility("scene", true)
+
+        addSceneAttributePopoverRef.current?.close()
 
         const {data, errors} = await client.mutate({
             mutation: gql`
@@ -331,17 +339,20 @@ export default function AttributeTab(
                                 </SortableContext>
                             </DndContext>
 
-
-                            <Popover.Root>
-                                <Popover.Trigger className={"add"}>Add attribute <Plus size={20}/></Popover.Trigger>
-                                <Popover.Portal>
-                                    <Popover.Content className="popoverContent addAttributeDefinitionPopup" sideOffset={5} align={"start"}>
-                                        <button onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneTextAttribute)}><Type size={16}/>Text</button>
-                                        <button onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneSingleSelectAttribute)}><ChevronDown size={16}/>Single select</button>
-                                        <button onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneMultiSelectAttribute)}><List size={16}/>Multi select</button>
-                                    </Popover.Content>
-                                </Popover.Portal>
-                            </Popover.Root>
+                            <SimplePopover
+                                ref={addSceneAttributePopoverRef}
+                                className={"add"}
+                                contentClassName={"addAttributeDefinitionPopup"}
+                                content={<>
+                                    <button onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneTextAttribute)}><Type size={16}/>Text</button>
+                                    <button onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneSingleSelectAttribute)}><ChevronDown size={16}/>Single select</button>
+                                    <button onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneMultiSelectAttribute)}><List size={16}/>Multi select</button>
+                                </>}
+                                showArrow={false}
+                                side={"bottom"}
+                            >
+                                Add attribute <Plus size={20}/>
+                            </SimplePopover>
                         </>
                     }
                     <span className="scrollSpacer" aria-hidden/>
@@ -391,16 +402,21 @@ export default function AttributeTab(
                                     </div>
                                 </SortableContext>
                             </DndContext>
-                            <Popover.Root>
-                                <Popover.Trigger className={"add"}>Add attribute <Plus size={20}/></Popover.Trigger>
-                                <Popover.Portal>
-                                    <Popover.Content className="popoverContent addAttributeDefinitionPopup" sideOffset={5} align={"start"}>
-                                        <button onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotTextAttribute)}><Type size={16}/>Text</button>
-                                        <button onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotSingleSelectAttribute)}><ChevronDown size={16}/>Single select</button>
-                                        <button onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotMultiSelectAttribute)}><List size={16}/>Multi select</button>
-                                    </Popover.Content>
-                                </Popover.Portal>
-                            </Popover.Root>
+
+                            <SimplePopover
+                                ref={addShotAttributePopoverRef}
+                                className={"add"}
+                                contentClassName={"addAttributeDefinitionPopup"}
+                                content={<>
+                                    <button onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotTextAttribute)}><Type size={16}/>Text</button>
+                                    <button onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotSingleSelectAttribute)}><ChevronDown size={16}/>Single select</button>
+                                    <button onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotMultiSelectAttribute)}><List size={16}/>Multi select</button>
+                                </>}
+                                showArrow={false}
+                                side={"bottom"}
+                            >
+                                Add attribute <Plus size={20}/>
+                            </SimplePopover>
                         </>
                     }
                     <span className="scrollSpacer" aria-hidden/>

@@ -1,8 +1,8 @@
 import Skeleton from "react-loading-skeleton"
-import {Dispatch, SetStateAction} from "react"
+import {Dispatch, SetStateAction, useRef} from "react"
 import {Query, SceneAttributeType, ShotAttributeType} from "../../../../../lib/graphql/generated"
 import {ChevronDown, List, Plus, Type} from "lucide-react"
-import SimplePopover from "@/components/basic/popover/simplePopover"
+import SimplePopover, {SimplePopoverRef} from "@/components/basic/popover/simplePopover"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import {errorNotification} from "@/service/NotificationService"
@@ -17,9 +17,10 @@ export default function CreateSceneAttributeTemplatePopup({
     isLoading: boolean
 }){
     const client = useApolloClient()
+    const popoverRef = useRef<SimplePopoverRef>(null);
 
     async function createSceneAttributeTemplate(type: SceneAttributeType) {
-        //TODO close popup
+        popoverRef.current?.close()
 
         const {data, errors} = await client.mutate({
             mutation: gql`
@@ -59,8 +60,12 @@ export default function CreateSceneAttributeTemplatePopup({
 
     return (
         <SimplePopover
+            ref={popoverRef}
             className={"add"}
             contentClassName={"addAttributeTemplatePopup"}
+            showArrow={false}
+            side={"bottom"}
+            align={"start"}
             content={<>
                 <button onClick={() => createSceneAttributeTemplate(SceneAttributeType.SceneTextAttribute)}>
                     <Type size={16} strokeWidth={3}/>Text
@@ -75,7 +80,7 @@ export default function CreateSceneAttributeTemplatePopup({
                 </button>
             </>}
         >
-            Add shot attribute <Plus size={20}/>
+            Add scene attribute <Plus size={20}/>
         </SimplePopover>
     )
 }

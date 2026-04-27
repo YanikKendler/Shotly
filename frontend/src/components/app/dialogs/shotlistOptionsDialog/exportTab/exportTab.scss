@@ -124,6 +124,12 @@ div.shotlistOptionsDialogExportTab{
   text-align: left;
   min-width: var(--radix-popover-trigger-width);
 
+  .scrollArea{
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+  }
+
   h3{
     color: var(--text-50);
     font-weight: bold;
@@ -139,6 +145,7 @@ div.shotlistOptionsDialogExportTab{
   button{
     font-size: .95rem;
     color: var(--text);
+    padding: .3rem;
 
     &:hover{
       background-color: var(--transparent-gray-10);

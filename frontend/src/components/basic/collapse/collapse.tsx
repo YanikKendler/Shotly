@@ -12,10 +12,8 @@ export default function Collapse({
     name: string
     defaultOpen?: boolean
 }){
-    const [isOpen, setIsOpen] = useState<boolean>(defaultOpen)
-
     return (
-        <Collapsible.Root onOpenChange={setIsOpen} defaultOpen={defaultOpen} className={"simpleCollapse"}>
+        <Collapsible.Root defaultOpen={defaultOpen} className={"simpleCollapse"}>
             <Collapsible.Trigger className={"trigger noClickFx"}>
                 <ChevronDown size={18} className={"chevron"}/>
                 <div className="left">

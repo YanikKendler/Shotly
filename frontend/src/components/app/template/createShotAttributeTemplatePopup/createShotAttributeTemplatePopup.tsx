@@ -1,8 +1,8 @@
 import Skeleton from "react-loading-skeleton"
-import {Dispatch, SetStateAction} from "react"
+import {Dispatch, SetStateAction, useRef} from "react"
 import {Query, ShotAttributeType} from "../../../../../lib/graphql/generated"
 import {ChevronDown, List, Plus, Type} from "lucide-react"
-import SimplePopover from "@/components/basic/popover/simplePopover"
+import SimplePopover, {SimplePopoverRef} from "@/components/basic/popover/simplePopover"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import {errorNotification} from "@/service/NotificationService"
@@ -18,7 +18,11 @@ export default function CreateShotAttributeTemplatePopup({
 }){
     const client = useApolloClient()
 
+    const popoverRef = useRef<SimplePopoverRef>(null);
+
     async function createShotAttributeTemplate(type: ShotAttributeType) {
+        popoverRef.current?.close()
+
         const {data, errors} = await client.mutate({
             mutation: gql`
                 mutation createShotAttributeTemplate($templateId: String!, $attributeType: ShotAttributeType!) {
@@ -60,8 +64,12 @@ export default function CreateShotAttributeTemplatePopup({
 
     return (
         <SimplePopover
+            ref={popoverRef}
             className={"add"}
             contentClassName={"addAttributeTemplatePopup"}
+            showArrow={false}
+            side={"bottom"}
+            align={"start"}
             content={<>
                 <button onClick={() => createShotAttributeTemplate(ShotAttributeType.ShotTextAttribute)}><Type
                     size={16} strokeWidth={3}/>Text
