@@ -51,7 +51,7 @@ export interface SheetManagerRef {
 
 export interface SheetManagerProps {
     selectedScene: SelectedScene
-    pageLoading: boolean
+    queryIsLoading: boolean
     shotAttributeDefinitions: ShotAttributeDefinitionBase[] | null
     isReadOnly: boolean
     shotlistHeaderRef: RefObject<HTMLDivElement | null>
@@ -70,7 +70,7 @@ export type ShotCache = Map<string, ShotCacheEntry>
  */
 const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     selectedScene,
-    pageLoading,
+    queryIsLoading,
     shotAttributeDefinitions,
     isReadOnly,
     shotlistHeaderRef
@@ -208,6 +208,11 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                 message: "Failed to load shots",
                 cause: result.errors
             })
+            setQuery(current => ({
+                ...current,
+                errors: result.errors,
+                error: result.error
+            }))
         }
 
         setShots(result.data.shots)
@@ -526,7 +531,28 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         }
     }, [moveShot, shotlistContext])
 
-    if(!pageLoading && (!shotAttributeDefinitions || (!isReadOnly && shotAttributeDefinitions.length == 0))) {
+    if(query.errors && query.errors.length > 0){
+        const error = query.errors[0]?.extensions?.code as ShotlyErrorCode
+
+        return <div className="sheetManager">
+            {
+                error == ShotlyErrorCode.NOT_FOUND ?
+                    <ErrorDisplay
+                        title="Scene was not found"
+                        description="The selected scene was not found, please select one from the Sidebar."
+                    /> :
+                    <ErrorDisplay
+                        title="Scene could not be loaded"
+                        description="The selected scene could not be loaded, please select one from the Sidebar."
+                    />
+            }
+        </div>
+    }
+
+    if(query.error)
+        return <div className="sheetManager"><ErrorDisplay title={query.error.message}/></div>
+
+    if(!queryIsLoading && (!shotAttributeDefinitions || (!isReadOnly && shotAttributeDefinitions.length == 0))) {
         return <div className="sheetManager">
             <p className={"empty"}>
                 {"Add a "}
@@ -544,7 +570,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         </div>
     }
 
-    if(pageLoading || query.loading) {
+    if(queryIsLoading || query.loading) {
         return <div className="sheetManager">
             <Skeleton count={5} height="38px"/>
         </div>
@@ -554,27 +580,6 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         return <div className="sheetManager">
             <p className="empty">Please select a scene from the sidebar</p>
         </div>
-
-    if(query.errors && query.errors.length > 0){
-        const error = query.errors[0]?.extensions?.code as ShotlyErrorCode
-
-        return <div className="sheetManager">
-            {
-                error == ShotlyErrorCode.NOT_FOUND ?
-                <ErrorDisplay
-                    title="Scene was not found"
-                    description="The selected scene was not found, please select one from the Sidebar."
-                /> :
-                <ErrorDisplay
-                    title="Scene could not be loaded"
-                    description="The selected scene could not be loaded, please select one from the Sidebar."
-                />
-            }
-        </div>
-    }
-
-    if(query.error)
-        return <div className="sheetManager"><ErrorDisplay title={query.error.message}/></div>
 
     if(isReadOnly){
         if((query.data.shots && query.data.shots.length <= 0)){
