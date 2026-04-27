@@ -17,7 +17,6 @@ import {DashboardContext, DialogStep} from "@/context/DashboardContext"
 import DashboardGridShotlist from "@/components/app/dashboard/grid/dashboardGridItem/dashboardGridShotlist"
 import DashboardGridTemplate from "@/components/app/dashboard/grid/dashboardGridItem/dashboardGridTemplate"
 import DashboardGrid from "@/components/app/dashboard/grid/dashboardGrid/dashboardGrid"
-import LoadingPage from "@/components/app/feedback/loadingPage/loadingPage"
 
 export default function Overview() {
     const dashboardContext = useContext(DashboardContext)

@@ -3,14 +3,13 @@ import 'react-loading-skeleton/dist/skeleton.css'
 import React from "react"
 import {ApolloWrapper} from "@/wrapper/ApolloWrapper"
 import {Inter} from 'next/font/google'
-import {Toast, Tooltip} from "radix-ui"
+import {Tooltip} from "radix-ui"
 import AuthWrapper from "@/wrapper/AuthWrapper"
 import Config from "@/Config"
 import {Metadata, Viewport} from "next"
 import {SkeletonTheme} from "react-loading-skeleton"
 import {Toaster} from "react-hot-toast"
 import {CircleAlert, CircleCheck} from "lucide-react"
-import Script from "next/script"
 import Link from "next/link"
 import Ralph from "@/components/app/ralph/ralph"
 

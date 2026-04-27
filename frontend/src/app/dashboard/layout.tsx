@@ -1,46 +1,24 @@
 'use client'
 
 import gql from "graphql-tag"
-import Link from "next/link"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import "./layout.scss"
 import React, {useEffect, useRef, useState} from "react"
 import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
-import {
-    Archive,
-    Blocks,
-    Check,
-    ChevronDown,
-    House,
-    Inbox,
-    Menu,
-    NotepadText,
-    Plus,
-    RefreshCw,
-    User,
-    X
-} from "lucide-react"
-import {CollaborationDto, CollaborationState, Query, ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
-import {Collapsible, Dialog, Popover, VisuallyHidden} from "radix-ui"
-import {wuAnimate, wuGeneral} from "@yanikkendler/web-utils"
+import { Query } from "../../../lib/graphql/generated"
 import auth from "@/Auth"
 import {usePathname, useRouter} from "next/navigation"
 import {useCreateShotlistDialog} from "@/components/app/dialogs/createShotlistDialog/createShotlistDialog"
 import {useAccountDialog} from "@/components/app/dialogs/accountDialog/accountDialog"
 import Utils from "@/utility/Utils"
-import Iconmark from "@/components/logo/iconmark"
 import {useCreateTemplateDialog} from "@/components/app/dialogs/createTemplateDialog/createTemplateDialog"
-import Skeleton from "react-loading-skeleton"
 import LoadingPage from "@/components/app/feedback/loadingPage/loadingPage"
 import {DashboardContext, DialogStep} from "@/context/DashboardContext"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
 import Config from "@/Config"
-import Separator from "@/components/basic/separator/separator"
-import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
-import {errorNotification, successNotification} from "@/service/NotificationService"
+import {errorNotification} from "@/service/NotificationService"
 import JustBoughtProDialog from "@/components/app/dialogs/justBoughtProDialog/justBoughtProDialog"
-import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys" //package has incorrectly configured type exports
 import DashboardHeader from "@/components/app/dashboard/dashboardHeader/dashboardHeader"
 import EnterNameFloater from "@/components/app/dashboard/floaterDialogs/enterNameFloater"
 import HowDidYouHearFloater from "@/components/app/dashboard/floaterDialogs/howDidYouHearFloater"
@@ -58,7 +36,6 @@ export interface DashboardQueryConf {
 
 export default function DashboardLayout({children}: { children: React.ReactNode }) {
     const client = useApolloClient()
-    const router = useRouter()
     const pathname = usePathname()
 
     const { openCreateShotlistDialog, CreateShotlistDialog } = useCreateShotlistDialog()

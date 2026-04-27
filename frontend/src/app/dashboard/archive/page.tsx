@@ -1,6 +1,6 @@
 "use client"
 
-import React, {useContext, useEffect, useRef, useState} from "react"
+import React, {useContext, useEffect, useState} from "react"
 import "./archive.scss"
 import gql from "graphql-tag"
 import {errorNotification, successNotification} from "@/service/NotificationService"

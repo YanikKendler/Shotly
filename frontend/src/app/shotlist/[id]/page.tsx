@@ -12,7 +12,6 @@ import {
     UserTier
 } from "../../../../lib/graphql/generated"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
-import { House, Settings2, X } from "lucide-react"
 import './shotlist.scss'
 import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 import {ShotlistContext} from "@/context/ShotlistContext"
@@ -30,13 +29,11 @@ import Config from "@/Config"
 import {GenericError, SelectOption, ShotlyErrorCode} from "@/utility/Types"
 import SheetManager, {SheetManagerRef} from "@/components/app/shotlist/table/sheetManager/sheetManager"
 import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/app/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
-import Skeleton from "react-loading-skeleton"
 import {
     ShotlistUpdateDTO,
     ShotlistUpdateType,
     UserMinimalDTO,
 } from "@/service/useShotlistSync"
-import Link from "next/link"
 import {errorNotification} from "@/service/NotificationService"
 import {DialogRef} from "@/components/basic/dialog/dialog"
 import {useShotlistSync} from "@/service/useShotlistSync"
@@ -638,7 +635,7 @@ export default function Shotlist() {
                         />
                         <SheetManager
                             selectedScene={selectedScene}
-                            pageLoading={query.loading}
+                            queryIsLoading={query.loading}
                             shotAttributeDefinitions={query.data.shotlist?.shotAttributeDefinitions as ShotAttributeDefinitionBase[] || null}
                             isReadOnly={readOnlyState.isReadOnly}
                             shotlistHeaderRef={headerRef}

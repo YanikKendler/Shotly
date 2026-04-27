@@ -7,13 +7,12 @@ import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 import React, {useEffect, useState} from "react"
 import {
     Query,
-    SceneAttributeTemplateBase, SceneAttributeType,
+    SceneAttributeTemplateBase,
     ShotAttributeTemplateBase,
-    ShotAttributeType,
 } from "../../../../../lib/graphql/generated"
 import gql from "graphql-tag"
 import {wuGeneral} from "@yanikkendler/web-utils"
-import {ChevronDown, Info, List, Menu, NotepadText, Pen, Pencil, Plus, Trash, Type} from "lucide-react"
+import { Info, Pencil, Trash } from "lucide-react"
 import TextField from "@/components/basic/textField/textField"
 import {
     closestCenter,
@@ -25,14 +24,12 @@ import {
     useSensors
 } from "@dnd-kit/core"
 import {arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy} from "@dnd-kit/sortable"
-import {Popover} from "radix-ui"
 import ShotAttributeTemplate from "@/components/app/template/shotAttributeTemplate/shotAttributeTemplate"
 import {AnyShotAttributeTemplate, ShotlyErrorCode} from "@/utility/Types"
 import Utils, {uuidRegex} from "@/utility/Utils"
 import Config from "@/Config"
 import Link from "next/link"
 import SceneAttributeTemplate from "@/components/app/template/sceneAttributeTemplate/sceneAttributeTemplate"
-import {router} from "next/client"
 import {useConfirmDialog} from "@/components/app/dialogs/confirmDialog/confirmDialog"
 import {driver} from "driver.js"
 import Skeleton from "react-loading-skeleton"
@@ -242,6 +239,7 @@ export default function Template (){
             title: "Successfully deleted template",
             message: "Returning to the dashboard"
         })
+
         router.push("/dashboard");
     }
 
@@ -310,7 +308,6 @@ export default function Template (){
             }
         })
     }
-
 
     function handleSceneAttributeDragEnd(event: any) {
         const {active, over} = event;
