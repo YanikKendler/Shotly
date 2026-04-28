@@ -34,9 +34,7 @@ export interface ShotlistSidebarRef {
 
 export interface ShotlistSidebarProps {
     query: ApolloQueryResult<Query>
-    selectScene: (id: string | null, position: number | null) => void
     setQuery: React.Dispatch<React.SetStateAction<ApolloQueryResult<Query>>>
-    selectedScene: SelectedScene
     sceneCount: number
     setSceneCount: (count: number) => void
     isReadOnly: boolean
@@ -49,9 +47,7 @@ export interface ShotlistSidebarProps {
 
 const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
     query,
-    selectScene,
     setQuery,
-    selectedScene,
     sceneCount,
     setSceneCount,
     isReadOnly,
@@ -74,9 +70,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
 
     useImperativeHandle(ref, () => ({
         getScene: (position: number) => sceneRefs.current.get(position) || null,
-        findScene: (sceneId: string): SidebarSceneRef | null =>
-            Array.from(sceneRefs.current.values())
-                .find(scene => scene?.id == sceneId) ?? null,
+        findScene: findScene,
         findAttribute: attributeId => {
             for (let sceneRef of Array.from(sceneRefs.current.values())) {
                 if(!sceneRef) continue
@@ -141,6 +135,10 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
         if(nameInputRef.current && query.data.shotlist?.name)
             nameInputRef.current.value = query.data.shotlist.name
     }, [query.data.shotlist?.name]);
+
+    const findScene = (sceneId: string): SidebarSceneRef | null =>
+        Array.from(sceneRefs.current.values())
+            .find(scene => scene?.id == sceneId) ?? null
 
     const setCreationLoaderVisibility = (visible: boolean) => {
         if(!creationLoaderRef.current) return
@@ -230,7 +228,10 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
         // next to the shots is displayed correctly - this is accomplished via a re-render which is why
         // its avoided if scene nums are turned off
         if(Utils.getUserSettingsFromLocalStorage().displaySceneNumbersNextToShotNumbers)
-            selectScene(sceneId, to)
+            shotlistContext.selectScene({
+                id: sceneId,
+                position: to
+            })
     }
 
     const onMoveScene = (sceneId: string, to: number) => {
@@ -320,7 +321,11 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
 
         onCreateScene(data.createScene)
 
-        selectScene(data.createScene.id || null, query.data.shotlist?.scenes?.length ?? null)
+        //TODO does not work
+        shotlistContext.selectScene({
+            id: data.createScene.id ?? null,
+            position: query.data.shotlist?.scenes?.length ?? null
+        })
 
         setCreationLoaderVisibility(false)
 
@@ -329,7 +334,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
 
     const onCreateScene = (scene: SceneDto) => {
         setQuery(current => {
-            const newScenes = [...(current.data.shotlist?.scenes as SceneDto[] || []), scene]
+            const newScenes = [...(current.data.shotlist?.scenes as SceneDto[] ?? []), scene]
             setSceneCount(newScenes.length)
 
             return {
@@ -399,8 +404,6 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                                     key={scene.id}
                                     scene={scene}
                                     position={index}
-                                    expanded={selectedScene.id == scene.id}
-                                    onSelect={selectScene}
                                     onDelete={onDeleteScene}
                                     moveScene={moveScene}
                                     readOnly={isReadOnly}

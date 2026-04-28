@@ -1,6 +1,7 @@
 import React, {
+    Dispatch,
     forwardRef,
-    RefObject,
+    RefObject, SetStateAction,
     useCallback,
     useContext,
     useEffect,
@@ -34,6 +35,7 @@ import {
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import CreatorCell from "@/components/app/shotlist/table/cell/creatorCell"
 import LoaderCell from "@/components/app/shotlist/table/cell/loaderCell"
+import {number} from "@inquirer/prompts"
 
 export interface SheetManagerRef {
     getCellRef: (row: number, column: number) => CellRef | null
@@ -47,10 +49,11 @@ export interface SheetManagerRef {
     updateShotCacheShotAttributeValue: (value: ShotAttributeValueCollection, attributeId: number, shotId: string, sceneId?: string) => void
     shotCache: RefObject<ShotCache>
     updateShotCache: (shots: ShotDto[], sceneId?: string | null) => void
+    showLoader: () => void
+    setSelectedScene: Dispatch<SetStateAction<SelectedScene>>
 }
 
 export interface SheetManagerProps {
-    selectedScene: SelectedScene
     queryIsLoading: boolean
     shotAttributeDefinitions: ShotAttributeDefinitionBase[] | null
     isReadOnly: boolean
@@ -66,10 +69,11 @@ export type ShotCache = Map<string, ShotCacheEntry>
 
 /**
  * Query's shots based on the selected scene and displays them in a spreadsheet, handles all spreadsheet actions
- * @constructor
+ *
+ * The selected scene is not passed as a prop or read from context because it results in laggy animation
+ * more control is needed
  */
 const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
-    selectedScene,
     queryIsLoading,
     shotAttributeDefinitions,
     isReadOnly,
@@ -77,6 +81,8 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 }, ref) => {
     const shotlistContext = useContext(ShotlistContext)
     const client = useApolloClient()
+
+    const [selectedScene, setSelectedScene] = useState<SelectedScene>({id: null, position: null})
 
     const shotTableElement = useRef<HTMLDivElement | null>(null)
     const isSyncingScroll = useRef(false) //to not detect updating the scroll as a scroll
@@ -105,7 +111,14 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         handleCreateShotKeybind: handleCreateShotKeybind,
         updateShotCacheShotAttributeValue: updateShotCacheShotAttributeValue,
         shotCache: shotCache,
-        updateShotCache: updateShotCache
+        updateShotCache: updateShotCache,
+        showLoader: () => {
+            setQuery(current => ({
+                ...current,
+                loading: true
+            }))
+        },
+        setSelectedScene
     }))
 
     useEffect(() => {
@@ -219,7 +232,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     }
 
     const setShots = (shots: ShotDto[]) => {
-        shotlistContext.setShotCount(shots.length || 0)
+        shotlistContext.setShotCount(shots?.length ?? 0)
 
         updateShotCache(shots)
 

@@ -1,7 +1,7 @@
 'use client'
 
 import gql from "graphql-tag"
-import React, {useEffect, useRef, useState} from "react"
+import React, {startTransition, useEffect, useRef, useState, useTransition} from "react"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {
     CollaborationDto,
@@ -75,7 +75,7 @@ export default function Shotlist() {
 
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
-    const [selectedScene, setSelectedScene] = useState<SelectedScene>({ id: sceneId, position: null })
+    const [selectedScene, setSelectedScene] = useState<SelectedScene>({ id: null, position: null })
     const [selectedOptionsDialogPage, setSelectedOptionsDialogPage] = useState<{main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage} | null>(null)
     const [elementIsBeingDragged, setElementIsBeingDragged] = useState(false)
     const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -149,18 +149,29 @@ export default function Shotlist() {
             }
         }
 
-        //select first scene if none is selected
+        //select first scene if none is supplied
         if(
             (
-                selectedScene?.id == "" ||
-                selectedScene?.id == null
+                sceneId == "" ||
+                sceneId == null
             ) &&
             !query.loading &&
             query.data.shotlist &&
             query.data.shotlist.scenes &&
             query.data.shotlist.scenes[0]?.id != undefined
         ) {
-            selectScene(query.data.shotlist.scenes[0].id, query.data.shotlist.scenes[0]?.position || null)
+            selectScene({
+                id: query.data.shotlist.scenes[0].id,
+                position: query.data.shotlist.scenes[0]?.position || null
+            })
+        }
+
+        if(!query.loading && selectedScene.id == null && selectedScene.position == null) {
+            console.log("sceneId", sceneId)
+            selectScene({
+                id: sceneId,
+                position: null
+            })
         }
     }, [query])
 
@@ -484,20 +495,24 @@ export default function Shotlist() {
         }
     }
 
-    const selectScene = (id: string | null, position: number | null) => {
-        setSelectedScene({
-            id: id,
-            position: position,
-        })
-
-        const url = new URL(window.location.href)
-        url.searchParams.set("sid", id || "")
-        router.replace(url.toString())
-    }
-
     const openShotlistOptionsDialog = (page: { main: ShotlistOptionsDialogPage, sub?: ShotlistOptionsDialogSubPage }) => {
         setSelectedOptionsDialogPage({main: page.main, sub: page.sub || ShotlistOptionsDialogSubPage.shot})
         shotlistOptionsDialogRef.current?.open()
+    }
+
+    const selectScene = (scene: SelectedScene) => {
+        if(scene.id == null || !sidebarRef.current) return
+
+        setSelectedScene(scene)
+
+        sheetManagerRef.current?.showLoader()
+        startTransition(() => {
+            sheetManagerRef.current?.setSelectedScene(scene)
+        })
+
+        const url = new URL(window.location.href)
+        url.searchParams.set("sid", scene.id || "")
+        router.replace(url.toString())
     }
 
     const sync = useShotlistSync({
@@ -521,7 +536,7 @@ export default function Shotlist() {
         sidebarRef: sidebarRef,
         shotlistOptionsDialogRef: shotlistOptionsDialogRef,
         focusedCell: focusedCell,
-        setSelectedScene: setSelectedScene,
+        selectScene: selectScene,
     })
 
     if(!auth.getUser())
@@ -584,7 +599,10 @@ export default function Shotlist() {
             setSaveState: setSaveState,
             handleError: handleShotlistError,
 
-            presentCollaborators: presentCollaborators
+            presentCollaborators: presentCollaborators,
+
+            selectedScene: selectedScene,
+            selectScene: selectScene
         }}>
             <ReadOnlyBanner readOnlyState={readOnlyState}/>
 
@@ -605,8 +623,6 @@ export default function Shotlist() {
                             setQuery={setQuery}
                             sceneCount={sceneCount}
                             setSceneCount={setSceneCount}
-                            selectedScene={selectedScene}
-                            selectScene={selectScene}
 
                             isReadOnly={readOnlyState.isReadOnly}
                             setSidebarOpen={setSidebarOpen}
@@ -634,7 +650,7 @@ export default function Shotlist() {
                             openShotlistOptionsDialog={openShotlistOptionsDialog}
                         />
                         <SheetManager
-                            selectedScene={selectedScene}
+                            /*selectedScene={selectedScene}*/
                             queryIsLoading={query.loading}
                             shotAttributeDefinitions={query.data.shotlist?.shotAttributeDefinitions as ShotAttributeDefinitionBase[] || null}
                             isReadOnly={readOnlyState.isReadOnly}

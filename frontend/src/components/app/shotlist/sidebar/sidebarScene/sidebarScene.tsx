@@ -19,22 +19,22 @@ import {
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import Separator from "@/components/basic/separator/separator"
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
-import {successNotification} from "@/service/NotificationService"
+import {errorNotification, successNotification} from "@/service/NotificationService"
 import Utils from "@/utility/Utils"
+import {SelectedScene} from "@/app/shotlist/[id]/page"
 
 export interface SidebarSceneRef {
     closePopover: () => void
-    getAttribute: (position: number) => SceneAttributeRef | null,
-    findAttribute: (attributeId: number) => SceneAttributeRef | null,
-    id: string,
+    getAttribute: (position: number) => SceneAttributeRef | null
+    findAttribute: (attributeId: number) => SceneAttributeRef | null
+    id: string
     position: number
+    setExpanded: (isExpanded: boolean) => void
 }
 
 export interface SidebarSceneProps {
     scene: SceneDto,
     position:number,
-    expanded: boolean,
-    onSelect: ( id: string | null, position: number | null) => void,
     onDelete: ( id: string) => void,
     moveScene: (sceneId: string, to: number) => void,
     readOnly: boolean
@@ -44,13 +44,10 @@ export interface SidebarSceneProps {
 const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
         scene,
         position,
-        expanded,
-        onSelect,
         onDelete,
         moveScene,
         readOnly
 }, ref) => {
-    const [overflowVisible, setOverflowVisible] = useState(false);
     const [sceneAttributes, setSceneAttributes] = useState<AnySceneAttribute[]>(scene.attributes as AnySceneAttribute[]);
     const [editMenuIsOpen, setEditMenuIsOpen] = useState(false);
 
@@ -64,6 +61,9 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
 
     const [markAsDeleted, setMarkAsDeleted] = useState(false)
 
+    const elementRef = useRef<HTMLDivElement>(null)
+    const contentRef = useRef<HTMLDivElement>(null);
+
     useImperativeHandle(ref, () => ({
         closePopover: () => setEditMenuIsOpen(false),
         position: position,
@@ -76,19 +76,34 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                 if(attributeRef.id == attributeId) return attributeRef
             }
             return null
-        }
+        },
+        setExpanded: setExpanded
     }))
 
-    useEffect(() => {
-        if (!expanded) {
-            setOverflowVisible(false)
+    const setExpanded = (isExpanded: boolean) => {
+        if(!elementRef.current || !contentRef.current) {
+            errorNotification({
+                title: "Scene rendering failed, please reload the page.",
+                action: {label: "reload", onClick: () => window.location.reload()}
+            })
+            return
+        }
+
+        if(isExpanded){
+            elementRef.current.classList.add("expanded")
+
+            /*setTimeout(() => {
+                contentRef.current!.style.overflow = "visible"
+            },300)*/
         }
         else {
-            setTimeout(() => {
-                setOverflowVisible(true)
-            },300)
+            elementRef.current.classList.remove("expanded")
+
+            /*setTimeout(() => {
+                contentRef.current!.style.overflow = "hidden"
+            },300)*/
         }
-    }, [expanded]);
+    }
 
     const deleteScene = async () => {
         if(!await confirm({message: `Scene #${position+1} and all of its shots will be lost forever. You cannot undo this.`, buttons: {confirm: {className: "bad"}}})) return
@@ -120,7 +135,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
         }
 
         onDelete(scene.id as string)
-        onSelect(null, null)
+        shotlistContext.selectScene({id: null, position: null})
 
         successNotification({
             title: "Scene deleted successfully"
@@ -131,25 +146,31 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
 
     if(!scene || !scene.id) return (<ErrorDisplay title={"Scene not found"} scale={0.5} noMargin/>)
 
+    const isExpanded = shotlistContext.selectedScene.id == scene.id
+
     return (
         <SimpleTooltip
-            canOpen={!expanded}
+            canOpen={!isExpanded}
             content={<p><span className="key">Alt</span> + <span className="key">{position + 1}</span></p>}
             delay={700}
         >
         <div
-            className={`sidebarScene ${expanded ? 'expanded' : ''} ${editMenuIsOpen && "menuOpen"} ${markAsDeleted && "deleting"} ${readOnly && "readOnly"}`}
+            className={`sidebarScene ${isExpanded && "expanded"} ${editMenuIsOpen && "menuOpen"} ${markAsDeleted && "deleting"} ${readOnly && "readOnly"}`}
             onClick={() => {
-                if(!shotlistContext.elementIsBeingDragged && !expanded)
-                    onSelect(scene.id as string, position)
+                if(!shotlistContext.elementIsBeingDragged && !isExpanded)
+                    shotlistContext.selectScene({
+                        id: scene.id ?? null,
+                        position: position
+                    })
             }}
             data-scene-id={scene.id}
+            ref={elementRef}
         >
             <div className="name">
                 <p className="number">{position + 1}</p>
                 <SimpleTooltip
                     text={"Since a scene is usually identified by its number, its name is made up of the values of all its attributes. If you want to give it a specific name, simply add a text attribute."}
-                    canOpen={expanded}
+                    canOpen={isExpanded}
                 >
                     <p className="text">
                         { Utils.sceneAttributesToSceneName(sceneAttributes) }
@@ -173,7 +194,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                                     e.stopPropagation()
                                 }}
                             >
-                                <GripVertical size={expanded ? 22 : 20}/>
+                                <GripVertical size={isExpanded ? 22 : 20}/>
                             </Popover.Trigger>
                             <Popover.Portal>
                                 <Popover.Content className="popoverContent sceneContextOptionsPopup" align={"start"}
@@ -215,10 +236,11 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                 </div>
             </div>
 
-            <Collapsible.Root open={expanded}>
+            <Collapsible.Root>
                 <Collapsible.Content
                     className="CollapsibleContent"
-                    style={{overflow: overflowVisible ? "visible" : "hidden",}}
+                    forceMount={true}
+                    ref={contentRef}
                 >
                     <div className="attributes">
                         {sceneAttributes.length == 0 ?
