@@ -19,6 +19,7 @@ import me.kendler.yanik.repositories.shot.ShotSelectAttributeOptionDefinitionRep
 import me.kendler.yanik.socket.ShotlistUpdateDTO;
 import me.kendler.yanik.socket.ShotlistUpdateType;
 import me.kendler.yanik.socket.ShotlistWebsocketService;
+import me.kendler.yanik.socket.payload.ShotDetailPayload;
 import me.kendler.yanik.socket.payload.ShotSelectOptionPayload;
 import me.kendler.yanik.socket.payload.ShotAttributePayload;
 import me.kendler.yanik.socket.payload.ShotPayload;
@@ -70,7 +71,7 @@ public class ShotResource {
                 new ShotlistUpdateDTO(
                     ShotlistUpdateType.SHOT_ADDED,
                     userRepository.findOrCreateByJWT(jwt).id,
-                    new ShotPayload(
+                    new ShotDetailPayload(
                         result
                     )
                 )
@@ -109,14 +110,14 @@ public class ShotResource {
         ShotDTO result = shotRepository.update(editDTO);
 
         shotlistWebsocketService.broadcast(
-                affectedShotlist.id,
-                new ShotlistUpdateDTO(
-                    ShotlistUpdateType.SHOT_UPDATED,
-                    userRepository.findOrCreateByJWT(jwt).id,
-                    new ShotPayload(
-                        result
-                    )
+            affectedShotlist.id,
+            new ShotlistUpdateDTO(
+                ShotlistUpdateType.SHOT_UPDATED,
+                userRepository.findOrCreateByJWT(jwt).id,
+                new ShotPayload(
+                    result
                 )
+            )
         );
 
         return result;
