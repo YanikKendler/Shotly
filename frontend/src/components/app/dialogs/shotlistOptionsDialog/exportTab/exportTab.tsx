@@ -14,8 +14,6 @@ import {
 } from "lucide-react"
 import React, {Fragment, RefObject, useEffect, useRef, useState} from "react"
 import gql from "graphql-tag"
-import {pdf} from "@react-pdf/renderer"
-import PDFExport, {PDFExportOptions} from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/PDFExport"
 import {wuTime} from "@yanikkendler/web-utils"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {
@@ -39,12 +37,8 @@ import Config from "@/Config"
 import MultiSelect from "@/components/basic/multiSelect/multiSelect"
 import {
     SceneAttributeDefinitionParser,
-    SceneAttributeParser,
     ShotAttributeDefinitionParser,
-    ShotAttributeParser
 } from "@/utility/AttributeParser"
-//@ts-ignore
-import {downloadCSV} from "../../../../../../lib/downloadCSV"
 import {Switch} from "radix-ui"
 import {MultiValue} from "react-select"
 import HelpLink from "@/components/app/helpLink/helpLink"
@@ -56,18 +50,20 @@ import {errorNotification, infoNotification, successNotification} from "@/servic
 import {td} from "@/service/Analytics"
 import TextField from "@/components/basic/textField/textField"
 import Collapse from "@/components/basic/collapse/collapse"
-import * as XLSX from 'xlsx-js-style';
 import ExportPreview from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/exportPreview/exportPreview"
-import Dialog, {DialogRef} from "@/components/basic/dialog/dialog"
+import {DialogRef} from "@/components/basic/dialog/dialog"
 import {useConfirmDialog} from "@/components/app/dialogs/confirmDialog/confirmDialog"
-import {wuText} from "@yanikkendler/web-utils/dist"
-import SimplePopover, {SimplePopoverRef} from "@/components/basic/popover/simplePopover"
+import usePdfExport, {PdfExportOptions} from "@/service/export/usePdfExport"
+import useCsvExport from "@/service/export/useCsvExport"
+import useXlsxExport from "@/service/export/useXlsxExport"
+import AddExportFilterPopover from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/addExportFilterPopover"
+import PdfSettings from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/pdfSettings"
 
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full" | "XLSX"
 
 interface ExportSettingsLocalStorage {
     selectedFileType?: SelectedFileTypes
-    pdfExportOptions?: PDFExportOptions
+    pdfExportOptions?: PdfExportOptions
     selectedScenes?: MultiValue<SelectOption>
     customShotFilters?: [number, MultiValue<SelectOption>][]
     customSceneFilters?: [number, MultiValue<SelectOption>][]
@@ -93,7 +89,7 @@ export default function ExportTab(
     const [scenesAsOptions, setScenesAsOptions] = useState<SelectOption[]>([{label: "this is bad", value: "-1"}])
 
     const [selectedFileType, setSelectedFileType] = useState<SelectedFileTypes>("PDF")
-    const [pdfExportOptions, setPdfExportOptions] = useState<PDFExportOptions>({
+    const [pdfExportOptions, setPdfExportOptions] = useState<PdfExportOptions>({
         showCheckboxes: false,
         avoidOrphans: true,
         repeatSceneHeading: false,
@@ -108,10 +104,6 @@ export default function ExportTab(
 
     const [exportRunning, setExportRunning] = useState(false)
 
-    const previewDialogRef = useRef<DialogRef>(null);
-
-    const addFilterPopoverRef = useRef<SimplePopoverRef>(null);
-
     //load settings from local storage
     useEffect(() => {
         if(!shotlist || !shotlist.id) return
@@ -125,7 +117,8 @@ export default function ExportTab(
         if(!Utils.getUserSettingsFromLocalStorage().saveExportSettingsInLocalstorage) return
 
         loadSettingsFromLocalStorage(shotlist.id)
-        extractScenesAsOptions()
+
+        setScenesAsOptions(Utils.scenesToSelectOptions(shotlist?.scenes))
     }, [shotlist])
 
     //save settings to local storage
@@ -142,6 +135,14 @@ export default function ExportTab(
         const settingsString = JSON.stringify(settingsObject)
         localStorage.setItem(Config.localStorageKey.exportSettings(shotlist.id), settingsString)
     }, [selectedFileType, pdfExportOptions, selectedScenes, customShotFilters, customSceneFilters]);
+
+    const generateFileName = () => {
+        return `shotly_${shotlist?.name?.replace(/\s/g, "-") || "unnamed-shotlist"}_${wuTime.toDateTimeString(Date.now(), {timeSeparator: "-", dateSeparator: "-", dateTimeSeparator: "_"})}`
+    }
+
+    const {exportPdf} = usePdfExport({generateFileName, pdfExportOptions})
+    const {exportCsvSmall, exportCsvFull} = useCsvExport({generateFileName})
+    const {exportXLSX} = useXlsxExport({generateFileName})
 
     const loadSettingsFromLocalStorage = (shotlistId: string) => {
         const settingsString = localStorage.getItem(Config.localStorageKey.exportSettings(shotlistId))
@@ -188,20 +189,6 @@ export default function ExportTab(
             )
             setCustomShotFilters(new Map(filtered))
         }
-    }
-
-    const extractScenesAsOptions = () => {
-        let newSceneOptions: SelectOption[] = [];
-        shotlist?.scenes?.forEach((s, i) => {
-            newSceneOptions.push({
-                value: i.toString(),
-                label: wuText.truncate(
-                    `${(i + 1).toString()} - ${Utils.sceneAttributesToSceneName(s?.attributes as AnySceneAttribute[])}`
-                    , 35
-                )
-            });
-        })
-        setScenesAsOptions(newSceneOptions)
     }
 
     const loadFilteredData = async () => {
@@ -438,13 +425,13 @@ export default function ExportTab(
 
         switch (selectedFileType) {
             case "CSV-small":
-                exportCSVSmall(data)
+                exportCsvSmall(data)
                 break
             case "CSV-full":
-                exportCSVFull(data)
+                exportCsvFull(data)
                 break
             case "PDF":
-                exportPDF(data)
+                exportPdf(data)
                 break
             case "XLSX":
                 exportXLSX(data)
@@ -460,218 +447,13 @@ export default function ExportTab(
         },2000)
     }
 
-    const exportCSVSmall = (data: ShotlistDto) =>{
-        //CSV header
-        let header: string[] = ["Shot"]; //this semicolon is actually needed :3 (typescript stupid)
-        (data.shotAttributeDefinitions as AnyShotAttributeDefinition[]).forEach(attr => {
-            header.push(attr.name || "Unnamed")
-        }); //this one too
-
-        //CSV body
-        let smallData: string[][] = [];
-        (data.scenes as SceneDto[]).forEach((scene) => {
-            (scene.shots as ShotDto[]).forEach(shot => {
-                let row: string[] = [scene.position + 1 + Utils.numberToShotLetter(shot.position, scene.position)]; //mmh
-
-                (shot.attributes as AnyShotAttribute[]).forEach(attribute => {
-                    row.push(ShotAttributeParser.toValueString(attribute, false))
-                })
-                smallData.push(row)
-            })
-        })
-
-        downloadCSV(smallData, header, ";", generateFileName())
-    }
-
-    const exportCSVFull =(data: ShotlistDto) =>{
-        let sceneHeader: string[] = ["Scene"]; //ts :(
-        (data.sceneAttributeDefinitions as AnySceneAttributeDefinition[]).forEach(attr => {
-            sceneHeader.push(attr.name || "Unnamed")
-        });
-
-        let shotHeader: string[] = ["Shot"]; //hrmmm
-        (data.shotAttributeDefinitions as AnyShotAttributeDefinition[]).forEach(attr => {
-            shotHeader.push(attr.name || "Unnamed")
-        });
-
-        let fullData: string[][] = [];
-        (data.scenes as SceneDto[]).forEach((scene) => {
-            let sceneRow: string[] = ["Scene " + (scene.position + 1)]; // :(
-            (scene.attributes as AnySceneAttribute[]).forEach((attribute) => {
-                sceneRow.push(SceneAttributeParser.toValueString(attribute, false))
-            })
-            fullData.push(sceneRow)
-            fullData.push(shotHeader); //...
-
-            (scene.shots as ShotDto[]).forEach(shot => {
-                let row: string[] = [Utils.numberToShotLetter(shot.position, scene.position)]; //hrmpf
-
-                (shot.attributes as AnyShotAttribute[]).forEach(attribute => {
-                    row.push(ShotAttributeParser.toValueString(attribute, false))
-                })
-                fullData.push(row)
-            })
-        })
-
-        downloadCSV(fullData, sceneHeader, ";", generateFileName())
-    }
-
-    const exportPDF = async (data: ShotlistDto) => {
-        const blob = await pdf(<PDFExport data={data} options={pdfExportOptions}/>).toBlob()
-        const url = URL.createObjectURL(blob)
-        const link = document.createElement('a')
-        link.href = url
-        link.download = generateFileName() + ".pdf"
-        link.click()
-        URL.revokeObjectURL(url)
-    }
-
-    //AI
-    const exportXLSX = (data: ShotlistDto) => {
-        const rows: any[][] = [];
-
-        const sceneValueRowIndices: number[] = [];
-        const shotHeaderRowIndices: number[] = [];
-        const coloredShotRowIndices: number[] = [];
-
-        // 1. Initial Global Header: Scene Attribute Definitions
-        const globalHeader = [
-            "Scene",
-            ...(data.sceneAttributeDefinitions || []).map(attr => attr?.name || "Unnamed")
-        ];
-        rows.push(globalHeader);
-
-        // 2. Prepare Shot Attribute Names Row
-        const shotAttrNames = [
-            "Shot",
-            ...(data.shotAttributeDefinitions || []).map(attr => attr?.name || "Unnamed")
-        ];
-
-        // 3. Build Data
-        (data.scenes || []).forEach((scene) => {
-            if (!scene) return;
-
-            // Line 1: Scene values
-            const sceneValRow: any[] = [scene.position + 1];
-            (scene.attributes || []).forEach((attr) => {
-                sceneValRow.push(SceneAttributeParser.toValueString(attr as any, false));
-            });
-            sceneValueRowIndices.push(rows.length);
-            rows.push(sceneValRow);
-
-            // Line 2: Shot attribute names
-            shotHeaderRowIndices.push(rows.length);
-            rows.push(shotAttrNames);
-
-            // Shots
-            (scene.shots || []).forEach((shot, shotIdx) => {
-                if (!shot) return;
-                const shotRow: any[] = [Utils.numberToShotLetter(shot.position, scene.position)];
-                (shot.attributes || []).forEach((attr) => {
-                    shotRow.push(ShotAttributeParser.toValueString(attr as any, false));
-                });
-
-                if (shotIdx % 2 !== 0) {
-                    coloredShotRowIndices.push(rows.length);
-                }
-                rows.push(shotRow);
-            });
-        });
-
-        const worksheet = XLSX.utils.aoa_to_sheet(rows);
-        const range = XLSX.utils.decode_range(worksheet['!ref'] || "A1:A1");
-
-        // 4. Column Sizing
-        worksheet['!cols'] = [
-            { wch: 6 },
-            ...Array(range.e.c).fill({ wch: 30 })
-        ];
-
-        // 5. Apply Styles
-        for (let R = range.s.r; R <= range.e.r; ++R) {
-            for (let C = range.s.c; C <= range.e.c; ++C) {
-                const address = XLSX.utils.encode_cell({ r: R, c: C });
-                if (!worksheet[address]) worksheet[address] = { t: 's', v: '' };
-
-                const isGlobalHeader = R === 0;
-                const isSceneValRow = sceneValueRowIndices.includes(R);
-                const isShotHeadRow = shotHeaderRowIndices.includes(R);
-                const isHeaderBlock = isSceneValRow || isShotHeadRow;
-                const isColoredShot = coloredShotRowIndices.includes(R);
-                const isFirstCol = (C === 0);
-
-                const lightGridColor = { rgb: "DCDCDC" };
-                const darkHeaderGridColor = { rgb: "808080" };
-
-                const style: any = {
-                    alignment: {
-                        vertical: "center",
-                        horizontal: isFirstCol ? "center" : "left",
-                        wrapText: true,
-                        indent: isFirstCol ? 0 : 1
-                    },
-                    font: { name: "Arial", sz: 11, bold: false },
-                    fill: { fgColor: { rgb: isColoredShot ? "EFEFEF" : "FFFFFF" } },
-                    border: {
-                        top: { style: "thin", color: lightGridColor },
-                        bottom: { style: "thin", color: lightGridColor },
-                        left: { style: "thin", color: lightGridColor },
-                        right: { style: "thin", color: lightGridColor }
-                    }
-                };
-
-                // Header Block Logic
-                if (isHeaderBlock) {
-                    style.fill = { fgColor: { rgb: "C7C7C7" } };
-
-                    // Remove left/right borders from heading as requested
-                    style.border.left = { style: "none" };
-                    style.border.right = { style: "none" };
-
-                    // Vertical separators within the header use the dark gray
-                    style.border.right = { style: "thin", color: darkHeaderGridColor };
-
-                    if (isSceneValRow) {
-                        style.font.bold = true; // First line of heading bold
-                        style.font.sz = 12;
-                        style.border.top = { style: "medium", color: { rgb: "000000" } };
-                        // Thin black border between first and second line
-                        style.border.bottom = { style: "thin", color: { rgb: "000000" } };
-                    }
-
-                    if (isShotHeadRow) {
-                        style.border.top = { style: "thin", color: { rgb: "000000" } };
-                        style.border.bottom = { style: "medium", color: { rgb: "000000" } };
-                    }
-                } else if (isGlobalHeader) {
-                    // Very first line: No color, bold font
-                    style.fill = { fgColor: { rgb: "FFFFFF" } };
-                }
-
-                worksheet[address].s = style;
-            }
-        }
-
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Shotlist");
-        XLSX.writeFile(workbook, `${generateFileName()}.xlsx`);
-    };
-
-    const generateFileName = () => {
-        return `shotly_${shotlist?.name?.replace(/\s/g, "-") || "unnamed-shotlist"}_${wuTime.toDateTimeString(Date.now(), {timeSeparator: "-", dateSeparator: "-", dateTimeSeparator: "_"})}`
-    }
-
     const addShotFilter = (attributeDefinitionId: number) => {
-        addFilterPopoverRef.current?.close()
-
         const newCustomFilters = new Map(customShotFilters)
         newCustomFilters.set(attributeDefinitionId, [])
         setCustomShotFilters(newCustomFilters)
     }
 
     const addSceneFilter = (attributeDefinitionId: number) => {
-        addFilterPopoverRef.current?.close()
-
         const newCustomFilters = new Map(customSceneFilters)
         newCustomFilters.set(attributeDefinitionId, [])
         setCustomSceneFilters(newCustomFilters)
@@ -712,24 +494,6 @@ export default function ExportTab(
         <Skeleton height={"2rem"} width={"15ch"} style={{marginTop: "2rem"}}/>
     </div>
 
-    const customSceneFilterCandidates = sceneAttributeDefinitions
-        ?.filter(attributeDefinition => {
-            if(
-                customSceneFilters.has(attributeDefinition?.id) ||
-                (attributeDefinition as AnySceneAttributeDefinition).type === "SceneTextAttributeDefinitionDTO"
-            ) return false
-            return true
-        })
-
-    const customShotFilterCandidates = shotAttributeDefinitions
-        ?.filter(attributeDefinition => {
-            if(
-                customShotFilters.has(attributeDefinition?.id) ||
-                (attributeDefinition as AnyShotAttributeDefinition).type === "ShotTextAttributeDefinitionDTO"
-            ) return false
-            return true
-        })
-
     return (
         <div className={"shotlistOptionsDialogExportTab shotlistOptionsDialogPage"}>
             <div className="top">
@@ -762,77 +526,10 @@ export default function ExportTab(
                 {
                     selectedFileType == "PDF" &&
                     <>
-                        <div className="filter">
-                            <div className="left">
-                                <SquareCheck size={20}/>
-                                <p>Add checkboxes</p>
-                            </div>
-
-                            <Switch.Root
-                                className="SwitchRoot"
-                                checked={pdfExportOptions.showCheckboxes}
-                                onCheckedChange={(checked) => setPdfExportOptions(current => ({...current, showCheckboxes: checked}))}
-                            >
-                                <Switch.Thumb className="SwitchThumb"/>
-                            </Switch.Root>
-                        </div>
-                        <div className="filter">
-                            <div className="left">
-                                <Type size={20}/>
-                                <p>Header text (optional)</p>
-                            </div>
-
-                            <TextField
-                                value={pdfExportOptions.headerText}
-                                valueChange={(value) => setPdfExportOptions(current => ({...current, headerText: value}))}
-                                placeholder={"Any text"}
-                                clearable
-                            />
-                        </div>
-                        <Collapse name={"Advanced settings"}>
-                            <div className="filter">
-                                <div className="left">
-                                    <LucideWrapText size={20}/>
-                                    <p>Avoid orphaned shots when wrapping</p>
-                                </div>
-
-                                <Switch.Root
-                                    className="SwitchRoot"
-                                    checked={pdfExportOptions.avoidOrphans}
-                                onCheckedChange={(checked) => setPdfExportOptions(current => ({...current, avoidOrphans: checked}))}
-                                >
-                                    <Switch.Thumb className="SwitchThumb"/>
-                                </Switch.Root>
-                            </div>
-                            <div className="filter">
-                                <div className="left">
-                                    <Heading size={20}/>
-                                    <p>Repeat scene headings after page breaks</p>
-                                </div>
-
-                                <Switch.Root
-                                    className="SwitchRoot"
-                                    checked={pdfExportOptions.repeatSceneHeading}
-                                onCheckedChange={(checked) => setPdfExportOptions(current => ({...current, repeatSceneHeading: checked}))}
-                                >
-                                    <Switch.Thumb className="SwitchThumb"/>
-                                </Switch.Root>
-                            </div>
-                            <div className="filter">
-                                <div className="left">
-                                    <Repeat size={20}/>
-                                    <p>Repeat scene attribute names on every page</p>
-                                </div>
-
-                                <Switch.Root
-                                    className="SwitchRoot"
-                                    checked={pdfExportOptions.repeatAttributeDefinitions}
-                                    onCheckedChange={(checked) => setPdfExportOptions(current => ({...current, repeatAttributeDefinitions: checked}))}
-                                >
-                                    <Switch.Thumb className="SwitchThumb"/>
-                                </Switch.Root>
-                            </div>
-                        </Collapse>
+                        <PdfSettings
+                            pdfExportOptions={pdfExportOptions}
+                            setPdfExportOptions={setPdfExportOptions}
+                        />
                         <Separator/>
                     </>
                 }
@@ -856,8 +553,9 @@ export default function ExportTab(
                 </div>
             </div>
 
-            {customSceneFilters.size > 0 && <Separator text={"Scene attributes"}/>}
+            {/* SCENE */}
 
+            {customSceneFilters.size > 0 && <Separator text={"Scene attributes"}/>}
             <div className="filters">
                 {Array.from(customSceneFilters).map((filter, index) => {
                     const definition = sceneAttributeDefinitions?.find(def => def?.id === filter[0]) as SceneSingleOrMultiSelectAttributeDefinition
@@ -890,8 +588,9 @@ export default function ExportTab(
                 })}
             </div>
 
-            {customShotFilters.size > 0 && <Separator text={"Shot attributes"}/>}
+            {/* SHOT */}
 
+            {customShotFilters.size > 0 && <Separator text={"Shot attributes"}/>}
             <div className="filters">
                 {Array.from(customShotFilters).map((filter, index) => {
                     const definition = shotAttributeDefinitions?.find(def => def?.id === filter[0]) as ShotSingleOrMultiSelectAttributeDefinition
@@ -921,42 +620,14 @@ export default function ExportTab(
                 })}
             </div>
 
-            <SimplePopover
-                ref={addFilterPopoverRef}
-                className={"addFilter"}
-                contentClassName={"addFilterPopup"}
-                showArrow={false}
-                content={<>
-                    <h3>Scene</h3>
-                    {
-                        !customSceneFilterCandidates || customSceneFilterCandidates?.length <= 0 ?
-                            <p className="empty">None left</p> :
-                            customSceneFilterCandidates?.map((attributeDefinition, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => addSceneFilter(attributeDefinition?.id || -1)}
-                                >
-                                    {attributeDefinition?.name || "Unnamed"}
-                                </button>
-                            ))
-                    }
-                    <h3>Shot</h3>
-                    {
-                        !customShotFilterCandidates || customShotFilterCandidates?.length <= 0 ?
-                            <p className="empty">None left</p> :
-                            customShotFilterCandidates.map((attributeDefinition, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => addShotFilter(attributeDefinition?.id || -1)}
-                                >
-                                    {attributeDefinition?.name || "Unnamed"}
-                                </button>
-                            ))
-                    }
-                </>}
-            >
-                Add filter <Plus size={20}/>
-            </SimplePopover>
+            <AddExportFilterPopover
+                sceneAttributeDefinitions={sceneAttributeDefinitions}
+                shotAttributeDefinitions={shotAttributeDefinitions}
+                customSceneFilters={customSceneFilters}
+                customShotFilters={customShotFilters}
+                addSceneFilter={addSceneFilter}
+                addShotFilter={addShotFilter}
+            />
 
             <span className="scrollSpacer" aria-hidden></span>
 
@@ -972,31 +643,10 @@ export default function ExportTab(
                         <><span>Download shotlist</span><Download size={16} strokeWidth={3}/></>
                     }
                 </button>
-                <button className="secondary" onClick={previewDialogRef.current?.open}>
-                    <span>Preview</span> <Eye size={16} strokeWidth={2.5}/>
-                </button>
+                <ExportPreview data={filterData(shotlistPreviewCache)} exportShotlist={exportShotlist}/>
                 <button className="secondary" onClick={resetValues}>
                     <span>Reset</span> <RotateCcw size={16} strokeWidth={2.5}/>
                 </button>
-                <Dialog contentClassName={"pdfPreviewDialogContent"} ref={previewDialogRef}>
-                    <div className="top sticky">
-                        <h1>Export preview</h1>
-                        <button
-                            className={"export"}
-                            onClick={() => {
-                                previewDialogRef.current?.close()
-                                exportShotlist()
-                            }}
-                        >
-                            <span>Download shotlist</span><Download size={16} strokeWidth={3}/>
-                        </button>
-                        <button className={"close"} onClick={previewDialogRef.current?.close}>
-                            <span>Close preview</span><X size={18} strokeWidth={3}/>
-                        </button>
-                    </div>
-                    <ExportPreview data={filterData(shotlistPreviewCache)}/>
-                    <p className="small">If a collaborator has edited the shotlist, the preview might not be fully up to date, but the final export will be.</p>
-                </Dialog>
 
                 <HelpLink link="https://docs.shotly.at/shotlist/export" name={"Export"}/>
             </div>

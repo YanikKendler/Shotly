@@ -1,7 +1,7 @@
 import {wuConstants, wuText} from "@yanikkendler/web-utils/dist"
 import {ThemeConfig} from "react-select"
 import {AnySceneAttribute, SelectOption, ShotlistOrTemplate} from "@/utility/Types"
-import {ShotlistDto} from "../../lib/graphql/generated"
+import {SceneDto, ShotlistDto} from "../../lib/graphql/generated"
 import {NetworkStatus} from "@apollo/client"
 import {UserSettings} from "@/components/app/dialogs/accountDialog/accountDialog"
 import Config from "@/Config"
@@ -186,6 +186,19 @@ export default class Utils {
             .filter(attr => !SceneAttributeParser.isEmpty(attr))
             .map(attr => SceneAttributeParser.toValueString(attr))
             .join(" • ")
+    }
+
+    static scenesToSelectOptions(scenes: (SceneDto | null)[] | null | undefined) {
+        if(!scenes || !scenes.length || !scenes[0]) return []
+
+        return scenes
+            .map((s, i) => ({
+                value: i.toString(),
+                label: wuText.truncate(
+                    `${(i + 1).toString()} - ${Utils.sceneAttributesToSceneName(s?.attributes as AnySceneAttribute[])}`
+                    , 35
+                )
+            }))
     }
 }
 

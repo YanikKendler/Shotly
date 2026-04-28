@@ -17,6 +17,7 @@ import {
 import {SceneAttributeParser, ShotAttributeParser} from "@/utility/AttributeParser"
 import Utils from "@/utility/Utils"
 import {wuConstants, wuGeneral} from "@yanikkendler/web-utils/dist"
+import {PdfExportOptions} from "@/service/export/usePdfExport"
 
 const styles = StyleSheet.create({
     page: {
@@ -101,14 +102,6 @@ const styles = StyleSheet.create({
     }
 })
 
-export interface PDFExportOptions {
-    showCheckboxes: boolean //shows empty square cells next to shots
-    avoidOrphans: boolean // prevents shots from wrapping to new pages on their own
-    repeatSceneHeading: boolean // Repeats the scene heading onto wrapped pages
-    repeatAttributeDefinitions: boolean // Repeats the top-level attribute names (Scene, Motive, etc)
-    headerText: string // Custom text to show in the header of each page
-}
-
 interface SceneFragment extends SceneDto {
     fragmentShots: ShotDto[]
     isHeader: boolean
@@ -135,7 +128,7 @@ const estimateShotHeight = (shot: ShotDto): number => {
     return BASE_SHOT_HEIGHT + ((maxLines - 1) * 10)
 }
 
-function paginate(data: ShotlistDto, options: PDFExportOptions): SceneFragment[][] {
+function paginate(data: ShotlistDto, options: PdfExportOptions): SceneFragment[][] {
     const pages: SceneFragment[][] = []
     let currentPage: SceneFragment[] = []
     let currentHeight = 0
@@ -215,7 +208,7 @@ function paginate(data: ShotlistDto, options: PDFExportOptions): SceneFragment[]
     return pages
 }
 
-export default function PDFExport({ data, options }: { data: ShotlistDto | null, options: PDFExportOptions }) {
+export default function PdfExportTemplate({ data, options }: { data: ShotlistDto | null, options: PdfExportOptions }) {
     if (!data) return (
         <Document>
             <Page size="A4" orientation="landscape" style={styles.page}>
