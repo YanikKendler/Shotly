@@ -10,7 +10,7 @@ import {useRouter} from "next/navigation" //package has incorrectly configured t
 export default function useShotlistKeybinds({
     sheetManagerRef,
     sidebarRef,
-    selectScene,
+    setSelectedScene,
     shotlistOptionsDialogRef,
     focusedCell
 }:{
@@ -18,7 +18,7 @@ export default function useShotlistKeybinds({
     sidebarRef: RefObject<ShotlistSidebarRef | null>
     shotlistOptionsDialogRef: RefObject<DialogRef | null>
 
-    selectScene: (scene: SelectedScene) => void
+    setSelectedScene: Dispatch<SetStateAction<SelectedScene>>
 
     focusedCell: RefObject<{row: number, column: number}>
 }) {
@@ -57,7 +57,7 @@ export default function useShotlistKeybinds({
 
                 const sceneIdToSelect = sidebarRef.current?.getScene(scenePositionToSelect)?.id || null
 
-                selectScene({id: sceneIdToSelect, position: scenePositionToSelect})
+                setSelectedScene({id: sceneIdToSelect, position: scenePositionToSelect})
             },
             "Alt+O": event => {
                 event.preventDefault()

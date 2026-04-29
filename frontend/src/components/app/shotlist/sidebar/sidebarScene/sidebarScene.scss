@@ -15,7 +15,7 @@
   box-sizing: border-box;
   border-radius: .3rem;
   border: 2px solid transparent;
-  /*transition: border .2s, color .2s;*/
+  transition: border .2s, color .2s;
   background-color: var(--sidebar-bg);
 
   &.deleting{
@@ -37,10 +37,6 @@
         color: var(--text);
       }
     }
-
-    .CollapsibleContent{
-      animation: close 300ms linear forwards !important;
-    }
   }
 
   &.expanded{
@@ -52,11 +48,6 @@
       .text{
         font-weight: 700;
       }
-    }
-
-    .CollapsibleContent{
-      /*height: var(--radix-collapsible-content-height);*/
-      animation: open 300ms linear forwards !important;
     }
   }
 
@@ -176,16 +167,6 @@
       }
     }
   }
-}
-
-@keyframes open {
-  from { height: 0; overflow: hidden }
-  to { height: var(--radix-collapsible-content-height); overflow: visible }
-}
-
-@keyframes close {
-  from { height: var(--radix-collapsible-content-height); overflow: visible }
-  to { height: 0; overflow: hidden}
 }
 
 [data-theme="dark"] .sceneContextOptionsPopup {

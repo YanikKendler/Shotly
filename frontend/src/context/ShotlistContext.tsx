@@ -1,14 +1,13 @@
 "use client";
 
-import {createContext, Dispatch, RefObject, SetStateAction} from "react"
+import {createContext, RefObject} from "react"
 import {
     ShotlistOptionsDialogPage,
     ShotlistOptionsDialogSubPage
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {GenericError, SelectOption} from "@/utility/Types"
-import {PresentCollaborator, SaveState, SelectedScene} from "@/app/shotlist/[id]/page"
+import {PresentCollaborator, SaveState} from "@/app/shotlist/[id]/page"
 import {UserMinimalDTO} from "@/service/useShotlistSync"
-import SidebarScene from "@/components/app/shotlist/sidebar/sidebarScene/sidebarScene"
 
 export interface ShotlistContextProps {
     openShotlistOptionsDialog: (page: { main: ShotlistOptionsDialogPage, sub?: ShotlistOptionsDialogSubPage }) => void
@@ -35,9 +34,6 @@ export interface ShotlistContextProps {
     handleError: (error: GenericError) => void
 
     presentCollaborators: Map<string, PresentCollaborator>
-
-    selectedScene: SelectedScene
-    selectScene: (scene: SelectedScene) => void
 }
 
 export const ShotlistContext = createContext<ShotlistContextProps>({
@@ -68,8 +64,5 @@ export const ShotlistContext = createContext<ShotlistContextProps>({
     setSaveState: () => {},
     handleError: () => {},
     //for displaying collaborator names from cellHighlight
-    presentCollaborators: new Map(),
-    //currently selected scene in sidebar
-    selectedScene: { id: null, position: null },
-    selectScene: (scene: SelectedScene) => {}
+    presentCollaborators: new Map()
 })
