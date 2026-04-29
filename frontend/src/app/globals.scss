@@ -684,9 +684,11 @@ span.key{
   overflow: hidden;
 }
 .CollapsibleContent[data-state="open"] {
+  height: auto;
   animation: slideDown 300ms ease-out forwards;
 }
 .CollapsibleContent[data-state="closed"] {
+  height: 0;
   animation: slideUp 300ms ease-out forwards;
 }
 
