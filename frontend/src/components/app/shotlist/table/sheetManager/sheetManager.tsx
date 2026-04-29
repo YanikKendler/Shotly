@@ -48,6 +48,7 @@ export interface SheetManagerRef {
     updateShotCacheShotAttributeValue: (value: ShotAttributeValueCollection, attributeId: number, shotId: string, sceneId?: string) => void
     shotCache: RefObject<ShotCache>
     updateShotCache: (shots: ShotDto[], sceneId?: string | null) => void
+    showLoader: () => void
 }
 
 export interface SheetManagerProps {
@@ -109,7 +110,8 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         handleCreateShotKeybind: handleCreateShotKeybind,
         updateShotCacheShotAttributeValue: updateShotCacheShotAttributeValue,
         shotCache: shotCache,
-        updateShotCache: updateShotCache
+        updateShotCache: updateShotCache,
+        showLoader: showLoader
     }))
 
     useEffect(() => {
@@ -137,21 +139,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         cellRefs.current.clear()
         rowRefs.current.clear()
 
-        setQuery(current => ({
-            ...current,
-            loading: true,
-            data: {
-                shots: null,
-            }
-        }))
-    }, [selectedScene]) //is performed instantly on scene change
-
-    useEffect(() => {
-        //if the scene id exists
-        if(!deferredSelectedScene.id) return
-
-        //actually differs from the currently loaded
-        if(deferredSelectedScene.id == query.data.shots?.at(0)?.sceneId) return
+        showLoader()
 
         setTimeout(() => {
             if(deferredSelectedScene.id && shotCache.current.has(deferredSelectedScene.id)) {
@@ -230,6 +218,16 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         }
 
         setShots(result.data.shots)
+    }
+
+    const showLoader = () => {
+        setQuery(current => ({
+            ...current,
+            loading: true,
+            data: {
+                shots: null,
+            }
+        }))
     }
 
     const setShots = (shots: ShotDto[]) => {

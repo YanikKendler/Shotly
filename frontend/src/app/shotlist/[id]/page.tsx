@@ -180,6 +180,8 @@ export default function Shotlist() {
     }, [isArchived, query]);
 
     useEffect(() => {
+        sheetManagerRef.current?.showLoader()
+
         const url = new URL(window.location.href)
         url.searchParams.set("sid", selectedScene.id || "")
         router.replace(url.toString())
