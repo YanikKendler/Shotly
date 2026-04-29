@@ -218,7 +218,8 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
             <Collapsible.Root open={expanded}>
                 <Collapsible.Content
                     className="CollapsibleContent"
-                    style={{overflow: overflowVisible ? "visible" : "hidden",}}
+                    style={{overflow: overflowVisible ? "visible" : "hidden"}}
+                    forceMount={true}
                 >
                     <div className="attributes">
                         {sceneAttributes.length == 0 ?
