@@ -160,7 +160,10 @@ export default function Shotlist() {
             query.data.shotlist.scenes &&
             query.data.shotlist.scenes[0]?.id != undefined
         ) {
-            selectScene(query.data.shotlist.scenes[0].id, query.data.shotlist.scenes[0]?.position || null)
+            setSelectedScene({
+                id: query.data.shotlist.scenes[0].id,
+                position: query.data.shotlist.scenes[0]?.position || null
+            })
         }
     }, [query])
 
@@ -175,6 +178,12 @@ export default function Shotlist() {
         //read only state
         calculateReadOnlyState()
     }, [isArchived, query]);
+
+    useEffect(() => {
+        const url = new URL(window.location.href)
+        url.searchParams.set("sid", selectedScene.id || "")
+        router.replace(url.toString())
+    }, [selectedScene]);
 
     const loadData = async (noCache: boolean = false) => {
         const result = await client.query({
@@ -484,17 +493,6 @@ export default function Shotlist() {
         }
     }
 
-    const selectScene = (id: string | null, position: number | null) => {
-        setSelectedScene({
-            id: id,
-            position: position,
-        })
-
-        const url = new URL(window.location.href)
-        url.searchParams.set("sid", id || "")
-        router.replace(url.toString())
-    }
-
     const openShotlistOptionsDialog = (page: { main: ShotlistOptionsDialogPage, sub?: ShotlistOptionsDialogSubPage }) => {
         setSelectedOptionsDialogPage({main: page.main, sub: page.sub || ShotlistOptionsDialogSubPage.shot})
         shotlistOptionsDialogRef.current?.open()
@@ -606,7 +604,7 @@ export default function Shotlist() {
                             sceneCount={sceneCount}
                             setSceneCount={setSceneCount}
                             selectedScene={selectedScene}
-                            selectScene={selectScene}
+                            setSelectedScene={setSelectedScene}
 
                             isReadOnly={readOnlyState.isReadOnly}
                             setSidebarOpen={setSidebarOpen}

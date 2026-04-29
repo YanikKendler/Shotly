@@ -1,0 +1,36 @@
+div.simpleCollapse {
+  button {
+    font-size: .9rem;
+    color: var(--text-50);
+    padding: .3rem;
+    font-weight: bold;
+    justify-content: left;
+
+    &:hover {
+      background-color: var(--transparent-gray-10);
+      color: var(--text);
+    }
+
+    .chevron {
+      transition: scale 0.3s;
+    }
+  }
+
+  .collapsableContent {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    scrollbar-width: thin;
+    padding: .3rem;
+
+    &:not(.expanded) {
+      opacity: 0;
+    }
+  }
+
+  &.expanded {
+    button .chevron {
+      scale: 1 -1;
+    }
+  }
+}

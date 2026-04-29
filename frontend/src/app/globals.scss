@@ -678,38 +678,6 @@ span.key{
   }
 }
 
-// Style radix collapsible
-
-.CollapsibleContent {
-  overflow: hidden;
-}
-.CollapsibleContent[data-state="open"] {
-  height: auto;
-  animation: slideDown 300ms ease-out forwards;
-}
-.CollapsibleContent[data-state="closed"] {
-  height: 0;
-  animation: slideUp 300ms ease-out forwards;
-}
-
-@keyframes slideDown {
-  from {
-    height: 0;
-  }
-  to {
-    height: var(--radix-collapsible-content-height);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    height: var(--radix-collapsible-content-height);
-  }
-  to {
-    height: 0;
-  }
-}
-
 // Style radix dialog
 
 .dialogOverlay{

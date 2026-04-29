@@ -1,35 +1,17 @@
-div.simpleCollapse {
-  &[data-state="open"] {
-    .trigger .chevron {
-      scale: 1 -1;
-    }
+div.collapsableContent{
+  //populated by ts
+  --expanded-height: 0px;
 
-    .content {
-      padding: .3rem;
-    }
+  overflow: hidden;
+  transition: height ease-out, padding, opacity;
+  transition-duration: 300ms;
+  height: 0;
+
+  &.expanded {
+    height: var(--expanded-height);
   }
 
-  .trigger {
-    font-size: .9rem;
-    color: var(--text-50);
-    padding: .3rem;
-    font-weight: bold;
-    justify-content: left;
-
-    &:hover {
-      background-color: var(--transparent-gray-10);
-      color: var(--text);
-    }
-
-    .chevron {
-      transition: scale 0.3s;
-    }
-  }
-
-  .content {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    scrollbar-width: thin;
+  &:not(.expanded) {
+    padding: 0 !important;
   }
 }

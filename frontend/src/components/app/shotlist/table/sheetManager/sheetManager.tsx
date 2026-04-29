@@ -3,8 +3,9 @@ import React, {
     RefObject,
     useCallback,
     useContext,
+    useDeferredValue,
     useEffect,
-    useImperativeHandle, useLayoutEffect,
+    useImperativeHandle,
     useRef,
     useState
 } from "react"
@@ -78,6 +79,9 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     const shotlistContext = useContext(ShotlistContext)
     const client = useApolloClient()
 
+    //all updates from this value can run in the background to not cause lag or freeze and impact UX
+    const deferredSelectedScene = useDeferredValue(selectedScene)
+
     const shotTableElement = useRef<HTMLDivElement | null>(null)
     const isSyncingScroll = useRef(false) //to not detect updating the scroll as a scroll
     const cellRefs = useRef(new Map<number, Map<number, CellRef | null>>) //Map[row = shot][column = attribute]
@@ -121,10 +125,10 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
     useEffect(() => {
         //if the scene id exists
-        if(!selectedScene.id) return
+        if(!deferredSelectedScene.id) return
 
         //actually differs from the currently loaded
-        if(selectedScene.id == query.data.shots?.at(0)?.sceneId) return
+        if(deferredSelectedScene.id == query.data.shots?.at(0)?.sceneId) return
 
         isSyncingScroll.current = false
         shotIsBeingCreated.current = false
@@ -140,10 +144,18 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                 shots: null,
             }
         }))
+    }, [selectedScene]) //is performed instantly on scene change
+
+    useEffect(() => {
+        //if the scene id exists
+        if(!deferredSelectedScene.id) return
+
+        //actually differs from the currently loaded
+        if(deferredSelectedScene.id == query.data.shots?.at(0)?.sceneId) return
 
         setTimeout(() => {
-            if(selectedScene.id && shotCache.current.has(selectedScene.id)) {
-                const cacheEntry = shotCache.current.get(selectedScene.id)
+            if(deferredSelectedScene.id && shotCache.current.has(deferredSelectedScene.id)) {
+                const cacheEntry = shotCache.current.get(deferredSelectedScene.id)
 
                 if(cacheEntry)
                     setShots(cacheEntry.shots)
@@ -152,7 +164,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                 loadShots()
             }
         })
-    }, [selectedScene])
+    }, [deferredSelectedScene]) //happens deferred
 
     useEffect(() => {
         // select a attribute (in a newly created shot)
@@ -167,6 +179,8 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     }, [query.data.shots])
 
     const loadShots = async () => {
+        console.log("loading shots for", deferredSelectedScene)
+
         const result = await client.query({
             query : gql`
                 query shots($sceneId: String!){
@@ -199,7 +213,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                 }
             `,
             fetchPolicy: "no-cache",
-            variables: { sceneId: selectedScene.id }
+            variables: { sceneId: deferredSelectedScene.id }
         })
 
         if(result.errors){
@@ -233,7 +247,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         }))
     }
 
-    const updateShotCache = (shots: ShotDto[], sceneId: string | null = selectedScene.id) => {
+    const updateShotCache = (shots: ShotDto[], sceneId: string | null = deferredSelectedScene.id) => {
         if(sceneId) {
             shotCache.current.set(sceneId, {
                 shots: shots,
@@ -343,7 +357,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                     }
                 }
             `,
-            variables: { sceneId: selectedScene.id },
+            variables: { sceneId: deferredSelectedScene.id },
         })
 
         if (errors) {
@@ -440,7 +454,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         inputValue: ShotAttributeValueCollection,
         attributeId: number,
         shotId: string,
-        sceneId: string | null = selectedScene.id
+        sceneId: string | null = deferredSelectedScene.id
     ) => {
         if(!sceneId) return
 
@@ -576,7 +590,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         </div>
     }
 
-    if(selectedScene.id == null)
+    if(deferredSelectedScene.id == null)
         return <div className="sheetManager">
             <p className="empty">Please select a scene from the sidebar</p>
         </div>
@@ -604,7 +618,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                         key={shot.id}
                         shot={shot}
                         position={row}
-                        scenePosition={selectedScene.position || 0}
+                        scenePosition={deferredSelectedScene.position || 0}
                         onDelete={onDeleteShot}
                         moveShot={moveShot}
                         isReadOnly={isReadOnly}

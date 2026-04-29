@@ -1,10 +1,17 @@
 'use client'
 
-import {SceneAttributeParser} from "@/utility/AttributeParser"
 import {SceneDto} from "../../../../../../lib/graphql/generated"
 import "./sidebarScene.scss"
-import React, {forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
-import {Collapsible, Popover} from "radix-ui"
+import React, {
+    Dispatch,
+    forwardRef,
+    SetStateAction,
+    useContext,
+    useImperativeHandle,
+    useRef,
+    useState
+} from "react"
+import { Popover} from "radix-ui"
 import {AnySceneAttribute} from "@/utility/Types"
 import {ArrowBigDown, ArrowBigUp, GripVertical, List, Trash} from "lucide-react"
 import gql from "graphql-tag"
@@ -21,6 +28,8 @@ import Separator from "@/components/basic/separator/separator"
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
 import {successNotification} from "@/service/NotificationService"
 import Utils from "@/utility/Utils"
+import Collapse from "@/components/basic/collapse/collapse"
+import {SelectedScene} from "@/app/shotlist/[id]/page"
 
 export interface SidebarSceneRef {
     closePopover: () => void
@@ -34,35 +43,30 @@ export interface SidebarSceneProps {
     scene: SceneDto,
     position:number,
     expanded: boolean,
-    onSelect: ( id: string | null, position: number | null) => void,
+    setSelectedScene: Dispatch<SetStateAction<SelectedScene>>
     onDelete: ( id: string) => void,
     moveScene: (sceneId: string, to: number) => void,
     readOnly: boolean
 }
 
-//TODO first open is laggy
 const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
         scene,
         position,
         expanded,
-        onSelect,
+        setSelectedScene,
         onDelete,
         moveScene,
         readOnly
 }, ref) => {
-    const [overflowVisible, setOverflowVisible] = useState(false);
+    const client = useApolloClient()
+    const shotlistContext = useContext(ShotlistContext)
+    const { confirm, ConfirmDialog } = useConfirmDialog();
+    
     const [sceneAttributes, setSceneAttributes] = useState<AnySceneAttribute[]>(scene.attributes as AnySceneAttribute[]);
     const [editMenuIsOpen, setEditMenuIsOpen] = useState(false);
-
-    const { confirm, ConfirmDialog } = useConfirmDialog();
-
-    const shotlistContext = useContext(ShotlistContext)
-
-    const client = useApolloClient()
+    const [markAsDeleted, setMarkAsDeleted] = useState(false)
 
     const attributeRefs = useRef<Map<number, SceneAttributeRef | null>>(new Map())
-
-    const [markAsDeleted, setMarkAsDeleted] = useState(false)
 
     useImperativeHandle(ref, () => ({
         closePopover: () => setEditMenuIsOpen(false),
@@ -78,17 +82,6 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
             return null
         }
     }))
-
-    useEffect(() => {
-        if (!expanded) {
-            setOverflowVisible(false)
-        }
-        else {
-            setTimeout(() => {
-                setOverflowVisible(true)
-            },300)
-        }
-    }, [expanded]);
 
     const deleteScene = async () => {
         if(!await confirm({message: `Scene #${position+1} and all of its shots will be lost forever. You cannot undo this.`, buttons: {confirm: {className: "bad"}}})) return
@@ -120,7 +113,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
         }
 
         onDelete(scene.id as string)
-        onSelect(null, null)
+        setSelectedScene({id: null, position: null})
 
         successNotification({
             title: "Scene deleted successfully"
@@ -141,7 +134,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
             className={`sidebarScene ${expanded ? 'expanded' : ''} ${editMenuIsOpen && "menuOpen"} ${markAsDeleted && "deleting"} ${readOnly && "readOnly"}`}
             onClick={() => {
                 if(!shotlistContext.elementIsBeingDragged && !expanded)
-                    onSelect(scene.id as string, position)
+                    setSelectedScene({id: scene.id as string, position: position})
             }}
             data-scene-id={scene.id}
         >
@@ -215,49 +208,43 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                 </div>
             </div>
 
-            <Collapsible.Root open={expanded}>
-                <Collapsible.Content
-                    className="CollapsibleContent"
-                    style={{overflow: overflowVisible ? "visible" : "hidden"}}
-                    forceMount={true}
-                >
-                    <div className="attributes">
-                        {sceneAttributes.length == 0 ?
-                            <p className={"empty"}>
-                                {"Add a "}
-                                <button
-                                    className="inline noPadding accent noSceneAttributes"
-                                    onClick={() => shotlistContext.openShotlistOptionsDialog({
-                                        main: ShotlistOptionsDialogPage.attributes,
-                                        sub: ShotlistOptionsDialogSubPage.scene
-                                    })}
-                                >
-                                    scene attribute
-                                </button>
-                                {" to get started"}
-                            </p> :
-                            sceneAttributes.map((attr, index) => (
-                                <SceneAttribute
-                                    key={attr.id}
-                                    attribute={attr}
-                                    attributeUpdated={(attribute: AnySceneAttribute) => {
-                                        let newAttributes = [...sceneAttributes]
-                                        newAttributes[index] = attribute
-                                        setSceneAttributes(newAttributes)
-                                    }}
-                                    isReadOnly={readOnly}
-                                    ref={(node) => {
-                                        attributeRefs.current.set(index, node)
+            <Collapse expanded={expanded} recalculateHeightWith={sceneAttributes}>
+                <div className={`attributes`}>
+                    {sceneAttributes.length == 0 ?
+                        <p className={"empty"}>
+                            {"Add a "}
+                            <button
+                                className="inline noPadding accent noSceneAttributes"
+                                onClick={() => shotlistContext.openShotlistOptionsDialog({
+                                    main: ShotlistOptionsDialogPage.attributes,
+                                    sub: ShotlistOptionsDialogSubPage.scene
+                                })}
+                            >
+                                scene attribute
+                            </button>
+                            {" to get started"}
+                        </p> :
+                        sceneAttributes.map((attr, index) => (
+                            <SceneAttribute
+                                key={attr.id}
+                                attribute={attr}
+                                attributeUpdated={(attribute: AnySceneAttribute) => {
+                                    let newAttributes = [...sceneAttributes]
+                                    newAttributes[index] = attribute
+                                    setSceneAttributes(newAttributes)
+                                }}
+                                isReadOnly={readOnly}
+                                ref={(node) => {
+                                    attributeRefs.current.set(index, node)
 
-                                        return () => {
-                                            attributeRefs.current.delete(index)
-                                        }
-                                    }}
-                                ></SceneAttribute>
-                        ))}
-                    </div>
-                </Collapsible.Content>
-            </Collapsible.Root>
+                                    return () => {
+                                        attributeRefs.current.delete(index)
+                                    }
+                                }}
+                            ></SceneAttribute>
+                    ))}
+                </div>
+            </Collapse>
 
             {ConfirmDialog}
         </div>

@@ -1,29 +1,35 @@
-import React, {ReactNode, useState} from "react"
-import {Collapsible} from "radix-ui"
-import {ChevronDown} from "lucide-react"
+import React, {ReactNode, useLayoutEffect, useRef} from "react"
 import "./collapse.scss"
 
 export default function Collapse({
     children,
-    name,
-    defaultOpen = false
+    expanded,
+    recalculateHeightWith
 }:{
     children: ReactNode
-    name: string
-    defaultOpen?: boolean
+    expanded: boolean
+    recalculateHeightWith?: any
 }){
+    const ref = useRef<HTMLDivElement>(null);
+
+    useLayoutEffect(() => {
+        if(!ref.current) return
+
+        ref.current.style.height = "auto"
+
+        const rect = ref.current.getBoundingClientRect()
+
+        ref.current.style.height = ""
+
+        if(rect.height == 0) return
+
+        ref.current.style.setProperty("--expanded-height", rect.height + "px")
+    }, [recalculateHeightWith])
+
     return (
-        <Collapsible.Root defaultOpen={defaultOpen} className={"simpleCollapse"}>
-            <Collapsible.Trigger className={"trigger noClickFx"}>
-                <ChevronDown size={18} className={"chevron"}/>
-                <div className="left">
-                    <p>{name}</p>
-                </div>
-            </Collapsible.Trigger>
-            <Collapsible.Content className={"content"}>
-                {children}
-            </Collapsible.Content>
-        </Collapsible.Root>
+        <div className={`collapsableContent ${expanded && "expanded"}`} ref={ref}>
+            {children}
+        </div>
     )
 }
 

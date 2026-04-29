@@ -5,6 +5,7 @@ import TextField from "@/components/basic/textField/textField"
 import Collapse from "@/components/basic/collapse/collapse"
 import { Switch } from "radix-ui"
 import {PdfExportOptions} from "@/service/export/usePdfExport"
+import SimpleCollapse from "@/components/basic/simpleCollapse/simpleCollapse"
 
 export default function PdfSettings({
     pdfExportOptions,
@@ -41,7 +42,7 @@ export default function PdfSettings({
                 clearable
             />
         </div>
-        <Collapse name={"Advanced settings"}>
+        <SimpleCollapse name={"Advanced settings"}>
             <div className="filter">
                 <div className="left">
                     <LucideWrapText size={20}/>
@@ -84,6 +85,6 @@ export default function PdfSettings({
                     <Switch.Thumb className="SwitchThumb"/>
                 </Switch.Root>
             </div>
-        </Collapse>
+        </SimpleCollapse>
     </>)
 }

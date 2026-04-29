@@ -8,7 +8,7 @@ import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {wuGeneral} from "@yanikkendler/web-utils"
 import ErrorDisplay from "@/components/app/feedback/errorDisplay/errorDisplay"
 import SidebarScene, {SidebarSceneRef} from "@/components/app/shotlist/sidebar/sidebarScene/sidebarScene"
-import React, {forwardRef, useContext, useEffect, useImperativeHandle, useRef} from "react"
+import React, {Dispatch, forwardRef, SetStateAction, useContext, useEffect, useImperativeHandle, useRef} from "react"
 import Utils from "@/utility/Utils"
 import {useAccountDialog} from "@/components/app/dialogs/accountDialog/accountDialog"
 import Sortable from "sortablejs"
@@ -34,7 +34,7 @@ export interface ShotlistSidebarRef {
 
 export interface ShotlistSidebarProps {
     query: ApolloQueryResult<Query>
-    selectScene: (id: string | null, position: number | null) => void
+    setSelectedScene: Dispatch<SetStateAction<SelectedScene>>
     setQuery: React.Dispatch<React.SetStateAction<ApolloQueryResult<Query>>>
     selectedScene: SelectedScene
     sceneCount: number
@@ -49,7 +49,7 @@ export interface ShotlistSidebarProps {
 
 const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
     query,
-    selectScene,
+    setSelectedScene,
     setQuery,
     selectedScene,
     sceneCount,
@@ -230,7 +230,10 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
         // next to the shots is displayed correctly - this is accomplished via a re-render which is why
         // its avoided if scene nums are turned off
         if(Utils.getUserSettingsFromLocalStorage().displaySceneNumbersNextToShotNumbers)
-            selectScene(sceneId, to)
+            setSelectedScene({
+                id: sceneId,
+                position: to,
+            })
     }
 
     const onMoveScene = (sceneId: string, to: number) => {
@@ -320,7 +323,10 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
 
         onCreateScene(data.createScene)
 
-        selectScene(data.createScene.id || null, query.data.shotlist?.scenes?.length ?? null)
+        setSelectedScene({
+            id: data.createScene.id || null,
+            position: query.data.shotlist?.scenes?.length ?? null
+        })
 
         setCreationLoaderVisibility(false)
 
@@ -400,7 +406,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                                     scene={scene}
                                     position={index}
                                     expanded={selectedScene.id == scene.id}
-                                    onSelect={selectScene}
+                                    setSelectedScene={setSelectedScene}
                                     onDelete={onDeleteScene}
                                     moveScene={moveScene}
                                     readOnly={isReadOnly}
