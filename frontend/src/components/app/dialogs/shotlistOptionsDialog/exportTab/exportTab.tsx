@@ -2,17 +2,10 @@ import {
     Download,
     File,
     ListOrdered,
-    Plus,
-    SquareCheck,
     X,
-    LucideWrapText,
-    Repeat,
-    Heading,
-    Type,
     RotateCcw,
-    Eye
 } from "lucide-react"
-import React, {Fragment, RefObject, useEffect, useRef, useState} from "react"
+import React, {Fragment, RefObject, useEffect, useState} from "react"
 import gql from "graphql-tag"
 import {wuTime} from "@yanikkendler/web-utils"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
@@ -39,7 +32,6 @@ import {
     SceneAttributeDefinitionParser,
     ShotAttributeDefinitionParser,
 } from "@/utility/AttributeParser"
-import {Switch} from "radix-ui"
 import {MultiValue} from "react-select"
 import HelpLink from "@/components/app/helpLink/helpLink"
 import Skeleton from "react-loading-skeleton"
@@ -48,15 +40,13 @@ import Separator from "@/components/basic/separator/separator"
 import DotLoader from "@/components/basic/DotLoader"
 import {errorNotification, infoNotification, successNotification} from "@/service/NotificationService"
 import {td} from "@/service/Analytics"
-import TextField from "@/components/basic/textField/textField"
-import Collapse from "@/components/basic/collapse/collapse"
 import ExportPreview from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/exportPreview/exportPreview"
 import {DialogRef} from "@/components/basic/dialog/dialog"
 import {useConfirmDialog} from "@/components/app/dialogs/confirmDialog/confirmDialog"
 import usePdfExport, {PdfExportOptions} from "@/service/export/usePdfExport"
 import useCsvExport from "@/service/export/useCsvExport"
 import useXlsxExport from "@/service/export/useXlsxExport"
-import AddExportFilterPopover from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/addExportFilterPopover"
+import AddExportFilterPopover from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/addExportFilterPopover/addExportFilterPopover"
 import PdfSettings from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/pdfSettings"
 
 type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full" | "XLSX"

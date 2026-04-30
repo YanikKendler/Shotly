@@ -3,6 +3,7 @@ import SimplePopover, {SimplePopoverRef} from "@/components/basic/popover/simple
 import {Plus} from "lucide-react"
 import {AnySceneAttributeDefinition, AnyShotAttributeDefinition, SelectOption} from "@/utility/Types"
 import {MultiValue} from "react-select"
+import "./addExportFilterPopover.scss"
 
 export default function AddExportFilterPopover({
     sceneAttributeDefinitions,
@@ -43,7 +44,7 @@ export default function AddExportFilterPopover({
         <SimplePopover
             ref={addFilterPopoverRef}
             className={"addFilter"}
-            contentClassName={"addFilterPopup"}
+            contentClassName={"addFilterPopover"}
             showArrow={false}
             content={<>
                 <h3>Scene</h3>
