@@ -180,10 +180,10 @@
   background-color: var(--scene-context-popup-bg);
 
   button{
-    font-size: .95rem;
+    font-size: .85rem;
     width: 100%;
     justify-content: left;
-    padding: .4rem;
+    padding: .3rem;
     color: var(--text-20);
     font-weight: 500;
 
@@ -215,5 +215,9 @@
   .instructions{
     color: var(--text-50);
     font-size: .75rem;
+
+    .bold{
+      color: var(--text-30);
+    }
   }
 }

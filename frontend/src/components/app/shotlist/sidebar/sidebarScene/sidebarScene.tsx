@@ -125,11 +125,6 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
     if(!scene || !scene.id) return (<ErrorDisplay title={"Scene not found"} scale={0.5} noMargin/>)
 
     return (
-        <SimpleTooltip
-            canOpen={!expanded}
-            content={<p><span className="key">Alt</span> + <span className="key">{position + 1}</span></p>}
-            delay={700}
-        >
         <div
             className={`sidebarScene ${expanded ? 'expanded' : ''} ${editMenuIsOpen && "menuOpen"} ${markAsDeleted && "deleting"} ${readOnly && "readOnly"}`}
             onClick={() => {
@@ -140,14 +135,9 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
         >
             <div className="name">
                 <p className="number">{position + 1}</p>
-                <SimpleTooltip
-                    text={"Since a scene is usually identified by its number, its name is made up of the values of all its attributes. If you want to give it a specific name, simply add a text attribute."}
-                    canOpen={expanded}
-                >
-                    <p className="text">
-                        { Utils.sceneAttributesToSceneName(sceneAttributes) }
-                    </p>
-                </SimpleTooltip>
+                <p className="text">
+                    { Utils.sceneAttributesToSceneName(sceneAttributes) }
+                </p>
                 <div className="right">
                     <p className={"count"}>{scene.shotCount}</p>
                     {
@@ -170,9 +160,8 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                             </Popover.Trigger>
                             <Popover.Portal>
                                 <Popover.Content className="popoverContent sceneContextOptionsPopup" align={"start"}
-                                                 side={"right"} sideOffset={12} alignOffset={-10}>
+                                                 side={"right"} sideOffset={12} alignOffset={-10} onClick={e => e.stopPropagation()}>
                                     <button className={"bad"} onClick={(e) => {
-                                        e.stopPropagation();
                                         deleteScene()
                                     }}>
                                         <Trash size={18}/>Delete
@@ -200,6 +189,9 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                                     <Separator/>
                                     <p className={"instructions"}>
                                         <span className="bold">Click</span> to edit, <span className="bold">Drag</span> to reorder
+                                    </p>
+                                    <p className="instructions">
+                                        <span className="key">Alt</span> + <span className="key">{scene.position + 1}</span> to select
                                     </p>
                                 </Popover.Content>
                             </Popover.Portal>
@@ -248,7 +240,6 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
 
             {ConfirmDialog}
         </div>
-        </SimpleTooltip>
     )
 })
 
