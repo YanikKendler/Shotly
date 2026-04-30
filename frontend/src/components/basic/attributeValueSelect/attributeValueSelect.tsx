@@ -15,7 +15,6 @@ import {
 import {Pen} from "lucide-react"
 import Utils, {reactSelectTheme} from "@/utility/Utils"
 import CreatableSelect from "react-select/creatable"
-import {wuConstants} from "@yanikkendler/web-utils/dist"
 
 export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBase<SelectOption>> = {
     control: (baseStyles) => ({
@@ -47,7 +46,8 @@ export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBas
         ...baseStyles,
         marginTop: 0,
         borderBottomLeftRadius: ".6rem",
-        borderBottomRightRadius: ".6rem"
+        borderBottomRightRadius: ".6rem",
+        animation: "selectDropdownShow 150ms ease-out"
     }),
     singleValue: (baseStyles) => ({
         ...baseStyles,
@@ -55,7 +55,7 @@ export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBas
     }),
     valueContainer: (baseStyles, props) => ({
         ...baseStyles,
-        paddingInline: props.isMulti ? "4px" : "2px",
+        paddingInline: "3px",
         paddingBlock: ".1rem"
     }),
     multiValue: (baseStyles) => ({
@@ -72,8 +72,8 @@ export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBas
         transition: 'background-color 0.1s, color 0.1s',
         color: "var(--text-30)",
         '&:hover': {
-            color: "var(--bad)",
-            backgroundColor: "var(--bad-80)",
+            color: "var(--bad-20)",
+            backgroundColor: "var(--transparent-bad-20)",
             cursor: "default"
         },
     }),
@@ -82,7 +82,11 @@ export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBas
         overflow: "hidden",
         whiteSpace: "nowrap",
         textOverflow: "ellipsis",
-        maxWidth: "calc(100% - 2rem)",
+        maxWidth: "calc(100% - 2rem)"
+    }),
+    noOptionsMessage: base => ({
+        ...base,
+        fontSize: ".85rem"
     })
 }
 
@@ -98,7 +102,29 @@ export const selectShotStyles: StylesConfig<SelectOption, boolean, GroupBase<Sel
         cursor: 'text',
         transition: 'background-color 0.2s ease, border-color 0.2s ease',
         height: "inherit",
-        minHeight: 0
+        minHeight: 0,
+        fontSize: "calc(.9rem * var(--shotlist-scale))"
+    }),
+    option: (baseStyles, state) => ({
+        ...baseStyles,
+        cursor: 'pointer',
+        borderRadius: "calc(.3rem * var(--shotlist-scale))",
+        paddingInline: "calc(0.5rem * var(--shotlist-scale))",
+        backgroundColor: state.isFocused ?
+            state.isSelected ? 'var(--accent-55)' : 'var(--accent)' :
+            state.isSelected ? "var(--transparent-accent-20)" : 'transparent',
+        color: state.isFocused ? "var(--contrast)" : "var(--text)",
+        fontWeight: state.isFocused ? "bold" : "normal",
+        fontSize: "calc(0.85rem * var(--shotlist-scale))",
+        width: "fit-content",
+        minWidth: "100%",
+        maxWidth: "calc(0.15rem * var(--shotlist-scale))",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+    }),
+    noOptionsMessage: base => ({
+        ...base,
+        fontSize: "calc(0.85rem * var(--shotlist-scale))",
     })
 }
 
@@ -120,7 +146,8 @@ export const selectSceneStyles: StylesConfig<SelectOption, boolean, GroupBase<Se
         ...baseStyles,
         marginTop: "3px",
         borderBottomLeftRadius: ".6rem",
-        borderBottomRightRadius: ".6rem"
+        borderBottomRightRadius: ".6rem",
+        animation: "selectDropdownShow 150ms ease-out"
     })
 }
 
@@ -218,7 +245,7 @@ function AttributeValueSelect({
     const CustomMultiValue = (
         props: MultiValueProps<SelectOption, true>
     ) => {
-        if (!props.selectProps.menuIsOpen) return <p style={{display: "inline"}}>{props.data.label}</p>;
+        if (!props.selectProps.menuIsOpen) return <p style={{display: "inline", margin: "2px"}}>{props.data.label}</p>;
         return <components.MultiValue {...props}  children={props.children}/>;
     };
 

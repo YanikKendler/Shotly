@@ -84,7 +84,7 @@ export default function GeneralTab({
 
         let decision = await confirm({
             title: 'Are you absolutely sure?',
-            message: `Do you want to delete the shotlist "${shotlist.name}" and its ${shotlist.sceneCount} scenes and ${shotlist.shotCount} shots? I recommend exporting to csv before deleting. This action cannot be undone.`,
+            message: `Do you want to delete the shotlist: "${shotlist.name}" and its ${shotlist.sceneCount} scenes and ${shotlist.shotCount} shots? I recommend exporting to xslx before deleting. This action cannot be undone.`,
             buttons: {
                 confirm: {
                     text: 'Delete Shotlist',
@@ -267,7 +267,7 @@ export default function GeneralTab({
                         </button>
                     </div>
                     <div className="row">
-                        <p>Permanently delete the shotlist "{shotlist.name}"</p>
+                        <p>Permanently delete this shotlist</p>
                         <button
                             className="action danger"
                             onClick={deleteShotlist}

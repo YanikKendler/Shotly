@@ -65,6 +65,7 @@
   --transparent-gray-30: hsla(0, 0%, 50%, 30%);
 
   --transparent-bad-10: hsla(0, 70%, 60%, 10%);
+  --transparent-bad-20: hsla(0, 70%, 60%, 20%);
   --transparent-good-10: hsla(120, 40%, 50%, 10%);
 
   --transparent-accent-05: hsla(20, 100%, 50%, 7%);
@@ -101,6 +102,7 @@
   --switch-knob-hover-bg: hsl(0, 0%, 15%);
 
   --toast-bg: hsl(0, 0%, 100%);
+
 
   --sidebar-width: 400px;
   --shotAttribute-width: calc(10rem * var(--shotlist-scale));
@@ -424,7 +426,7 @@ span.truncate{
 span.key{
   background-color: var(--transparent-gray-10);
   border: 1px solid var(--text-50);
-  padding: .3em;
+  padding: .2em .3em;
   display: inline-block;
   border-radius: .3em;
   font-family: monospace;
@@ -1031,4 +1033,13 @@ body .toast{
     to {
         transform: rotate(360deg);
     }
+}
+
+@keyframes selectDropdownShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

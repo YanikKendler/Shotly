@@ -17,6 +17,7 @@
     input{
       padding-inline: .2rem;
       text-overflow: ellipsis;
+      outline-width: 1.5px;
 
       &:focus-visible{
         outline-color: var(--accent);

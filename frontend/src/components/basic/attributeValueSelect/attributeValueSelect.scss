@@ -35,8 +35,18 @@ div.customSelectMenu{
     }
 
     p{
-      font-size: .8rem;
       font-weight: 600;
+      font-size: .8rem;
     }
+  }
+}
+
+.sheetManager div.customSelectMenu .bottom{
+  p {
+    font-size: calc(.8rem * var(--shotlist-scale));
+  }
+
+  svg {
+    scale: var(--shotlist-scale);
   }
 }

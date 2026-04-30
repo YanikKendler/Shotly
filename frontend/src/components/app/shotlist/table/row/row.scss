@@ -114,9 +114,9 @@
   .instructions{
     color: var(--text-50);
     font-size: calc(.7rem * var(--shotlist-scale));
-  }
 
-  .bold{
-    color: var(--text-30);
+    .bold{
+      color: var(--text-30);
+    }
   }
 }

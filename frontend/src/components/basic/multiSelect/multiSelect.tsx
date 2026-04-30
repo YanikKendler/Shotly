@@ -140,7 +140,8 @@ export default function MultiSelect(
                     borderRadius: '0.4rem',
                     border: '2px solid var(--default-interactable-border)',
                     marginBlock: '.1rem',
-                    backgroundColor: "var(--contrast)"
+                    backgroundColor: "var(--contrast)",
+                    animation: "selectDropdownShow 150ms ease-out"
                 }),
                 menuList: (base) => ({
                     ...base,
