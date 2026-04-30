@@ -22,7 +22,7 @@ export default function SimpleCollapse({
                     <p>{name}</p>
                 </div>
             </button>
-            <Collapse expanded={isExpanded}>
+            <Collapse expanded={isExpanded} recalculateHeightWith={[children]}>
                 {children}
             </Collapse>
         </div>

@@ -208,7 +208,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                 </div>
             </div>
 
-            <Collapse expanded={expanded} recalculateHeightWith={sceneAttributes}>
+            <Collapse expanded={expanded} recalculateHeightWith={[sceneAttributes]}>
                 <div className={`attributes`}>
                     {sceneAttributes.length == 0 ?
                         <p className={"empty"}>
