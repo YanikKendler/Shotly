@@ -1,6 +1,6 @@
 'use client';
 
-import {useRef, useState} from 'react';
+import {ReactElement, useRef, useState} from 'react';
 import "./confirmDialog.scss"
 import LabeledCheckbox from "@/components/basic/labeledCheckbox/labeledCheckbox"
 import {VisuallyHidden} from "radix-ui"
@@ -8,7 +8,8 @@ import Dialog, {DialogRef} from "@/components/basic/dialog/dialog"
 
 export interface ConfirmDialogSettings {
     title?: string
-    message: string
+    message?: string
+    richMessage?: ReactElement
     buttons?: {
         cancel?: ConfirmDialogButtonSettings
         confirm?: ConfirmDialogButtonSettings
@@ -53,7 +54,7 @@ export function useConfirmDialog() {
             contentClassName={"confirmDialogContent"}
         >
             <h2 className={"title"}>{settings?.title || "Are you sure?"}</h2>
-            <p className={"description"}>{settings.message}</p>
+            <p className={"description"}>{settings.richMessage || settings.message}</p>
             {
                 settings.checkbox === true &&
                 <LabeledCheckbox

@@ -760,12 +760,13 @@ span.key{
   flex-direction: column;
   gap: .3rem;
   color: var(--text-20);
+  box-shadow: .2rem .2rem .5rem .2rem var(--transparent-contrast-15);
 
   &.left{
     text-align: left;
   }
 
-  :where(svg){
+  :where(> svg){
     color: var(--text-40);
   }
 

@@ -57,6 +57,16 @@ div.shotlistOptionsDialogCollaboratorsTab{
       color: var(--text-30);
       border: 2px solid var(--default-interactable-border);
       border-radius: .3rem;
+
+      &.resend {
+        border-color: var(--accent);
+        color: var(--accent-60);
+
+        &:hover {
+          background-color: var(--transparent-accent-10);
+          color: var(--accent-40);
+        }
+      }
     }
   }
 

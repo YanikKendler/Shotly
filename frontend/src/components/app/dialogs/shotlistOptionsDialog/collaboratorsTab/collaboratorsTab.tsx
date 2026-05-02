@@ -19,7 +19,7 @@ import GoogleLogo from "@/components/logo/googleLogo"
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
 import Config from "@/Config"
 import HelpLink from "@/components/app/helpLink/helpLink"
-import {errorNotification} from "@/service/NotificationService"
+import {errorNotification, successNotification} from "@/service/NotificationService"
 import {DialogRef} from "@/components/basic/dialog/dialog"
 import auth from "@/Auth"
 import {ShotlyErrorCode} from "@/utility/Types"
@@ -92,6 +92,11 @@ export default function CollaboratorsTab(
                 console.error(result.errors);
                 return;
             }
+
+            successNotification({
+                title: "Invite sent",
+                message: `Successfully sent a new collaboration invite.`
+            })
 
             setCollaborations(current => [
                 ...(current || []),
@@ -201,6 +206,11 @@ export default function CollaboratorsTab(
             return;
         }
 
+        successNotification({
+            title: "Invite sent",
+            message: `Successfully sent a new collaboration invite.`
+        })
+
         setCollaborations(current => {
             if(!current) return current
 
@@ -293,20 +303,6 @@ export default function CollaboratorsTab(
                                     <SimpleTooltip asButton={true} text="Signed up using Google"><GoogleLogo/></SimpleTooltip>
                                 }
                                 <div className="inlineButtons">
-                                    {collab.collaborationState == CollaborationState.Declined && (
-                                        <SimpleTooltip
-                                            text="This invitation was declined. Click to resend."
-                                            showHoverArea={false}
-                                            delay={100}
-                                        >
-                                            <button
-                                                className={"default"}
-                                                onClick={() => refreshCollaboration(collab.id || "")}
-                                            >
-                                                <Send size={18}/>
-                                            </button>
-                                        </SimpleTooltip>
-                                    )}
                                     <SimpleSelect
                                         name={"role"}
                                         onChange={(newValue) => updateCollaborationType(collab.id || "", newValue as CollaborationType)}
@@ -323,6 +319,20 @@ export default function CollaboratorsTab(
                                     >
                                         <Trash size={18}/>
                                     </button>
+                                    {collab.collaborationState == CollaborationState.Declined && (
+                                        <SimpleTooltip
+                                            text="This invitation was declined. Click to resend."
+                                            showHoverArea={false}
+                                            delay={100}
+                                        >
+                                            <button
+                                                className={"default resend"}
+                                                onClick={() => refreshCollaboration(collab.id || "")}
+                                            >
+                                                <Send size={18}/>
+                                            </button>
+                                        </SimpleTooltip>
+                                    )}
                                 </div>
                                 <Popover.Root>
                                     <Popover.Trigger className={"optionsTrigger"}><Ellipsis size={18}/></Popover.Trigger>

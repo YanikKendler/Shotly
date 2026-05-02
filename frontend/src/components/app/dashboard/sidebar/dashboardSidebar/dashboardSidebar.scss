@@ -24,25 +24,6 @@ main.home .sidebar{
           }
         }
       }
-
-      .collaborationRequestsTrigger{
-        position: relative;
-
-        .badge{
-          aspect-ratio: 1;
-          height: 1.4rem;
-          display: grid;
-          place-items: center;
-          border-radius: 100%;
-          font-weight: bold;
-          text-align: center;
-          background-color: var(--collaborator);
-          color: var(--contrast);
-          position: absolute;
-          right: -.5rem;
-          bottom: 1rem;
-        }
-      }
     }
   }
 }

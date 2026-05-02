@@ -5,6 +5,7 @@ import "./accountDialog.scss"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import {
+    Ban,
     BookText,
     Bug, GraduationCap,
     LogOut,
@@ -16,7 +17,7 @@ import {
     Sun,
     Trash,
     User,
-    UserRound,
+    UserRound, UserRoundPen,
     X
 } from "lucide-react"
 import Auth from "@/Auth"
@@ -496,9 +497,17 @@ export function useAccountDialog() {
                 <Separator text={"Account"}/>
 
                 <div className="row">
+                    <p>Blocked users</p>
+                    <button
+
+                    >
+                        <UserRoundPen size={16}/>Manage
+                    </button>
+                </div>
+                <div className="row">
                     <p>Use another account</p>
                     <button
-                        className={"logout"} onClick={() => Auth.logout()}
+                        onClick={() => Auth.logout()}
                     >
                         <LogOut size={16}/>Sign out
                     </button>

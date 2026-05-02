@@ -13,6 +13,7 @@ import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "app_user")
@@ -30,6 +31,8 @@ public class User extends PanacheEntityBase {
     @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
     @BatchSize(size = 5)
     public Set<Template> templates = new HashSet<>();
+    @OneToMany
+    public Set<User> blockedUsers = new HashSet<>();
     public ZonedDateTime createdAt;
     public ZonedDateTime lastActiveAt;
     @Enumerated(EnumType.STRING)
@@ -39,7 +42,6 @@ public class User extends PanacheEntityBase {
     public boolean isActive = true;
     public LocalDate revokeProAfter;
     public String howDidYouHearReason;
-    //public Boolean allowAnalytics = null;
     @Version
     public Long version; //for blocking and retrying actions if user version is outdated
 
@@ -79,6 +81,7 @@ public class User extends PanacheEntityBase {
                 isActive,
                 shotlists,
                 templates,
+                blockedUsers.stream().map(User::toMinimalDTO).collect(Collectors.toSet()),
                 shotlists.size(),
                 templates.size(),
                 createdAt,

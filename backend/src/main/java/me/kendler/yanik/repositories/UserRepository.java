@@ -13,6 +13,7 @@ import jakarta.transaction.Transactional;
 import me.kendler.yanik.auth0.Auth0Service;
 import me.kendler.yanik.dto.StatCounts;
 import me.kendler.yanik.dto.user.UserAdminUpdateDTO;
+import me.kendler.yanik.dto.user.UserBlockDTO;
 import me.kendler.yanik.dto.user.UserDTO;
 import me.kendler.yanik.dto.user.UserEditDTO;
 import me.kendler.yanik.error.ShotlyErrorCode;
@@ -162,18 +163,18 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     }
 
     @Transactional
-    public User update(UserEditDTO editDTO, JsonWebToken jwt) {
+    public UserDTO update(UserEditDTO editDTO, JsonWebToken jwt) {
         User user = findOrCreateByJWT(jwt);
         if (editDTO.name() != null) {
             user.name = editDTO.name();
         }
         persist(user);
         LOGGER.infof("Updated user: %s", user.toString());
-        return user;
+        return user.toDTO();
     }
 
     @Transactional
-    public User delete(JsonWebToken jwt) {
+    public UserDTO delete(JsonWebToken jwt) {
         User user = findOrCreateByJWT(jwt);
 
         LOGGER.infof("Deleting user: %s", user.toString());
@@ -198,7 +199,7 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
 
         auth0Service.deleteUser(user.auth0Sub);
 
-        return user;
+        return user.toDTO();
     }
 
     public String triggerPasswordReset(JsonWebToken jwt) {
@@ -207,28 +208,37 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     }
 
     @Transactional
-    public User setHowDidYourHearReason(JsonWebToken jwt, String reason) {
+    public UserDTO setHowDidYourHearReason(JsonWebToken jwt, String reason) {
         User user = findOrCreateByJWT(jwt);
 
         user.howDidYouHearReason = reason;
 
-        return user;
+        return user.toDTO();
     }
 
-    /*@Transactional
-    public User setAllowAnalytics(JsonWebToken jwt, boolean allow) {
+    @Transactional
+    public UserDTO updateUserBlocking(JsonWebToken jwt, UserBlockDTO blockDTO) {
         User user = findOrCreateByJWT(jwt);
+        User blockedUser = findById(blockDTO.userId());
 
-        user.allowAnalytics = allow;
+        if(user.equals(blockedUser))
+            throw new ShotlyException("You cannot block yourself", ShotlyErrorCode.INVALID_INPUT);
 
-        return user;
-    }*/
+        if(blockDTO.isBlocked()) {
+            user.blockedUsers.add(blockedUser);
+        }
+        else {
+            user.blockedUsers.remove(blockedUser);
+        }
+
+        return user.toDTO();
+    }
+
+    //ADMIN
 
     @Transactional
     public UserDTO adminUserUpdate(UserAdminUpdateDTO updateDTO) {
         User user = findById(updateDTO.id());
-
-        System.out.println(updateDTO.toString());
 
         if(user == null)
             throw new ShotlyException("User not found", ShotlyErrorCode.NOT_FOUND);
@@ -287,6 +297,10 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
                 .getSingleResult();
         return count == null ? 0L : count;
     }
+
+    /*
+        ACCESS CHECKS
+     */
 
     // ADMIN
 

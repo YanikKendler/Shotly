@@ -6,11 +6,12 @@ import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
 import {errorNotification, successNotification} from "@/service/NotificationService"
-import {Check, Inbox, RefreshCw, X} from "lucide-react"
+import {Ban, Check, Inbox, RefreshCw, X} from "lucide-react"
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
 import Skeleton from "react-loading-skeleton"
 import { Popover } from "radix-ui"
 import "./collaborationRequestsPopup.scss"
+import {useConfirmDialog} from "@/components/app/dialogs/confirmDialog/confirmDialog"
 
 export interface CollaborationRequestsPopupRef {
     toggleCollaborationRequests: () => void
@@ -20,6 +21,8 @@ export interface CollaborationRequestsPopupProps {
     reloadShotlists: () => void
 }
 
+
+//TODO rewrite docs with changes to blocking and layout
 const CollaborationRequestsPopup = forwardRef<
     CollaborationRequestsPopupRef,
     CollaborationRequestsPopupProps
@@ -27,6 +30,7 @@ const CollaborationRequestsPopup = forwardRef<
     reloadShotlists
 }, ref) => {
     const client = useApolloClient()
+    const {confirm, ConfirmDialog} = useConfirmDialog()
 
     const [collaborationRequestOpen, setCollaborationRequestOpen] = useState(false)
     const [collaborationReloadAllowed, setCollaborationReloadAllowed] = useState<boolean>(true)
@@ -60,6 +64,7 @@ const CollaborationRequestsPopup = forwardRef<
                     pendingCollaborations{
                         id
                         owner {
+                            id
                             name
                             email
                         }
@@ -67,7 +72,6 @@ const CollaborationRequestsPopup = forwardRef<
                             name
                         }
                         collaborationState
-                        collaborationType
                     }
                 }`,
             fetchPolicy: "no-cache"
@@ -141,7 +145,71 @@ const CollaborationRequestsPopup = forwardRef<
         })
     }
 
+    const blockUser = async (collab: CollaborationDto)=> {
+        const decision = await confirm({
+            title: `Block from sending invites?`,
+            richMessage: <>
+                The user "{collab.owner?.name}" will no longer be able to invite you to any of their shotlists. Nothing will change about existing collaborations.
+                <br/>
+                <br/>
+                <span className={"gray small"}>You can manage blocked users via the account dialog.</span>
+            </>,
+            buttons: {
+                confirm: {
+                    className: "bad"
+                }
+            }
+        })
+
+        if(!decision) return
+
+        const result = await client.mutate({
+            mutation: gql`
+                mutation acceptOrDeclineCollaboration($userId: String!) {
+                    updateUserBlocking(blockDTO: {
+                        userId: $userId,
+                        isBlocked: true
+                    }) {
+                        id
+                        blockedUsers {
+                            name
+                        }
+                    }
+                }
+            `,
+            variables: {userId: collab.owner?.id},
+        })
+        if (result.errors) {
+            errorNotification({
+                title: `Failed to block user`,
+                tryAgainLater: true
+            })
+            console.error(result.errors);
+            return;
+        }
+
+        console.log(result)
+
+        successNotification({
+            title: "User blocked successfully",
+            message: `"${collab.owner?.name}" can no longer send you collaboration invites`
+        })
+
+        setPendingCollaborations(current => {
+            let newCollaborations = current.data.pendingCollaborations?.filter(c => c?.id !== collab.id) || []
+
+            return {
+                ...current,
+                data: {
+                    ...current.data,
+                    pendingCollaborations: newCollaborations
+                }
+            }
+        })
+    }
+
     return (
+        <>
         <Popover.Root open={collaborationRequestOpen} onOpenChange={setCollaborationRequestOpen}>
             <SimpleTooltip
                 content={<p><span className="key">Alt</span> + <span className="key">C</span></p>}
@@ -162,58 +230,78 @@ const CollaborationRequestsPopup = forwardRef<
                     align={"start"}
                     onOpenAutoFocus={e => e.preventDefault()}
                 >
-                    <h2>Collaboration requests</h2>
-                    {
-                        pendingCollaborations.loading ?
-                            <>
-                                <Skeleton height={"2rem"}/>
-                            </>
-                            :
-                        pendingCollaborations.data.pendingCollaborations && pendingCollaborations.data.pendingCollaborations.length <= 0 ?
-                            <p className={"empty"}>No open collaboration requests</p>
-                            :
-                        (pendingCollaborations.data.pendingCollaborations as CollaborationDto[])?.map((collab) => (
-                            <div key={collab.id} className={"collaborationRequest"}>
-                                <p>
-                                    <SimpleTooltip text={collab.owner?.email || "Unknown email"}><span className={"bold"}>{collab.owner?.name}</span></SimpleTooltip>
-                                    {" has invited you to the shotlist "}
-                                    <span className={"bold"}>{collab.shotlist?.name || "Unnamed"}</span>
-                                </p>
-                                <SimpleTooltip text="Accept collaboration">
-                                    <button
-                                        className={"accent"}
-                                        onClick={() => acceptOrDeclineCollaboration(collab.id || "", CollaborationState.Accepted)}
-                                    >
-                                        <Check size={16} strokeWidth={2.5}/>
-                                    </button>
-                                </SimpleTooltip>
-                                <SimpleTooltip text="Decline collaboration">
-                                    <button
-                                        className={"accent"}
-                                        onClick={() => acceptOrDeclineCollaboration(collab.id || "", CollaborationState.Declined)}
-                                    >
-                                        <X size={16} strokeWidth={2.5}/>
-                                    </button>
-                                </SimpleTooltip>
-                            </div>
-                        ))
-                    }
-
-                    <button
-                        className={"reload"}
-                        onClick={() => loadPendingCollaborations(true)}
-                        disabled={!collaborationReloadAllowed}
-                    >
-                        <RefreshCw size={16}/>
-                        {
-                            collaborationReloadAllowed ?
+                    <div className="top">
+                        <h2>Collaboration requests</h2>
+                        <SimpleTooltip
+                            text={ collaborationReloadAllowed ?
                                 "refresh" :
                                 "please wait a few seconds..."
+                            }
+                        >
+                            <button
+                                className={"reload"}
+                                onClick={() => loadPendingCollaborations(true)}
+                                disabled={!collaborationReloadAllowed}
+                            >
+                                <RefreshCw size={16}/>
+                            </button>
+                        </SimpleTooltip>
+                    </div>
+                    <div className={"content"}>
+                        {
+                            pendingCollaborations.loading ?
+                                <>
+                                    <Skeleton height={"2rem"}/>
+                                    <Skeleton height={"2rem"}/>
+                                </>
+                                :
+                            !pendingCollaborations.data.pendingCollaborations || pendingCollaborations.data.pendingCollaborations.length <= 0 ?
+                                <p className={"empty"}>No open collaboration requests</p>
+                                :
+                            (pendingCollaborations.data.pendingCollaborations as CollaborationDto[])?.map((collab) => (
+                                <div key={collab.id} className={"collaborationRequest"}>
+                                    <p>
+                                        <SimpleTooltip text={collab.owner?.email || "Unknown email"}>
+                                            <span className={"bold"}>{collab.owner?.name}</span>
+                                        </SimpleTooltip>
+                                        {" has invited you to the shotlist "}
+                                        <span className={"bold"}>{collab.shotlist?.name || "Unnamed"}</span>
+                                    </p>
+                                    <div className="buttons">
+                                        <SimpleTooltip text="Accept collaboration">
+                                            <button
+                                                className={"accent"}
+                                                onClick={() => acceptOrDeclineCollaboration(collab.id || "", CollaborationState.Accepted)}
+                                            >
+                                                <Check size={16} strokeWidth={2.5}/>
+                                            </button>
+                                        </SimpleTooltip>
+                                        <SimpleTooltip text="Decline collaboration">
+                                            <button
+                                                className={"accent"}
+                                                onClick={() => acceptOrDeclineCollaboration(collab.id || "", CollaborationState.Declined)}
+                                            >
+                                                <X size={16} strokeWidth={2.5}/>
+                                            </button>
+                                        </SimpleTooltip>
+                                        <SimpleTooltip text="Block this user">
+                                            <button
+                                                className={"accent"}
+                                                onClick={() => blockUser(collab)}
+                                            >
+                                                <Ban size={15} strokeWidth={2.5}/>
+                                            </button>
+                                        </SimpleTooltip>
+                                    </div>
+                                </div>
+                            ))
                         }
-                    </button>
+                    </div>
                 </Popover.Content>
             </Popover.Portal>
         </Popover.Root>
+        {ConfirmDialog}
+        </>
     )
 })
 
