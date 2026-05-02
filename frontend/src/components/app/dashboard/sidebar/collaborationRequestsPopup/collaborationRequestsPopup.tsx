@@ -10,6 +10,7 @@ import {Check, Inbox, RefreshCw, X} from "lucide-react"
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
 import Skeleton from "react-loading-skeleton"
 import { Popover } from "radix-ui"
+import "./collaborationRequestsPopup.scss"
 
 export interface CollaborationRequestsPopupRef {
     toggleCollaborationRequests: () => void
@@ -161,37 +162,41 @@ const CollaborationRequestsPopup = forwardRef<
                     align={"start"}
                     onOpenAutoFocus={e => e.preventDefault()}
                 >
+                    <h2>Collaboration requests</h2>
                     {
-                        pendingCollaborations.loading ? <>
+                        pendingCollaborations.loading ?
+                            <>
                                 <Skeleton height={"2rem"}/>
-                            </> :
-                            pendingCollaborations.data.pendingCollaborations && pendingCollaborations.data.pendingCollaborations.length <= 0 ?
-                                <p className={"empty"}>No open collaboration requests</p> :
-                                (pendingCollaborations.data.pendingCollaborations as CollaborationDto[])?.map((collab) => (
-                                    <div key={collab.id} className={"collaborationRequest"}>
-                                        <p>
-                                            <SimpleTooltip text={collab.owner?.email || "Unknown email"}><span className={"bold"}>{collab.owner?.name}</span></SimpleTooltip>
-                                            {" has invited you to the shotlist "}
-                                            <span className={"bold"}>{collab.shotlist?.name || "Unnamed"}</span>
-                                        </p>
-                                        <SimpleTooltip text="Accept collaboration">
-                                            <button
-                                                className={"accent"}
-                                                onClick={() => acceptOrDeclineCollaboration(collab.id || "", CollaborationState.Accepted)}
-                                            >
-                                                <Check size={16} strokeWidth={2.5}/>
-                                            </button>
-                                        </SimpleTooltip>
-                                        <SimpleTooltip text="Decline collaboration">
-                                            <button
-                                                className={"accent"}
-                                                onClick={() => acceptOrDeclineCollaboration(collab.id || "", CollaborationState.Declined)}
-                                            >
-                                                <X size={16} strokeWidth={2.5}/>
-                                            </button>
-                                        </SimpleTooltip>
-                                    </div>
-                                ))
+                            </>
+                            :
+                        pendingCollaborations.data.pendingCollaborations && pendingCollaborations.data.pendingCollaborations.length <= 0 ?
+                            <p className={"empty"}>No open collaboration requests</p>
+                            :
+                        (pendingCollaborations.data.pendingCollaborations as CollaborationDto[])?.map((collab) => (
+                            <div key={collab.id} className={"collaborationRequest"}>
+                                <p>
+                                    <SimpleTooltip text={collab.owner?.email || "Unknown email"}><span className={"bold"}>{collab.owner?.name}</span></SimpleTooltip>
+                                    {" has invited you to the shotlist "}
+                                    <span className={"bold"}>{collab.shotlist?.name || "Unnamed"}</span>
+                                </p>
+                                <SimpleTooltip text="Accept collaboration">
+                                    <button
+                                        className={"accent"}
+                                        onClick={() => acceptOrDeclineCollaboration(collab.id || "", CollaborationState.Accepted)}
+                                    >
+                                        <Check size={16} strokeWidth={2.5}/>
+                                    </button>
+                                </SimpleTooltip>
+                                <SimpleTooltip text="Decline collaboration">
+                                    <button
+                                        className={"accent"}
+                                        onClick={() => acceptOrDeclineCollaboration(collab.id || "", CollaborationState.Declined)}
+                                    >
+                                        <X size={16} strokeWidth={2.5}/>
+                                    </button>
+                                </SimpleTooltip>
+                            </div>
+                        ))
                     }
 
                     <button

@@ -19,11 +19,10 @@ import GoogleLogo from "@/components/logo/googleLogo"
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
 import Config from "@/Config"
 import HelpLink from "@/components/app/helpLink/helpLink"
-import {errorNotification, successNotification} from "@/service/NotificationService"
+import {errorNotification} from "@/service/NotificationService"
 import {DialogRef} from "@/components/basic/dialog/dialog"
 import auth from "@/Auth"
 import {ShotlyErrorCode} from "@/utility/Types"
-import {ShotlistOptionsDialogPage} from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {useRouter} from "next/navigation"
 
 export default function CollaboratorsTab(
@@ -220,6 +219,8 @@ export default function CollaboratorsTab(
     const leaveCollaboration = async () => {
         if(!shotlist?.id) return
 
+        console.log("in leave")
+
         let decision = await confirm({
             title: "Are you sure?",
             message: `You will loose access to the Shotlist "${shotlist?.name || "Unnamed"}" until its owner invites you again."`,
@@ -254,14 +255,10 @@ export default function CollaboratorsTab(
         router.push("/dashboard")
     }
 
+    let content
+
     if(!isAvailable) {
-        return <div className="shotlistOptionsDialogCollaboratorsTab shotlistOptionsDialogPage">
-            <div className="top">
-                <h2>Collaboration</h2>
-                <button className={"closeButton"} onClick={shotlistOptionsDialogRef.current?.close}>
-                    <X size={18}/>
-                </button>
-            </div>
+        content = <>
             <div className="leave">
                 <p>Leave this Shotlist</p>
                 <button
@@ -272,75 +269,44 @@ export default function CollaboratorsTab(
                 </button>
             </div>
             <p className={"empty"}>As a collaborator, you don’t have permission to edit collaborators.</p>
-        </div>
+        </>
     }
-
-    if(collaborations == null) {
-        return <div className="shotlistOptionsDialogCollaboratorsTab shotlistOptionsDialogPage">
-            <div className="top">
-                <h2>Current Collaborators</h2>
-                <button className={"closeButton"} onClick={shotlistOptionsDialogRef.current?.close}>
-                    <X size={18}/>
-                </button>
-            </div>
+    else if(collaborations == null) {
+        content = <>
             <Skeleton height={"2rem"} style={{marginTop: ".5rem"}} count={2}/>
             <Skeleton height={"2rem"} width={"15ch"} style={{marginTop: "2rem"}}/>
-        </div>
+        </>
     }
-
-    return (
-        <div className={"shotlistOptionsDialogCollaboratorsTab shotlistOptionsDialogPage"}>
-            <div className="top">
-                <h2>Current Collaborators</h2>
-                <button className={"closeButton"} onClick={shotlistOptionsDialogRef.current?.close}>
-                    <X size={18}/>
-                </button>
-            </div>
+    else {
+        content = <>
             <div className="collaborators">
-            {
-                collaborations.length <= 0 ?
-                    <p className={"empty"}>No collaborators yet</p> :
-                collaborations?.map((collab) => (
-                    <div className={"collaborator"} key={collab.id}>
-                        <User size={26}/>
-                        <p><span className={"bold"}>{collab.user?.name}</span> • {collab.user?.email}</p>
-                        {collab.user?.auth0Sub?.startsWith("google-oauth2|") && <SimpleTooltip asButton={true} text="Signed up using Google"><GoogleLogo/></SimpleTooltip>}
-                        <div className="inlineButtons">
-                            {collab.collaborationState == CollaborationState.Declined && (
-                                <SimpleTooltip
-                                    text="This invitation was declined. Click to resend."
-                                    showHoverArea={false}
-                                    delay={100}
-                                >
-                                    <button
-                                        className={"default"}
-                                        onClick={() => refreshCollaboration(collab.id || "")}
-                                    >
-                                        <Send size={18}/>
-                                    </button>
-                                </SimpleTooltip>
-                            )}
-                            <SimpleSelect
-                                name={"role"}
-                                onChange={(newValue) => updateCollaborationType(collab.id || "", newValue as CollaborationType)}
-                                value={collab.collaborationType as CollaborationType}
-                                options={[
-                                    {label: "Viewer", value: CollaborationType.View},
-                                    {label: "Editor", value: CollaborationType.Edit},
-                                ]}
-                                fontSize={".95rem"}
-                            />
-                            <button
-                                className="delete bad"
-                                onClick={() => deleteCollaboration(collab.id || "")}
-                            >
-                                <Trash size={18}/>
-                            </button>
-                        </div>
-                        <Popover.Root>
-                            <Popover.Trigger className={"optionsTrigger"}><Ellipsis size={18}/></Popover.Trigger>
-                            <Popover.Portal>
-                                <Popover.Content className="popoverContent collaboratorOptionsPopup" sideOffset={5} align={"start"}>
+                {
+                    !collaborations || collaborations.length <= 0 ?
+                        <p className={"empty"}>No collaborators yet</p> :
+                        collaborations?.map((collab) => (
+                            <div className={"collaborator"} key={collab.id}>
+                                <User size={26}/>
+                                <p><span className={"bold"}>{collab.user?.name}</span> • {collab.user?.email}</p>
+                                {
+                                    /* Its possible for the same email to be signed up via both google and password auth */
+                                    collab.user?.auth0Sub?.startsWith("google-oauth2|") &&
+                                    <SimpleTooltip asButton={true} text="Signed up using Google"><GoogleLogo/></SimpleTooltip>
+                                }
+                                <div className="inlineButtons">
+                                    {collab.collaborationState == CollaborationState.Declined && (
+                                        <SimpleTooltip
+                                            text="This invitation was declined. Click to resend."
+                                            showHoverArea={false}
+                                            delay={100}
+                                        >
+                                            <button
+                                                className={"default"}
+                                                onClick={() => refreshCollaboration(collab.id || "")}
+                                            >
+                                                <Send size={18}/>
+                                            </button>
+                                        </SimpleTooltip>
+                                    )}
                                     <SimpleSelect
                                         name={"role"}
                                         onChange={(newValue) => updateCollaborationType(collab.id || "", newValue as CollaborationType)}
@@ -349,53 +315,74 @@ export default function CollaboratorsTab(
                                             {label: "Viewer", value: CollaborationType.View},
                                             {label: "Editor", value: CollaborationType.Edit},
                                         ]}
+                                        fontSize={".95rem"}
                                     />
                                     <button
+                                        className="delete bad"
                                         onClick={() => deleteCollaboration(collab.id || "")}
                                     >
-                                        Remove <Trash size={18}/>
+                                        <Trash size={18}/>
                                     </button>
-                                    {collab.collaborationState == CollaborationState.Declined && (
-                                        <button
-                                            onClick={() => refreshCollaboration(collab.id || "")}
-                                        >
-                                            Resend invitation <Send size={18}/>
-                                        </button>
-                                    )}
-                                </Popover.Content>
-                            </Popover.Portal>
-                        </Popover.Root>
-                    </div>
-                )
-            )}
+                                </div>
+                                <Popover.Root>
+                                    <Popover.Trigger className={"optionsTrigger"}><Ellipsis size={18}/></Popover.Trigger>
+                                    <Popover.Portal>
+                                        <Popover.Content className="popoverContent collaboratorOptionsPopup" sideOffset={5} align={"start"}>
+                                            <SimpleSelect
+                                                name={"role"}
+                                                onChange={(newValue) => updateCollaborationType(collab.id || "", newValue as CollaborationType)}
+                                                value={collab.collaborationType as CollaborationType}
+                                                options={[
+                                                    {label: "Viewer", value: CollaborationType.View},
+                                                    {label: "Editor", value: CollaborationType.Edit},
+                                                ]}
+                                            />
+                                            <button
+                                                onClick={() => deleteCollaboration(collab.id || "")}
+                                            >
+                                                Remove <Trash size={18}/>
+                                            </button>
+                                            {collab.collaborationState == CollaborationState.Declined && (
+                                                <button
+                                                    onClick={() => refreshCollaboration(collab.id || "")}
+                                                >
+                                                    Resend invitation <Send size={18}/>
+                                                </button>
+                                            )}
+                                        </Popover.Content>
+                                    </Popover.Portal>
+                                </Popover.Root>
+                            </div>
+                        ))
+                }
             </div>
 
             <div className="new">
                 {
                     collaborations && collaborations?.length >= Config.constant.maxCollaboratorsInFreePlan ?
-                    <p className="error">Sorry, users in basic tier can only have {Config.constant.maxCollaboratorsInFreePlan} collaborators.</p> :
-                    <>
-                        <TextField
-                            label={"email"}
-                            placeholder={"yourfriend@email.com"}
-                            valueChange={value => {
-                                setInputValue(value)
-                                setEmailInvalid(false)
-                            }}
-                            value={inputValue}
-                            autoComplete={false}
-                        />
-                        <button
-                            className={"accent"}
-                            disabled={
-                                !wuConstants.Regex.email.test(inputValue) ||
-                                userIsAlreadyAMember
-                            }
-                            onClick={addCollaborator}
-                        >
-                            Invite <Send size={16} strokeWidth={2.5}/>
-                        </button>
-                    </>
+                        <p className="error">Sorry, users in basic tier can only have {Config.constant.maxCollaboratorsInFreePlan} collaborators.</p> :
+                        <>
+                            <TextField
+                                label={"email"}
+                                placeholder={"yourfriend@email.com"}
+                                valueChange={value => {
+                                    setInputValue(value)
+                                    setEmailInvalid(false)
+                                }}
+                                value={inputValue}
+                                autoComplete={false}
+                            />
+                            <button
+                                className={"accent"}
+                                disabled={
+                                    !wuConstants.Regex.email.test(inputValue) ||
+                                    userIsAlreadyAMember
+                                }
+                                onClick={addCollaborator}
+                            >
+                                Invite <Send size={16} strokeWidth={2.5}/>
+                            </button>
+                        </>
                 }
             </div>
             {
@@ -407,6 +394,19 @@ export default function CollaboratorsTab(
                 emailInvalid &&
                 <p className={"invalid"}>No Shotly account is associated with this email.</p>
             }
+        </>
+    }
+
+    return (
+        <div className={"shotlistOptionsDialogCollaboratorsTab shotlistOptionsDialogPage"}>
+            <div className="top">
+                <h2>Current Collaborators</h2>
+                <button className={"closeButton"} onClick={shotlistOptionsDialogRef.current?.close}>
+                    <X size={18}/>
+                </button>
+            </div>
+
+            {content}
 
             <HelpLink link="https://docs.shotly.at/shotlist/collaboration" name={"Collaboration"} floating/>
 

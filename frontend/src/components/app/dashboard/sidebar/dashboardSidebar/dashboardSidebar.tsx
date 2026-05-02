@@ -12,7 +12,7 @@ import {usePathname} from "next/navigation"
 import {Dispatch, forwardRef, SetStateAction, useEffect, useImperativeHandle, useRef, useState} from "react"
 import CollaborationRequestsPopup, {
     CollaborationRequestsPopupRef
-} from "@/components/app/dashboard/sidebar/dashboardCollaboratorsPopup/collaborationRequestsPopup"
+} from "@/components/app/dashboard/sidebar/collaborationRequestsPopup/collaborationRequestsPopup"
 import Link from "next/link"
 import DashboardSidebarSection from "@/components/app/dashboard/sidebar/dashboardSidebarSection/dashboardSidebarSection"
 import "./dashboardSidebar.scss"

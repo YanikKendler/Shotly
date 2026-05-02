@@ -44,9 +44,6 @@ export default function Overview() {
                 side: "right",
                 align: 'center'
             }},
-/*
-            { element: '.sidebar .template', popover: { description: 'You can use it when creating your first shotlist to start with a default attribute for shots and scenes.', side: "right", align: 'center' }},
-*/
             { element: '.gridItem.add.shotlist', popover: { description: 'Click here to create a new Shotlist.', side: "bottom", align: 'center' }},
         ],
         onDestroyed: () => {
