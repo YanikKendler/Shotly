@@ -40,7 +40,8 @@ export default function TextField(
         color = "gray",
         visible = true,
         clearable = false,
-        ignoreOuterWhitespace = true
+        ignoreOuterWhitespace = true,
+        onEnter = () => {}
     }
     :
     {
@@ -61,7 +62,8 @@ export default function TextField(
         color?: "gray" | "accent"
         visible?: boolean,
         clearable?: boolean,
-        ignoreOuterWhitespace?: boolean
+        ignoreOuterWhitespace?: boolean,
+        onEnter?: (value: string) => void
     }
 ) {
     const [currentValue, setCurrentValue] = useState<string>(value || defaultValue);
@@ -85,7 +87,7 @@ export default function TextField(
         [valueChange]
     )
 
-    function validateInput(value: string) {
+    const validateInput = (value: string) =>  {
         setError("")
 
         if(!showLengthError) return
@@ -104,7 +106,7 @@ export default function TextField(
         }
     }
 
-    function handleInput(value: string){
+    const handleInput = (value: string) => {
         if(disabled) return
 
         const trimmedValue = ignoreOuterWhitespace ? value.trim() : value
@@ -119,6 +121,11 @@ export default function TextField(
             debouncedValueChange(trimmedValue)
         else
             valueChange(trimmedValue)
+    }
+
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if(e.key == "Enter")
+            onEnter(currentValue)
     }
 
     const ignoreProps = !autoComplete ? {
@@ -153,6 +160,7 @@ export default function TextField(
                                     disabled={disabled}
                                     className={inputClass}
                                     style={{maxWidth: maxWidth}}
+                                    onKeyDown={handleKeyPress}
                                     {...ignoreProps}
                                 />
                                 {

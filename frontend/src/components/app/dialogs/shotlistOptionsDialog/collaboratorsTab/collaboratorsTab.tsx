@@ -12,7 +12,7 @@ import TextField from "@/components/basic/textField/textField"
 import Skeleton from "react-loading-skeleton"
 import gql from "graphql-tag"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
-import {Ellipsis, Send, Trash, User, X} from "lucide-react"
+import {Ellipsis, Send, Timer, Trash, User, X} from "lucide-react"
 import SimpleSelect from "@/components/basic/simpleSelect/simpleSelect"
 import {Popover} from "radix-ui"
 import GoogleLogo from "@/components/logo/googleLogo"
@@ -319,7 +319,8 @@ export default function CollaboratorsTab(
                                     >
                                         <Trash size={18}/>
                                     </button>
-                                    {collab.collaborationState == CollaborationState.Declined && (
+                                    {
+                                        collab.collaborationState == CollaborationState.Declined ?
                                         <SimpleTooltip
                                             text="This invitation was declined. Click to resend."
                                             showHoverArea={false}
@@ -332,7 +333,14 @@ export default function CollaboratorsTab(
                                                 <Send size={18}/>
                                             </button>
                                         </SimpleTooltip>
-                                    )}
+                                        :
+                                        collab.collaborationState == CollaborationState.Pending &&
+                                        <SimpleTooltip text={"Invite is pending, it has neither been accepted nor declined"} delay={100}>
+                                            <span className={"invitePending"}>
+                                                <Timer size={20}/>
+                                            </span>
+                                        </SimpleTooltip>
+                                    }
                                 </div>
                                 <Popover.Root>
                                     <Popover.Trigger className={"optionsTrigger"}><Ellipsis size={18}/></Popover.Trigger>
@@ -352,13 +360,14 @@ export default function CollaboratorsTab(
                                             >
                                                 Remove <Trash size={18}/>
                                             </button>
-                                            {collab.collaborationState == CollaborationState.Declined && (
+                                            {
+                                                collab.collaborationState == CollaborationState.Declined &&
                                                 <button
                                                     onClick={() => refreshCollaboration(collab.id || "")}
                                                 >
                                                     Resend invitation <Send size={18}/>
                                                 </button>
-                                            )}
+                                            }
                                         </Popover.Content>
                                     </Popover.Portal>
                                 </Popover.Root>
@@ -381,6 +390,7 @@ export default function CollaboratorsTab(
                                 }}
                                 value={inputValue}
                                 autoComplete={false}
+                                onEnter={addCollaborator}
                             />
                             <button
                                 className={"accent"}

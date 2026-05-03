@@ -36,6 +36,7 @@ div.shotlistOptionsDialogCollaboratorsTab{
 
     .inlineButtons{
       display: flex;
+      align-items: center;
       gap: .3rem;
       margin-left: auto;
 
@@ -66,6 +67,20 @@ div.shotlistOptionsDialogCollaboratorsTab{
           background-color: var(--transparent-accent-10);
           color: var(--accent-40);
         }
+      }
+    }
+
+    .invitePending{
+      aspect-ratio: 1;
+      height: 1.8rem;
+      display: grid;
+      place-content: center;
+      border-radius: 50%;
+      color: var(--accent-40);
+      transition: background-color 200ms;
+
+      &:hover {
+        background-color: var(--transparent-accent-10);
       }
     }
   }
