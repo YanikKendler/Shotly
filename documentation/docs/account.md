@@ -7,18 +7,13 @@ You can log into Shotly by using either your email and password or Google.
 
 You can manage your account at any time by clicking on `Account` in the lower left of the sidebar.
 
-## Your Account
+---
 
-The first field in the dialog **shows your email address**. The email cannot be changed, and there is currently no way to transfer your data to another email.
+The first field in the dialog **shows your email address**. This email cannot be changed and there is currently no way to transfer your data to another email.
 
 Your **"Display name"** is a publicly visible name. I recommend simply using your first name. The display name is used to identify you when collaborating on a shotlist. You can **not** use it to log into Shotly.
 
-The third row allows you to manage or upgrade **your subscription**. You may be redirected to a Stripe.com.
-
-At the bottom of the dialog, you can find the options to **sign out** and **delete your account**. You can also **request a feature** or **report a bug** by opening an issue on GitHub.
-
-!!! Info
-    When deleting your account, all your data is permanently lost. The moment you click "confirm" all of your Shotlists and Templates will be removed from Shotly's database.
+The third row allows you to manage or upgrade **your subscription**. You may be redirected to Stripe.com.
 
 ## Settings
 
@@ -32,3 +27,26 @@ In this dialog you can also change your user settings:
 
 !!! Note
     For now, settings are stored locally on your device. This means that you will have to configure the settings to your liking on each device (browser) individually.
+
+## Account
+
+### Blocked users
+
+The first row allows you to manage blocked users by clicking the `Manage` button. This opens a dialog where you can see all users that you have blocked via the [Collaborations Popup](dashboard.md#collaborations) on the dashboard. 
+
+The following happens when blocking a user:
+
+1. They are unable to invite you to collaborate on their shotlists.
+2. Your access to shotlists that are owned by said user is removed.
+3. Their access to shotlists owned by you is removed.
+4. You can still see edits of a blocked user if both of you are collaborators on a shotlist owned by a third party.
+5. You can still send new invites to a blocked user if you choose to do so.
+
+### Other
+
+In this section you can also find the options to **Sign out** and **Delete your account**.
+
+!!! Info
+    When deleting your account, all your data is permanently lost. The moment you click "confirm" all of your Shotlists and Templates will be removed from Shotly's database.
+
+All the way at the bottom of the dialog you can find links to the `Legal` pages, Shotly's `Changelog` as well as its `Issue tracker` and lastly the current version number and build time.
