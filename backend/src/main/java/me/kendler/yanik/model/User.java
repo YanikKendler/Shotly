@@ -6,6 +6,8 @@ import me.kendler.yanik.dto.user.UserDTO;
 import me.kendler.yanik.dto.user.UserMinimalDTO;
 import me.kendler.yanik.model.template.Template;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -32,6 +34,11 @@ public class User extends PanacheEntityBase {
     @BatchSize(size = 5)
     public Set<Template> templates = new HashSet<>();
     @OneToMany
+    @JoinTable(
+            name = "app_user_blocked_user",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "blocked_user_id")
+    )
     public Set<User> blockedUsers = new HashSet<>();
     public ZonedDateTime createdAt;
     public ZonedDateTime lastActiveAt;

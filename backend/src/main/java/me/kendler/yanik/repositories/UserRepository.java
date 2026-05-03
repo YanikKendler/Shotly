@@ -12,6 +12,7 @@ import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.auth0.Auth0Service;
 import me.kendler.yanik.dto.StatCounts;
+import me.kendler.yanik.dto.shotlist.collaboration.CollaborationDTO;
 import me.kendler.yanik.dto.user.UserAdminUpdateDTO;
 import me.kendler.yanik.dto.user.UserBlockDTO;
 import me.kendler.yanik.dto.user.UserDTO;
@@ -25,6 +26,10 @@ import me.kendler.yanik.model.template.shotAttributes.ShotTextAttributeTemplate;
 import me.kendler.yanik.repositories.template.SceneAttributeTemplateRepository;
 import me.kendler.yanik.repositories.template.ShotAttributeTemplateRepository;
 import me.kendler.yanik.repositories.template.TemplateRepository;
+import me.kendler.yanik.socket.ShotlistUpdateDTO;
+import me.kendler.yanik.socket.ShotlistUpdateType;
+import me.kendler.yanik.socket.ShotlistWebsocketService;
+import me.kendler.yanik.socket.payload.CollaborationPayload;
 import me.kendler.yanik.stripe.StripeService;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
@@ -62,6 +67,9 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
 
     @Inject
     CurrentVertxRequest currentVertxRequest;
+
+    @Inject
+    ShotlistWebsocketService shotlistWebsocketService;
 
     private static final Logger LOGGER = Logger.getLogger(UserRepository.class);
 
@@ -191,6 +199,10 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
             collaborationRepository.delete(collaboration.id);
         }
 
+        getEntityManager().createNativeQuery("DELETE FROM app_user_blocked_user WHERE user_id = ?1 or blocked_user_id = ?1")
+                .setParameter(1, user.id)
+                .executeUpdate();
+
         getEntityManager().createNativeQuery("DELETE FROM app_user WHERE id = ?1")
                 .setParameter(1, user.id)
                 .executeUpdate();
@@ -218,20 +230,46 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
 
     @Transactional
     public UserDTO updateUserBlocking(JsonWebToken jwt, UserBlockDTO blockDTO) {
-        User user = findOrCreateByJWT(jwt);
+        User currentUser = findOrCreateByJWT(jwt);
         User blockedUser = findById(blockDTO.userId());
 
-        if(user.equals(blockedUser))
+        if(currentUser.equals(blockedUser))
             throw new ShotlyException("You cannot block yourself", ShotlyErrorCode.INVALID_INPUT);
 
         if(blockDTO.isBlocked()) {
-            user.blockedUsers.add(blockedUser);
+            currentUser.blockedUsers.add(blockedUser);
+
+            List<Collaboration> affectedCollaborations = collaborationRepository.find(
+                        """
+                            (shotlist.owner.id = ?1 and user.id = ?2)
+                            OR
+                            (shotlist.owner.id = ?2 and user.id = ?1)
+                        """,
+                    blockedUser.id,
+                    currentUser.id
+            ).list();
+
+            affectedCollaborations.forEach(collab -> {
+                CollaborationDTO result = collaborationRepository.delete(collab.id);
+
+                shotlistWebsocketService.broadcast(
+                    collab.shotlist.id,
+                    new ShotlistUpdateDTO(
+                        ShotlistUpdateType.COLLABORATION_DELETED,
+                        currentUser.id,
+                        new CollaborationPayload(
+                            result.user().id(),
+                            result.collaborationType()
+                        )
+                    )
+                );
+            });
         }
         else {
-            user.blockedUsers.remove(blockedUser);
+            currentUser.blockedUsers.remove(blockedUser);
         }
 
-        return user.toDTO();
+        return currentUser.toDTO();
     }
 
     //ADMIN
