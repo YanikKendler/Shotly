@@ -9,7 +9,7 @@ import {
     ShotDto,
     ShotSelectAttributeOptionDefinition,
     UserTier,
-    Query
+    Query, UserMinimalDto
 } from "../../lib/graphql/generated"
 import Config from "@/Config"
 import {errorNotification, successNotification} from "@/service/NotificationService"
@@ -56,7 +56,7 @@ export interface ShotlistUpdateDTO {
 /* Payloads */
 export interface UserPayload {
     kind: "user"
-    user: UserMinimalDTO
+    user: UserMinimalDto
 }
 
 export interface ShotAttributePayload {
@@ -88,7 +88,7 @@ export interface CollaborationPayload {
 
 export interface PresentCollaboratorsPayload {
     kind: "presentCollaborators"
-    collaborators: UserMinimalDTO[]
+    collaborators: UserMinimalDto[]
 }
 
 export interface ScenePayload {
@@ -160,15 +160,6 @@ export type ShotlistUpdatePayload =
 
 /* other stuff */
 
-export interface UserMinimalDTO {
-    id: string,
-    email: string,
-    auth0Sub: string,
-    name: string,
-    tier: UserTier,
-    createdAt: Date
-}
-
 export interface ShotlistMinimalDTO {
     id: string
     ownerId: string
@@ -181,7 +172,7 @@ export interface ShotlistMinimalDTO {
 
 export function useShotlistSync({
     shotlistId,
-    userId,
+    currentUserId,
     sheetManagerRef,
     sidebarRef,
     selectedScene,
@@ -195,7 +186,7 @@ export function useShotlistSync({
     refreshShotlist
 }:{
     shotlistId: string | null
-    userId: string | null
+    currentUserId: string | null
 
     sheetManagerRef: RefObject<SheetManagerRef | null>
     sidebarRef: RefObject<ShotlistSidebarRef | null>
@@ -223,7 +214,7 @@ export function useShotlistSync({
     const collaboratorSelectedSceneAttribute = useRef<Map<string, SelectedSceneAttributePayload>>(new Map())
 
     useEffect(() => {
-        if(!shotlistId || !userId) return
+        if(!shotlistId || !currentUserId) return
 
         connect()
 
@@ -248,7 +239,7 @@ export function useShotlistSync({
                 document.removeEventListener("visibilitychange", handleVisibilityChange);
             }
         }
-    }, [shotlistId, userId]);
+    }, [shotlistId, currentUserId]);
 
     const connect = useLatestCallback((showNotifications: boolean = false) => {
         console.log("initially connecting to socket")
@@ -259,7 +250,7 @@ export function useShotlistSync({
             websocketRef.current.close(1000, "client relog")
         }
 
-        websocketRef.current = new WebSocket(`${Config.websocketURL}/shotlist/${shotlistId}/${userId}`)
+        websocketRef.current = new WebSocket(`${Config.websocketURL}/shotlist/${shotlistId}/${currentUserId}`)
 
         websocketRef.current.onopen = () => {
             console.info('Connected to WebSocket server')
@@ -317,7 +308,7 @@ export function useShotlistSync({
     })
 
     const reconnect = useLatestCallback(() => {
-        if (!userId || !shotlistId) return
+        if (!currentUserId || !shotlistId) return
 
         if (websocketRef.current?.readyState === WebSocket.OPEN || websocketRef.current?.readyState === WebSocket.CONNECTING) {
             return
@@ -327,7 +318,7 @@ export function useShotlistSync({
 
         setTimeout(() => {
             websocketRetriesRef.current++
-            console.info("Attempting reconnect, attempt", websocketRetriesRef.current, "with user id", userId)
+            console.info("Attempting reconnect, attempt", websocketRetriesRef.current, "with user id", currentUserId)
             connect()
         }, delay)
     })
@@ -363,11 +354,14 @@ export function useShotlistSync({
             case "user":
                 const userPayload = updateDTO.payload as UserPayload
 
+                const userId = userPayload.user.id
+
                 // skip if current state is newer than incoming
                 // don't update if the user has been updated from a later message already
                 // (avoid desyncs due to delayed messages)
                 if(
-                    (presentCollaborators?.get(userPayload.user.id)?.updatedAt?.getTime() || Infinity)
+                    !userId ||
+                    (presentCollaborators?.get(userId)?.updatedAt?.getTime() || Infinity)
                     < new Date(updateDTO.timestamp).getTime()
                 ) {
                     return
@@ -376,7 +370,7 @@ export function useShotlistSync({
                 if(updateDTO.type == ShotlistUpdateType.USER_JOINED){
                     setPresentCollaborators(prev => {
                         const newMap = new Map(prev)
-                        newMap.set(userPayload.user.id, {
+                        newMap.set(userId, {
                             updatedAt: new Date(updateDTO.timestamp),
                             user: userPayload.user
                         })
@@ -387,7 +381,7 @@ export function useShotlistSync({
                     setPresentCollaborators(prev => {
                         const newMap = new Map(prev)
                         newMap.forEach(collab => {
-                            if(collab.user.id == userPayload.user.id)
+                            if(collab.user.id == userId)
                                 newMap.delete(collab.user.id)
                         })
                         return newMap
@@ -403,7 +397,7 @@ export function useShotlistSync({
                         )
                         break
                     case ShotlistUpdateType.COLLABORATION_DELETED:
-                        if(userId == updateDTO.payload.userId){
+                        if(currentUserId == updateDTO.payload.userId){
                             setQuery(current => ({
                                 ...current,
                                 errors: [{
@@ -417,7 +411,7 @@ export function useShotlistSync({
                 break
             case "presentCollaborators":
                 const collabMap = new Map<string, PresentCollaborator>()
-                updateDTO.payload.collaborators.forEach(user => collabMap.set(user.id, {user: user, updatedAt: updateDTO.timestamp}))
+                updateDTO.payload.collaborators.forEach(user => collabMap.set(user.id ?? "unknown", {user: user, updatedAt: updateDTO.timestamp}))
                 setPresentCollaborators(collabMap)
                 break
             case "sceneAttribute":

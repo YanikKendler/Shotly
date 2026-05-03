@@ -2,7 +2,7 @@ import Iconmark from "@/components/logo/iconmark"
 import {FileSliders, House, Plus, Settings2, User} from "lucide-react"
 import Link from "next/link"
 import {Popover, Tooltip } from "radix-ui"
-import {Query, SceneDto, ShotlistDto} from "../../../../../../lib/graphql/generated"
+import {Query, SceneDto, ShotlistDto, UserMinimalDto} from "../../../../../../lib/graphql/generated"
 import gql from "graphql-tag"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {wuGeneral} from "@yanikkendler/web-utils"
@@ -15,7 +15,6 @@ import Sortable from "sortablejs"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import "./shotlistSidebar.scss"
 import {SelectedScene} from "@/app/shotlist/[id]/page"
-import {UserMinimalDTO} from "@/service/useShotlistSync"
 import {SceneAttributeRef} from "@/components/app/shotlist/sidebar/sceneAttribute/sceneAttribute"
 import Skeleton from "react-loading-skeleton"
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
@@ -43,7 +42,7 @@ export interface ShotlistSidebarProps {
     reloadInProgress: boolean
     setSidebarOpen: (open: boolean) => void
     openShotlistOptionsDialog: () => void
-    presentCollaborators: UserMinimalDTO[]
+    presentCollaborators: UserMinimalDto[]
     refreshWebsocketConnection: () => void
 }
 
@@ -392,7 +391,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                         placeholder={"shotlist name"}
                         onInput={e => debounceUpdateShotlistName(e.currentTarget.value)}
                         role={"heading"}
-                        disabled={isReadOnly /*TODO add collaborator blocking I guess*/}
+                        disabled={isReadOnly}
                         ref={nameInputRef}
                     />
                 </div>
@@ -460,7 +459,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                                         {presentCollaborators.map(user => (
                                             <div key={user.id} className={"collaborator"}>
                                                 <span>
-                                                    {user.name.at(0)?.toUpperCase() || "?"}
+                                                    {user.name ? user.name.at(0)?.toUpperCase() : "?"}
                                                 </span>
                                             </div>
                                         ))}

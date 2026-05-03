@@ -9,13 +9,12 @@ import {wuConstants} from "@yanikkendler/web-utils/dist"
 import {
     ShotMultiSelectAttributeDto,
     ShotSingleSelectAttributeDto,
-    ShotTextAttributeDto
+    ShotTextAttributeDto, UserMinimalDto
 } from "../../../../../../lib/graphql/generated"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {wuGeneral} from "@yanikkendler/web-utils"
 import CellBase from "@/components/app/shotlist/table/cell/cellBase"
-import {UserMinimalDTO} from "@/service/useShotlistSync"
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
 
 export interface CellInputRef {
@@ -62,7 +61,7 @@ const ValueCellBase = forwardRef<CellRef, CellProps>(({
 
     const [readOnlyValue, setReadOnlyValue] = useState<string>("")
 
-    const [isBlockedByCollaborator, setIsBlockedByCollaborator] = useState<UserMinimalDTO | null>(null)
+    const [isBlockedByCollaborator, setIsBlockedByCollaborator] = useState<UserMinimalDto | null>(null)
 
     useEffect(() => {
         if(attribute){
@@ -186,8 +185,10 @@ const ValueCellBase = forwardRef<CellRef, CellProps>(({
 
                     {
                         isBlockedByCollaborator &&
-                        <SimpleTooltip text={isBlockedByCollaborator.name} fontSize={0.8} delay={0}>
-                            <span className={"collaboratorName"}>{isBlockedByCollaborator.name.substring(0,1).toUpperCase()}</span>
+                        <SimpleTooltip text={isBlockedByCollaborator.name ?? "Unknown"} fontSize={0.8} delay={0}>
+                            <span className={"collaboratorName"}>
+                                {isBlockedByCollaborator.name ? isBlockedByCollaborator.name.substring(0,1).toUpperCase() : "?"}
+                            </span>
                         </SimpleTooltip>
                     }
                 </>

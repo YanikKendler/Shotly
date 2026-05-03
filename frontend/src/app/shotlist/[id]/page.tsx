@@ -8,7 +8,7 @@ import {
     CollaborationType,
     Query,
     SceneDto,
-    ShotAttributeDefinitionBase,
+    ShotAttributeDefinitionBase, UserMinimalDto,
     UserTier
 } from "../../../../lib/graphql/generated"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
@@ -32,7 +32,6 @@ import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/app/shotlist/sid
 import {
     ShotlistUpdateDTO,
     ShotlistUpdateType,
-    UserMinimalDTO,
 } from "@/service/useShotlistSync"
 import {errorNotification} from "@/service/NotificationService"
 import {DialogRef} from "@/components/basic/dialog/dialog"
@@ -54,7 +53,7 @@ export interface ReadOnlyState {
 
 export interface PresentCollaborator {
     updatedAt: Date
-    user: UserMinimalDTO
+    user: UserMinimalDto
 }
 
 export type SaveState = "saved" | "saving" | "error"
@@ -91,6 +90,7 @@ export default function Shotlist() {
     const [shotCount, setShotCount] = useState(0)
     const [sceneCount, setSceneCount] = useState(0)
 
+    /* TODO invalidate collaborators if they have been inactive for more than 60 seconds or whatever */
     const [presentCollaborators, setPresentCollaborators] = useState<Map<string, PresentCollaborator>>(new Map())
 
     const focusedCell = useRef({row: -1, column:-1})
@@ -502,7 +502,7 @@ export default function Shotlist() {
 
     const sync = useShotlistSync({
         shotlistId: id,
-        userId: query.data.currentUser?.id || null,
+        currentUserId: query.data.currentUser?.id || null,
         sheetManagerRef: sheetManagerRef,
         sidebarRef: sidebarRef,
         selectedScene: selectedScene,
