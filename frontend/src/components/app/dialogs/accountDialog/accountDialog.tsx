@@ -41,6 +41,7 @@ import toast from "react-hot-toast"
 import {errorNotification, successNotification} from "@/service/NotificationService"
 import {td} from "@/service/Analytics"
 import Dialog, {DialogRef} from "@/components/basic/dialog/dialog"
+import BlockedUsersDialog from "@/components/app/dialogs/accountDialog/blockedUsersDialog/blockedUsersDialog"
 
 export interface UserSettings {
     saveExportSettingsInLocalstorage: boolean
@@ -146,6 +147,11 @@ export function useAccountDialog() {
                             name
                         }
                         revokeProAfter
+                        blockedUsers {
+                            id
+                            name
+                            email
+                        }
                     }
                 }`,
             fetchPolicy: "no-cache"
@@ -498,11 +504,7 @@ export function useAccountDialog() {
 
                 <div className="row">
                     <p>Blocked users</p>
-                    <button
-
-                    >
-                        <UserRoundPen size={16}/>Manage
-                    </button>
+                    <BlockedUsersDialog query={query} setQuery={setQuery}/>
                 </div>
                 <div className="row">
                     <p>Use another account</p>
