@@ -25,7 +25,7 @@ button.collaborationRequestsTrigger{
 .popoverContent.CollaborationRequests{
   --reloadButtonBg: hsl(0, 0%, 95%);
 
-  min-width: 50ch;
+  min-width: 55ch;
   min-height: 10rem;
   max-width: 90vw;
   border: 1px solid var(--default-interactable-border);
@@ -34,7 +34,8 @@ button.collaborationRequestsTrigger{
   .top {
     width: 100%;
     background-color: var(--reloadButtonBg);
-    padding-inline: .3rem;
+    padding-left: .4rem;
+    padding-right: .3rem;
     padding-block: .5rem;
     display: flex;
     justify-content: space-between;
@@ -48,12 +49,15 @@ button.collaborationRequestsTrigger{
     }
 
     button.reload{
-      background-color: var(--reloadButtonBg);
       color: var(--text-30);
 
       &:not([disabled]):hover{
         color: var(--text-10);
         background-color: var(--transparent-gray-20);
+      }
+
+      &[disabled]{
+        cursor: not-allowed;
       }
     }
   }

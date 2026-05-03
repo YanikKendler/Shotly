@@ -21,8 +21,6 @@ export interface CollaborationRequestsPopupProps {
     reloadShotlists: () => void
 }
 
-
-//TODO rewrite docs with changes to blocking and layout
 const CollaborationRequestsPopup = forwardRef<
     CollaborationRequestsPopupRef,
     CollaborationRequestsPopupProps
@@ -147,9 +145,11 @@ const CollaborationRequestsPopup = forwardRef<
 
     const blockUser = async (collab: CollaborationDto)=> {
         const decision = await confirm({
-            title: `Block from sending invites?`,
+            title: `Block user "${collab.owner?.name}"?`,
             richMessage: <>
-                The user "{collab.owner?.name}" will no longer be able to invite you to any of their shotlists. Nothing will change about existing collaborations.
+                The user "{collab.owner?.name}" will no longer be able to invite you to any of their shotlists.
+                <br/>
+                Their access to any of your shotlists as well as your access to their shotlists will be removed.
                 <br/>
                 <br/>
                 <span className={"gray small"}>You can manage blocked users via the account dialog.</span>
@@ -165,15 +165,12 @@ const CollaborationRequestsPopup = forwardRef<
 
         const result = await client.mutate({
             mutation: gql`
-                mutation acceptOrDeclineCollaboration($userId: String!) {
+                mutation blockUser($userId: String!) {
                     updateUserBlocking(blockDTO: {
                         userId: $userId,
                         isBlocked: true
                     }) {
                         id
-                        blockedUsers {
-                            name
-                        }
                     }
                 }
             `,
@@ -188,15 +185,16 @@ const CollaborationRequestsPopup = forwardRef<
             return;
         }
 
-        console.log(result)
-
         successNotification({
             title: "User blocked successfully",
             message: `"${collab.owner?.name}" can no longer send you collaboration invites`
         })
 
+        reloadShotlists()
+
         setPendingCollaborations(current => {
-            let newCollaborations = current.data.pendingCollaborations?.filter(c => c?.id !== collab.id) || []
+            let newCollaborations = current.data.pendingCollaborations
+                ?.filter(c => c?.owner?.id != collab.owner?.id) || []
 
             return {
                 ...current,
@@ -297,10 +295,10 @@ const CollaborationRequestsPopup = forwardRef<
                             ))
                         }
                     </div>
+                    {ConfirmDialog}
                 </Popover.Content>
             </Popover.Portal>
         </Popover.Root>
-        {ConfirmDialog}
         </>
     )
 })
