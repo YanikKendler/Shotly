@@ -38,11 +38,6 @@ export default function Archive(){
                     title: "Refreshed archived shotlists"
                 })
             })
-            .catch(() => {
-                errorNotification({
-                    title: "Failed to refresh archived shotlists",
-                })
-            })
     }, [dashboardContext.refreshSignal]);
 
     const loadData = async () => {

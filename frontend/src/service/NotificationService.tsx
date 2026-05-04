@@ -15,9 +15,10 @@ export interface NotificationProps {
 
 export interface ErrorNotificationProps extends NotificationProps {
     tryAgainLater?: boolean
+    autoClose?: boolean
 }
 
-export function errorNotification({ title, message, sub, tryAgainLater, action} : ErrorNotificationProps) {
+export function errorNotification({ title, message, sub, tryAgainLater, action, autoClose} : ErrorNotificationProps) {
     const subMessage = sub ? sub : tryAgainLater ? "Please try again later." : null
     toast.error((t) => (
         <>
@@ -42,7 +43,7 @@ export function errorNotification({ title, message, sub, tryAgainLater, action} 
         </>
     ), {
         icon: <CircleX/>,
-        duration: Infinity
+        duration: autoClose ? 10000 : Infinity
     })
 }
 

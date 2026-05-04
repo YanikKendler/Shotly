@@ -61,7 +61,8 @@ export function makeClient() {
                     case ShotlyErrorCode.TOO_MANY_REQUESTS:
                         errorNotification({
                             title: "You have been doing that a lot!",
-                            message: "Please try again later.",
+                            tryAgainLater: true,
+                            autoClose: true
                         })
                         break
                 }

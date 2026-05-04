@@ -39,6 +39,7 @@ export default function HowDidYouHearFloater({
                 console.error(errors)
                 errorNotification({
                     title: "Failed to submit feedback",
+                    tryAgainLater: true
                 })
             }
         })

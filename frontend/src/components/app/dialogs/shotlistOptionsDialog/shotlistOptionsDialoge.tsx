@@ -17,10 +17,8 @@ import GeneralTab from "@/components/app/dialogs/shotlistOptionsDialog/generalTa
 import AttributeTab from "@/components/app/dialogs/shotlistOptionsDialog/attributeTab/attributeTab"
 import CollaboratorsTab from "@/components/app/dialogs/shotlistOptionsDialog/collaboratorsTab/collaboratorsTab"
 import Separator from "@/components/basic/separator/separator"
-import {useConfirmDialog} from "@/components/app/dialogs/confirmDialog/confirmDialog"
-import {errorNotification, infoNotification, successNotification} from "@/service/NotificationService"
+import {errorNotification, successNotification} from "@/service/NotificationService"
 import Dialog, {DialogRef} from "@/components/basic/dialog/dialog"
-import {wuConstants} from "@yanikkendler/web-utils/dist"
 
 export enum ShotlistOptionsDialogPage {
     general = "general",

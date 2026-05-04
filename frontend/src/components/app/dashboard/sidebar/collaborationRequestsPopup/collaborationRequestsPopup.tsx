@@ -85,6 +85,7 @@ const CollaborationRequestsPopup = forwardRef<
                 title: "Failed to load collaboration requests",
                 tryAgainLater: true
             })
+            console.error(result.errors)
             return
         }
 

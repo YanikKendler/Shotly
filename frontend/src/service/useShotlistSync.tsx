@@ -12,7 +12,7 @@ import {
     Query, UserMinimalDto
 } from "../../lib/graphql/generated"
 import Config from "@/Config"
-import {errorNotification, successNotification} from "@/service/NotificationService"
+import {errorNotification, infoNotification, successNotification} from "@/service/NotificationService"
 import {SheetManagerRef} from "@/components/app/shotlist/table/sheetManager/sheetManager"
 import {PresentCollaborator, SelectedScene} from "@/app/shotlist/[id]/page"
 import {SceneAttributeParser, ShotAttributeParser} from "@/utility/AttributeParser"
@@ -242,7 +242,11 @@ export function useShotlistSync({
     }, [shotlistId, currentUserId]);
 
     const connect = useLatestCallback((showNotifications: boolean = false) => {
-        console.log("initially connecting to socket")
+        if(showNotifications)
+            infoNotification({
+                title: "Reconnecting to sync service",
+                message: "Trying to connect to the live sync server."
+            })
 
         if (websocketRef.current) {
             websocketRef.current.onclose = null
@@ -268,14 +272,10 @@ export function useShotlistSync({
 
             if(!updateDTO) {
                 errorNotification({
-                    title: "Could not sync incoming changes",
-                    message: "If reconnecting doesnt work please reload the page.",
-                    action: {
-                        label: "Reconnect",
-                        onClick: () => {
-                            reconnect()
-                        }
-                    }
+                    title: "Invalid sync payload",
+                    message: "Could not process incoming change because the payload was invalid.",
+                    sub: "If this keeps happening, please reload the page.",
+                    autoClose: true
                 })
                 return
             }
@@ -300,9 +300,10 @@ export function useShotlistSync({
                 action: {
                     label: "Reconnect",
                     onClick: () => {
-                        reconnect()
+                        connect(true)
                     }
-                }
+                },
+                autoClose: true
             })
         }
     })
@@ -320,6 +321,7 @@ export function useShotlistSync({
             websocketRetriesRef.current++
             console.info("Attempting reconnect, attempt", websocketRetriesRef.current, "with user id", currentUserId)
             connect()
+            refreshShotlist()
         }, delay)
     })
 
