@@ -21,7 +21,7 @@ import {
     SceneTextAttributeDto
 } from "../../../../../../lib/graphql/generated"
 import {
-    ShotlistOptionsDialogPage,
+    ShotlistOptionsDialogMainPage,
     ShotlistOptionsDialogSubPage
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 
@@ -319,7 +319,7 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
                             value={singleSelectValue}
                             shotOrScene={"scene"}
                             editAction={() => shotlistContext.openShotlistOptionsDialog({
-                                main: ShotlistOptionsDialogPage.attributes,
+                                main: ShotlistOptionsDialogMainPage.attributes,
                                 sub: ShotlistOptionsDialogSubPage.scene
                             })}
                             styles={selectSceneStyles}
@@ -347,7 +347,7 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
                             value={multiSelectValue}
                             shotOrScene={"scene"}
                             editAction={() => shotlistContext.openShotlistOptionsDialog({
-                                main: ShotlistOptionsDialogPage.attributes,
+                                main: ShotlistOptionsDialogMainPage.attributes,
                                 sub: ShotlistOptionsDialogSubPage.scene
                             })}
                             styles={selectSceneStyles}

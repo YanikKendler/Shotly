@@ -20,7 +20,7 @@ import {ValueCell} from "../cell/valueCell"
 import Utils from "@/utility/Utils"
 import Separator from "@/components/basic/separator/separator"
 import {
-    ShotlistOptionsDialogPage,
+    ShotlistOptionsDialogMainPage,
     ShotlistOptionsDialogSubPage
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys"
@@ -90,7 +90,7 @@ const RowBase = forwardRef<RowRef, RowProps>(({
                     e.stopImmediatePropagation()
 
                     shotlistContext.openShotlistOptionsDialog({
-                        main: ShotlistOptionsDialogPage.attributes,
+                        main: ShotlistOptionsDialogMainPage.attributes,
                         sub: ShotlistOptionsDialogSubPage.shot
                     })
                 }
@@ -208,7 +208,7 @@ const RowBase = forwardRef<RowRef, RowProps>(({
 
                             <Popover.Close asChild>
                                 <button onClick={() => shotlistContext.openShotlistOptionsDialog({
-                                    main: ShotlistOptionsDialogPage.attributes,
+                                    main: ShotlistOptionsDialogMainPage.attributes,
                                     sub: ShotlistOptionsDialogSubPage.shot})}
                                 >
                                     <List size={18}/>

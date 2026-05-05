@@ -30,7 +30,7 @@ import {ValueCell, CellRef} from "@/components/app/shotlist/table/cell/valueCell
 import {Row, RowRef} from "../row/row";
 import {SelectedScene} from "@/app/shotlist/[id]/page"
 import {
-    ShotlistOptionsDialogPage,
+    ShotlistOptionsDialogMainPage,
     ShotlistOptionsDialogSubPage
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import CreatorCell from "@/components/app/shotlist/table/cell/creatorCell"
@@ -571,7 +571,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                 <button
                     className="inline noPadding accent noShotAttributes"
                     onClick={() => shotlistContext.openShotlistOptionsDialog({
-                        main: ShotlistOptionsDialogPage.attributes,
+                        main: ShotlistOptionsDialogMainPage.attributes,
                         sub: ShotlistOptionsDialogSubPage.shot
                     })}
                 >

@@ -21,7 +21,7 @@ import {ShotlistContext} from "@/context/ShotlistContext"
 import SceneAttribute, {SceneAttributeRef} from "../sceneAttribute/sceneAttribute"
 import ErrorDisplay from "@/components/app/feedback/errorDisplay/errorDisplay"
 import {
-    ShotlistOptionsDialogPage,
+    ShotlistOptionsDialogMainPage,
     ShotlistOptionsDialogSubPage
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import Separator from "@/components/basic/separator/separator"
@@ -181,7 +181,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                                     </button>
                                     <Separator/>
                                     <button onClick={() => shotlistContext.openShotlistOptionsDialog({
-                                        main: ShotlistOptionsDialogPage.attributes,
+                                        main: ShotlistOptionsDialogMainPage.attributes,
                                         sub: ShotlistOptionsDialogSubPage.scene
                                     })}>
                                         <List size={18}/> Edit scene attributes
@@ -208,7 +208,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                             <button
                                 className="inline noPadding accent noSceneAttributes"
                                 onClick={() => shotlistContext.openShotlistOptionsDialog({
-                                    main: ShotlistOptionsDialogPage.attributes,
+                                    main: ShotlistOptionsDialogMainPage.attributes,
                                     sub: ShotlistOptionsDialogSubPage.scene
                                 })}
                             >

@@ -16,7 +16,7 @@ import './shotlist.scss'
 import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import ShotlistOptionsDialog, {
-    ShotlistOptionsDialogPage,
+    ShotlistOptionsDialogMainPage, ShotlistOptionsDialogPages, ShotlistOptionsDialogRef,
     ShotlistOptionsDialogSubPage
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import LoadingPage from "@/components/app/feedback/loadingPage/loadingPage"
@@ -75,11 +75,10 @@ export default function Shotlist() {
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
     const [selectedScene, setSelectedScene] = useState<SelectedScene>({ id: sceneId, position: null })
-    const [selectedOptionsDialogPage, setSelectedOptionsDialogPage] = useState<{main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage} | null>(null)
     const [elementIsBeingDragged, setElementIsBeingDragged] = useState(false)
     const [sidebarOpen, setSidebarOpen] = useState(false)
 
-    const shotlistOptionsDialogRef = useRef<DialogRef>(null);
+    const shotlistOptionsDialogRef = useRef<ShotlistOptionsDialogRef>(null);
 
     const [reloadKey, setReloadKey] = useState(0)
     const [reloadInProgress, setReloadInProgress] = useState(false)
@@ -495,9 +494,17 @@ export default function Shotlist() {
         }
     }
 
-    const openShotlistOptionsDialog = (page: { main: ShotlistOptionsDialogPage, sub?: ShotlistOptionsDialogSubPage }) => {
-        setSelectedOptionsDialogPage({main: page.main, sub: page.sub || ShotlistOptionsDialogSubPage.shot})
-        shotlistOptionsDialogRef.current?.open()
+    const openShotlistOptionsDialog = (pages?: ShotlistOptionsDialogPages) => {
+        if(!shotlistOptionsDialogRef.current){
+            errorNotification({
+                title: "Failed to open options dialog",
+                autoClose: true,
+                tryAgainLater: true,
+            })
+            return
+        }
+
+        shotlistOptionsDialogRef.current.open(pages)
     }
 
     const sync = useShotlistSync({
@@ -519,7 +526,7 @@ export default function Shotlist() {
     useShotlistKeybinds({
         sheetManagerRef: sheetManagerRef,
         sidebarRef: sidebarRef,
-        shotlistOptionsDialogRef: shotlistOptionsDialogRef,
+        openShotlistOptionsDialog: openShotlistOptionsDialog,
         focusedCell: focusedCell,
         setSelectedScene: setSelectedScene,
     })
@@ -653,7 +660,6 @@ export default function Shotlist() {
             </main>
             <ShotlistOptionsDialog
                 ref={shotlistOptionsDialogRef}
-                selectedPage={selectedOptionsDialogPage}
                 shotlistId={id || null}
                 refreshShotlist={() => {
                     refreshShotlist()

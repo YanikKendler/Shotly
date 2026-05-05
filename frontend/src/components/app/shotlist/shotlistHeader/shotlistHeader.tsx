@@ -3,7 +3,7 @@ import React, {RefObject} from "react"
 import Skeleton from "react-loading-skeleton"
 import {ApolloQueryResult} from "@apollo/client"
 import {
-    ShotlistOptionsDialogPage,
+    ShotlistOptionsDialogMainPage, ShotlistOptionsDialogPages,
     ShotlistOptionsDialogSubPage
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {Settings2} from "lucide-react"
@@ -15,7 +15,7 @@ export default function ShotlistHeader({
     ref
 }:{
     query: ApolloQueryResult<Query>
-    openShotlistOptionsDialog: (page: { main: ShotlistOptionsDialogPage, sub?: ShotlistOptionsDialogSubPage }) => void
+    openShotlistOptionsDialog: (pages: ShotlistOptionsDialogPages) => void
     ref: RefObject<HTMLDivElement | null>
 }){
 
@@ -43,8 +43,7 @@ export default function ShotlistHeader({
             <button
                 className={"add"}
                 onClick={() => openShotlistOptionsDialog({
-                    main: ShotlistOptionsDialogPage.attributes,
-                    sub: ShotlistOptionsDialogSubPage.shot
+                    main: ShotlistOptionsDialogMainPage.attributes
                 })}
             >
                 <Settings2 size={16}/>

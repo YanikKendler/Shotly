@@ -1,6 +1,6 @@
 'use client';
 
-import React, {RefObject, useEffect, useRef, useState} from 'react';
+import React, {forwardRef, RefObject, useEffect, useImperativeHandle, useRef, useState} from 'react';
 import "./shotlistOptionsDialog.scss"
 import {Tabs, VisuallyHidden} from "radix-ui"
 import {FileDown, List, Users, X, Settings2} from "lucide-react"
@@ -20,14 +20,26 @@ import Separator from "@/components/basic/separator/separator"
 import {errorNotification, successNotification} from "@/service/NotificationService"
 import Dialog, {DialogRef} from "@/components/basic/dialog/dialog"
 
-export enum ShotlistOptionsDialogPage {
+export interface ShotlistOptionsDialogRef {
+    open: (pages?: ShotlistOptionsDialogPages) => void
+}
+
+export interface ShotlistOptionsDialogProps {
+    shotlistId: string | null,
+    refreshShotlist: () => void,
+    isReadOnly: boolean,
+    isArchived: boolean,
+    setIsArchived: (isArchived: boolean) => void,
+}
+
+export enum ShotlistOptionsDialogMainPage {
     general = "general",
     attributes = "attributes",
     collaborators = "collaborators",
     export = "export"
 }
 
-export const ShotlistOptionsDialogPageValues: string[] = Object.values(ShotlistOptionsDialogPage)
+export const ShotlistOptionsDialogPageValues: string[] = Object.values(ShotlistOptionsDialogMainPage)
 
 export enum ShotlistOptionsDialogSubPage {
     shot = "shot",
@@ -36,23 +48,18 @@ export enum ShotlistOptionsDialogSubPage {
 
 export const ShotlistOptionsDialogSubPageValues: string[] = Object.values(ShotlistOptionsDialogSubPage)
 
-export default function ShotlistOptionsDialog({
-    ref,
-    selectedPage,
+export interface ShotlistOptionsDialogPages {
+    main?: ShotlistOptionsDialogMainPage,
+    sub?: ShotlistOptionsDialogSubPage
+}
+
+const ShotlistOptionsDialog = forwardRef<ShotlistOptionsDialogRef, ShotlistOptionsDialogProps>(({
     shotlistId,
     refreshShotlist,
     isReadOnly,
     isArchived,
     setIsArchived,
-}: {
-    ref: RefObject<DialogRef | null>
-    selectedPage: { main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage } | null,
-    shotlistId: string | null,
-    refreshShotlist: () => void,
-    isReadOnly: boolean,
-    isArchived: boolean,
-    setIsArchived: (isArchived: boolean) => void,
-}) {
+}, ref) => {
     const [sceneAttributeDefinitions, setSceneAttributeDefinitions] = useState<AnySceneAttributeDefinition[] | null>(null);
     const [shotAttributeDefinitions, setShotAttributeDefinitions] = useState<AnyShotAttributeDefinition[] | null>(null);
     const [shotlist, setShotlist] = useState<ShotlistDto | null>(null);
@@ -61,7 +68,7 @@ export default function ShotlistOptionsDialog({
     // used for refreshing the shotlist on dialog close, only when any data has been edited
     const [stringifiedAttributeData, setStringifiedAttributeData] = useState<string>("");
     const [dataChanged, setDataChanged] = useState(false);
-    const [selectedMainPage, setSelectedMainPage] = useState<ShotlistOptionsDialogPage>(ShotlistOptionsDialogPage.general);
+    const [selectedMainPage, setSelectedMainPage] = useState<ShotlistOptionsDialogMainPage>(ShotlistOptionsDialogMainPage.general);
     const [selectedSubPage, setSelectedSubPage] = useState<ShotlistOptionsDialogSubPage>(ShotlistOptionsDialogSubPage.scene);
 
     const [isLoading, setIsLoading] = useState(true)
@@ -71,12 +78,26 @@ export default function ShotlistOptionsDialog({
 
     const lastRefresh = useRef(0);
 
-    useEffect(() => {
-        if(selectedPage) {
-            setSelectedMainPage(selectedPage.main)
-            setSelectedSubPage(selectedPage.sub)
+    const dialogRef = useRef<DialogRef>(null)
+
+    useImperativeHandle(ref, () => ({
+        open: (pages?: ShotlistOptionsDialogPages) => {
+            if(pages) {
+                if(pages.main) {
+                    setSelectedMainPage(pages.main)
+
+                    if(
+                        pages.sub &&
+                        pages.main == ShotlistOptionsDialogMainPage.attributes
+                    ) {
+                        setSelectedSubPage(pages.sub)
+                    }
+                }
+            }
+
+            dialogRef.current?.open()
         }
-    }, [selectedPage]);
+    }))
 
     //check for changes and refresh even after dialog close
     useEffect(() => {
@@ -85,10 +106,14 @@ export default function ShotlistOptionsDialog({
 
         //sometimes a fetch only completes after the dialog was closed (delete attribute and instantly close)
         //this guarantees a shotlist reload even if that is the case
-        if(!ref.current?.isOpen()) {
+        if(!dialogRef.current?.isOpen()) {
             runRefreshShotlistCheck()
         }
-    }, [shotAttributeDefinitions, sceneAttributeDefinitions, shotlist]);
+    }, [shotAttributeDefinitions, sceneAttributeDefinitions, shotlist])
+
+    useEffect(() => {
+        updateUrl()
+    }, [selectedMainPage, selectedSubPage])
 
     const loadData = async () => {
         setIsLoading(true)
@@ -216,41 +241,49 @@ export default function ShotlistOptionsDialog({
         )
     }
 
+    const updateUrl = () => {
+        const url = new URL(window.location.href)
+
+        if(!dialogRef.current?.isOpen()) {
+            url.searchParams.delete("oo") // options open
+            url.searchParams.delete("mp") // main page
+            url.searchParams.delete("sp") // sub page
+        }
+        else {
+            url.searchParams.set("oo", "true") // options open
+
+            url.searchParams.set("mp", selectedMainPage) // main page
+
+            if(selectedMainPage == ShotlistOptionsDialogMainPage.attributes){
+                url.searchParams.set("sp", selectedSubPage) // sub page
+            }
+            else {
+                url.searchParams.delete("sp") // sub page
+            }
+        }
+
+        router.replace(url.toString())
+    }
+
     const checkUrlAutoOpen = () => {
         const url = new URL(window.location.href)
         if(url.searchParams.get("oo") == "true") {
-            ref.current?.open()
+            dialogRef.current?.open()
 
             const mpParam = url.searchParams.get("mp")
             const spParam = url.searchParams.get("sp")
 
             if(mpParam && ShotlistOptionsDialogPageValues.includes(mpParam)) {
-                setSelectedMainPage(ShotlistOptionsDialogPage[mpParam as keyof typeof ShotlistOptionsDialogPage])
+                setSelectedMainPage(ShotlistOptionsDialogMainPage[mpParam as keyof typeof ShotlistOptionsDialogMainPage])
 
                 if(spParam && ShotlistOptionsDialogSubPageValues.includes(spParam)) {
                     setSelectedSubPage(ShotlistOptionsDialogSubPage[spParam as keyof typeof ShotlistOptionsDialogSubPage])
                 }
             }
             else {
-                setSelectedMainPage(ShotlistOptionsDialogPage.general)
+                setSelectedMainPage(ShotlistOptionsDialogMainPage.general)
             }
         }
-    }
-
-    const updateUrl = (isOpen: boolean, page?: ShotlistOptionsDialogPage) => {
-        const url = new URL(window.location.href)
-        if(isOpen){
-            url.searchParams.set("oo", "true") // options open
-            if(page)
-                url.searchParams.set("mp", page) // main page
-        }
-        else {
-            url.searchParams.delete("oo") // options open
-            url.searchParams.delete("mp") // main page
-            url.searchParams.delete("sp") // sub page
-        }
-
-        router.replace(url.toString())
     }
 
     function runRefreshShotlistCheck(){
@@ -280,7 +313,7 @@ export default function ShotlistOptionsDialog({
         <>
         <Dialog
             onOpenChange={(isOpen: boolean) => {
-                updateUrl(isOpen)
+                updateUrl()
 
                 if(isOpen) {
                     if (shotlistId) {
@@ -293,15 +326,14 @@ export default function ShotlistOptionsDialog({
                 }
             }}
             onRenderFinish={checkUrlAutoOpen}
-            ref={ref}
+            ref={dialogRef}
             contentClassName={"shotlistOptionsDialogContent"}
         >
             <Tabs.Root
                 className={"optionsDialogPageTabRoot"}
                 value={selectedMainPage}
                 onValueChange={page => {
-                    setSelectedMainPage(page as ShotlistOptionsDialogPage)
-                    updateUrl(true, page as ShotlistOptionsDialogPage)
+                    setSelectedMainPage(page as ShotlistOptionsDialogMainPage)
                 }}
             >
                 <Tabs.List className={"tabs"}>
@@ -331,7 +363,7 @@ export default function ShotlistOptionsDialog({
                         dataChanged={() => setDataChanged(true)}
                         isReadOnly={isReadOnly}
                         currentUser={currentUser}
-                        shotlistOptionsDialogRef={ref}
+                        shotlistOptionsDialogRef={dialogRef}
                         isArchived={isArchived}
                         setIsArchived={setIsArchived}
                     />
@@ -346,7 +378,7 @@ export default function ShotlistOptionsDialog({
                         selectedPage={selectedSubPage}
                         setSelectedPage={setSelectedSubPage}
                         dataChanged={() => setDataChanged(true)}
-                        shotlistOptionsDialogRef={ref}
+                        shotlistOptionsDialogRef={dialogRef}
                         isAvailable={!isReadOnly}
                     />
                 </Tabs.Content>
@@ -355,7 +387,7 @@ export default function ShotlistOptionsDialog({
                         shotlist={shotlist}
                         collaborations={collaborations}
                         setCollaborations={setCollaborations}
-                        shotlistOptionsDialogRef={ref}
+                        shotlistOptionsDialogRef={dialogRef}
                         isAvailable={shotlist?.owner?.id == currentUser?.id}
                     />
                 </Tabs.Content>
@@ -370,11 +402,13 @@ export default function ShotlistOptionsDialog({
                         shotlist={shotlist}
                         shotAttributeDefinitions={shotAttributeDefinitions}
                         sceneAttributeDefinitions={sceneAttributeDefinitions}
-                        shotlistOptionsDialogRef={ref}
+                        shotlistOptionsDialogRef={dialogRef}
                     />
                 </Tabs.Content>
             </Tabs.Root>
         </Dialog>
         </>
     );
-}
+})
+
+export default ShotlistOptionsDialog

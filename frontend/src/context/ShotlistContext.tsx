@@ -2,14 +2,13 @@
 
 import {createContext, RefObject} from "react"
 import {
-    ShotlistOptionsDialogPage,
-    ShotlistOptionsDialogSubPage
+    ShotlistOptionsDialogPages,
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {GenericError, SelectOption} from "@/utility/Types"
 import {PresentCollaborator, SaveState} from "@/app/shotlist/[id]/page"
 
 export interface ShotlistContextProps {
-    openShotlistOptionsDialog: (page: { main: ShotlistOptionsDialogPage, sub?: ShotlistOptionsDialogSubPage }) => void
+    openShotlistOptionsDialog: (pages?: ShotlistOptionsDialogPages) => void
     elementIsBeingDragged: boolean
     setElementIsBeingDragged: (isBeingDragged: boolean) => void
     shotCount: number

@@ -79,16 +79,6 @@ export default function AttributeTab(
         loader.current.style.display = visible ? "flex" : "none"
     }
 
-    const updateUrl = (page?: ShotlistOptionsDialogSubPage) => {
-        const url = new URL(window.location.href)
-
-        url.searchParams.set("oo", "true") // options open
-        if(page)
-            url.searchParams.set("sp", page) // sub page
-
-        router.push(url.toString())
-    }
-
     function removeShotAttributeDefinition(definitionId: number) {
         if(!shotAttributeDefinitions || shotAttributeDefinitions.length == 0) return
 
@@ -276,7 +266,6 @@ export default function AttributeTab(
                 className={"attributeTypeTabRoot shotlistOptionsDialogAttributeTab shotlistOptionsDialogPage"}
                 value={selectedPage}
                 onValueChange={page => {
-                    updateUrl(page as ShotlistOptionsDialogSubPage)
                     setSelectedPage(page as ShotlistOptionsDialogSubPage)
                 }}
             >

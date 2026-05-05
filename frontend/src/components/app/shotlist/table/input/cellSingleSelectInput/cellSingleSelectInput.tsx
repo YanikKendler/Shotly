@@ -11,7 +11,7 @@ import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {CellInputRef} from "@/components/app/shotlist/table/cell/valueCell"
 import {
-    ShotlistOptionsDialogPage,
+    ShotlistOptionsDialogMainPage,
     ShotlistOptionsDialogSubPage
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 
@@ -118,7 +118,7 @@ const CellSingleSelectInput = forwardRef<CellInputRef, CellSingleSelectInputProp
                 value={singleSelectValue}
                 shotOrScene={"shot"}
                 editAction={() => shotlistContext.openShotlistOptionsDialog({
-                    main: ShotlistOptionsDialogPage.attributes,
+                    main: ShotlistOptionsDialogMainPage.attributes,
                     sub: ShotlistOptionsDialogSubPage.shot
                 })}
                 styles={selectShotStyles}

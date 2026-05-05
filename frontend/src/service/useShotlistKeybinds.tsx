@@ -5,18 +5,20 @@ import {ShotlistSidebarRef} from "@/components/app/shotlist/sidebar/shotlistSide
 import {SelectedScene} from "@/app/shotlist/[id]/page"
 import {DialogRef} from "@/components/basic/dialog/dialog"
 import {infoNotification} from "@/service/NotificationService"
-import {useRouter} from "next/navigation" //package has incorrectly configured type exports
+import {useRouter} from "next/navigation"
+import {ShotlistOptionsDialogPages} from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge" //package has incorrectly configured type exports
 
 export default function useShotlistKeybinds({
     sheetManagerRef,
     sidebarRef,
     setSelectedScene,
-    shotlistOptionsDialogRef,
+    openShotlistOptionsDialog,
     focusedCell
 }:{
     sheetManagerRef: RefObject<SheetManagerRef | null>
     sidebarRef: RefObject<ShotlistSidebarRef | null>
-    shotlistOptionsDialogRef: RefObject<DialogRef | null>
+
+    openShotlistOptionsDialog: () => void
 
     setSelectedScene: Dispatch<SetStateAction<SelectedScene>>
 
@@ -61,7 +63,7 @@ export default function useShotlistKeybinds({
             },
             "Alt+O": event => {
                 event.preventDefault()
-                shotlistOptionsDialogRef.current?.open()
+                openShotlistOptionsDialog()
             },
             "Alt+A": event => {
                 event.preventDefault()
