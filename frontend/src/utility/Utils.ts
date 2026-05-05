@@ -42,9 +42,9 @@ export default class Utils {
     }
 
     //AI generated
-    static numberToShotLetter(shotNum: number, sceneNum: number): string {
-        if (shotNum < 0) {
-            throw new Error('Number must be non-negative');
+    static numberToShotLetter(shotNum: number, sceneNum?: number | null, displaySceneNumbersOverride?: boolean): string {
+        if (shotNum < 0 || sceneNum == null) {
+            return "##"
         }
 
         let shotLetter = "##"
@@ -79,7 +79,13 @@ export default class Utils {
             shotLetter = result;
         }
 
-        if(Utils.getUserSettingsFromLocalStorage().displaySceneNumbersNextToShotNumbers) {
+        let displaySceneNumbers = Utils.getUserSettingsFromLocalStorage().displaySceneNumbersNextToShotNumbers
+
+        if(displaySceneNumbersOverride != undefined) {
+            displaySceneNumbers = displaySceneNumbersOverride
+        }
+
+        if(displaySceneNumbers) {
             shotLetter = `${sceneNum + 1}${shotLetter}`
         }
 

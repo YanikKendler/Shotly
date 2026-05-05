@@ -1,6 +1,7 @@
 import {ShotlistDto} from "../../../lib/graphql/generated"
 import {pdf} from "@react-pdf/renderer"
 import PdfExportTemplate from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/pdfExportTemplate"
+import {RefObject} from "react"
 
 export interface PdfExportOptions {
     showCheckboxes: boolean //shows empty square cells next to shots
@@ -12,13 +13,17 @@ export interface PdfExportOptions {
 
 export default function usePdfExport({
     generateFileName,
-    pdfExportOptions
+    pdfExportOptions,
+    hideSceneHeadings,
+    scenePositionLUT
 }:{
     generateFileName: () => string
     pdfExportOptions: PdfExportOptions
+    hideSceneHeadings: boolean
+    scenePositionLUT: RefObject<Map<string, number>>
 }){
     const exportPdf = async (data: ShotlistDto) => {
-        const blob = await pdf(<PdfExportTemplate data={data} options={pdfExportOptions}/>).toBlob()
+        const blob = await pdf(<PdfExportTemplate data={data} options={pdfExportOptions} hideSceneHeadings={hideSceneHeadings} scenePositionLUT={scenePositionLUT}/>).toBlob()
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href = url

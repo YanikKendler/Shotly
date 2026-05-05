@@ -167,8 +167,6 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     }, [query.data.shots])
 
     const loadShots = async () => {
-        console.log("loading shots for", deferredSelectedScene)
-
         const result = await client.query({
             query : gql`
                 query shots($sceneId: String!){

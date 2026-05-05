@@ -2,11 +2,16 @@ import {ShotlistDto} from "../../../lib/graphql/generated"
 import {SceneAttributeParser, ShotAttributeParser} from "@/utility/AttributeParser"
 import Utils from "@/utility/Utils"
 import * as XLSX from 'xlsx-js-style';
+import {RefObject} from "react"
 
 export default function useXlsxExport({
-    generateFileName
+    generateFileName,
+    hideSceneHeadings,
+    scenePositionLUT
 }:{
     generateFileName: () => string
+    hideSceneHeadings: boolean
+    scenePositionLUT: RefObject<Map<string, number>>
 }){
 
     //AI
@@ -17,12 +22,14 @@ export default function useXlsxExport({
         const shotHeaderRowIndices: number[] = [];
         const coloredShotRowIndices: number[] = [];
 
-        // 1. Initial Global Header: Scene Attribute Definitions
-        const globalHeader = [
-            "Scene",
-            ...(data.sceneAttributeDefinitions || []).map(attr => attr?.name || "Unnamed")
-        ];
-        rows.push(globalHeader);
+        if(!hideSceneHeadings) {
+            // 1. Initial Global Header: Scene Attribute Definitions
+            const globalHeader = [
+                "Scene",
+                ...(data.sceneAttributeDefinitions || []).map(attr => attr?.name || "Unnamed")
+            ];
+            rows.push(globalHeader)
+        }
 
         // 2. Prepare Shot Attribute Names Row
         const shotAttrNames = [
@@ -34,13 +41,15 @@ export default function useXlsxExport({
         (data.scenes || []).forEach((scene) => {
             if (!scene) return;
 
-            // Line 1: Scene values
-            const sceneValRow: any[] = [scene.position + 1];
-            (scene.attributes || []).forEach((attr) => {
-                sceneValRow.push(SceneAttributeParser.toValueString(attr as any, false));
-            });
-            sceneValueRowIndices.push(rows.length);
-            rows.push(sceneValRow);
+            if(!hideSceneHeadings) {
+                // Line 1: Scene values
+                const sceneValRow: any[] = [scene.position + 1];
+                (scene.attributes || []).forEach((attr) => {
+                    sceneValRow.push(SceneAttributeParser.toValueString(attr as any, false));
+                });
+                sceneValueRowIndices.push(rows.length);
+                rows.push(sceneValRow);
+            }
 
             // Line 2: Shot attribute names
             shotHeaderRowIndices.push(rows.length);
@@ -49,7 +58,11 @@ export default function useXlsxExport({
             // Shots
             (scene.shots || []).forEach((shot, shotIdx) => {
                 if (!shot) return;
-                const shotRow: any[] = [Utils.numberToShotLetter(shot.position, scene.position)];
+                const shotRow: any[] = [Utils.numberToShotLetter(
+                    shot.position,
+                    scenePositionLUT.current.get(shot.sceneId ?? ""),
+                    hideSceneHeadings ? true : undefined
+                )];
                 (shot.attributes || []).forEach((attr) => {
                     shotRow.push(ShotAttributeParser.toValueString(attr as any, false));
                 });

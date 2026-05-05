@@ -20,7 +20,7 @@ export default function AddExportFilterPopover({
     addSceneFilter: (attributeDefinitionId: number) => void
     addShotFilter: (attributeDefinitionId: number) => void
 }) {
-    const addFilterPopoverRef = useRef<SimplePopoverRef>(null);
+    const popoverRef = useRef<SimplePopoverRef>(null);
 
     const customSceneFilterCandidates = sceneAttributeDefinitions
         ?.filter(attributeDefinition => {
@@ -42,7 +42,7 @@ export default function AddExportFilterPopover({
 
     return (
         <SimplePopover
-            ref={addFilterPopoverRef}
+            ref={popoverRef}
             className={"addFilter"}
             contentClassName={"addFilterPopover"}
             showArrow={false}
@@ -54,7 +54,10 @@ export default function AddExportFilterPopover({
                         customSceneFilterCandidates?.map((attributeDefinition, index) => (
                             <button
                                 key={index}
-                                onClick={() => addSceneFilter(attributeDefinition?.id || -1)}
+                                onClick={() => {
+                                    addSceneFilter(attributeDefinition?.id || -1)
+                                    popoverRef.current?.close()
+                                }}
                             >
                                 {attributeDefinition?.name || "Unnamed"}
                             </button>
@@ -67,7 +70,10 @@ export default function AddExportFilterPopover({
                         customShotFilterCandidates.map((attributeDefinition, index) => (
                             <button
                                 key={index}
-                                onClick={() => addShotFilter(attributeDefinition?.id || -1)}
+                                onClick={() => {
+                                    addShotFilter(attributeDefinition?.id || -1)
+                                    popoverRef.current?.close()
+                                }}
                             >
                                 {attributeDefinition?.name || "Unnamed"}
                             </button>

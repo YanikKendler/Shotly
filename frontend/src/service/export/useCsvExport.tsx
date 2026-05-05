@@ -8,36 +8,18 @@ import {
     AnyShotAttributeDefinition
 } from "@/utility/Types"
 import {downloadCSV} from "../../../lib/downloadCSV"
+import {RefObject} from "react"
 
 export default function useCsvExport({
-   generateFileName
+    generateFileName,
+    hideSceneHeadings,
+    scenePositionLUT
 }:{
     generateFileName: () => string
+    hideSceneHeadings: boolean
+    scenePositionLUT: RefObject<Map<string, number>>
 }){
-    const exportCsvSmall = (data: ShotlistDto) =>{
-        //CSV header
-        let header: string[] = ["Shot"]; //this semicolon is actually needed :3 (typescript stupid)
-        (data.shotAttributeDefinitions as AnyShotAttributeDefinition[]).forEach(attr => {
-            header.push(attr.name || "Unnamed")
-        }); //this one too
-
-        //CSV body
-        let smallData: string[][] = [];
-        (data.scenes as SceneDto[]).forEach((scene) => {
-            (scene.shots as ShotDto[]).forEach(shot => {
-                let row: string[] = [scene.position + 1 + Utils.numberToShotLetter(shot.position, scene.position)]; //mmh
-
-                (shot.attributes as AnyShotAttribute[]).forEach(attribute => {
-                    row.push(ShotAttributeParser.toValueString(attribute, false))
-                })
-                smallData.push(row)
-            })
-        })
-
-        downloadCSV(smallData, header, ";", generateFileName())
-    }
-
-    const exportCsvFull =(data: ShotlistDto) =>{
+    const exportCsv =(data: ShotlistDto) =>{
         let sceneHeader: string[] = ["Scene"]; //ts :(
         (data.sceneAttributeDefinitions as AnySceneAttributeDefinition[]).forEach(attr => {
             sceneHeader.push(attr.name || "Unnamed")
@@ -50,15 +32,22 @@ export default function useCsvExport({
 
         let fullData: string[][] = [];
         (data.scenes as SceneDto[]).forEach((scene) => {
-            let sceneRow: string[] = ["Scene " + (scene.position + 1)]; // :(
-            (scene.attributes as AnySceneAttribute[]).forEach((attribute) => {
-                sceneRow.push(SceneAttributeParser.toValueString(attribute, false))
-            })
-            fullData.push(sceneRow)
+            if(!hideSceneHeadings) {
+                let sceneRow: string[] = ["Scene " + (scene.position + 1)]; // :(
+                (scene.attributes as AnySceneAttribute[]).forEach((attribute) => {
+                    sceneRow.push(SceneAttributeParser.toValueString(attribute, false))
+                })
+                fullData.push(sceneRow)
+            }
+
             fullData.push(shotHeader); //...
 
             (scene.shots as ShotDto[]).forEach(shot => {
-                let row: string[] = [Utils.numberToShotLetter(shot.position, scene.position)]; //hrmpf
+                let row: string[] = [Utils.numberToShotLetter(
+                    shot.position,
+                    scenePositionLUT.current.get(shot.sceneId ?? ""),
+                    hideSceneHeadings ? true : undefined
+                )]; //hrmpf
 
                 (shot.attributes as AnyShotAttribute[]).forEach(attribute => {
                     row.push(ShotAttributeParser.toValueString(attribute, false))
@@ -67,8 +56,13 @@ export default function useCsvExport({
             })
         })
 
-        downloadCSV(fullData, sceneHeader, ";", generateFileName())
+        downloadCSV(
+            fullData,
+            !hideSceneHeadings ? sceneHeader : undefined,
+            ";",
+            generateFileName()
+        )
     }
 
-    return {exportCsvSmall, exportCsvFull}
+    return {exportCsv}
 }

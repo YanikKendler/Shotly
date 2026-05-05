@@ -17,10 +17,14 @@ import Dialog, {DialogRef} from "@/components/basic/dialog/dialog"
 //AI generated conversion of PdfExportTemplate.tsx + partially vibe coded adjustments
 export default function ExportPreview({
     data,
-    exportShotlist
+    exportShotlist,
+    hideSceneHeadings,
+    scenePositionLUT
 }:{
     data: ShotlistDto | null
     exportShotlist: () => void
+    hideSceneHeadings: boolean
+    scenePositionLUT: RefObject<Map<string, number>>
 }) {
     const dialogRef = useRef<DialogRef>(null);
 
@@ -50,28 +54,34 @@ export default function ExportPreview({
                         <span>Close preview</span><X size={18} strokeWidth={3}/>
                     </button>
                 </div>
-                <div className="exportPreview">
+                <div className={`exportPreview ${hideSceneHeadings && "sceneHeadingsHidden"}`}>
                     {/* Top Level Scene Attribute Names */}
-                    <div className="row sceneAttributeDefinitions">
-                        <div className="cell numberCell">Scene</div>
-                        {sceneDefs.map((attr) => (
-                            <div className="cell" key={attr.id} title={attr.name ?? ""}>
-                                {attr.name || "Unnamed"}
-                            </div>
-                        ))}
-                    </div>
+                    {
+                        !hideSceneHeadings &&
+                        <div className="row sceneAttributeDefinitions">
+                            <div className="cell numberCell">Scene</div>
+                            {sceneDefs.map((attr) => (
+                                <div className="cell" key={attr.id} title={attr.name ?? ""}>
+                                    {attr.name || "Unnamed"}
+                                </div>
+                            ))}
+                        </div>
+                    }
 
                     {(data.scenes as SceneDto[])?.map((scene: SceneDto) => (
                         <div className="sceneGroup" key={scene.id}>
                             {/* Scene Content Row */}
-                            <div className="row header sceneAttributes">
-                                <div className="cell numberCell">{scene.position + 1}</div>
-                                {(scene.attributes as AnySceneAttribute[])?.map(attr => (
-                                    <div className="cell" key={attr.id}>
-                                        {SceneAttributeParser.toValueString(attr, false)}
-                                    </div>
-                                ))}
-                            </div>
+                            {
+                                !hideSceneHeadings &&
+                                <div className="row header sceneAttributes">
+                                    <div className="cell numberCell">{scene.position + 1}</div>
+                                    {(scene.attributes as AnySceneAttribute[])?.map(attr => (
+                                        <div className="cell" key={attr.id}>
+                                            {SceneAttributeParser.toValueString(attr, false)}
+                                        </div>
+                                    ))}
+                                </div>
+                            }
 
                             {/* Shot Sub-Header (Attribute Names) */}
                             <div className="row header shotAttributeDefinitions">
@@ -90,7 +100,11 @@ export default function ExportPreview({
                                     className={`row shotRow ${shIdx % 2 !== 0 ? 'rowOdd' : ''}`}
                                 >
                                     <div className="cell numberCell">
-                                        {Utils.numberToShotLetter(shot.position, scene.position)}
+                                        {Utils.numberToShotLetter(
+                                            shot.position,
+                                            scenePositionLUT.current.get(shot.sceneId ?? ""),
+                                            hideSceneHeadings ? true : undefined
+                                        )}
                                     </div>
                                     {(shot.attributes as AnyShotAttribute[])?.map((attr) => (
                                         <div className="cell" key={attr.id}>

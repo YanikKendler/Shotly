@@ -103,4 +103,9 @@
     text-align: center;
     border: 1px dashed var(--export-default-border);
   }
+
+  &.sceneHeadingsHidden .shotAttributeDefinitions{
+    border-top-left-radius: .5rem;
+    border-top-right-radius: .5rem;
+  }
 }

@@ -5,7 +5,7 @@
  * This component was initially written by hand but the pagination logic is almost completely AI generated
  */
 
-import React from 'react'
+import React, {RefObject} from 'react'
 import {Document, Page, StyleSheet, Text, View} from '@react-pdf/renderer'
 import {SceneDto, ShotDto, ShotlistDto} from "../../../../../../lib/graphql/generated"
 import {
@@ -208,7 +208,17 @@ function paginate(data: ShotlistDto, options: PdfExportOptions): SceneFragment[]
     return pages
 }
 
-export default function PdfExportTemplate({ data, options }: { data: ShotlistDto | null, options: PdfExportOptions }) {
+export default function PdfExportTemplate({
+    data,
+    options,
+    hideSceneHeadings,
+    scenePositionLUT
+}: {
+    data: ShotlistDto | null
+    options: PdfExportOptions
+    hideSceneHeadings: boolean
+    scenePositionLUT: RefObject<Map<string, number>>
+}) {
     if (!data) return (
         <Document>
             <Page size="A4" orientation="landscape" style={styles.page}>
@@ -232,7 +242,7 @@ export default function PdfExportTemplate({ data, options }: { data: ShotlistDto
                     }
 
                     <View style={styles.container}>
-                        {((pIdx === 0) || (repeatAttributeDefinitions)) && (
+                        {((pIdx === 0) || (repeatAttributeDefinitions)) && !hideSceneHeadings && (
                             <View style={[styles.row, styles.sceneDefinitions]}>
                                 <Text style={[styles.cell, styles.number, styles.small, showCheckboxes ? styles.numberAndCheckBox : {}]}>Scene</Text>
                                 {(data.sceneAttributeDefinitions as AnySceneAttributeDefinition[]).map((attr) => (
@@ -244,17 +254,21 @@ export default function PdfExportTemplate({ data, options }: { data: ShotlistDto
                             <View key={`${pIdx}-${fIdx}`}>
                                 {(fragment.isHeader || repeatSceneHeading) && (
                                     <>
-
-                                        <View style={[styles.row, styles.heading]}>
-                                            <View style={[styles.cell, styles.bigCell, styles.number, showCheckboxes ? styles.numberAndCheckBox : {}]}>
-                                                <Text>{fragment.position + 1}</Text>
-                                            </View>
-                                            {(fragment.attributes as AnySceneAttribute[])?.map(attr =>
-                                                <View style={[styles.cell, styles.bigCell]} key={attr.id}>
-                                                    <Text>{SceneAttributeParser.toValueString(attr, false)}</Text>
+                                        {/* Scene Heading (scene attribute values) */}
+                                        {
+                                            !hideSceneHeadings &&
+                                            <View style={[styles.row, styles.heading]}>
+                                                <View
+                                                    style={[styles.cell, styles.bigCell, styles.number, showCheckboxes ? styles.numberAndCheckBox : {}]}>
+                                                    <Text>{fragment.position + 1}</Text>
                                                 </View>
-                                            )}
-                                        </View>
+                                                {(fragment.attributes as AnySceneAttribute[])?.map(attr =>
+                                                    <View style={[styles.cell, styles.bigCell]} key={attr.id}>
+                                                        <Text>{SceneAttributeParser.toValueString(attr, false)}</Text>
+                                                    </View>
+                                                )}
+                                            </View>
+                                        }
 
                                         <View style={[styles.row, styles.shotDefinitions]}>
                                             <View style={[styles.cell, styles.number, showCheckboxes ? styles.numberAndCheckBox : {}]}>
@@ -273,7 +287,13 @@ export default function PdfExportTemplate({ data, options }: { data: ShotlistDto
                                     <View style={[styles.row, sIdx % 2 === 0 ? styles.rowOdd : {}]} key={shot.id} wrap={false}>
                                         {showCheckboxes && <View style={[styles.cell, styles.checkBox]}/>}
                                         <View style={[styles.cell, styles.number]}>
-                                            <Text>{Utils.numberToShotLetter(shot.position, fragment.position)}</Text>
+                                            <Text>
+                                                {Utils.numberToShotLetter(
+                                                    shot.position,
+                                                    scenePositionLUT.current.get(shot.sceneId ?? ""),
+                                                    hideSceneHeadings ? true : undefined
+                                                )}
+                                            </Text>
                                         </View>
                                         {(shot.attributes as AnyShotAttribute[])?.map((attr) => (
                                             <View style={[styles.cell]} key={attr.id}>

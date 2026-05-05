@@ -3,9 +3,9 @@ import {
     File,
     ListOrdered,
     X,
-    RotateCcw,
+    RotateCcw, SquareCheck, Heading, Rows4,
 } from "lucide-react"
-import React, {Fragment, RefObject, useEffect, useState} from "react"
+import React, {Fragment, RefObject, useEffect, useRef, useState} from "react"
 import gql from "graphql-tag"
 import {wuTime} from "@yanikkendler/web-utils"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
@@ -48,11 +48,14 @@ import useCsvExport from "@/service/export/useCsvExport"
 import useXlsxExport from "@/service/export/useXlsxExport"
 import AddExportFilterPopover from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/addExportFilterPopover/addExportFilterPopover"
 import PdfSettings from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/pdfSettings"
+import {Switch} from "radix-ui"
+import {wuGeneral} from "@yanikkendler/web-utils/dist"
 
-type SelectedFileTypes = "PDF" | "CSV-small" | "CSV-full" | "XLSX"
+type SelectedFileTypes = "PDF" | "CSV" | "XLSX"
 
 interface ExportSettingsLocalStorage {
     selectedFileType?: SelectedFileTypes
+    hideSceneHeadings?: boolean
     pdfExportOptions?: PdfExportOptions
     selectedScenes?: MultiValue<SelectOption>
     customShotFilters?: [number, MultiValue<SelectOption>][]
@@ -79,6 +82,7 @@ export default function ExportTab(
     const [scenesAsOptions, setScenesAsOptions] = useState<SelectOption[]>([{label: "this is bad", value: "-1"}])
 
     const [selectedFileType, setSelectedFileType] = useState<SelectedFileTypes>("PDF")
+    const [hideSceneHeadings, setHideSceneHeadings] = useState(false)
     const [pdfExportOptions, setPdfExportOptions] = useState<PdfExportOptions>({
         showCheckboxes: false,
         avoidOrphans: true,
@@ -92,17 +96,15 @@ export default function ExportTab(
 
     const [shotlistPreviewCache, setShotlistPreviewCache] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
+    const scenePositionLUT = useRef<Map<string, number>>(new Map())
+
     const [exportRunning, setExportRunning] = useState(false)
 
     //load settings from local storage
     useEffect(() => {
         if(!shotlist || !shotlist.id) return
 
-        loadDataForExport().then(data => {
-            if(!data) return
-
-            setShotlistPreviewCache(data)
-        })
+        loadData() //to populate the preview cache
 
         if(!Utils.getUserSettingsFromLocalStorage().saveExportSettingsInLocalstorage) return
 
@@ -117,6 +119,7 @@ export default function ExportTab(
 
         const settingsObject: ExportSettingsLocalStorage = {
             selectedFileType: selectedFileType,
+            hideSceneHeadings: hideSceneHeadings,
             pdfExportOptions: pdfExportOptions,
             selectedScenes: selectedScenes,
             customShotFilters: Array.from(customShotFilters),
@@ -124,15 +127,15 @@ export default function ExportTab(
         }
         const settingsString = JSON.stringify(settingsObject)
         localStorage.setItem(Config.localStorageKey.exportSettings(shotlist.id), settingsString)
-    }, [selectedFileType, pdfExportOptions, selectedScenes, customShotFilters, customSceneFilters]);
+    }, [selectedFileType, hideSceneHeadings, pdfExportOptions, selectedScenes, customShotFilters, customSceneFilters]);
 
     const generateFileName = () => {
         return `shotly_${shotlist?.name?.replace(/\s/g, "-") || "unnamed-shotlist"}_${wuTime.toDateTimeString(Date.now(), {timeSeparator: "-", dateSeparator: "-", dateTimeSeparator: "_"})}`
     }
 
-    const {exportPdf} = usePdfExport({generateFileName, pdfExportOptions})
-    const {exportCsvSmall, exportCsvFull} = useCsvExport({generateFileName})
-    const {exportXLSX} = useXlsxExport({generateFileName})
+    const {exportPdf} = usePdfExport({generateFileName, pdfExportOptions, hideSceneHeadings, scenePositionLUT})
+    const {exportCsv} = useCsvExport({generateFileName, hideSceneHeadings, scenePositionLUT})
+    const {exportXLSX} = useXlsxExport({generateFileName, hideSceneHeadings, scenePositionLUT})
 
     const loadSettingsFromLocalStorage = (shotlistId: string) => {
         const settingsString = localStorage.getItem(Config.localStorageKey.exportSettings(shotlistId))
@@ -142,6 +145,8 @@ export default function ExportTab(
 
         if(settingsObject.selectedFileType)
             setSelectedFileType(settingsObject.selectedFileType)
+        if(settingsObject.hideSceneHeadings)
+            setHideSceneHeadings(settingsObject.hideSceneHeadings)
         if(settingsObject.pdfExportOptions)
             setPdfExportOptions(settingsObject.pdfExportOptions)
         if(settingsObject.selectedScenes && settingsObject.selectedScenes.length > 0) {
@@ -182,17 +187,17 @@ export default function ExportTab(
     }
 
     const loadFilteredData = async () => {
-        const queryResult = await loadDataForExport()
+        const queryResult = await loadData()
 
         if(!queryResult) return null;
 
         return filterData(queryResult)
     }
 
-    async function loadDataForExport() {
+    async function loadData() {
         if(!shotlist) return null;
 
-        const result = await client.query({
+        const result: ApolloQueryResult<Query> = await client.query({
                 query: gql`
                     query shotlistForExport($id: String!) {
                         shotlist(id: $id){
@@ -236,6 +241,7 @@ export default function ExportTab(
                                             textValue
                                         }
                                     }
+                                    sceneId
                                 }
                             }
                             sceneAttributeDefinitions{
@@ -260,6 +266,13 @@ export default function ExportTab(
                 tryAgainLater: true
             })
         }
+
+        result.data.shotlist?.scenes?.forEach(scene => {
+            if(scene?.id != null && scene?.position != null)
+                scenePositionLUT.current.set(scene.id, scene.position)
+        })
+
+        setShotlistPreviewCache(result)
 
         return result
     }
@@ -292,15 +305,16 @@ export default function ExportTab(
         })
     }
 
-    const filterData = (result: ApolloQueryResult<Query>): ShotlistDto => {
-        let filteredScenes= result.data.shotlist?.scenes as SceneDto[] || []
+    const filterData = (result: ApolloQueryResult<Query>): ShotlistDto | null => {
+        let filteredScenes= wuGeneral.deepCopy<SceneDto[]>(result.data.shotlist?.scenes as SceneDto[] || [])
+
+        if(!filteredScenes || filteredScenes.length == 0) return null
 
         //scene number filter
         if(selectedScenes.length > 0) {
             const selectedScenesArray = Array.from(selectedScenes.entries()).map(s => s[1].value)
 
-            filteredScenes = (result.data.shotlist?.scenes as SceneDto[] || [])
-                .filter((scene) => selectedScenesArray.includes(String(scene.position)))
+            filteredScenes = filteredScenes.filter((scene) => selectedScenesArray.includes(String(scene.position)))
         }
 
         //custom scene attribute filters
@@ -337,6 +351,19 @@ export default function ExportTab(
             return matchesFilters
         })
 
+        if(hideSceneHeadings) {
+            let allShots: ShotDto[] = []
+
+            filteredScenes.forEach(scene => {
+                const currentShots = (scene.shots as ShotDto[]) || []
+                allShots.push(...currentShots)
+            })
+
+            filteredScenes[0].shots = allShots
+
+            filteredScenes = filteredScenes.slice(0,1)
+        }
+
         //custom shot attribute filters
         filteredScenes.forEach(scene => {
             if(!scene.shots || scene.shots.length == 0) return
@@ -347,7 +374,7 @@ export default function ExportTab(
              * For every shot - check if all the attributes match the filters
              * if any attribute does not match, the whole shot is not included
              *
-             * Every attribute can only have one filter associated with it so iterating over all the attributes and
+             * Every attribute can only have one filter associated with it, so iterating over all the attributes and
              * then checking if a filter exists for each attribute covers all cases
              *
              * The shots of the scene are then replaced with only those that passed the filter (filteredShots)
@@ -414,11 +441,8 @@ export default function ExportTab(
         setExportRunning(true)
 
         switch (selectedFileType) {
-            case "CSV-small":
-                exportCsvSmall(data)
-                break
-            case "CSV-full":
-                exportCsvFull(data)
+            case "CSV":
+                exportCsv(data)
                 break
             case "PDF":
                 exportPdf(data)
@@ -506,12 +530,25 @@ export default function ExportTab(
                         options={[
                             {value: "PDF", label: "PDF"},
                             {value: "XLSX", label: "XLSX"},
-                            {value: "CSV-full", label: "CSV (full)"},
-                            {value: "CSV-small", label: "CSV (shots only)"},
+                            {value: "CSV", label: "CSV"},
                         ]}
                         value={selectedFileType}
                         fontSize={".9rem"}
                     />
+                </div>
+                <div className="filter">
+                    <div className="left">
+                        <Rows4 size={22}/> {/*TODO custom heading strikethrough icon*/}
+                        <p>Hide scene headings (merge shots)</p>
+                    </div>
+
+                    <Switch.Root
+                        className="SwitchRoot"
+                        checked={hideSceneHeadings}
+                        onCheckedChange={setHideSceneHeadings}
+                    >
+                        <Switch.Thumb className="SwitchThumb"/>
+                    </Switch.Root>
                 </div>
                 {
                     selectedFileType == "PDF" &&
@@ -633,7 +670,12 @@ export default function ExportTab(
                         <><span>Download shotlist</span><Download size={16} strokeWidth={3}/></>
                     }
                 </button>
-                <ExportPreview data={filterData(shotlistPreviewCache)} exportShotlist={exportShotlist}/>
+                <ExportPreview
+                    data={filterData(shotlistPreviewCache)}
+                    exportShotlist={exportShotlist}
+                    hideSceneHeadings={hideSceneHeadings}
+                    scenePositionLUT={scenePositionLUT}
+                />
                 <button className="secondary" onClick={resetValues}>
                     <span>Reset</span> <RotateCcw size={16} strokeWidth={2.5}/>
                 </button>
