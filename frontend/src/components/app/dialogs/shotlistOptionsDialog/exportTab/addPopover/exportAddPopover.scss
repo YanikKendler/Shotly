@@ -1,0 +1,33 @@
+.popoverContent.exportAddPopover {
+  text-align: left;
+  min-width: var(--radix-popover-trigger-width);
+
+  .scrollArea {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+    padding: .4rem;
+  }
+
+  h3 {
+    color: var(--text-50);
+    font-weight: bold;
+    font-size: .9rem;
+  }
+
+  .empty {
+    color: var(--text-50);
+    font-style: italic;
+    text-align: center;
+  }
+
+  button {
+    font-size: .9rem;
+    color: var(--text);
+    padding: .3rem;
+
+    &:hover {
+      background-color: var(--transparent-gray-10);
+    }
+  }
+}

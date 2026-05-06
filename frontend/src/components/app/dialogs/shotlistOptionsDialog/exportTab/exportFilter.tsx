@@ -1,7 +1,5 @@
-import {ShotAttributeDefinitionParser} from "@/utility/AttributeParser"
-import {Component, ForwardRefExoticComponent} from "react"
-import {LucideProps, Trash, X} from "lucide-react"
-import {ShotSelectAttributeOptionDefinition} from "../../../../../../lib/graphql/generated"
+import {ForwardRefExoticComponent} from "react"
+import {LucideProps, X} from "lucide-react"
 import MultiSelect from "@/components/basic/multiSelect/multiSelect"
 import {MultiValue} from "react-select"
 import {SelectOption} from "@/utility/Types"
@@ -26,7 +24,7 @@ export default function ExportFilter({
 }) {
 
     return (
-        <div className="filter">
+        <div className="setting">
             <div className="left">
                 <Icon size={22}/>
                 <p>{name}</p>

@@ -1,11 +1,21 @@
 div.shotlistOptionsDialogExportTab{
+  h3{
+    font-weight: 600;
+    font-size: .9rem;
+    margin-top: 1rem;
+    margin-bottom: .2rem;
+  }
 
-  .filters{
+  .settings{
     display: flex;
     flex-direction: column;
     gap: .5rem;
 
-    .filter{
+    &.secondary{
+      padding-left: .5rem;
+    }
+
+    .setting{
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -64,19 +74,24 @@ div.shotlistOptionsDialogExportTab{
     margin-block: .8rem;
   }
 
-  button.addFilter{
-    border: 2px solid var(--default-interactable-border);
-    color: var(--text-30);
-    padding-block: .4rem;
-    padding-inline: .6rem;
-    font-weight: 500;
-    font-size: .9rem;
-    width: fit-content;
+  div.addButtons {
+    display: flex;
+    gap: .5rem;
     margin-top: 2rem;
 
-    &:not([disabled]):hover{
-      border-color: var(--default-interactable-hover-border);
-      color: var(--text-10);
+    button.add{
+      border: 2px solid var(--default-interactable-border);
+      color: var(--text-30);
+      padding-block: .4rem;
+      padding-inline: .6rem;
+      font-weight: 500;
+      font-size: .85rem;
+      width: fit-content;
+
+      &:not([disabled]):hover{
+        border-color: var(--default-interactable-hover-border);
+        color: var(--text-10);
+      }
     }
   }
 

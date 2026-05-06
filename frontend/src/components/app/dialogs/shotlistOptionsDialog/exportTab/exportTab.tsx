@@ -46,12 +46,21 @@ import {useConfirmDialog} from "@/components/app/dialogs/confirmDialog/confirmDi
 import usePdfExport, {PdfExportOptions} from "@/service/export/usePdfExport"
 import useCsvExport from "@/service/export/useCsvExport"
 import useXlsxExport from "@/service/export/useXlsxExport"
-import AddExportFilterPopover from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/addExportFilterPopover/addExportFilterPopover"
+import AddExportFilterPopover from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/addPopover/addExportFilterPopover"
 import PdfSettings from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/pdfSettings"
 import {Switch} from "radix-ui"
 import {wuGeneral} from "@yanikkendler/web-utils/dist"
+import Loader from "@/components/app/feedback/loader/loader"
+import TextCycle from "@/components/basic/textCycle/textCycle"
+import AddExportSortPopover
+    from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/addPopover/addExportSortPopover"
 
 type SelectedFileTypes = "PDF" | "CSV" | "XLSX"
+
+export interface ExportSort {
+    definitionId: number
+    order: "descending" | "ascending"
+}
 
 interface ExportSettingsLocalStorage {
     selectedFileType?: SelectedFileTypes
@@ -93,6 +102,8 @@ export default function ExportTab(
     const [selectedScenes, setSelectedScenes] = useState<MultiValue<SelectOption>>([])
     const [customSceneFilters, setCustomSceneFilters] = useState<Map<number, MultiValue<SelectOption>>>(new Map())
     const [customShotFilters, setCustomShotFilters] = useState<Map<number, MultiValue<SelectOption>>>(new Map())
+    const [customSceneSorts, setCustomSceneSorts] = useState<ExportSort[]>([])
+    const [customShotSorts, setCustomShotSorts] = useState<ExportSort[]>([])
 
     const [shotlistPreviewCache, setShotlistPreviewCache] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
@@ -461,6 +472,8 @@ export default function ExportTab(
         },2000)
     }
 
+    //FILTERS
+
     const addShotFilter = (attributeDefinitionId: number) => {
         const newCustomFilters = new Map(customShotFilters)
         newCustomFilters.set(attributeDefinitionId, [])
@@ -497,6 +510,30 @@ export default function ExportTab(
         setCustomSceneFilters(newCustomFilters)
     }
 
+    // SORTS
+
+    const addSceneSort = (attributeDefinitionId: number) => {
+        console.log("adding scene sort")
+
+        setCustomSceneSorts(current => [
+            ...current,
+            {
+                definitionId: attributeDefinitionId,
+                order: "ascending"
+            }
+        ])
+    }
+
+    const addShotSort = (attributeDefinitionId: number) => {
+        setCustomShotSorts(current => [
+            ...current,
+            {
+                definitionId: attributeDefinitionId,
+                order: "ascending"
+            }
+        ])
+    }
+
     if(!shotlist) return <div className={"shotlistOptionsDialogExportTab shotlistOptionsDialogPage"}>
         <div className="top">
             <h2>Configure the export</h2>
@@ -517,8 +554,10 @@ export default function ExportTab(
                 </button>
             </div>
 
-            <div className="filters">
-                <div className="filter">
+            {/* DEFAUlT FILTERS */}
+
+            <div className="settings">
+                <div className="setting">
                     <div className="left">
                         <File size={22}/>
                         <p>Format</p>
@@ -536,7 +575,7 @@ export default function ExportTab(
                         fontSize={".9rem"}
                     />
                 </div>
-                <div className="filter">
+                <div className="setting">
                     <div className="left">
                         <Rows4 size={22}/> {/*TODO custom heading strikethrough icon*/}
                         <p>Hide scene headings (merge shots)</p>
@@ -560,7 +599,7 @@ export default function ExportTab(
                         <Separator/>
                     </>
                 }
-                <div className="filter">
+                <div className="setting">
                     <div className="left">
                         <ListOrdered size={22}/>
                         <p>Scenes</p>
@@ -580,10 +619,12 @@ export default function ExportTab(
                 </div>
             </div>
 
-            {/* SCENE */}
+            {customSceneFilters.size + customShotFilters.size > 0 && <h3>Filters</h3>}
 
-            {customSceneFilters.size > 0 && <Separator text={"Scene attributes"}/>}
-            <div className="filters">
+            {/* CUSTOM SCENE FILTERS */}
+
+            {customSceneFilters.size > 0 && <Separator text={"Scene filters"}/>}
+            <div className="settings secondary">
                 {Array.from(customSceneFilters).map((filter, index) => {
                     const definition = sceneAttributeDefinitions?.find(def => def?.id === filter[0]) as SceneSingleOrMultiSelectAttributeDefinition
 
@@ -615,10 +656,10 @@ export default function ExportTab(
                 })}
             </div>
 
-            {/* SHOT */}
+            {/* CUSTOM SHOT FILTERS */}
 
-            {customShotFilters.size > 0 && <Separator text={"Shot attributes"}/>}
-            <div className="filters">
+            {customShotFilters.size > 0 && <Separator text={"Shot filters"}/>}
+            <div className="settings secondary">
                 {Array.from(customShotFilters).map((filter, index) => {
                     const definition = shotAttributeDefinitions?.find(def => def?.id === filter[0]) as ShotSingleOrMultiSelectAttributeDefinition
 
@@ -647,14 +688,60 @@ export default function ExportTab(
                 })}
             </div>
 
-            <AddExportFilterPopover
-                sceneAttributeDefinitions={sceneAttributeDefinitions}
-                shotAttributeDefinitions={shotAttributeDefinitions}
-                customSceneFilters={customSceneFilters}
-                customShotFilters={customShotFilters}
-                addSceneFilter={addSceneFilter}
-                addShotFilter={addShotFilter}
-            />
+            {customSceneSorts.length + customShotSorts.length > 0 && <h3>Ordering</h3>}
+
+            {/* CUSTOM SCENE SORTS */}
+
+            {customSceneSorts.length > 0 && <Separator text={"Scene sorts"}/>}
+            <div className="settings secondary">
+                {customSceneSorts.map(sort => {
+                    const definition = sceneAttributeDefinitions?.find(def => def?.id === sort.definitionId) as SceneSingleOrMultiSelectAttributeDefinition
+
+                    if(!definition) return null
+
+                    const Icon = SceneAttributeDefinitionParser.toIcon(definition)
+
+                    return <p key={sort.definitionId}>
+                        <Icon/> {definition.name} {sort.order}
+                    </p>
+                })}
+            </div>
+
+            {/* CUSTOM SHOT SORTS */}
+
+            {customShotSorts.length > 0 && <Separator text={"Shot sorts"}/>}
+            <div className="settings secondary">
+                {customShotSorts.map(sort => {
+                    const definition = shotAttributeDefinitions?.find(def => def?.id === sort.definitionId) as ShotSingleOrMultiSelectAttributeDefinition
+
+                    if(!definition) return null
+
+                    const Icon = ShotAttributeDefinitionParser.toIcon(definition)
+
+                    return <p key={sort.definitionId}>
+                        <Icon/> {definition.name} {sort.order}
+                    </p>
+                })}
+            </div>
+
+            <div className="addButtons">
+                <AddExportFilterPopover
+                    sceneAttributeDefinitions={sceneAttributeDefinitions}
+                    shotAttributeDefinitions={shotAttributeDefinitions}
+                    customSceneFilters={customSceneFilters}
+                    customShotFilters={customShotFilters}
+                    addSceneFilter={addSceneFilter}
+                    addShotFilter={addShotFilter}
+                />
+                <AddExportSortPopover
+                    sceneAttributeDefinitions={sceneAttributeDefinitions}
+                    shotAttributeDefinitions={shotAttributeDefinitions}
+                    customSceneSorts={customSceneSorts}
+                    customShotSorts={customShotSorts}
+                    addSceneSort={addSceneSort}
+                    addShotSort={addShotSort}
+                />
+            </div>
 
             <span className="scrollSpacer" aria-hidden></span>
 
