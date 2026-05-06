@@ -47,7 +47,7 @@ export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBas
         marginTop: 0,
         borderBottomLeftRadius: ".6rem",
         borderBottomRightRadius: ".6rem",
-        animation: "selectDropdownShow 150ms ease-out"
+        animation: "opacityIn 150ms ease-out"
     }),
     singleValue: (baseStyles) => ({
         ...baseStyles,
@@ -147,7 +147,7 @@ export const selectSceneStyles: StylesConfig<SelectOption, boolean, GroupBase<Se
         marginTop: "3px",
         borderBottomLeftRadius: ".6rem",
         borderBottomRightRadius: ".6rem",
-        animation: "selectDropdownShow 150ms ease-out"
+        animation: "opacityIn 150ms ease-out"
     })
 }
 

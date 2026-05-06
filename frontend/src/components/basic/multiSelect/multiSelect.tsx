@@ -141,7 +141,7 @@ export default function MultiSelect(
                     border: '2px solid var(--default-interactable-border)',
                     marginBlock: '.1rem',
                     backgroundColor: "var(--contrast)",
-                    animation: "selectDropdownShow 150ms ease-out"
+                    animation: "opacityIn 150ms ease-out"
                 }),
                 menuList: (base) => ({
                     ...base,
