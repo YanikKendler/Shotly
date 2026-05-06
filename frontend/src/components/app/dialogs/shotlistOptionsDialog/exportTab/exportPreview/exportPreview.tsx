@@ -38,7 +38,7 @@ export default function ExportPreview({
             <button className="secondary" onClick={dialogRef.current?.open}>
                 <span>Preview</span> <Eye size={16} strokeWidth={2.5}/>
             </button>
-            <Dialog contentClassName={"pdfPreviewDialogContent"} ref={dialogRef}>
+            <Dialog contentClassName={"exportPreview"} ref={dialogRef}>
                 <div className="top sticky">
                     <h1>Export preview</h1>
                     <button
