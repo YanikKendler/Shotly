@@ -159,9 +159,9 @@
   }
 
   .empty {
-    padding: 2rem;
+    margin: 2rem;
     text-align: center;
-    border: 1px dashed var(--export-default-border);
+    color: var(--text-50);
   }
 
   &.sceneHeadingsHidden .shotAttributeDefinitions{

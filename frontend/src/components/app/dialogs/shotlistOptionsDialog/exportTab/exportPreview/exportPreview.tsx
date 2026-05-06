@@ -28,10 +28,8 @@ export default function ExportPreview({
 }) {
     const dialogRef = useRef<DialogRef>(null);
 
-    if (!data) return <div className="empty">Sorry! Data could not be loaded. Please try again.</div>
-
-    const sceneDefs = data.sceneAttributeDefinitions as AnySceneAttributeDefinition[] || []
-    const shotDefs = data.shotAttributeDefinitions as AnyShotAttributeDefinition[] || []
+    const sceneDefs = data?.sceneAttributeDefinitions as AnySceneAttributeDefinition[] || []
+    const shotDefs = data?.shotAttributeDefinitions as AnyShotAttributeDefinition[] || []
 
     return (
         <>
@@ -54,68 +52,73 @@ export default function ExportPreview({
                         <span>Close preview</span><X size={18} strokeWidth={3}/>
                     </button>
                 </div>
-                <div className={`exportPreview ${hideSceneHeadings && "sceneHeadingsHidden"}`}>
-                    {/* Top Level Scene Attribute Names */}
-                    {
-                        !hideSceneHeadings &&
-                        <div className="row sceneAttributeDefinitions">
-                            <div className="cell numberCell">Scene</div>
-                            {sceneDefs.map((attr) => (
-                                <div className="cell" key={attr.id} title={attr.name ?? ""}>
-                                    {attr.name || "Unnamed"}
-                                </div>
-                            ))}
-                        </div>
-                    }
-
-                    {(data.scenes as SceneDto[])?.map((scene: SceneDto) => (
-                        <div className="sceneGroup" key={scene.id}>
-                            {/* Scene Content Row */}
-                            {
-                                !hideSceneHeadings &&
-                                <div className="row header sceneAttributes">
-                                    <div className="cell numberCell">{scene.position + 1}</div>
-                                    {(scene.attributes as AnySceneAttribute[])?.map(attr => (
-                                        <div className="cell" key={attr.id}>
-                                            {SceneAttributeParser.toValueString(attr, false)}
-                                        </div>
-                                    ))}
-                                </div>
-                            }
-
-                            {/* Shot Sub-Header (Attribute Names) */}
-                            <div className="row header shotAttributeDefinitions">
-                                <div className="cell numberCell">Shot</div>
-                                {shotDefs.map((attr) => (
+                {
+                    !data ?
+                    <p className="empty">Sorry! Data could not be loaded. Please try again.</p>
+                    :
+                    <div className={`exportPreview ${hideSceneHeadings && "sceneHeadingsHidden"}`}>
+                        {/* Top Level Scene Attribute Names */}
+                        {
+                            !hideSceneHeadings &&
+                            <div className="row sceneAttributeDefinitions">
+                                <div className="cell numberCell">Scene</div>
+                                {sceneDefs.map((attr) => (
                                     <div className="cell" key={attr.id} title={attr.name ?? ""}>
                                         {attr.name || "Unnamed"}
                                     </div>
                                 ))}
                             </div>
+                        }
 
-                            {/* Shots for this Scene */}
-                            {(scene.shots as ShotDto[])?.map((shot, shIdx) => (
-                                <div
-                                    key={shot.id}
-                                    className={`row shotRow ${shIdx % 2 !== 0 ? 'rowOdd' : ''}`}
-                                >
-                                    <div className="cell numberCell">
-                                        {Utils.numberToShotLetter(
-                                            shot.position,
-                                            scenePositionLUT.current.get(shot.sceneId ?? ""),
-                                            hideSceneHeadings ? true : undefined
-                                        )}
+                        {(data.scenes as SceneDto[])?.map((scene: SceneDto) => (
+                            <div className="sceneGroup" key={scene.id}>
+                                {/* Scene Content Row */}
+                                {
+                                    !hideSceneHeadings &&
+                                    <div className="row header sceneAttributes">
+                                        <div className="cell numberCell">{scene.position + 1}</div>
+                                        {(scene.attributes as AnySceneAttribute[])?.map(attr => (
+                                            <div className="cell" key={attr.id}>
+                                                {SceneAttributeParser.toValueString(attr, false)}
+                                            </div>
+                                        ))}
                                     </div>
-                                    {(shot.attributes as AnyShotAttribute[])?.map((attr) => (
-                                        <div className="cell" key={attr.id}>
-                                            {ShotAttributeParser.toValueString(attr, false)}
+                                }
+
+                                {/* Shot Sub-Header (Attribute Names) */}
+                                <div className="row header shotAttributeDefinitions">
+                                    <div className="cell numberCell">Shot</div>
+                                    {shotDefs.map((attr) => (
+                                        <div className="cell" key={attr.id} title={attr.name ?? ""}>
+                                            {attr.name || "Unnamed"}
                                         </div>
                                     ))}
                                 </div>
-                            ))}
-                        </div>
-                    ))}
-                </div>
+
+                                {/* Shots for this Scene */}
+                                {(scene.shots as ShotDto[])?.map((shot, shIdx) => (
+                                    <div
+                                        key={shot.id}
+                                        className={`row shotRow ${shIdx % 2 !== 0 ? 'rowOdd' : ''}`}
+                                    >
+                                        <div className="cell numberCell">
+                                            {Utils.numberToShotLetter(
+                                                shot.position,
+                                                scenePositionLUT.current.get(shot.sceneId ?? ""),
+                                                hideSceneHeadings ? true : undefined
+                                            )}
+                                        </div>
+                                        {(shot.attributes as AnyShotAttribute[])?.map((attr) => (
+                                            <div className="cell" key={attr.id}>
+                                                {ShotAttributeParser.toValueString(attr, false)}
+                                            </div>
+                                        ))}
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                }
                 <p className="small">If a collaborator has edited the shotlist, the preview might not be fully up to date, but the final export will be.</p>
             </Dialog>
         </>
