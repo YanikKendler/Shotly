@@ -327,7 +327,7 @@ const ShotlistOptionsDialog = forwardRef<ShotlistOptionsDialogRef, ShotlistOptio
             }}
             onRenderFinish={checkUrlAutoOpen}
             ref={dialogRef}
-            contentClassName={"shotlistOptionsDialogContent"}
+            contentClassName={`shotlistOptionsDialogContent ${selectedMainPage == ShotlistOptionsDialogMainPage.export && "exportPageSelected"}`}
         >
             <Tabs.Root
                 className={"optionsDialogPageTabRoot"}

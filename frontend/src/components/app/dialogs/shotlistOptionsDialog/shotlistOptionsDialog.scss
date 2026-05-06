@@ -11,6 +11,10 @@
 
   padding: 0;
 
+  &.exportPageSelected {
+    max-height: 90vh;
+  }
+
   .optionsDialogPageTabRoot{
     display: flex;
     height: 100%;
