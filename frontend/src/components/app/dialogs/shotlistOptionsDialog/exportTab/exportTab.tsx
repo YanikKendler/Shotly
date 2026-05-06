@@ -29,8 +29,8 @@ import Utils from "@/utility/Utils"
 import Config from "@/Config"
 import MultiSelect from "@/components/basic/multiSelect/multiSelect"
 import {
-    SceneAttributeDefinitionParser,
-    ShotAttributeDefinitionParser,
+    SceneAttributeDefinitionParser, SceneAttributeParser,
+    ShotAttributeDefinitionParser, ShotAttributeParser,
 } from "@/utility/AttributeParser"
 import {MultiValue} from "react-select"
 import HelpLink from "@/components/app/helpLink/helpLink"
@@ -328,7 +328,7 @@ export default function ExportTab(
             filteredScenes = filteredScenes.filter((scene) => selectedScenesArray.includes(String(scene.position)))
         }
 
-        //custom scene attribute filters
+        // scene filtering
         filteredScenes = filteredScenes.filter((scene) => {
             const matchesFilters = (scene.attributes as AnySceneAttribute[]).every(attribute => {
                 if(!customSceneFilters.has(attribute.definition?.id)) return true //no filter was defined for this attribute
@@ -362,6 +362,33 @@ export default function ExportTab(
             return matchesFilters
         })
 
+        // scene sorting
+        filteredScenes.sort((a, b) => {
+            for (let i = 0; i < customSceneSorts.length; i++) {
+                const currentSort = customSceneSorts[i]
+
+                const attributeA = a.attributes
+                    ?.find(a => a?.definition?.id == currentSort.definitionId)
+
+                const attributeB = b.attributes
+                    ?.find(a => a?.definition?.id == currentSort.definitionId)
+
+                if(!attributeA || !attributeB) continue
+
+                const attributeValueA = SceneAttributeParser.toValueString(attributeA)
+                const attributeValueB = SceneAttributeParser.toValueString(attributeB)
+
+                let result = attributeValueA.localeCompare(attributeValueB)
+
+                if(currentSort.order == "descending") result *= -1
+
+                if(result != 0) return result
+            }
+
+            return 0
+        })
+
+        // hide headings setting (merge all shots into first scene)
         if(hideSceneHeadings) {
             let allShots: ShotDto[] = []
 
@@ -375,7 +402,7 @@ export default function ExportTab(
             filteredScenes = filteredScenes.slice(0,1)
         }
 
-        //custom shot attribute filters
+        // shot filters
         filteredScenes.forEach(scene => {
             if(!scene.shots || scene.shots.length == 0) return
 
@@ -430,6 +457,34 @@ export default function ExportTab(
         //remove scenes where not shots passed the filters
         filteredScenes = filteredScenes.filter(scene => {
             return scene.shots && scene.shots.length > 0
+        })
+
+        // shot sorting
+        filteredScenes.forEach(scene => {
+            scene.shots?.sort((a, b) => {
+                for (let i = 0; i < customShotSorts.length; i++) {
+                    const currentSort = customShotSorts[i]
+
+                    const attributeA = a?.attributes
+                        ?.find(a => a?.definition?.id == currentSort.definitionId)
+
+                    const attributeB = b?.attributes
+                        ?.find(a => a?.definition?.id == currentSort.definitionId)
+
+                    if(!attributeA || !attributeB) continue
+
+                    const attributeValueA = ShotAttributeParser.toValueString(attributeA)
+                    const attributeValueB = ShotAttributeParser.toValueString(attributeB)
+
+                    let result = attributeValueA.localeCompare(attributeValueB)
+
+                    if(currentSort.order == "descending") result *= -1
+
+                    if(result != 0) return result
+                }
+
+                return 0
+            })
         })
 
         return {...result.data.shotlist, scenes: filteredScenes} as ShotlistDto;
