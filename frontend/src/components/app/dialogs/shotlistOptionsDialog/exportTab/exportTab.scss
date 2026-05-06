@@ -2,8 +2,9 @@ div.shotlistOptionsDialogExportTab{
   h3{
     font-weight: 600;
     font-size: .9rem;
-    margin-top: 1rem;
+    margin-top: 1.5rem;
     margin-bottom: .2rem;
+    display: none;
   }
 
   .settings{
@@ -35,25 +36,30 @@ div.shotlistOptionsDialogExportTab{
           font-size: .85rem;
         }
 
-        svg{
+        > svg{
           color: var(--text-30);
         }
       }
 
       .right{
         display: flex;
+        align-items: center;
         gap: .5rem;
 
-        button.remove{
+        button{
           color: var(--text-30);
           border: 2px solid var(--default-interactable-border);
 
           &:hover{
+            color: var(--text);
+            border-color: var(--default-interactable-hover-border);
+          }
+
+          &.remove:hover{
             color: var(--bad);
             border-color: var(--bad);
           }
         }
-
       }
 
       .textField{

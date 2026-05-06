@@ -14,7 +14,7 @@ export default function PdfSettings({
 }){
     return (<>
         <SimpleCollapse name={"PDF settings"}>
-            <div className="filter">
+            <div className="setting">
                 <div className="left">
                     <SquareCheck size={20}/>
                     <p>Add checkboxes</p>
@@ -28,7 +28,7 @@ export default function PdfSettings({
                     <Switch.Thumb className="SwitchThumb"/>
                 </Switch.Root>
             </div>
-            <div className="filter">
+            <div className="setting">
                 <div className="left">
                     <Type size={20}/>
                     <p>Header text (optional)</p>
@@ -41,7 +41,7 @@ export default function PdfSettings({
                     clearable
                 />
             </div>
-            <div className="filter">
+            <div className="setting">
                 <div className="left">
                     <LucideWrapText size={20}/>
                     <p>Avoid orphaned shots when wrapping</p>
@@ -55,7 +55,7 @@ export default function PdfSettings({
                     <Switch.Thumb className="SwitchThumb"/>
                 </Switch.Root>
             </div>
-            <div className="filter">
+            <div className="setting">
                 <div className="left">
                     <Heading size={20}/>
                     <p>Repeat scene headings after page breaks</p>
@@ -69,7 +69,7 @@ export default function PdfSettings({
                     <Switch.Thumb className="SwitchThumb"/>
                 </Switch.Root>
             </div>
-            <div className="filter">
+            <div className="setting">
                 <div className="left">
                     <Repeat size={20}/>
                     <p>Repeat scene attribute names on every page</p>

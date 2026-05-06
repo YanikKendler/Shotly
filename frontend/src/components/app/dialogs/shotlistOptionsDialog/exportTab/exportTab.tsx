@@ -50,16 +50,17 @@ import AddExportFilterPopover from "@/components/app/dialogs/shotlistOptionsDial
 import PdfSettings from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/pdfSettings"
 import {Switch} from "radix-ui"
 import {wuGeneral} from "@yanikkendler/web-utils/dist"
-import Loader from "@/components/app/feedback/loader/loader"
-import TextCycle from "@/components/basic/textCycle/textCycle"
 import AddExportSortPopover
     from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/addPopover/addExportSortPopover"
+import ExportSort from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/exportSort/exportSort"
 
 type SelectedFileTypes = "PDF" | "CSV" | "XLSX"
 
-export interface ExportSort {
+export type ExportSortOrder = "descending" | "ascending"
+
+export interface ExportSortSetting {
     definitionId: number
-    order: "descending" | "ascending"
+    order: ExportSortOrder
 }
 
 interface ExportSettingsLocalStorage {
@@ -102,14 +103,18 @@ export default function ExportTab(
     const [selectedScenes, setSelectedScenes] = useState<MultiValue<SelectOption>>([])
     const [customSceneFilters, setCustomSceneFilters] = useState<Map<number, MultiValue<SelectOption>>>(new Map())
     const [customShotFilters, setCustomShotFilters] = useState<Map<number, MultiValue<SelectOption>>>(new Map())
-    const [customSceneSorts, setCustomSceneSorts] = useState<ExportSort[]>([])
-    const [customShotSorts, setCustomShotSorts] = useState<ExportSort[]>([])
+    const [customSceneSorts, setCustomSceneSorts] = useState<ExportSortSetting[]>([])
+    const [customShotSorts, setCustomShotSorts] = useState<ExportSortSetting[]>([])
 
     const [shotlistPreviewCache, setShotlistPreviewCache] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
     const scenePositionLUT = useRef<Map<string, number>>(new Map())
 
     const [exportRunning, setExportRunning] = useState(false)
+
+    useEffect(() => {
+        console.log(customSceneSorts)
+    }, [customSceneSorts]);
 
     //load settings from local storage
     useEffect(() => {
@@ -589,6 +594,36 @@ export default function ExportTab(
         ])
     }
 
+    const reverseSceneSort = (attributeDefinitionId: number) => {
+        setCustomSceneSorts(current => current.map(s => {
+            if(s.definitionId == attributeDefinitionId) {
+                const newOrder = s.order == "ascending" ? "descending" : "ascending"
+                return {...s, order: newOrder}
+            }
+
+            return s
+        }))
+    }
+
+    const reverseShotSort = (attributeDefinitionId: number) => {
+        setCustomShotSorts(current => current.map(s => {
+            if(s.definitionId == attributeDefinitionId) {
+                const newOrder = s.order == "ascending" ? "descending" : "ascending"
+                return {...s, order: newOrder}
+            }
+
+            return s
+        }))
+    }
+
+    const removeSceneSort = (attributeDefinitionId: number) => {
+        setCustomSceneSorts(current => current.filter(s => s.definitionId != attributeDefinitionId))
+    }
+
+    const removeShotSort = (attributeDefinitionId: number) => {
+        setCustomShotSorts(current => current.filter(s => s.definitionId != attributeDefinitionId))
+    }
+
     if(!shotlist) return <div className={"shotlistOptionsDialogExportTab shotlistOptionsDialogPage"}>
         <div className="top">
             <h2>Configure the export</h2>
@@ -749,16 +784,22 @@ export default function ExportTab(
 
             {customSceneSorts.length > 0 && <Separator text={"Scene sorts"}/>}
             <div className="settings secondary">
-                {customSceneSorts.map(sort => {
+                {customSceneSorts.map((sort, index) => {
                     const definition = sceneAttributeDefinitions?.find(def => def?.id === sort.definitionId) as SceneSingleOrMultiSelectAttributeDefinition
 
                     if(!definition) return null
 
                     const Icon = SceneAttributeDefinitionParser.toIcon(definition)
 
-                    return <p key={sort.definitionId}>
-                        <Icon/> {definition.name} {sort.order}
-                    </p>
+                    return <ExportSort
+                        key={definition.id}
+                        number={index}
+                        name={definition.name || "Unnamed"}
+                        Icon={Icon}
+                        order={sort.order}
+                        onRemove={() => removeSceneSort(sort.definitionId)}
+                        onReverseOrder={() => reverseSceneSort(sort.definitionId)}
+                    />
                 })}
             </div>
 
@@ -766,16 +807,22 @@ export default function ExportTab(
 
             {customShotSorts.length > 0 && <Separator text={"Shot sorts"}/>}
             <div className="settings secondary">
-                {customShotSorts.map(sort => {
+                {customShotSorts.map((sort, index) => {
                     const definition = shotAttributeDefinitions?.find(def => def?.id === sort.definitionId) as ShotSingleOrMultiSelectAttributeDefinition
 
                     if(!definition) return null
 
                     const Icon = ShotAttributeDefinitionParser.toIcon(definition)
 
-                    return <p key={sort.definitionId}>
-                        <Icon/> {definition.name} {sort.order}
-                    </p>
+                    return <ExportSort
+                        key={definition.id}
+                        number={index}
+                        name={definition.name || "Unnamed"}
+                        Icon={Icon}
+                        order={sort.order}
+                        onRemove={() => removeShotSort(sort.definitionId)}
+                        onReverseOrder={() => reverseShotSort(sort.definitionId)}
+                    />
                 })}
             </div>
 

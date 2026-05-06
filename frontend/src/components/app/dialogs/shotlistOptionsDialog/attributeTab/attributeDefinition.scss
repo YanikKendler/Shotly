@@ -1,12 +1,4 @@
-[data-theme="dark"] div.attributeDefinition {
-  --grip-color: hsl(0, 0%, 35%);
-  --grip-hover-color: hsl(0, 0%, 70%);
-}
-
 div.attributeDefinition{
-  --grip-color: hsl(0, 0%, 65%);
-  --grip-hover-color: hsl(0, 0%, 30%);
-
   display: flex;
   align-items: center;
   gap: .5rem;
@@ -18,8 +10,8 @@ div.attributeDefinition{
   }
 
   .grip{
-    cursor: pointer;
-    color: var(--grip-color);
+    cursor: grab;
+    color: var(--text-65);
     display: flex;
     align-items: center;
     border-radius: .3rem;
@@ -28,7 +20,7 @@ div.attributeDefinition{
 
     &:hover{
       background-color: var(--transparent-gray-10);
-      color: var(--grip-hover-color);
+      color: var(--text-30);
     }
   }
 

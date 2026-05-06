@@ -2,7 +2,7 @@ import React, {useRef} from "react"
 import SimplePopover, {SimplePopoverRef} from "@/components/basic/popover/simplePopover"
 import {ArrowDownUp, Plus} from "lucide-react"
 import {AnySceneAttributeDefinition, AnyShotAttributeDefinition, SelectOption} from "@/utility/Types"
-import {ExportSort} from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/exportTab"
+import {ExportSortSetting} from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/exportTab"
 import "./exportAddPopover.scss"
 
 export default function AddExportSortPopover({
@@ -15,8 +15,8 @@ export default function AddExportSortPopover({
 }:{
     sceneAttributeDefinitions: AnySceneAttributeDefinition[] | null
     shotAttributeDefinitions: AnyShotAttributeDefinition[] | null
-    customSceneSorts: ExportSort[]
-    customShotSorts: ExportSort[]
+    customSceneSorts: ExportSortSetting[]
+    customShotSorts: ExportSortSetting[]
     addSceneSort: (attributeDefinitionId: number) => void
     addShotSort: (attributeDefinitionId: number) => void
 }) {
