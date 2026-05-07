@@ -1,4 +1,4 @@
-:root  > * {
+:root > * {
   --md-primary-fg-color--light: hsl(18, 100%, 60%);
   --md-primary-fg-color:        hsl(18, 100%, 47%);
   --md-primary-fg-color--dark:  hsl(18, 95%, 30%);
@@ -11,16 +11,21 @@
   --md-code-bg-color: hsla(240, 6%, 40%, 0.5);
 }
 
-.md-content .admonition {
+html, body, :root {
+  scroll-behavior: smooth;
+}
+
+/* Base brand-style admonition */
+.md-content .admonition,
+.md-content details,
+.md-content details summary {
   background: transparent;
   border: none;
   box-shadow: none;
 }
 
-/* Base brand-style admonition */
 .md-content .admonition,
 .md-content details {
-  border: none;
   border-radius: 8px;
   padding: 1rem 1.2rem;
   /* background-color: var(--md-primary-fg-color--transparent); */
@@ -48,8 +53,27 @@
 }
 
 /* Ensure no left bar */
-.md-content .admonition::before {
+.md-content .admonition::before, .md-content details summary::before {
   display: none;
+}
+
+.md-content .md-typeset details{
+  padding-block: .5rem;
+  background-color: hsla(0, 0%, 0%, 30%);
+}
+
+.md-content .md-typeset.md-typeset.md-typeset details:focus-within{
+  box-shadow: none;
+}
+
+.md-content .md-typeset.md-typeset.md-typeset details summary{
+  background-color: transparent;
+  color: white;
+  padding-left: .5rem;
+}
+
+.md-content .md-typeset.md-typeset.md-typeset details summary::after{
+  color: white;
 }
 
 .md-main__inner{
