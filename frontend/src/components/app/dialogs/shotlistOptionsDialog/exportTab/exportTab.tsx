@@ -5,7 +5,7 @@ import {
     X,
     RotateCcw, SquareCheck, Heading, Rows4,
 } from "lucide-react"
-import React, {Fragment, RefObject, useEffect, useRef, useState} from "react"
+import React, {Fragment, RefObject, useCallback, useEffect, useRef, useState} from "react"
 import gql from "graphql-tag"
 import {wuTime} from "@yanikkendler/web-utils"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
@@ -53,6 +53,7 @@ import {wuGeneral} from "@yanikkendler/web-utils/dist"
 import AddExportSortPopover
     from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/addPopover/addExportSortPopover"
 import ExportSort from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/exportSort/exportSort"
+import Sortable from "sortablejs"
 
 type SelectedFileTypes = "PDF" | "CSV" | "XLSX"
 
@@ -106,15 +107,14 @@ export default function ExportTab(
     const [customSceneSorts, setCustomSceneSorts] = useState<ExportSortSetting[]>([])
     const [customShotSorts, setCustomShotSorts] = useState<ExportSortSetting[]>([])
 
+    const sceneSortContainerRef = useRef<Sortable>(null);
+    const shotSortContainerRef = useRef<Sortable>(null);
+
     const [shotlistPreviewCache, setShotlistPreviewCache] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
     const scenePositionLUT = useRef<Map<string, number>>(new Map())
 
     const [exportRunning, setExportRunning] = useState(false)
-
-    useEffect(() => {
-        console.log(customSceneSorts)
-    }, [customSceneSorts]);
 
     //load settings from local storage
     useEffect(() => {
@@ -383,6 +383,9 @@ export default function ExportTab(
                 const attributeValueA = SceneAttributeParser.toValueString(attributeA)
                 const attributeValueB = SceneAttributeParser.toValueString(attributeB)
 
+                if (attributeValueA == "") return 1
+                if (attributeValueB == "") return -1
+
                 let result = attributeValueA.localeCompare(attributeValueB)
 
                 if(currentSort.order == "descending") result *= -1
@@ -478,8 +481,12 @@ export default function ExportTab(
 
                     if(!attributeA || !attributeB) continue
 
+
                     const attributeValueA = ShotAttributeParser.toValueString(attributeA)
                     const attributeValueB = ShotAttributeParser.toValueString(attributeB)
+
+                    if (attributeValueA == "") return 1
+                    if (attributeValueB == "") return -1
 
                     let result = attributeValueA.localeCompare(attributeValueB)
 
@@ -623,6 +630,66 @@ export default function ExportTab(
     const removeShotSort = (attributeDefinitionId: number) => {
         setCustomShotSorts(current => current.filter(s => s.definitionId != attributeDefinitionId))
     }
+
+    const sceneSortContainer = useCallback((node: HTMLDivElement | null) => {
+        if (sceneSortContainerRef.current) {
+            sceneSortContainerRef.current.destroy()
+            sceneSortContainerRef.current = null
+        }
+
+        if (node) {
+            sceneSortContainerRef.current = Sortable.create(node, {
+                handle: '.grip',
+                animation: 150,
+                forceFallback: true,
+                fallbackTolerance: 5,
+                onStart: (event) => {
+                    if (event.oldIndex === undefined) return
+                },
+                onEnd: (event) => {
+                    if(!event.item || event.oldIndex == undefined || event.newIndex == undefined) return
+
+                    console.log("moved", event.item, "from", event.oldIndex, "to", event.newIndex)
+
+                    setCustomSceneSorts(current => {
+                        let newSorts = [...current]
+                        newSorts = Utils.reorderArray(newSorts, event.oldIndex || -1, event.newIndex || -1)
+                        return newSorts
+                    })
+                }
+            })
+        }
+    }, [])
+
+    const shotSortContainer = useCallback((node: HTMLDivElement | null) => {
+        if (shotSortContainerRef.current) {
+            shotSortContainerRef.current.destroy()
+            shotSortContainerRef.current = null
+        }
+
+        if (node) {
+            shotSortContainerRef.current = Sortable.create(node, {
+                handle: '.grip',
+                animation: 150,
+                forceFallback: true,
+                fallbackTolerance: 5,
+                onStart: (event) => {
+                    if (event.oldIndex === undefined) return
+                },
+                onEnd: (event) => {
+                    if(!event.item || event.oldIndex == undefined || event.newIndex == undefined) return
+
+                    console.log("moved", event.item, "from", event.oldIndex, "to", event.newIndex)
+
+                    setCustomShotSorts(current => {
+                        let newSorts = [...current]
+                        newSorts = Utils.reorderArray(newSorts, event.oldIndex || -1, event.newIndex || -1)
+                        return newSorts
+                    })
+                }
+            })
+        }
+    }, [])
 
     if(!shotlist) return <div className={"shotlistOptionsDialogExportTab shotlistOptionsDialogPage"}>
         <div className="top">
@@ -783,7 +850,7 @@ export default function ExportTab(
             {/* CUSTOM SCENE SORTS */}
 
             {customSceneSorts.length > 0 && <Separator text={"Scene sorts"}/>}
-            <div className="settings secondary">
+            <div className="settings secondary" ref={sceneSortContainer}>
                 {customSceneSorts.map((sort, index) => {
                     const definition = sceneAttributeDefinitions?.find(def => def?.id === sort.definitionId) as SceneSingleOrMultiSelectAttributeDefinition
 
@@ -806,7 +873,7 @@ export default function ExportTab(
             {/* CUSTOM SHOT SORTS */}
 
             {customShotSorts.length > 0 && <Separator text={"Shot sorts"}/>}
-            <div className="settings secondary">
+            <div className="settings secondary" ref={shotSortContainer}>
                 {customShotSorts.map((sort, index) => {
                     const definition = shotAttributeDefinitions?.find(def => def?.id === sort.definitionId) as ShotSingleOrMultiSelectAttributeDefinition
 
