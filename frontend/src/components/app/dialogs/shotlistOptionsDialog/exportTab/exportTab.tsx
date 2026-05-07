@@ -841,7 +841,7 @@ export default function ExportTab(
                 <div className="setting">
                     <div className="left">
                         <Rows4 size={22}/> {/*TODO custom heading strikethrough icon*/}
-                        <p>Hide scene headings (merge shots)</p>
+                        <p>Hide scene headings</p>
                     </div>
 
                     <Switch.Root

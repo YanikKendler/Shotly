@@ -25,7 +25,7 @@ export default function HelpLink({
                         onClick={() => {td.signal("HelpLink", {link: link})}}
                     >
                         <BookText size={17}/>
-                        {name} Help
+                        {name} Docs
                     </Link>
                     <Link
                         href="https://github.com/YanikKendler/Shotly/issues/new?template=bug_report.md"
