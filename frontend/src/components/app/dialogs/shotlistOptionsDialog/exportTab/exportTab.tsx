@@ -69,8 +69,10 @@ interface ExportSettingsLocalStorage {
     hideSceneHeadings?: boolean
     pdfExportOptions?: PdfExportOptions
     selectedScenes?: MultiValue<SelectOption>
-    customShotFilters?: [number, MultiValue<SelectOption>][]
     customSceneFilters?: [number, MultiValue<SelectOption>][]
+    customShotFilters?: [number, MultiValue<SelectOption>][]
+    customSceneSorts?: ExportSortSetting[]
+    customShotSorts?: ExportSortSetting[]
 }
 
 export default function ExportTab(
@@ -138,12 +140,23 @@ export default function ExportTab(
             hideSceneHeadings: hideSceneHeadings,
             pdfExportOptions: pdfExportOptions,
             selectedScenes: selectedScenes,
+            customSceneFilters: Array.from(customSceneFilters),
             customShotFilters: Array.from(customShotFilters),
-            customSceneFilters: Array.from(customSceneFilters)
+            customSceneSorts: customSceneSorts,
+            customShotSorts: customShotSorts
         }
         const settingsString = JSON.stringify(settingsObject)
         localStorage.setItem(Config.localStorageKey.exportSettings(shotlist.id), settingsString)
-    }, [selectedFileType, hideSceneHeadings, pdfExportOptions, selectedScenes, customShotFilters, customSceneFilters]);
+    }, [
+        selectedFileType,
+        hideSceneHeadings,
+        pdfExportOptions,
+        selectedScenes,
+        customSceneFilters,
+        customShotFilters,
+        customSceneSorts,
+        customShotSorts
+    ])
 
     const generateFileName = () => {
         return `shotly_${shotlist?.name?.replace(/\s/g, "-") || "unnamed-shotlist"}_${wuTime.toDateTimeString(Date.now(), {timeSeparator: "-", dateSeparator: "-", dateTimeSeparator: "_"})}`
@@ -167,12 +180,14 @@ export default function ExportTab(
             setPdfExportOptions(settingsObject.pdfExportOptions)
         if(settingsObject.selectedScenes && settingsObject.selectedScenes.length > 0) {
             //only load scenes from LS that actually exists in the scenesAsOptions
-            const filtered = settingsObject.selectedScenes.filter(selected => scenesAsOptions.some(option => option.value == selected.value))
+            const filtered = settingsObject.selectedScenes
+                .filter(selected => scenesAsOptions.some(option => option.value == selected.value))
             setSelectedScenes(filtered)
         }
         if(settingsObject.customSceneFilters && settingsObject.customSceneFilters.length > 0) {
             //only load filters that reference an existing attributeDefinition id
-            let filtered = settingsObject.customSceneFilters.filter(f => sceneAttributeDefinitions?.some(d => d.id == f[0]))
+            let filtered = settingsObject.customSceneFilters
+                .filter(f => sceneAttributeDefinitions?.some(d => d.id == f[0]))
             //remove selected filter values that reference a non-existent select option
             filtered = filtered.map(
                 f => [
@@ -187,7 +202,8 @@ export default function ExportTab(
         }
         if(settingsObject.customShotFilters && settingsObject.customShotFilters.length > 0) {
             //only load filters that reference an existing attributeDefinition id
-            let filtered = settingsObject.customShotFilters.filter(f => shotAttributeDefinitions?.some(d => d.id == f[0]))
+            let filtered = settingsObject.customShotFilters
+                .filter(f => shotAttributeDefinitions?.some(d => d.id == f[0]))
             //remove selected filter values that reference a non-existent select option
             filtered = filtered.map(
                 f => [
@@ -199,6 +215,16 @@ export default function ExportTab(
                 ]
             )
             setCustomShotFilters(new Map(filtered))
+        }
+        if(settingsObject.customSceneSorts && settingsObject.customSceneSorts.length > 0) {
+            let filtered = settingsObject.customSceneSorts
+                .filter(s => sceneAttributeDefinitions?.some(d => d.id == s.definitionId))
+            setCustomSceneSorts(filtered)
+        }
+        if(settingsObject.customShotSorts && settingsObject.customShotSorts.length > 0) {
+            let filtered = settingsObject.customShotSorts
+                .filter(s => shotAttributeDefinitions?.some(d => d.id == s.definitionId))
+            setCustomShotSorts(filtered)
         }
     }
 
@@ -383,6 +409,8 @@ export default function ExportTab(
                 const attributeValueA = SceneAttributeParser.toValueString(attributeA)
                 const attributeValueB = SceneAttributeParser.toValueString(attributeB)
 
+                if(attributeValueA == "" && attributeValueB == "") continue
+
                 if (attributeValueA == "") return 1
                 if (attributeValueB == "") return -1
 
@@ -481,9 +509,10 @@ export default function ExportTab(
 
                     if(!attributeA || !attributeB) continue
 
-
                     const attributeValueA = ShotAttributeParser.toValueString(attributeA)
                     const attributeValueB = ShotAttributeParser.toValueString(attributeB)
+
+                    if(attributeValueA == "" && attributeValueB == "") continue
 
                     if (attributeValueA == "") return 1
                     if (attributeValueB == "") return -1
