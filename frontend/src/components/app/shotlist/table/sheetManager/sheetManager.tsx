@@ -565,7 +565,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     if(!queryIsLoading && (!shotAttributeDefinitions || (!isReadOnly && shotAttributeDefinitions.length == 0))) {
         return <div className="sheetManager">
             <p className={"empty"}>
-                {"Add a "}
+                {"Create a "}
                 <button
                     className="inline noPadding accent noShotAttributes"
                     onClick={() => shotlistContext.openShotlistOptionsDialog({

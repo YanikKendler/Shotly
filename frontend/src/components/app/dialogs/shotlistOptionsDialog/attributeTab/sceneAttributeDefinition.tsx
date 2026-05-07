@@ -283,7 +283,7 @@ export default function SceneAttributeDefinition({attributeDefinition, onDelete,
                             <button
                                 className={"new"}
                                 onClick={createSelectOption}
-                            ><Plus size={18}/>Add option</button>
+                            ><Plus size={18}/>New option</button>
                         </Popover.Content>
                     </Popover.Portal>
                 </Popover.Root>

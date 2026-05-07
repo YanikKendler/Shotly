@@ -435,7 +435,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                                 disabled={isReadOnly}
                                 onClick={createScene}
                             >
-                                Add scene <Plus/>
+                                New scene <Plus/>
                             </button>
                         </SimpleTooltip>
                     }

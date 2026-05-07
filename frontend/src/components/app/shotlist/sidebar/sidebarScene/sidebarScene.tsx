@@ -204,7 +204,7 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                 <div className={`attributes`}>
                     {sceneAttributes.length == 0 ?
                         <p className={"empty"}>
-                            {"Add a "}
+                            {"Create a "}
                             <button
                                 className="inline noPadding accent noSceneAttributes"
                                 onClick={() => shotlistContext.openShotlistOptionsDialog({

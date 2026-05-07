@@ -340,7 +340,7 @@ export default function AttributeTab(
                                 showArrow={false}
                                 side={"bottom"}
                             >
-                                Add attribute <Plus size={20}/>
+                                New attribute <Plus size={20}/>
                             </SimplePopover>
                         </>
                     }
@@ -404,7 +404,7 @@ export default function AttributeTab(
                                 showArrow={false}
                                 side={"bottom"}
                             >
-                                Add attribute <Plus size={20}/>
+                                New attribute <Plus size={20}/>
                             </SimplePopover>
                         </>
                     }

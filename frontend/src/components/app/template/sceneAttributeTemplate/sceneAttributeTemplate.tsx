@@ -250,7 +250,7 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
                                         size={18}/></button>
                                 </div>
                             ))}
-                            <button onClick={createSelectOption}><Plus size={18}/>Add option</button>
+                            <button onClick={createSelectOption}><Plus size={18}/>New option</button>
                         </Popover.Content>
                     </Popover.Portal>
                 </Popover.Root>

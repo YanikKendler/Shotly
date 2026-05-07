@@ -249,7 +249,7 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
                                     <button className="bad" onClick={() => deleteSelectOption(option.id)}><Trash size={18}/></button>
                                 </div>
                             ))}
-                            <button onClick={createSelectOption}><Plus size={18}/>Add option</button>
+                            <button onClick={createSelectOption}><Plus size={18}/>New option</button>
                         </Popover.Content>
                     </Popover.Portal>
                 </Popover.Root>
