@@ -7,7 +7,7 @@ export default function ViewPortSwitcher({
     over,
     breakpoint
 }: {
-    under: React.ReactElement | string
+    under?: React.ReactElement | string
     over: React.ReactElement | string
     breakpoint: number
 }) {

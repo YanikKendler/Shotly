@@ -9,6 +9,7 @@ import {
     ExportFilterSetting
 } from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/exportTab"
 import "./exportFilter.scss"
+import ViewPortSwitcher from "@/components/utility/viewportSwitcher/viewPortSwitcher"
 
 export default function ExportFilter({
     filter,
@@ -31,14 +32,20 @@ export default function ExportFilter({
 }) {
 
     const humanReadableMethod = new Map<ExportFilterMethod, string>([
-        ["include", `is ${(options.length != 1 || filter.value.length == 0)  && "one of"}`],
+        ["include", `is one of`],
+/*
+        ["include", `is ${filter.value.length != 1 ? "one of" : ""}`],
+*/
         ["exclude", "is not"]
     ])
 
     return (
         <div className="setting filter">
             <div className="left">
-                <Icon size={20}/>
+                <ViewPortSwitcher
+                    over={<Icon size={20}/>}
+                    breakpoint={500}
+                />
                 <p>{name}</p>
             </div>
 
@@ -47,7 +54,11 @@ export default function ExportFilter({
                     onClick={onToggleMethod}
                     className={"method default"}
                 >
-                    {humanReadableMethod.get(filter.method)?.toUpperCase() || "UNKNOWN"}
+                    <ViewPortSwitcher
+                        over={humanReadableMethod.get(filter.method)?.toUpperCase() || "UNKNOWN"}
+                        breakpoint={500}
+                    />
+
                     <div className="details">
                         { filter.method == "include" ?
                             <Equal size={14}/> :

@@ -26,10 +26,7 @@ export default function ExportSort({
                 <div className="grip">
                     <GripVertical size={22}/>
                 </div>
-                {/*<Icon size={22} strokeWidth={3}/>*/}
-                {/*<span className={"number"}>{number + 1}</span>*/}
                 <p>{name}</p>
-                {/*<Separator orientation={"vertical"}/>*/}
                 <SimpleTooltip content={<><span className="bold">click</span> to toggle</>} delay={800}>
                     <button
                         onClick={onReverseOrder}
