@@ -4,6 +4,7 @@ import {ListFilter, ListFilterPlus, Plus} from "lucide-react"
 import {AnySceneAttributeDefinition, AnyShotAttributeDefinition, SelectOption} from "@/utility/Types"
 import {MultiValue} from "react-select"
 import "./exportAddPopover.scss"
+import {ExportFilterSetting} from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/exportTab"
 
 export default function AddExportFilterPopover({
     sceneAttributeDefinitions,
@@ -15,8 +16,8 @@ export default function AddExportFilterPopover({
 }:{
     sceneAttributeDefinitions: AnySceneAttributeDefinition[] | null
     shotAttributeDefinitions: AnyShotAttributeDefinition[] | null
-    customSceneFilters: Map<number, MultiValue<SelectOption>>
-    customShotFilters: Map<number, MultiValue<SelectOption>>
+    customSceneFilters: ExportFilterSetting[]
+    customShotFilters: ExportFilterSetting[]
     addSceneFilter: (attributeDefinitionId: number) => void
     addShotFilter: (attributeDefinitionId: number) => void
 }) {
@@ -25,7 +26,7 @@ export default function AddExportFilterPopover({
     const customSceneFilterCandidates = sceneAttributeDefinitions
         ?.filter(attributeDefinition => {
             if(
-                customSceneFilters.has(attributeDefinition?.id) ||
+                customSceneFilters.some(f => f.definitionId == attributeDefinition?.id) ||
                 (attributeDefinition as AnySceneAttributeDefinition).type === "SceneTextAttributeDefinitionDTO"
             ) return false
             return true
@@ -34,7 +35,7 @@ export default function AddExportFilterPopover({
     const customShotFilterCandidates = shotAttributeDefinitions
         ?.filter(attributeDefinition => {
             if(
-                customShotFilters.has(attributeDefinition?.id) ||
+                customShotFilters.some(f => f.definitionId == attributeDefinition?.id) ||
                 (attributeDefinition as AnyShotAttributeDefinition).type === "ShotTextAttributeDefinitionDTO"
             ) return false
             return true

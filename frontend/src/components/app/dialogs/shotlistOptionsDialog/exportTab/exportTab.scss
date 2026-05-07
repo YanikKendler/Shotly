@@ -85,9 +85,11 @@ div.shotlistOptionsDialogExportTab{
 
     .combinationInfo{
       color: var(--text-60);
-      font-size: .85rem;
+      font-size: .75rem;
       margin-left: 1rem;
       text-wrap: nowrap;
+      text-transform: uppercase;
+      font-weight: 600;
     }
   }
 

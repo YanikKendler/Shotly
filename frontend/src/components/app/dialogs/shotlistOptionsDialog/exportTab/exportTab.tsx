@@ -3,7 +3,8 @@ import {
     File,
     ListOrdered,
     X,
-    RotateCcw, SquareCheck, Heading, Rows4,
+    RotateCcw,
+    Rows4,
 } from "lucide-react"
 import React, {Fragment, RefObject, useCallback, useEffect, useRef, useState} from "react"
 import gql from "graphql-tag"
@@ -35,7 +36,7 @@ import {
 import {MultiValue} from "react-select"
 import HelpLink from "@/components/app/helpLink/helpLink"
 import Skeleton from "react-loading-skeleton"
-import ExportFilter from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/exportFilter"
+import ExportFilter from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/exportFilter/exportFilter"
 import Separator from "@/components/basic/separator/separator"
 import DotLoader from "@/components/basic/DotLoader"
 import {errorNotification, infoNotification, successNotification} from "@/service/NotificationService"
@@ -57,6 +58,14 @@ import Sortable from "sortablejs"
 
 type SelectedFileTypes = "PDF" | "CSV" | "XLSX"
 
+export type ExportFilterMethod = "exclude" | "include"
+
+export interface ExportFilterSetting {
+    definitionId: number
+    method: ExportFilterMethod
+    value: MultiValue<SelectOption>
+}
+
 export type ExportSortOrder = "descending" | "ascending"
 
 export interface ExportSortSetting {
@@ -69,8 +78,8 @@ interface ExportSettingsLocalStorage {
     hideSceneHeadings?: boolean
     pdfExportOptions?: PdfExportOptions
     selectedScenes?: MultiValue<SelectOption>
-    customSceneFilters?: [number, MultiValue<SelectOption>][]
-    customShotFilters?: [number, MultiValue<SelectOption>][]
+    customSceneFilters?: ExportFilterSetting[]
+    customShotFilters?: ExportFilterSetting[]
     customSceneSorts?: ExportSortSetting[]
     customShotSorts?: ExportSortSetting[]
 }
@@ -104,8 +113,8 @@ export default function ExportTab(
         headerText: ""
     })
     const [selectedScenes, setSelectedScenes] = useState<MultiValue<SelectOption>>([])
-    const [customSceneFilters, setCustomSceneFilters] = useState<Map<number, MultiValue<SelectOption>>>(new Map())
-    const [customShotFilters, setCustomShotFilters] = useState<Map<number, MultiValue<SelectOption>>>(new Map())
+    const [customSceneFilters, setCustomSceneFilters] = useState<ExportFilterSetting[]>([])
+    const [customShotFilters, setCustomShotFilters] = useState<ExportFilterSetting[]>([])
     const [customSceneSorts, setCustomSceneSorts] = useState<ExportSortSetting[]>([])
     const [customShotSorts, setCustomShotSorts] = useState<ExportSortSetting[]>([])
 
@@ -140,8 +149,8 @@ export default function ExportTab(
             hideSceneHeadings: hideSceneHeadings,
             pdfExportOptions: pdfExportOptions,
             selectedScenes: selectedScenes,
-            customSceneFilters: Array.from(customSceneFilters),
-            customShotFilters: Array.from(customShotFilters),
+            customSceneFilters: customSceneFilters,
+            customShotFilters: customShotFilters,
             customSceneSorts: customSceneSorts,
             customShotSorts: customShotSorts
         }
@@ -184,37 +193,45 @@ export default function ExportTab(
                 .filter(selected => scenesAsOptions.some(option => option.value == selected.value))
             setSelectedScenes(filtered)
         }
-        if(settingsObject.customSceneFilters && settingsObject.customSceneFilters.length > 0) {
+        //check for def id to avoid loading filters in old (map) format
+        if(settingsObject.customSceneFilters && settingsObject.customSceneFilters.length > 0 && settingsObject.customSceneFilters[0].definitionId) {
             //only load filters that reference an existing attributeDefinition id
             let filtered = settingsObject.customSceneFilters
-                .filter(f => sceneAttributeDefinitions?.some(d => d.id == f[0]))
+                .filter(f => sceneAttributeDefinitions?.some(d => d.id == f.definitionId))
             //remove selected filter values that reference a non-existent select option
             filtered = filtered.map(
-                f => [
-                    f[0],
-                    f[1].filter(v => {
-                        const def = sceneAttributeDefinitions?.find(s => s.id == f[0]) as SceneSingleOrMultiSelectAttributeDefinition
-                        return def.options?.some(o => o?.id == v.value)
-                    })
-                ]
+                f => {
+                    const def = sceneAttributeDefinitions?.find(d => d.id == f.definitionId) as SceneSingleOrMultiSelectAttributeDefinition
+
+                    return {
+                        ...f,
+                        value: f.value.filter(v => {
+                            return def.options?.some(o => o?.id == v.value)
+                        })
+                    }
+                }
             )
-            setCustomSceneFilters(new Map(filtered))
+            setCustomSceneFilters(filtered)
         }
-        if(settingsObject.customShotFilters && settingsObject.customShotFilters.length > 0) {
+        //check for def id to avoid loading filters in old (map) format
+        if(settingsObject.customShotFilters && settingsObject.customShotFilters.length > 0 && settingsObject.customShotFilters[0].definitionId) {
             //only load filters that reference an existing attributeDefinition id
             let filtered = settingsObject.customShotFilters
-                .filter(f => shotAttributeDefinitions?.some(d => d.id == f[0]))
+                .filter(f => shotAttributeDefinitions?.some(d => d.id == f.definitionId))
             //remove selected filter values that reference a non-existent select option
             filtered = filtered.map(
-                f => [
-                    f[0],
-                    f[1].filter(v => {
-                        const def = shotAttributeDefinitions?.find(s => s.id == f[0]) as ShotSingleOrMultiSelectAttributeDefinition
-                        return def.options?.some(o => o?.id == v.value)
-                    })
-                ]
+                f => {
+                    const def = shotAttributeDefinitions?.find(d => d.id == f.definitionId) as ShotSingleOrMultiSelectAttributeDefinition
+
+                    return {
+                        ...f,
+                        value: f.value.filter(v => {
+                            return def.options?.some(o => o?.id == v.value)
+                        })
+                    }
+                }
             )
-            setCustomShotFilters(new Map(filtered))
+            setCustomShotFilters(filtered)
         }
         if(settingsObject.customSceneSorts && settingsObject.customSceneSorts.length > 0) {
             let filtered = settingsObject.customSceneSorts
@@ -331,6 +348,7 @@ export default function ExportTab(
         })) return
 
         setSelectedFileType("PDF")
+        setHideSceneHeadings(false)
         setPdfExportOptions({
             showCheckboxes: false,
             avoidOrphans: true,
@@ -339,8 +357,10 @@ export default function ExportTab(
             headerText: ""
         })
         setSelectedScenes([])
-        setCustomSceneFilters(new Map())
-        setCustomShotFilters(new Map())
+        setCustomSceneFilters([])
+        setCustomShotFilters([])
+        setCustomSceneFilters([])
+        setCustomShotFilters([])
 
         successNotification({
             title: "All filters were reset to defaults"
@@ -360,34 +380,38 @@ export default function ExportTab(
         }
 
         // scene filtering
+        /**
+         * returns true early if no filter is applicable or a filter exists and passed
+         * returns false at the end to signify that none of the above were the case - not passed
+         */
         filteredScenes = filteredScenes.filter((scene) => {
             const matchesFilters = (scene.attributes as AnySceneAttribute[]).every(attribute => {
-                if(!customSceneFilters.has(attribute.definition?.id)) return true //no filter was defined for this attribute
+                const filter = customSceneFilters.find(f => f.definitionId == attribute.definition?.id)
 
-                const filter = customSceneFilters
-                    .get(attribute.definition?.id)
-                    ?.map(f => Number(f.value))
+                if(!filter || filter.value.length == 0) return true //no filter was defined or no options were selected
 
-                if(!filter || filter.length == 0) return true //a filter was defined but no options were selected
+                let filterIncludesValue = false
 
                 switch (attribute.type){
                     case "SceneSingleSelectAttributeDTO":
                         const singleValueId = (attribute as SceneSingleSelectAttributeDto).singleSelectValue?.id
-                        if(filter.includes(singleValueId)) {
-                            return true
-                        }
+                        filterIncludesValue = filter.value.some(v => v.value == singleValueId)
                         break
                     case "SceneMultiSelectAttributeDTO":
                         const multiValue = (attribute as SceneMultiSelectAttributeDto).multiSelectValue
-                        if(multiValue?.some(value =>
-                            filter.includes(value?.id))
-                        ) {
-                            return true
-                        }
+                        filterIncludesValue = multiValue
+                            ?.some(value => filter.value.some(v => v.value == value?.id))
+                            || false
                         break
                 }
 
-                return false //filters were found but not passed
+                if(
+                    (filter.method == "include" && filterIncludesValue) ||
+                    (filter.method == "exclude" && !filterIncludesValue)
+                )
+                    return true
+
+                return false //filters were not passed
             })
 
             return matchesFilters
@@ -438,7 +462,7 @@ export default function ExportTab(
             filteredScenes = filteredScenes.slice(0,1)
         }
 
-        // shot filters
+        // shot filtering
         filteredScenes.forEach(scene => {
             if(!scene.shots || scene.shots.length == 0) return
 
@@ -456,30 +480,37 @@ export default function ExportTab(
             scene.shots.forEach(shot => {
                 if(!shot) return
 
+                /**
+                 * returns true early if no filter is applicable or a filter exists and passed
+                 * returns false at the end to signify that none of the above were the case - not passed
+                 */
                 const matchesFilters = (shot.attributes as AnyShotAttribute[]).every(attribute => {
-                    if(!customShotFilters.has(attribute.definition?.id)) return true //no filter was defined for this attribute
+                    const filter = customSceneFilters.find(f => f.definitionId == attribute.definition?.id)
 
-                    const filter = customShotFilters.get(attribute.definition?.id)?.map(f => Number(f.value))
-                    if(!filter || filter.length == 0) return true //a filter was defined but no options were selected
+                    if(!filter || filter.value.length == 0) return true //no filter was defined or no options were selected
+
+                    let filterIncludesValue = false
 
                     switch (attribute.type){
                         case "ShotSingleSelectAttributeDTO":
                             const singleValueId = (attribute as ShotSingleSelectAttributeDto).singleSelectValue?.id
-                            if(filter.includes(singleValueId)) {
-                                return true
-                            }
+                            filterIncludesValue = filter.value.some(v => v.value == singleValueId)
                             break
                         case "ShotMultiSelectAttributeDTO":
                             const multiValue = (attribute as ShotMultiSelectAttributeDto).multiSelectValue
-                            if(multiValue?.some(value =>
-                                filter.includes(value?.id))
-                            ) {
-                                return true
-                            }
+                             filterIncludesValue = multiValue
+                                ?.some(value => filter.value.some(v => v.value == value?.id))
+                                || false
                             break
                     }
 
-                    return false //filters were found but not passed
+                    if(
+                        (filter.method == "include" && filterIncludesValue) ||
+                        (filter.method == "exclude" && !filterIncludesValue)
+                    )
+                        return true
+
+                    return false //filters were not passed
                 })
 
                 if(matchesFilters){
@@ -541,7 +572,8 @@ export default function ExportTab(
         td.signal("Shotlist.Options.Export.Exported", {
             fileType: selectedFileType,
             pdfExportOptions: pdfExportOptions,
-            filterCount: customSceneFilters.size + customShotFilters.size,
+            filterCount: customSceneFilters.length + customShotFilters.length,
+            sortCount: customSceneSorts.length + customShotSorts.length,
             selectedScenes: setSelectedScenes.length
         })
 
@@ -570,40 +602,80 @@ export default function ExportTab(
 
     //FILTERS
 
-    const addShotFilter = (attributeDefinitionId: number) => {
-        const newCustomFilters = new Map(customShotFilters)
-        newCustomFilters.set(attributeDefinitionId, [])
-        setCustomShotFilters(newCustomFilters)
-    }
-
     const addSceneFilter = (attributeDefinitionId: number) => {
-        const newCustomFilters = new Map(customSceneFilters)
-        newCustomFilters.set(attributeDefinitionId, [])
-        setCustomSceneFilters(newCustomFilters)
+        setCustomSceneFilters(current => [
+            ...current,
+            {
+                definitionId: attributeDefinitionId,
+                method: "include",
+                value: []
+            }
+        ])
     }
 
-    const setShotFilterValue = (attributeDefinitionId: number, value: MultiValue<SelectOption>) => {
-        const newCustomFilters = new Map(customShotFilters)
-        newCustomFilters.set(attributeDefinitionId, value)
-        setCustomShotFilters(newCustomFilters)
+    const addShotFilter = (attributeDefinitionId: number) => {
+        setCustomShotFilters(current => [
+            ...current,
+            {
+                definitionId: attributeDefinitionId,
+                method: "include",
+                value: []
+            }
+        ])
     }
 
     const setSceneFilterValue = (attributeDefinitionId: number, value: MultiValue<SelectOption>) => {
-        const newCustomFilters = new Map(customSceneFilters)
-        newCustomFilters.set(attributeDefinitionId, value)
-        setCustomSceneFilters(newCustomFilters)
+        setCustomSceneFilters(current => current.map(f => {
+            if(f.definitionId == attributeDefinitionId) {
+                return {
+                    ...f,
+                    value: value
+                }
+            }
+            return f
+        }))
     }
 
-    const removeShotFilter = (attributeDefinitionId: number) => {
-        const newCustomFilters = new Map(customShotFilters)
-        newCustomFilters.delete(attributeDefinitionId)
-        setCustomShotFilters(newCustomFilters)
+    const setShotFilterValue = (attributeDefinitionId: number, value: MultiValue<SelectOption>) => {
+        setCustomShotFilters(current => current.map(f => {
+            if(f.definitionId == attributeDefinitionId) {
+                return {
+                    ...f,
+                    value: value
+                }
+            }
+            return f
+        }))
     }
 
     const removeSceneFilter = (attributeDefinitionId: number) => {
-        const newCustomFilters = new Map(customSceneFilters)
-        newCustomFilters.delete(attributeDefinitionId)
-        setCustomSceneFilters(newCustomFilters)
+        setCustomSceneFilters(current => current.filter(f => f.definitionId != attributeDefinitionId))
+    }
+
+    const removeShotFilter = (attributeDefinitionId: number) => {
+        setCustomShotFilters(current => current.filter(f => f.definitionId != attributeDefinitionId))
+    }
+
+    const toggleSceneFilterMethod = (attributeDefinitionId: number) => {
+        setCustomSceneFilters(current => current.map(f => {
+            if(f.definitionId == attributeDefinitionId) {
+                const newMethod = f.method == "include" ? "exclude" : "include"
+                return {...f, method: newMethod}
+            }
+
+            return f
+        }))
+    }
+
+    const toggleShotFilterMethod = (attributeDefinitionId: number) => {
+        setCustomShotFilters(current => current.map(f => {
+            if(f.definitionId == attributeDefinitionId) {
+                const newMethod = f.method == "include" ? "exclude" : "include"
+                return {...f, method: newMethod}
+            }
+
+            return f
+        }))
     }
 
     // SORTS
@@ -721,7 +793,7 @@ export default function ExportTab(
     }, [])
 
     const exist = {
-        filters: (customSceneFilters.size + customShotFilters.size) > 0,
+        filters: (customSceneFilters.length + customShotFilters.length) > 0,
         sorts: (customSceneSorts.length + customShotSorts.length) > 0
     }
 
@@ -815,10 +887,10 @@ export default function ExportTab(
 
             {/* CUSTOM SCENE FILTERS */}
 
-            {customSceneFilters.size > 0 && <h4>Scenes</h4>}
+            {customSceneFilters.length > 0 && <h4>Scenes</h4>}
             <div className="settings secondary">
                 {Array.from(customSceneFilters).map((filter, index) => {
-                    const definition = sceneAttributeDefinitions?.find(def => def?.id === filter[0]) as SceneSingleOrMultiSelectAttributeDefinition
+                    const definition = sceneAttributeDefinitions?.find(def => def?.id === filter.definitionId) as SceneSingleOrMultiSelectAttributeDefinition
 
                     if(!definition) return null
 
@@ -833,27 +905,28 @@ export default function ExportTab(
 
                     return (<Fragment key={definition.id}>
                         <ExportFilter
+                            filter={filter}
                             Icon={Icon}
                             name={definition.name || "Unnamed"}
                             isMulti={SceneAttributeDefinitionParser.isMulti(definition)}
                             options={options}
-                            value={filter[1]}
                             onChange={newValue => {
                                 setSceneFilterValue(definition.id, newValue)
                             }}
                             onRemove={() => removeSceneFilter(definition.id)}
+                            onToggleMethod={() => toggleSceneFilterMethod(definition.id)}
                         />
-                        {customSceneFilters.size > index+1 && <p className="combinationInfo">and</p>}
+                        {customSceneFilters.length > index+1 && <p className="combinationInfo">and</p>}
                     </Fragment>)
                 })}
             </div>
 
             {/* CUSTOM SHOT FILTERS */}
 
-            {customShotFilters.size > 0 && <h4>Shots</h4>}
+            {customShotFilters.length > 0 && <h4>Shots</h4>}
             <div className="settings secondary">
                 {Array.from(customShotFilters).map((filter, index) => {
-                    const definition = shotAttributeDefinitions?.find(def => def?.id === filter[0]) as ShotSingleOrMultiSelectAttributeDefinition
+                    const definition = shotAttributeDefinitions?.find(def => def?.id === filter.definitionId) as ShotSingleOrMultiSelectAttributeDefinition
 
                     if(!definition) return null
 
@@ -865,17 +938,18 @@ export default function ExportTab(
 
                     return (<Fragment key={definition.id}>
                         <ExportFilter
+                            filter={filter}
                             Icon={Icon}
                             name={definition.name || "Unnamed"}
                             isMulti={ShotAttributeDefinitionParser.isMulti(definition)}
                             options={options}
-                            value={filter[1]}
                             onChange={newValue => {
                                 setShotFilterValue(definition.id, newValue)
                             }}
                             onRemove={() => removeShotFilter(definition.id)}
+                            onToggleMethod={() => toggleShotFilterMethod(definition.id)}
                         />
-                        {customShotFilters.size > index+1 && <p className="combinationInfo">and</p>}
+                        {customShotFilters.length > index+1 && <p className="combinationInfo">and</p>}
                     </Fragment>)
                 })}
             </div>
