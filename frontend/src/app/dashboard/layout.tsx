@@ -126,8 +126,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         if(Utils.isNewerVersion(latestVersionUsed, CHANGELOG[0].version)){
             setChangelogFloaterVisible(true)
         }
-
-        localStorage.setItem(Config.localStorageKey.latestVersionUsed, CHANGELOG[0].version)
     }, [dialogStep, query.data.currentUser])
 
     const loadData = async (
@@ -287,7 +285,10 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                 }
                 {
                     changelogFloaterVisible &&
-                    <ChangeLogFloater hideFloater={() => setChangelogFloaterVisible(false)}/>
+                    <ChangeLogFloater hideFloater={() => {
+                        setChangelogFloaterVisible(false)
+                        localStorage.setItem(Config.localStorageKey.latestVersionUsed, CHANGELOG[0].version)
+                    }}/>
                 }
             </div>
         </main>

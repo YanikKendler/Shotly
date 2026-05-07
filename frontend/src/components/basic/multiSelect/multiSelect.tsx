@@ -156,6 +156,7 @@ export default function MultiSelect(
                         state.isSelected ? "var(--transparent-accent-20)" : 'transparent',
                     color: state.isFocused ? "var(--contrast)" : "var(--text)",
                     fontWeight: state.isFocused ? "bold" : "normal",
+                    cursor: "pointer"
                 }),
                 multiValue: (baseStyles) => ({
                     ...baseStyles,
@@ -171,7 +172,8 @@ export default function MultiSelect(
                     color: "var(--text-30)",
                     '&:hover': {
                         color: "var(--bad)",
-                        backgroundColor: "var(--bad-90)"
+                        backgroundColor: "var(--bad-90)",
+                        cursor: "pointer",
                     },
                 })
             }}

@@ -44,7 +44,7 @@ export default function PdfSettings({
             <div className="setting">
                 <div className="left">
                     <LucideWrapText size={20}/>
-                    <p>Avoid orphaned shots when wrapping</p>
+                    <p>Avoid single shots wrapping to new pages</p>
                 </div>
 
                 <Switch.Root

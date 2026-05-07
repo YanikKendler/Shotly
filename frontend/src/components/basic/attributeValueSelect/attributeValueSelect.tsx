@@ -2,7 +2,6 @@
 
 import "./attributeValueSelect.scss"
 import {SelectOption} from "@/utility/Types"
-import AsyncCreatableSelect from "react-select/async-creatable"
 import React, {forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState} from "react"
 import {
     components,
@@ -74,7 +73,7 @@ export const reactSelectBaseStyles: StylesConfig<SelectOption, boolean, GroupBas
         '&:hover': {
             color: "var(--bad-20)",
             backgroundColor: "var(--transparent-bad-20)",
-            cursor: "default"
+            cursor: "pointer",
         },
     }),
     placeholder: base => ({

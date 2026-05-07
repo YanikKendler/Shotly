@@ -452,6 +452,17 @@ span.key{
   }
 }
 
+span.chip{
+  background-color: var(--transparent-gray-30);
+  font-size: .9rem;
+  padding: .2em .5em;
+  border-radius: 10rem;
+
+  &.small{
+    font-size: .8rem;
+  }
+}
+
 .flex{
   display: flex;
 }
@@ -922,6 +933,7 @@ body button.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot {
   position: relative;
   -webkit-tap-highlight-color: var(--accent);
   flex-shrink: 0;
+  cursor: pointer;
 
   &[data-state="checked"] {
     background-color: var(--accent);

@@ -94,9 +94,10 @@ main.simplePage{
     }
 
     ul{
-      margin-left: 1em;
+      margin-left: 1.3em;
       margin-top: .5em;
       margin-bottom: .5em;
+      font-size: .95em;
 
       ::marker {
         color: var(--accent-40);
@@ -105,6 +106,15 @@ main.simplePage{
       li{
         margin-bottom: .3em;
       }
+    }
+
+    code {
+      background-color: var(--transparent-gray-20);
+      padding: .2rem;
+      margin: -.2rem;
+      border-radius: .2rem;
+      font-family: monospace;
+      font-size: inherit;
     }
 
     .buttons{
