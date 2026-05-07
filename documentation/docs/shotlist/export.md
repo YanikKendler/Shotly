@@ -89,6 +89,6 @@ Filters can be removed using the `X` button on the right.
 
 Using the `Add sort` button, you can add a **Custom sort** for any multi-select or single-select attribute. The shots inside each scene (or all shots if [Hide scene headings](#hide-scene-headings) is toggled on) will then be sorted by the selected attribute.
 
-By clicking on `ASCENDING` you can toggle the sort to `DECENDING` and shots will be ordered from Z to A instead.
+By clicking on `ASCENDING` you can toggle the sort to `DESCENDING` and shots will be ordered from Z to A instead.
 
 Sorts can be removed using the `X` button on the right.
