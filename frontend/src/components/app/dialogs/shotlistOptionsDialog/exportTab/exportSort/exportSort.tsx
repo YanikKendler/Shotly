@@ -1,20 +1,14 @@
-import {ArrowRight, GripVertical, LucideProps, X} from "lucide-react"
+import {ArrowRight, GripVertical, X} from "lucide-react"
 import {ExportSortOrder} from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/exportTab"
 import "./exportSort.scss"
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
-import {ForwardRefExoticComponent} from "react"
-import Separator from "@/components/basic/separator/separator"
 
 export default function ExportSort({
-    Icon,
-    number,
     name,
     order,
     onReverseOrder,
     onRemove
 }:{
-    Icon: ForwardRefExoticComponent<Omit<LucideProps, "ref">>
-    number: number
     name: string,
     order: ExportSortOrder
     onReverseOrder: () => void
@@ -30,7 +24,7 @@ export default function ExportSort({
         <div className="setting sort">
             <div className="left">
                 <div className="grip">
-                    <GripVertical size={24}/>
+                    <GripVertical size={22}/>
                 </div>
                 {/*<Icon size={22} strokeWidth={3}/>*/}
                 {/*<span className={"number"}>{number + 1}</span>*/}

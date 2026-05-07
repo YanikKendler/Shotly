@@ -6,6 +6,7 @@ div.collapsableContent{
   transition: height ease-out, padding, opacity;
   transition-duration: 300ms;
   height: 0;
+  box-sizing: content-box;
 
   &.expanded {
     height: var(--expanded-height);

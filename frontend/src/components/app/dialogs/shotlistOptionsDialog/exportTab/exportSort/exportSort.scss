@@ -1,16 +1,6 @@
 .shotlistOptionsDialogExportTab .setting.sort {
   .left{
     .number{
-      /*font-weight: 600;
-      background-color: var(--transparent-gray-20);
-      height: 1.7rem;
-      aspect-ratio: 1;
-      align-content: center;
-      text-align: center;
-      border-radius: 50%;
-      margin-right: .3rem;
-      font-size: .85rem;*/
-
       font-size: 1rem;
       font-weight: 600;
     }
@@ -34,20 +24,13 @@
       }
     }
 
-    /*.separator{
-      height: 1.5rem;
-      margin-block: 0;
-      margin-inline: .8rem;
-    }*/
-
     button.order{
-      font-size: .8rem;
+      font-size: .75rem;
       color: var(--text-40);
       border-radius: 2rem;
       font-weight: 600;
       padding: .5rem;
       border: none;
-      /*margin-inline: -.5rem;*/
 
       &:hover {
         color: var(--text-20);

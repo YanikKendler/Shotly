@@ -26,7 +26,7 @@ export default function ExportFilter({
     return (
         <div className="setting">
             <div className="left">
-                <Icon size={22}/>
+                <Icon size={20}/>
                 <p>{name}</p>
             </div>
 

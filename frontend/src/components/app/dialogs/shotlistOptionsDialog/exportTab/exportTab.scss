@@ -4,7 +4,20 @@ div.shotlistOptionsDialogExportTab{
     font-size: .9rem;
     margin-top: 1.5rem;
     margin-bottom: .2rem;
-    display: none;
+    color: var(--text-30);
+
+    &:first-of-type{
+      margin-top: 0;
+    }
+  }
+
+  h4 {
+    font-weight: 600;
+    font-size: .85rem;
+    color: var(--text-40);
+    margin-top: .6rem;
+    margin-bottom: .3rem;
+    margin-left: .15rem;
   }
 
   .settings{
@@ -14,6 +27,7 @@ div.shotlistOptionsDialogExportTab{
 
     &.secondary{
       padding-left: .5rem;
+      gap: .2rem;
     }
 
     .setting{
@@ -23,12 +37,13 @@ div.shotlistOptionsDialogExportTab{
       gap: 1rem;
       width: 100%;
       min-height: 2.5rem;
+      flex-shrink: 0;
 
       .left{
         display: flex;
         align-items: center;
         gap: .5rem;
-        color: var(--text-20);
+        color: var(--text-10);
         font-weight: 500;
         font-size: .9rem;
 
@@ -77,7 +92,7 @@ div.shotlistOptionsDialogExportTab{
   }
 
   .separator{
-    margin-block: .8rem;
+    margin-block: 1.3rem;
   }
 
   div.addButtons {

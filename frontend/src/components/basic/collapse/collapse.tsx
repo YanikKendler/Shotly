@@ -57,10 +57,14 @@ export default function Collapse({
         if(!ref.current) return
 
         ref.current.style.height = "auto"
+        ref.current.style.transition = "none"
+        ref.current.style.boxSizing = "border-box"
 
         const rect = ref.current.getBoundingClientRect()
 
         ref.current.style.height = ""
+        ref.current.style.transition = ""
+        ref.current.style.boxSizing = ""
 
         if(rect.height == 0) return
 

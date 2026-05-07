@@ -720,6 +720,11 @@ export default function ExportTab(
         }
     }, [])
 
+    const exist = {
+        filters: (customSceneFilters.size + customShotFilters.size) > 0,
+        sorts: (customSceneSorts.length + customShotSorts.length) > 0
+    }
+
     if(!shotlist) return <div className={"shotlistOptionsDialogExportTab shotlistOptionsDialogPage"}>
         <div className="top">
             <h2>Configure the export</h2>
@@ -782,7 +787,6 @@ export default function ExportTab(
                             pdfExportOptions={pdfExportOptions}
                             setPdfExportOptions={setPdfExportOptions}
                         />
-                        <Separator/>
                     </>
                 }
                 <div className="setting">
@@ -805,11 +809,13 @@ export default function ExportTab(
                 </div>
             </div>
 
-            {customSceneFilters.size + customShotFilters.size > 0 && <h3>Filters</h3>}
+            {(exist.filters || exist.sorts) && <Separator/>}
+
+            {exist.filters && <h3>Filters</h3>}
 
             {/* CUSTOM SCENE FILTERS */}
 
-            {customSceneFilters.size > 0 && <Separator text={"Scene filters"}/>}
+            {customSceneFilters.size > 0 && <h4>Scenes</h4>}
             <div className="settings secondary">
                 {Array.from(customSceneFilters).map((filter, index) => {
                     const definition = sceneAttributeDefinitions?.find(def => def?.id === filter[0]) as SceneSingleOrMultiSelectAttributeDefinition
@@ -844,7 +850,7 @@ export default function ExportTab(
 
             {/* CUSTOM SHOT FILTERS */}
 
-            {customShotFilters.size > 0 && <Separator text={"Shot filters"}/>}
+            {customShotFilters.size > 0 && <h4>Shots</h4>}
             <div className="settings secondary">
                 {Array.from(customShotFilters).map((filter, index) => {
                     const definition = shotAttributeDefinitions?.find(def => def?.id === filter[0]) as ShotSingleOrMultiSelectAttributeDefinition
@@ -874,24 +880,20 @@ export default function ExportTab(
                 })}
             </div>
 
-            {customSceneSorts.length + customShotSorts.length > 0 && <h3>Ordering</h3>}
+            {exist.sorts && <h3>Ordering</h3>}
 
             {/* CUSTOM SCENE SORTS */}
 
-            {customSceneSorts.length > 0 && <Separator text={"Scene sorts"}/>}
+            {customSceneSorts.length > 0 && <h4>Scenes</h4>}
             <div className="settings secondary" ref={sceneSortContainer}>
                 {customSceneSorts.map((sort, index) => {
                     const definition = sceneAttributeDefinitions?.find(def => def?.id === sort.definitionId) as SceneSingleOrMultiSelectAttributeDefinition
 
                     if(!definition) return null
 
-                    const Icon = SceneAttributeDefinitionParser.toIcon(definition)
-
                     return <ExportSort
                         key={definition.id}
-                        number={index}
                         name={definition.name || "Unnamed"}
-                        Icon={Icon}
                         order={sort.order}
                         onRemove={() => removeSceneSort(sort.definitionId)}
                         onReverseOrder={() => reverseSceneSort(sort.definitionId)}
@@ -901,20 +903,16 @@ export default function ExportTab(
 
             {/* CUSTOM SHOT SORTS */}
 
-            {customShotSorts.length > 0 && <Separator text={"Shot sorts"}/>}
+            {customShotSorts.length > 0 && <h4>Shots</h4>}
             <div className="settings secondary" ref={shotSortContainer}>
                 {customShotSorts.map((sort, index) => {
                     const definition = shotAttributeDefinitions?.find(def => def?.id === sort.definitionId) as ShotSingleOrMultiSelectAttributeDefinition
 
                     if(!definition) return null
 
-                    const Icon = ShotAttributeDefinitionParser.toIcon(definition)
-
                     return <ExportSort
                         key={definition.id}
-                        number={index}
                         name={definition.name || "Unnamed"}
-                        Icon={Icon}
                         order={sort.order}
                         onRemove={() => removeShotSort(sort.definitionId)}
                         onReverseOrder={() => reverseShotSort(sort.definitionId)}
