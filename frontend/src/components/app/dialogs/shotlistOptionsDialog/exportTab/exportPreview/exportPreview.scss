@@ -1,0 +1,171 @@
+.dialog .content.exportPreview{
+  width: 800px;
+  max-width: 95vw;
+  display: flex;
+  flex-direction: column;
+
+  .top {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+
+    h1{
+      font-size: 1rem;
+      font-weight: bold;
+
+      span{
+        font-weight: normal;
+        color: var(--text-30);
+        font-size: .9rem;
+      }
+    }
+
+    button {
+      padding: .5rem .8rem;
+      font-size: .9rem;
+      font-weight: bold;
+
+      &.export {
+        margin-left: auto;
+        color: var(--accent);
+        background-color: var(--transparent-accent-10);
+
+        &:hover {
+          background-color: var(--transparent-accent-20);
+        }
+      }
+
+      &.close {
+        background-color: var(--transparent-gray-10);
+
+        &:hover {
+          background-color: var(--transparent-gray-20);
+        }
+      }
+
+      @media screen and (max-width: 600px) {
+        span {
+          display: none;
+        }
+      }
+    }
+  }
+
+  .small{
+    font-size: .8rem;
+    color: var(--text-60);
+    margin-top: 1rem;
+  }
+}
+
+.exportPreview {
+  --export-default-border: light-dark(hsl(0, 0%, 70%), hsl(0, 0%, 30%));
+  --export-header-bg: light-dark(hsl(0, 0%, 75%), hsl(0, 0%, 30%));
+  --export-header-border: light-dark(hsl(0, 0%, 60%), hsl(0, 0%, 10%));
+  --export-scene-attribute-defs-bg: light-dark(hsl(0, 0%, 90%), hsl(0, 0%, 20%));
+  --export-row-bg: light-dark(hsl(0, 0%, 95%), hsl(0, 0%, 10%));
+  --export-row-odd-bg: light-dark(hsl(0, 0%, 90%), hsl(0, 0%, 15%));
+
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  color: var(--text);
+  font-size: .8rem;
+  border: 1px solid var(--export-default-border);
+  border-radius: .5rem;
+
+  .row {
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid var(--export-default-border);
+    align-items: stretch;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .cell {
+    flex: 1 1 0px;
+    padding: .5rem;
+    border-right: 1px solid var(--export-default-border);
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+
+  /* Header Styles */
+  .header {
+    background-color: var(--export-header-bg);
+    border-color: var(--export-header-border);
+
+    &.sceneAttributes {
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
+    .cell {
+      border-color: var(--export-header-border);
+    }
+  }
+
+  .sceneAttributeDefinitions {
+    background-color: var(--export-scene-attribute-defs-bg);
+    border-top-left-radius: .5rem;
+    border-top-right-radius: .5rem;
+
+    .numberCell {
+      border-top-left-radius: .5rem;
+    }
+
+    .cell:last-of-type {
+      border-top-right-radius: .5rem;
+    }
+  }
+
+  /* Shot Rows */
+  .shotRow {
+    background-color: var(--export-row-bg);
+
+    &.rowOdd {
+      background-color: var(--export-row-odd-bg);
+    }
+  }
+
+  .sceneGroup:last-of-type {
+    .shotRow:last-of-type{
+      border-bottom-left-radius: .5rem;
+      border-bottom-right-radius: .5rem;
+
+      .numberCell {
+        border-bottom-left-radius: .5rem;
+      }
+
+      .cell:last-of-type {
+        border-bottom-right-radius: .5rem;
+      }
+    }
+  }
+
+  /* Fixed-width Column for Numbers */
+  .numberCell {
+    flex: 0 0 min(4rem, 10vw);
+    text-align: center;
+  }
+
+  .empty {
+    margin: 2rem;
+    text-align: center;
+    color: var(--text-50);
+  }
+
+  &.sceneHeadingsHidden .shotAttributeDefinitions{
+    border-top-left-radius: .5rem;
+    border-top-right-radius: .5rem;
+  }
+}

@@ -13,11 +13,16 @@ Using the input field at the bottom and the `invite` button, you can now add a c
 
 Only valid email addresses can be added as collaborators. You will see an error message if you enter a syntactically valid email that is not linked to an existing Shotly account.
 
+!!! Edgecase
+    It is technically possible for the same email to be used in two different Shotly accounts by logging in with both "email & password" and "Google" using the same email. In that case, both accounts will be added as a collaborator. In the collaboration tab, all Google logins will be marked with a small "G" icon next to the email address.
+
 ## Accepting Collaborations
 
-If your account has been **invited** to collaborate on a shotlist, you will not immediately see that shotlist on your [dashboard](../dashboard.md). You first have to accept the collaboration invite by clicking the `Collaborations` button on the bottom left of your [dashboard](../dashboard.md) (this button is not visible when viewing a shotlist). You may need to `refresh` the request before you can see new invites.
+If your account has been **invited** to collaborate on a shotlist, you will not immediately see that shotlist on your [dashboard](../dashboard.md). You first have to accept the collaboration invite by clicking the `Collaborations` button on the bottom left of your [dashboard](../dashboard.md) (this button is not visible when viewing a shotlist). You may need to refresh the request using the button in the top right before you can see new invites.
 
 You can now **accept** or **decline** the request by clicking the checkmark or X icon. Upon accepting, the shotlist will show up both in your sidebar and on your dashboard. If you decline the request, it will disappear, and the shotlist's owner can **resend the request**.
+
+You can also **block** a user from sending you any more collaboration requests in the future by clicking the block icon. Blocked users can be managed via the [account](../account.md#account) dialog.
 
 ## Managing Collaborators
 
@@ -36,8 +41,9 @@ Collaborators can also be **removed** from a shotlist entirely using the trash b
 
 If a collaborator declined a collaboration request, a new button will appear in the `Collaborators` dialog that allows the shotlist owner to **resend** the collaboration request.
 
-## Edge case
-It is technically possible for the same email to be used in two different Shotly accounts by logging in with both "email & password" and "Google" using the same email. In that case, both accounts will be added as a collaborator. In the collaboration tab, all Google logins will be marked with a small "G" icon next to the email address.
-
 !!! Info
     Collaborators can only be edited by the shotlist owner. No collaborator can see or edit the collaborators.
+
+## Leaving Collaborations
+
+As a Collaborator you can leave any shotlist by opening the `Shotlist Options` dialog in the bottom left, navigating to "Collaborators" and clicking the `Leave` button. If you are the shotlist owner, you cannot leave the shotlist.

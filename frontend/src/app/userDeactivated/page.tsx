@@ -1,4 +1,4 @@
-import ErrorPage from "@/components/feedback/errorPage/errorPage"
+import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 
 export default function UserDeactivated() {
     return (

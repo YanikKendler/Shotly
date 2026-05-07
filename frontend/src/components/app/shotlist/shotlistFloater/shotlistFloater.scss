@@ -1,0 +1,117 @@
+main.shotlist .floater{
+  .reloading{
+    font-size: .9rem;
+    border: 2px solid var(--accent-70);
+    height: 35px;
+    display: flex;
+    align-items: center;
+    padding-inline: .5rem;
+    border-radius: 3rem;
+    background-color: var(--contrast);
+    color: var(--accent-20);
+  }
+
+  .saveIndicator{
+    background-color: var(--contrast);
+    border: 2px solid var(--default-interactable-border);
+    border-radius: 5rem;
+    font-size: .8rem;
+    height: 35px;
+    display: grid;
+    align-items: center;
+    justify-content: center;
+    padding-inline: .5rem;
+    transition: max-width 300ms ease-in, border 200ms;
+    max-width: 10ch;
+    overflow: hidden;
+    user-select: none;
+
+    /*There is an unused setup here that would allow changing the width of the indicator to display text*/
+
+    &::before{
+      position: absolute;
+      max-width: 30ch;
+      right: 0;
+      bottom: 40px;
+      width: max-content;
+      padding: .3rem;
+      background-color: var(--contrast);
+      border: 2px solid var(--default-interactable-border);
+      border-radius: .3rem;
+      white-space: pre-line;
+      z-index: 9999;
+
+      display: none;
+    }
+
+    &:hover{
+      border-color: var(--default-interactable-hover-border);
+
+      &::before {
+        display: block;
+      }
+    }
+
+    .saved, .saving, .error{
+      opacity: 0;
+      color: var(--text-30);
+      grid-area: 1/1/2/2;
+      transition: opacity 300ms;
+      display: flex;
+      justify-content: center;
+    }
+
+    .error{
+      color: var(--text);
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .saving{
+      animation: spin 1s linear infinite;
+    }
+
+    &[data-state="saving"] {
+      max-width: 35px;
+
+      .saving {
+        opacity: 1;
+      }
+
+      &::before{
+        content: "Your changes are being saved to Shotly's servers, this should only take a second.";
+      }
+    }
+
+    &[data-state="saved"]{
+      max-width: 35px;
+
+      .saved{
+        opacity: 1;
+      }
+
+      &::before{
+        content: 'All changes saved.';
+      }
+    }
+
+    &[data-state="error"] {
+      max-width: 35px;
+      background-color: var(--bad-60);
+      border-color: var(--bad-80);
+
+      .error {
+        opacity: 1;
+      }
+
+      &::before{
+        content: 'At least some of your changes could not be saved, please stop editing and try again later by refreshing the page.\A\AIf the problem persists, report it using "account > new issue". See the browser console for more details.';
+        border-color: var(--bad-60);
+      }
+
+      &:hover {
+        border-color: var(--bad-90);
+      }
+    }
+  }
+}

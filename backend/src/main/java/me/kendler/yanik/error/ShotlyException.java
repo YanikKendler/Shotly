@@ -20,7 +20,7 @@ public class ShotlyException extends RuntimeException implements GraphQLError {
     public Map<String, Object> getExtensions() {
         // This puts the exact Enum string (e.g., "READ_ONLY_ACCESS")
         // into the "extensions" part of the GraphQL error JSON.
-        return Map.of("code", code.name(), "type", "SHOTLY_EXCEPTION");
+        return Map.of("code", code.name(), "type", "SHOTLY_EXCEPTION", "message", this.getMessage());
     }
 
     @Override

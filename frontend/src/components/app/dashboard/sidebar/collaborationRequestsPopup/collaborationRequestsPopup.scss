@@ -1,0 +1,114 @@
+button.collaborationRequestsTrigger{
+  position: relative;
+
+  .badge{
+    aspect-ratio: 1;
+    height: 1.3rem;
+    display: grid;
+    place-items: center;
+    border-radius: 100%;
+    font-weight: bold;
+    text-align: center;
+    background-color: var(--collaborator);
+    color: var(--contrast);
+    position: absolute;
+    right: -.5rem;
+    bottom: 1rem;
+    font-size: .8rem;
+  }
+}
+
+[data-theme="dark"] .popoverContent.CollaborationRequests{
+  --reloadButtonBg: hsl(0, 0%, 8%);
+}
+
+.popoverContent.CollaborationRequests{
+  --reloadButtonBg: hsl(0, 0%, 95%);
+
+  min-width: 55ch;
+  min-height: 10rem;
+  max-width: 90vw;
+  border: 1px solid var(--default-interactable-border);
+  overflow: hidden;
+
+  .top {
+    width: 100%;
+    background-color: var(--reloadButtonBg);
+    padding-left: .4rem;
+    padding-right: .3rem;
+    padding-block: .5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h2 {
+      text-align: start;
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    button.reload{
+      color: var(--text-30);
+
+      &:not([disabled]):hover{
+        color: var(--text-10);
+        background-color: var(--transparent-gray-20);
+      }
+
+      &[disabled]{
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    padding: .3rem;
+    flex-grow: 1;
+    gap: .3rem;
+  }
+
+  .empty{
+    padding: .5rem;
+    color: var(--text-50);
+    margin-top: 1rem;
+  }
+
+  .collaborationRequest{
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    margin: .1rem;
+
+    p{
+      text-align: left;
+      color: var(--text-20);
+
+      span{
+        color: var(--text);
+      }
+    }
+
+    div.buttons{
+      display: flex;
+      gap: .3rem;
+      margin-left: auto;
+
+      button{
+        border: 1px solid var(--default-interactable-border);
+        padding: 0;
+        height: 1.7rem;
+        aspect-ratio: 1;
+        display: grid;
+        place-content: center;
+
+        &:hover{
+          border-color: var(--accent);
+          color: var(--accent);
+        }
+      }
+    }
+  }
+}

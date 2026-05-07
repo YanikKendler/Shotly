@@ -14,13 +14,19 @@ Each section can be collapsed by clicking on its name.
 
 ### Collaborations
 
-In the bottom-left corner, you can manage [collaboration](./shotlist/collaboration.md) requests using the `Collaborations` button or the shortcut `Alt + C`. This opens a list of pending collaboration requests. If you have pending requests, a yellow badge will appear on the button to notify you. If you do not see a request that was sent recently, you may need to `refresh` the request list.
+In the bottom-left corner, you can manage [collaboration](./shotlist/collaboration.md) requests using the `Collaborations` button or the shortcut `Alt + C`. This opens a list of pending collaboration requests. If you have pending requests, a yellow badge will appear on the button to notify you. If you do not see a request that was sent recently, you may need to refresh the request list using the button in the top right.
 
 You can **accept or decline requests** by clicking the checkmark or X icon. When you accept a request, the shotlist will appear both in your sidebar and on your dashboard. If you decline the request, it will disappear and the shotlist owner can resend the request.
 
+You can also **block** a user from sending you any more collaboration requests in the future by clicking the block icon. Blocked users can be managed via the [account](./account.md#blocked-users) dialog.
+
+### Archive
+
+Below the `Collaborations` button, you will find a link to the archive page. Here you can see shotlists that were [archived](./shotlist/archive.md) by their respective owners.
+
 ### Account
 
-Below the `Collaborations` button, you will find another button that opens the [Account dialog](./account.md), where you can manage your account and settings.
+The last button opens the [Account dialog](./account.md), where you can manage your account and settings.
 
 ## Templates and Shotlists
 

@@ -3,19 +3,20 @@
 import Link from "next/link"
 import "./dashboard.scss"
 import React, {useContext, useEffect, useState} from "react"
-import ErrorPage from "@/components/feedback/errorPage/errorPage"
-import {Blocks, NotepadText, Plus,} from "lucide-react"
+import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
+import {ArrowRight, Plus,} from "lucide-react"
 import {ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
-import {wuTime} from "@yanikkendler/web-utils"
-import {useCreateShotlistDialog} from "@/components/dialogs/createShotlistDialog/createShotlistDialog"
-import Utils from "@/util/Utils"
+import {useCreateShotlistDialog} from "@/components/app/dialogs/createShotlistDialog/createShotlistDialog"
+import Utils from "@/utility/Utils"
 import Config from "@/Config"
-import {useCreateTemplateDialog} from "@/components/dialogs/createTemplateDialog/createTemplateDialog"
+import {useCreateTemplateDialog} from "@/components/app/dialogs/createTemplateDialog/createTemplateDialog"
 import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
 import Skeleton from "react-loading-skeleton"
 import {DashboardContext, DialogStep} from "@/context/DashboardContext"
-import SimpleTooltip from "@/components/tooltip/simpleTooltip"
+import DashboardGridShotlist from "@/components/app/dashboard/grid/dashboardGridItem/dashboardGridShotlist"
+import DashboardGridTemplate from "@/components/app/dashboard/grid/dashboardGridItem/dashboardGridTemplate"
+import DashboardGrid from "@/components/app/dashboard/grid/dashboardGrid/dashboardGrid"
 
 export default function Overview() {
     const dashboardContext = useContext(DashboardContext)
@@ -43,9 +44,6 @@ export default function Overview() {
                 side: "right",
                 align: 'center'
             }},
-/*
-            { element: '.sidebar .template', popover: { description: 'You can use it when creating your first shotlist to start with a default attribute for shots and scenes.', side: "right", align: 'center' }},
-*/
             { element: '.gridItem.add.shotlist', popover: { description: 'Click here to create a new Shotlist.', side: "bottom", align: 'center' }},
         ],
         onDestroyed: () => {
@@ -103,75 +101,42 @@ export default function Overview() {
     if(dashboardContext.query.loading) return (
         <main className="overview dashboardContent">
             <h2>Shotlists</h2>
-            <div className="grid">
+            <DashboardGrid>
                 <Skeleton height={125}/>
                 <Skeleton height={125}/>
-            </div>
+            </DashboardGrid>
             <h2>Templates</h2>
-            <div className="grid">
+            <DashboardGrid>
                 <Skeleton height={125}/>
                 <Skeleton height={125}/>
-            </div>
+            </DashboardGrid>
         </main>
     )
 
     return (
         <main className="overview dashboardContent">
             <h2>Shotlists</h2>
-            <div className="grid">
+            <DashboardGrid>
                 {shotlists.slice(0, 8).map((shotlist: ShotlistDto) => (
-                    <Link href={`/shotlist/${shotlist.id}`} key={shotlist.id} className="gridItem shotlist">
-                        <SimpleTooltip text={shotlist.name || "Unnamed"}>
-                            <div className="top">
-                                <NotepadText size={18}/>
-                                <h3>{shotlist.name || <span className='italic'>Unnamed</span>}</h3>
-                            </div>
-                        </SimpleTooltip>
-                        <p className={"bold"}>
-                            {shotlist.sceneCount} scene{shotlist.sceneCount && shotlist.sceneCount === 1 ? "" : "s"}
-                            {" • "}
-                            {shotlist.shotCount} shot{shotlist.shotCount && shotlist.shotCount === 1 ? "" : "s"}
-                        </p>
-                        <p>Created by: <span className={"bold"}>{shotlist.owner?.name}</span></p>
-                        <p>Last edited: <span className={"bold"}>{wuTime.toRelativeString(shotlist.editedAt, {precision: 1, separator: ":"}) || "Unkown"}</span></p>
-                    </Link>
+                    <DashboardGridShotlist shotlist={shotlist} key={shotlist.id}/>
                 ))}
-                <button className={"gridItem add shotlist"} onClick={() => {
+                <button className={"dashboardGridItem add shotlist"} onClick={() => {
                     driverObj.destroy()
                     openCreateShotlistDialog()
                 }}>
-                    <span><Plus/>New Shotlist</span>
+                    <span><Plus size={22}/>New Shotlist</span>
                 </button>
-            </div>
+            </DashboardGrid>
             <h2>Templates</h2>
-            <div className="grid">
-                {templates.slice(0, 8)?.sort(Utils.orderShotlistsOrTemplatesByName)?.map((template: TemplateDto) => (
-                    <Link href={`dashboard/template/${template.id}`} key={template.id} className="gridItem template">
-                        <SimpleTooltip text={template.name || "Unnamed"}>
-                            <div className="top">
-                                <Blocks size={18}/>
-                                <h3>{template.name || <span className='italic'>Unnamed</span>}</h3>
-                            </div>
-                        </SimpleTooltip>
-                        <p>
-                            {"Scenes: "}
-                            <span className={"bold"}>
-                                {template.sceneAttributeCount} Attribute{template.sceneAttributeCount && template.sceneAttributeCount === 1 ? "" : "s"}
-                            </span>
-                        </p>
-                        <p>
-                            {"Shots: "}
-                            <span className={"bold"}>
-                                {template.shotAttributeCount} Attribute{template.shotAttributeCount && template.shotAttributeCount === 1 ? "" : "s"}
-                            </span>
-                        </p>
-                        <p>Created by: <span className={"bold"}>{template.owner?.name}</span></p>
-                    </Link>
+            <DashboardGrid>
+                {templates?.slice(0, 8)?.sort(Utils.orderShotlistsOrTemplatesByName)?.map((template: TemplateDto) => (
+                    <DashboardGridTemplate template={template} key={template.id}/>
                 ))}
-                <button className={"gridItem add"} onClick={openCreateTemplateDialog}>
-                    <span><Plus/>New Template</span>
+                <button className={"dashboardGridItem add"} onClick={openCreateTemplateDialog}>
+                    <span><Plus size={22}/>New Template</span>
                 </button>
-            </div>
+            </DashboardGrid>
+            <Link href={"/dashboard/archive"} className={"archive default"}>Archive <ArrowRight size={16} strokeWidth={2}/></Link>
 
             {CreateShotlistDialog}
             {CreateTemplateDialog}

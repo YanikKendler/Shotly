@@ -1,41 +1,41 @@
 'use client'
 
 import gql from "graphql-tag"
-import Link from "next/link"
-import {ApolloQueryResult, InteropQueryResult, useApolloClient} from "@apollo/client"
+import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import "./layout.scss"
 import React, {useEffect, useRef, useState} from "react"
-import ErrorPage from "@/components/feedback/errorPage/errorPage"
+import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
-import {Blocks, Check, ChevronDown, House, Inbox, Menu, NotepadText, Plus, RefreshCw, User, X} from "lucide-react"
-import {CollaborationDto, CollaborationState, Query, ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
-import {Collapsible, Dialog, Popover, VisuallyHidden} from "radix-ui"
-import {wuGeneral} from "@yanikkendler/web-utils"
+import { Query } from "../../../lib/graphql/generated"
 import auth from "@/Auth"
 import {usePathname, useRouter} from "next/navigation"
-import {useCreateShotlistDialog} from "@/components/dialogs/createShotlistDialog/createShotlistDialog"
-import {useAccountDialog} from "@/components/dialogs/accountDialog/accountDialog"
-import Utils from "@/util/Utils"
-import Iconmark from "@/components/iconmark"
-import {useCreateTemplateDialog} from "@/components/dialogs/createTemplateDialog/createTemplateDialog"
-import Skeleton from "react-loading-skeleton"
-import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
+import {useCreateShotlistDialog} from "@/components/app/dialogs/createShotlistDialog/createShotlistDialog"
+import {useAccountDialog} from "@/components/app/dialogs/accountDialog/accountDialog"
+import Utils from "@/utility/Utils"
+import {useCreateTemplateDialog} from "@/components/app/dialogs/createTemplateDialog/createTemplateDialog"
+import LoadingPage from "@/components/app/feedback/loadingPage/loadingPage"
 import {DashboardContext, DialogStep} from "@/context/DashboardContext"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
 import Config from "@/Config"
-import HelpLink from "@/components/helpLink/helpLink"
-import Separator from "@/components/separator/separator"
-import SimpleTooltip from "@/components/tooltip/simpleTooltip"
 import {errorNotification} from "@/service/NotificationService"
-import Radio, {RadioResult} from "@/components/inputs/radio/radio"
-import JustBoughtProDialog from "@/components/dialogs/justBoughtProDialog/justBoughtProDialog"
-import TextField from "@/components/inputs/textField/textField"
-import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys"
-import Image from "next/image" //package has incorrectly configured type exports
+import JustBoughtProDialog from "@/components/app/dialogs/justBoughtProDialog/justBoughtProDialog"
+import DashboardHeader from "@/components/app/dashboard/dashboardHeader/dashboardHeader"
+import EnterNameFloater from "@/components/app/dashboard/floaterDialogs/enterNameFloater"
+import HowDidYouHearFloater from "@/components/app/dashboard/floaterDialogs/howDidYouHearFloater"
+import ChangeLogFloater from "@/components/app/dashboard/floaterDialogs/changeLogFloater"
+import {CHANGELOG} from "@/data/changelog"
+import DashboardFloater from "@/components/app/dashboard/dashboardFloater/dashboardFloater";
+import DashboardSidebar, {DashboardSidebarRef} from "@/components/app/dashboard/sidebar/dashboardSidebar/dashboardSidebar"
+import useDashboardKeybinds from "@/service/useDashboardKeybinds"
+
+export interface DashboardQueryConf {
+    loadShotlists: boolean
+    loadTemplates: boolean
+    loadUser: boolean
+}
 
 export default function DashboardLayout({children}: { children: React.ReactNode }) {
     const client = useApolloClient()
-    const router = useRouter()
     const pathname = usePathname()
 
     const { openCreateShotlistDialog, CreateShotlistDialog } = useCreateShotlistDialog()
@@ -44,61 +44,58 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
-    const [collaborationRequestOpen, setCollaborationRequestOpen] = useState(false)
+    const sidebarRef = useRef<DashboardSidebarRef>(null)
 
     const [dialogStep, setDialogStep] = useState(DialogStep.LOADING)
 
-    const [pendingCollaborations, setPendingCollaborations] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
-
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false)
-    const [collaborationReloadAllowed, setCollaborationReloadAllowed] = useState<boolean>(true)
 
-    const [enterNameDialogOpen, setEnterNameDialogOpen] = useState(false)
-    const [newName, setNewName] = useState<string>("")
+    const [enterNameFloaterVisible, setEnterNameFloaterVisible] = useState(false)
+    const [howDidYouHearFloaterVisible, setHowDidYouHearFloaterVisible] = useState(false)
+    const [changelogFloaterVisible, setChangelogFloaterVisible] = useState(false)
 
-    const [howDidYouHearDialogOpen, setHowDidYouHearDialogOpen] = useState(false)
-    const [howDidYouHearReason, setHowDidYouHearReason] = useState("")
-    const [howDidYouHearText, setHowDidYouHearText] = useState("")
+    const [refreshSignal, setRefreshSignal] = useState(0)
 
-    const [easterEggOpen, setEasterEggOpen] = useState(false)
+    useDashboardKeybinds({
+        openCreateShotlistDialog: openCreateShotlistDialog,
+        openCreateTemplateDialog: openCreateTemplateDialog,
+        openAccountDialog: openAccountDialog,
+        toggleCollaborationRequests: () => sidebarRef.current?.toggleCollaborationRequests()
+    })
 
-    //const [analyticsDialogOpen, setAnalyticsDialogOpen] = useState(false)
-
+    // load Data
     useEffect(() => {
-        let unsubscribe = tinykeys(window, {
-            "Alt+N": event => {
-                event.preventDefault()
-                openCreateShotlistDialog()
-            },
-            "Alt+S": event => {
-                event.preventDefault()
-                openCreateShotlistDialog()
-            },
-            "Alt+T": event => {
-                event.preventDefault()
-                openCreateTemplateDialog()
-            },
-            "Alt+H": event => {
-                event.preventDefault()
-                router.push("/dashboard")
-            },
-            "Alt+A": event => {
-                event.preventDefault()
-                openAccountDialog()
-            },
-            "Alt+C": event => {
-                event.preventDefault()
-                setCollaborationRequestOpen(isOpen => !isOpen)
-            },
-            "S h o t l y": event => {
-                setEasterEggOpen(true)
-            }
-        })
-        return () => {
-            unsubscribe()
+        if(!auth.isAuthenticated()){
+            auth.login()
+            return
         }
+
+        if(!auth.getUser()) return
+
+        loadData()
+            .then(result => {
+                // when creating a new account, the backend sometimes takes too long to create the default template
+                // in order for it to still get displayed, the templates might be refetched
+                if(!result.data?.currenUser?.howDidYouHearReason && result.data?.templates?.length == 0){
+                    setTimeout(() => {
+                        loadData({
+                            loadShotlists: false,
+                            loadTemplates: true,
+                            loadUser: false
+                        })
+                    },1000)
+                }
+            })
     }, [])
 
+    //initialize dialogs
+    useEffect(() => {
+        if(!query.loading && dialogStep == DialogStep.LOADING) {
+            setDialogStep(1)
+        }
+    }, [query.loading])
+
+    //Show floater Dialogs
     useEffect(() => {
         if(!query.data.currentUser) return
 
@@ -107,96 +104,85 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         const howDidYouHearReason = query.data.currentUser?.howDidYouHearReason
 
         if(!howDidYouHearReason || wuConstants.Regex.empty.test(howDidYouHearReason) || Config.OVERRIDE_INTRO_CHECKS){
-            setHowDidYouHearDialogOpen(true)
+            setHowDidYouHearFloaterVisible(true)
         }
 
         const email = query.data.currentUser?.email
         const name = query.data.currentUser?.name
 
         if((name && email && name == email) || Config.OVERRIDE_INTRO_CHECKS){
-            setEnterNameDialogOpen(true)
+            setEnterNameFloaterVisible(true)
         }
 
-        /*if(query.data.currentUser.allowAnalytics == null || Config.OVERRIDE_INTRO_CHECKS){
-            setAnalyticsDialogOpen(true)
-        }*/
+        const latestVersionUsed = localStorage.getItem(Config.localStorageKey.latestVersionUsed)
+
+        if(
+            !latestVersionUsed &&
+            new Date(query.data.currentUser.createdAt).getTime() < Date.now() - wuConstants.Time.msPerHour
+        ){
+            setChangelogFloaterVisible(true)
+        }
+
+        if(Utils.isNewerVersion(latestVersionUsed, CHANGELOG[0].version)){
+            setChangelogFloaterVisible(true)
+        }
     }, [dialogStep, query.data.currentUser])
 
-    useEffect(() => {
-        if(!auth.isAuthenticated()){
-            router.replace('/')
-            return
-        }
+    const loadData = async (
+        conf: DashboardQueryConf = {loadShotlists: true, loadTemplates: true, loadUser: true}
+    ) => {
+        setQuery(current => ({
+            ...current,
+            loading: true,
+        }))
 
-        if(!auth.getUser()) return
-
-        loadData()
-        loadPendingCollaborations()
-        setCollaborationReloadAllowed(true)
-    }, [])
-
-    useEffect(() => {
-        if(!query.loading && dialogStep == DialogStep.LOADING) {
-            setDialogStep(1)
-        }
-    }, [query.loading])
-
-    const loadData = async () => {
         const result = await client.query({
-                query: gql`
-                    query home{
-                        shotlists{
-                            personal {
-                                id
-                                name
-                                sceneCount
-                                shotCount
-                                editedAt
-                                owner {
-                                    name
-                                }
-                            }
-                            shared {
-                                id
-                                name
-                                sceneCount
-                                shotCount
-                                editedAt
-                                owner {
-                                    name
-                                }
-                            }
-                        }
-                        templates {
+            query: gql`
+                query home($loadShotlists: Boolean!, $loadTemplates: Boolean!, $loadUser: Boolean!){
+                    shotlists @include(if: $loadShotlists){
+                        personal {
                             id
                             name
-                            shotAttributeCount
-                            sceneAttributeCount
+                            sceneCount
+                            shotCount
+                            editedAt
                             owner {
                                 name
+                                email
                             }
                         }
-                        pendingCollaborations{
+                        shared {
                             id
-                            user {
-                                id
+                            name
+                            sceneCount
+                            shotCount
+                            editedAt
+                            owner {
                                 name
+                                email
                             }
-                            shotlist {
-                                name
-                            }
-                            collaborationState
-                            collaborationType
                         }
-                        currentUser {
+                    }
+                    templates @include(if: $loadTemplates){
+                        id
+                        name
+                        shotAttributeCount
+                        sceneAttributeCount
+                        owner {
                             name
                             email
-                            howDidYouHearReason
                         }
-                    }`,
-                fetchPolicy: "no-cache"
-            },
-        )
+                    }
+                    currentUser @include(if: $loadUser){
+                        name
+                        email
+                        howDidYouHearReason
+                        createdAt
+                    }
+                }`,
+            variables: conf,
+            fetchPolicy: "no-cache"
+        })
 
         if(result.errors){
             console.error(result.errors)
@@ -206,52 +192,17 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             })
         }
 
-        // when creating a new account, the backend sometimes takes too long to create the default template
-        // in order for it to still get displayed, the templates might be refetched
-        if(!result.data?.currenUser?.howDidYouHearReason && result.data?.templates?.length == 0){
-            console.log("scheduled refetch")
-            setTimeout(() => {
-                refetchTemplates()
-            },1000)
-        }
-
-        setQuery(result)
-    }
-
-    const refetchTemplates = async () => {
-        console.log("refetch")
-
-        const result = await client.query({
-                query: gql`
-                    query refetchTemplates{
-                        templates {
-                            id
-                            name
-                            shotAttributeCount
-                            sceneAttributeCount
-                            owner {
-                                name
-                            }
-                        }
-                    }`,
-                fetchPolicy: "no-cache"
-            },
-        )
-
-        if(result.errors){
-            console.error(result.errors)
-            errorNotification({
-                title: "Failed to reload templates"
-            })
-        }
-
         setQuery(current => ({
-            ...current,
+            ...result,
             data: {
                 ...current.data,
-                templates: result.data.templates
-            }
+                currentUser: conf.loadUser ? result.data.currentUser : current.data.currentUser,
+                shotlists: conf.loadShotlists ? result.data.shotlists : current.data.shotlists,
+                templates: conf.loadTemplates ? result.data.templates : current.data.templates
+            },
         }))
+
+        return result
     }
 
     const incrementDialogStep = (currentStep: DialogStep) => {
@@ -259,175 +210,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
         setDialogStep(currentStep + 1)
     }
-
-    const loadPendingCollaborations = async () => {
-        try {
-            setCollaborationReloadAllowed(false)
-            setPendingCollaborations(current => ({
-                ...current,
-                loading: true
-            }))
-
-            const result = await client.query({
-                query: gql`
-                    query pendingCollaborations{
-                        pendingCollaborations{
-                            id
-                            owner {
-                                name
-                            }
-                            shotlist {
-                                name
-                            }
-                            collaborationState
-                            collaborationType
-                        }
-                    }`,
-                fetchPolicy: "no-cache"
-            })
-
-            setTimeout(()=> {
-                setCollaborationReloadAllowed(true)
-            }, wuConstants.Time.msPerSecond * 5)
-
-            setPendingCollaborations(result)
-        }
-        catch (error) {
-            errorNotification({
-                title: "Failed to load collaboration requests",
-                tryAgainLater: true
-            })
-        }
-    }
-
-    const acceptOrDeclineCollaboration = async (collaborationId: string, newState: CollaborationState) => {
-        const result = await client.mutate({
-            mutation: gql`
-                mutation acceptOrDeclineCollaboration($collaborationId: String!, $newState: CollaborationState!) {
-                    acceptOrDeclineCollaboration(editDTO: {
-                        id: $collaborationId,
-                        collaborationState: $newState
-                    }) {
-                        id
-                        user {
-                            id
-                            email
-                            name
-                        }
-                        collaborationType
-                        collaborationState
-                    }
-                }
-            `,
-            variables: {collaborationId: collaborationId, newState: newState},
-        })
-        if (result.errors) {
-            errorNotification({
-                title: `Failed to ${newState} collaboration`,
-                tryAgainLater: true
-            })
-            console.error(result.errors);
-            return;
-        }
-
-        if(newState == CollaborationState.Accepted) {
-            loadData()
-        }
-
-        setPendingCollaborations(current => {
-            let newCollaborations = current.data.pendingCollaborations?.filter(c => c?.id !== collaborationId) || []
-
-            return {
-                ...current,
-                data: {
-                    ...current.data,
-                    pendingCollaborations: newCollaborations
-                }
-            }
-        })
-    }
-
-    const handleNewUserNameSubmit = () => {
-        if(wuConstants.Regex.empty.test(newName)) return
-
-        client.mutate({
-                mutation: gql`
-                    mutation updateUser($name: String!){
-                        updateUser(editDTO: {
-                            name: $name
-                        }) {
-                            id
-                            name
-                        }
-                    }`,
-                variables: {name: newName.trim()},
-            },
-        ).then(({errors}) => {
-            if(errors) {
-                errorNotification({
-                    title: "Failed to update Username",
-                    tryAgainLater: true
-                })
-                console.error("Error updating username:", errors);
-            }
-        })
-
-        setEnterNameDialogOpen(false)
-    }
-
-    const handleHowDidYouHearReasonChange = (result: RadioResult) => {
-        setHowDidYouHearReason(result.value || "")
-        if(result.value == "other")
-            setHowDidYouHearText(result.otherText)
-    }
-
-    const handleHowDidYouHearReasonSubmit = () => {
-        let reason = howDidYouHearReason
-        if(howDidYouHearReason == "other")
-            reason = howDidYouHearText
-
-        client.mutate({
-            mutation: gql`
-                mutation setHowDidYourHearReason($reason: String!){
-                    howDidYourHearReason(reason: $reason) {
-                        id
-                    }
-                }
-            `,
-            variables: {reason: reason}
-        }).then(({errors}) => {
-            if(errors){
-                console.error(errors)
-                errorNotification({
-                    title: "Failed to submit feedback",
-                })
-            }
-        })
-
-        setHowDidYouHearDialogOpen(false)
-    }
-
-    /*const handleAnalyticsSubmit = (decision: boolean) => {
-        client.mutate({
-            mutation: gql`
-                mutation setAllowAnalytics($allow: Boolean!){
-                    allowAnalytics(allow: $allow) {
-                        id
-                    }
-                }
-            `,
-            variables: {allow: decision}
-        }).then(({errors}) => {
-            if(errors){
-                console.error(errors)
-                errorNotification({
-                    title: "Failed to set analytics preference",
-                })
-            }
-        })
-
-        setAnalyticsDialogOpen(false)
-    }*/
 
     if(query.error) return <ErrorPage
         title='Data could not be loaded'
@@ -437,7 +219,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     />
 
     if(!auth.getUser())
-        return <LoadingPage title={Config.loadingMessage.authGetUser}/>
+        return <LoadingPage/>
 
     //yeah i know this is ugly
     const isTemplatePage = pathname.includes("template")
@@ -446,10 +228,9 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         <DashboardContext.Provider value={{
             query: query,
             setQuery: setQuery,
-            pendingCollaborations: pendingCollaborations,
-            setPendingCollaborations: setPendingCollaborations,
             dialogStep: dialogStep,
-            incrementDialogStep: incrementDialogStep
+            incrementDialogStep: incrementDialogStep,
+            refreshSignal: refreshSignal
         }}>
         <title>Shotly | Dashboard</title>
         <main className="home">
@@ -460,253 +241,32 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                     minSize={12}
                     className={`sidebar ${isTemplatePage ? "collapse" : ""} ${sidebarOpen ? "open" : "closed"}`}
                 >
-                    <div className="content">
-                        <div className="top">
-                            <SimpleTooltip
-                                content={<div>
-                                    <p><span className="bold">Click</span> to go back to the Dashboard</p>
-                                    <p><span className="key">Alt</span> + <span className="key">H</span></p>
-                                </div>}
-                            >
-                                <Link href={`/dashboard`} onClick={e => {
-                                    wuGeneral.onNthClick(() => {
-                                        window.open("https://orteil.dashnet.org/cookieclicker", '_blank')?.focus()
-                                    }, e.nativeEvent, 10)
-                                }}>
-                                    <House strokeWidth={2.5} size={20}/>
-                                </Link>
-                            </SimpleTooltip>
-                            <p>/</p>
-                            <h1>Dashboard</h1>
-                        </div>
-                        <div className="list">
-                            <Collapsible.Root className={"CollapsibleRoot dashboardSidebar"} id={"yourShotlists"}
-                                              defaultOpen={true}>
-                                <Collapsible.Trigger className={"noClickFx"}>
-                                    My Shotlists <ChevronDown size={18} className={"chevron"}/>
-                                </Collapsible.Trigger>
-                                <Collapsible.Content
-                                    className="CollapsibleContent dashboardSidebar"
-                                >
-                                    {
-                                        query.loading ? <>
-                                            <Skeleton height={"1.5rem"}/>
-                                            <Skeleton height={"1.5rem"}/>
-                                        </> :
-                                        !query.data.shotlists?.personal || query.data.shotlists.personal.length === 0 ? (
-                                            <button onClick={openCreateShotlistDialog} className={"create"}>
-                                                Create new <Plus size={16}/>
-                                            </button>
-                                        ) :
-                                        (query.data.shotlists.personal as ShotlistDto[])?.sort(Utils.orderShotlistsOrTemplatesByName)?.map((shotlist) => (
-                                            <SimpleTooltip text={shotlist.name || "Unnamed"} key={shotlist.id}>
-                                                <Link href={`/shotlist/${shotlist.id}`}>
-                                                    <NotepadText size={18}/>
-                                                    {shotlist.name ? <span className={"truncate"}>{shotlist.name}</span> : (
-                                                        <span className={"italic"}>Unnamed</span>)}
-                                                </Link>
-                                            </SimpleTooltip>
-                                        ))
-                                    }
-                                </Collapsible.Content>
-                            </Collapsible.Root>
-
-                            <Collapsible.Root
-                                className={"CollapsibleRoot dashboardSidebar"}
-                                defaultOpen={true}
-                            >
-                                <Collapsible.Trigger className={"noClickFx"}>
-                                    Shared Shotlists <ChevronDown size={18} className={"chevron"}/>
-                                </Collapsible.Trigger>
-                                <Collapsible.Content
-                                    className="CollapsibleContent dashboardSidebar"
-                                >
-                                    {
-                                        query.loading ? <>
-                                            <Skeleton height={"1.5rem"}/>
-                                            <Skeleton height={"1.5rem"}/>
-                                        </> :
-                                        !query.data.shotlists?.shared || query.data.shotlists.shared.length <= 0 ? (
-                                            <p className={"empty"}>No shared shotlists yet</p>
-                                        ) :
-                                        (query.data.shotlists.shared as ShotlistDto[])?.sort(Utils.orderShotlistsOrTemplatesByName)?.map((shotlist) => (
-                                            <SimpleTooltip text={shotlist.name || "Unnamed"} key={shotlist.id}>
-                                                <Link href={`/shotlist/${shotlist.id}`}>
-                                                    <NotepadText size={18}/>
-                                                    {shotlist.name ? <span className={"truncate"}>{shotlist.name}</span> : (
-                                                        <span className={"italic"}>Unnamed</span>)}
-                                                </Link>
-                                            </SimpleTooltip>
-                                        ))
-                                    }
-                                </Collapsible.Content>
-                            </Collapsible.Root>
-
-                            <Separator/>
-
-                            <Collapsible.Root className={"CollapsibleRoot dashboardSidebar"} defaultOpen={true}>
-                                <Collapsible.Trigger className={"noClickFx"}>
-                                    My Templates <ChevronDown size={18} className={"chevron"}/>
-                                </Collapsible.Trigger>
-                                <Collapsible.Content
-                                    className="CollapsibleContent dashboardSidebar"
-                                >
-                                    {
-                                        query.loading ? <>
-                                            <Skeleton height={"1.5rem"}/>
-                                            <Skeleton height={"1.5rem"}/>
-                                        </> :
-                                        !query.data.templates || query.data.templates.length === 0 ? (
-                                            <p className="empty">Nothing here yet</p>
-                                        ) :
-                                        (query.data.templates as TemplateDto[])?.sort(Utils.orderShotlistsOrTemplatesByName)?.map((template) => (
-                                            <SimpleTooltip text={template.name || "Unnamed"} key={template.id}>
-                                                <Link href={`/dashboard/template/${template.id}`}
-                                                      className={"template"}>
-                                                    <Blocks size={18}/>
-                                                    {template.name ? <span className={"truncate"}>{template.name}</span> : (
-                                                        <span className={"italic"}>Unnamed</span>)}
-                                                </Link>
-                                            </SimpleTooltip>
-                                        ))
-                                    }
-                                </Collapsible.Content>
-                            </Collapsible.Root>
-                            {/*<Collapsible.Root className={"CollapsibleRoot dashboardSidebar"} defaultOpen={false}>
-                                <Collapsible.Trigger className={"noClickFx"}>
-                                    Shared Templates <ChevronDown size={18} className={"chevron"}/>
-                                </Collapsible.Trigger>
-                                <Collapsible.Content
-                                    className="CollapsibleContent dashboardSidebar"
-                                >
-                                    <p className={"empty"}>work in progress</p>
-                                </Collapsible.Content>
-                            </Collapsible.Root>*/}
-
-                            <div className="bottom">
-                                {/*only visible on mobile (via CSS)*/}
-                                <button className="shotlist new accent" onClick={openCreateShotlistDialog}>
-                                    New Shotlist <NotepadText size={18}/>
-                                </button>
-                                <button className="template new accent" onClick={openCreateTemplateDialog}>
-                                    New Template <Blocks size={18}/>
-                                </button>
-                                {/*always visible*/}
-                                <Popover.Root open={collaborationRequestOpen} onOpenChange={setCollaborationRequestOpen}>
-                                    <SimpleTooltip
-                                        content={<p><span className="key">Alt</span> + <span className="key">C</span></p>}
-                                    >
-                                        <Popover.Trigger className={"collaborationRequestsTrigger"}>
-                                            Collaborations
-                                            <Inbox size={18}/>
-                                            {
-                                                pendingCollaborations.data.pendingCollaborations && pendingCollaborations.data.pendingCollaborations.length > 0 &&
-                                                <span className={"badge"}>{pendingCollaborations.data.pendingCollaborations.length}</span>
-                                            }
-                                        </Popover.Trigger>
-                                    </SimpleTooltip>
-                                    <Popover.Portal>
-                                        <Popover.Content
-                                            className={"popoverContent CollaborationRequests"}
-                                            side={"top"}
-                                            align={"start"}
-                                            onOpenAutoFocus={e => e.preventDefault()}
-                                        >
-                                            {
-                                                pendingCollaborations.loading ? <>
-                                                    <Skeleton height={"2rem"}/>
-                                                </> :
-                                                pendingCollaborations.data.pendingCollaborations && pendingCollaborations.data.pendingCollaborations.length <= 0 ?
-                                                <p className={"empty"}>No open collaboration requests</p> :
-                                                (pendingCollaborations.data.pendingCollaborations as CollaborationDto[])?.map((collab) => (
-                                                    <div key={collab.id} className={"collaborationRequest"}>
-                                                        <p>
-                                                            <span className={"bold"}>{collab.owner?.name}</span> has invited you to the shotlist <span className={"bold"}>{collab.shotlist?.name || "Unnamed"}</span>
-                                                        </p>
-                                                        <SimpleTooltip text="Accept collaboration">
-                                                            <button
-                                                                className={"accent"}
-                                                                onClick={() => acceptOrDeclineCollaboration(collab.id || "", CollaborationState.Accepted)}
-                                                            >
-                                                                <Check size={16} strokeWidth={2.5}/>
-                                                            </button>
-                                                        </SimpleTooltip>
-                                                        <SimpleTooltip text="Decline collaboration">
-                                                            <button
-                                                                className={"accent"}
-                                                                onClick={() => acceptOrDeclineCollaboration(collab.id || "", CollaborationState.Declined)}
-                                                            >
-                                                                <X size={16} strokeWidth={2.5}/>
-                                                            </button>
-                                                        </SimpleTooltip>
-                                                    </div>
-                                                ))
-                                            }
-
-                                            <button
-                                                className={"reload"}
-                                                onClick={loadPendingCollaborations}
-                                                disabled={!collaborationReloadAllowed}
-                                            >
-                                                <RefreshCw size={16}/>
-                                                {
-                                                    collaborationReloadAllowed ?
-                                                    "refresh" :
-                                                    "please wait a few seconds..."
-                                                }
-                                            </button>
-                                        </Popover.Content>
-                                    </Popover.Portal>
-                                </Popover.Root>
-                                <SimpleTooltip content={<p><span className="key">Alt</span> + <span className="key">A</span></p>}>
-                                    <button onClick={openAccountDialog}>Account <User size={18}/></button>
-                                </SimpleTooltip>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bottom">
-                        <Link className="shotlistTool" href={"/"}><Iconmark/>shotly.at</Link>
-                    </div>
-                    <button className="closearea" onClick={() => setSidebarOpen(false)}/>
+                    <DashboardSidebar
+                        ref={sidebarRef}
+                        query={query}
+                        openCreateShotlistDialog={openCreateShotlistDialog}
+                        openCreateTemplateDialog={openCreateTemplateDialog}
+                        openAccountDialog={openAccountDialog}
+                        setSidebarOpen={setSidebarOpen}
+                        reloadShotlists={() => loadData({ loadShotlists: true, loadTemplates: false, loadUser: false })}
+                    />
                 </Panel>
                 <PanelResizeHandle className="PanelResizeHandle sidebarResize"/>
                 <Panel className={`headerContainer ${isTemplatePage && "template"}`}>
-                    <div className="header">
-                        {
-                            query.loading ?
-                            <>
-                                <Skeleton height="2rem" width="12ch"/>
-                                <Skeleton height="2rem" width="12ch"/>
-                            </>
-                            :
-                            <>
-                                <SimpleTooltip
-                                    content={<p><span className="key">Alt</span> + <span className="key">T</span></p>}
-                                >
-                                    <button className="template" onClick={openCreateTemplateDialog}>New Template</button>
-                                </SimpleTooltip>
-                                <SimpleTooltip
-                                    content={<p><span className="key">Alt</span> + <span className="key">N</span> or <span className="key">Alt</span> + <span className="key">S</span></p>}
-                                >
-                                    <button className="shotlist" onClick={openCreateShotlistDialog}>New Shotlist</button>
-                                </SimpleTooltip>
-                            </>
-                        }
-                    </div>
+                    <DashboardHeader
+                        query={query}
+                        openCreateShotlistDialog={openCreateShotlistDialog}
+                        openCreateTemplateDialog={openCreateTemplateDialog}
+                    />
                     {children}
                 </Panel>
             </PanelGroup>
 
-            <div className="floater">
-                <HelpLink
-                    link={`https://docs.shotly.at/${isTemplatePage ? "templates" : "dashboard"}`}
-                    name={isTemplatePage ? "Template" : "Dashboard"}
-                />
-                {
-                    isTemplatePage &&
-                    <button className="openSidebar" onClick={() => setSidebarOpen(true)}><Menu/></button>
-                }
-            </div>
+            <DashboardFloater
+                reloadDashboardData={loadData}
+                setRefreshSignal={setRefreshSignal}
+                setSidebarOpen={setSidebarOpen}
+            />
 
             {CreateShotlistDialog}
             {CreateTemplateDialog}
@@ -714,104 +274,22 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
             <JustBoughtProDialog/>
 
-            <Dialog.Root open={easterEggOpen} onOpenChange={setEasterEggOpen}>
-                <Dialog.Portal>
-                    <Dialog.Content className={"dialogContent"} onOpenAutoFocus={e => e.preventDefault()}>
-                        <VisuallyHidden.Root>
-                            <Dialog.Title>Hi there</Dialog.Title>
-                            <Dialog.Description>Just an easter egg</Dialog.Description>
-                        </VisuallyHidden.Root>
-                        <Image src={"/ralph-wave.gif"} alt={"Ralph Wave.. sorry you dont get to see this"} width={384} height={288}/>
-                    </Dialog.Content>
-                </Dialog.Portal>
-            </Dialog.Root>
-
-            <div className={"introQuestions"}>
+            <div className={"dialogFloater"}>
                 {
-                    enterNameDialogOpen &&
-                    <div className="enterName">
-                        <h3>Welcome</h3>
-                        <p>
-                            <span className="bold">Please enter your name (or nickname).</span>
-                            <br/>
-                            <span className="gray">This name will be visible to others and can not be used to log in.</span>
-                        </p>
-                        <TextField
-                            value={newName}
-                            valueChange={setNewName}
-                            label={"Your name"}
-                            maxWidth={"100%"}
-                            placeholder={"Quentin Tarantino"}
-                            color={"accent"}
-                        />
-                        <p className={"small"}>You can always change your name in the Account settings.</p>
-
-                        <button
-                            disabled={wuConstants.Regex.empty.test(newName)}
-                            onClick={handleNewUserNameSubmit}
-                            className={"main"}
-                        >
-                            Done
-                        </button>
-                    </div>
+                    enterNameFloaterVisible &&
+                    <EnterNameFloater hideFloater={() => setEnterNameFloaterVisible(false)}/>
                 }
                 {
-                    howDidYouHearDialogOpen &&
-                    <div className="howDidYouHear">
-                        <h3>How did you hear about Shotly?</h3>
-                        <Radio
-                            options={[
-                                {value: "friend", label: "A friend"},
-                                {value: "work", label: "Work or colleagues"},
-                                {value: "reddit", label: "A Reddit post"},
-                                {value: "search", label: "A search engine (Google, Bing, etc.)"},
-                                {value: "ai", label: "An AI (GPT, Gemini, etc.)"},
-                            ]}
-                            value={howDidYouHearReason}
-                            onValueChange={handleHowDidYouHearReasonChange}
-                            textOption={true}
-                        />
-                        <button
-                            disabled={
-                                (howDidYouHearReason == "") ||
-                                (howDidYouHearReason == "other" && howDidYouHearText.length < 4)
-                            }
-                            onClick={handleHowDidYouHearReasonSubmit}
-                            className={"main"}
-                        >
-                            Send
-                        </button>
-                    </div>
+                    howDidYouHearFloaterVisible &&
+                    <HowDidYouHearFloater hideFloater={() => setHowDidYouHearFloaterVisible(false)}/>
                 }
-                {/*
-                    analyticsDialogOpen &&
-                    <div className="howDidYouHear">
-                        <h3>Analytics</h3>
-                        <p>
-                            To improve Shotly, I would like to collect non personal analytics data.
-                            <br/>
-                            Like what features of Shotly (Templates, Export, etc.) you use.
-                            Or how actively you use Shotly.
-                        </p>
-                        <p className="small">
-                            You can always opt out again via the Account settings.
-                        </p>
-                        <div className="buttons">
-                            <button
-                                className={"secondary"}
-                                onClick={() => handleAnalyticsSubmit(false)}
-                            >
-                                Decline
-                            </button>
-                            <button
-                                className={"main"}
-                                onClick={() => handleAnalyticsSubmit(true)}
-                            >
-                                Accept
-                            </button>
-                        </div>
-                    </div>
-                */}
+                {
+                    changelogFloaterVisible &&
+                    <ChangeLogFloater hideFloater={() => {
+                        setChangelogFloaterVisible(false)
+                        localStorage.setItem(Config.localStorageKey.latestVersionUsed, CHANGELOG[0].version)
+                    }}/>
+                }
             </div>
         </main>
         </DashboardContext.Provider>

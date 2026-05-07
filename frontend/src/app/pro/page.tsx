@@ -4,17 +4,17 @@ import Auth from "@/Auth"
 import auth from "@/Auth"
 import "./pro.scss";
 import {useEffect, useState} from "react"
-import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
+import LoadingPage from "@/components/app/feedback/loadingPage/loadingPage"
 import gql from "graphql-tag"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {useRouter} from "next/navigation"
 import PaymentService from "@/service/PaymentService"
-import SimplePage from "@/components/simplePage/simplePage"
+import SimplePage from "@/components/app/simplePage/simplePage"
 import Link from "next/link"
 import {Query, UserDto, UserTier} from "../../../lib/graphql/generated"
-import ErrorPage from "@/components/feedback/errorPage/errorPage"
+import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 import Config from "@/Config"
-import Separator from "@/components/separator/separator"
+import Separator from "@/components/basic/separator/separator"
 import {wuTime} from "@yanikkendler/web-utils"
 import {errorNotification} from "@/service/NotificationService"
 
@@ -71,7 +71,7 @@ export default function Pro(){
         setIsLoading(false);
     }
 
-    if(isLoading || !auth.getUser()) return <LoadingPage title={Config.loadingMessage.authGetUser}/>
+    if(isLoading || !auth.getUser()) return <LoadingPage/>
 
     let content;
 
@@ -95,7 +95,7 @@ export default function Pro(){
 
                 <div className="buttons">
                     <button className={"text"} onClick={PaymentService.manageSubscription}>Manage Subscription</button>
-                    <Link className={"filled"} href={"/dashboard"}>To your Dashboard</Link>
+                    <Link className={"filled"} href={"/dashboard"}>My Dashboard</Link>
                 </div>
             </>
         )
@@ -106,10 +106,10 @@ export default function Pro(){
                 <p>Since you are a student living off student money and stuff :D</p>
                 <p>Lets hope you are not american.. then you would be living off student debt :(</p>
                 <br/>
-                <p>Your pro subscription will be revoked after {wuTime.toDateString(currentUser.revokeProAfter) || "unkown"}.</p>
+                <p>Your pro subscription will be revoked after {wuTime.toDateString(currentUser.revokeProAfter) || "unknown"}.</p>
 
                 <div className="buttons">
-                    <Link className={"filled"} href={"/dashboard"}>To your Dashboard</Link>
+                    <Link className={"filled"} href={"/dashboard"}>My Dashboard</Link>
                 </div>
             </>
         )
@@ -122,11 +122,11 @@ export default function Pro(){
                 <br/>
                 {
                     currentUser.revokeProAfter &&
-                    <p>Your pro subscription will be revoked after {wuTime.toDateString(currentUser.revokeProAfter) || "unkown"}.</p>
+                    <p>Your pro subscription will be revoked after {wuTime.toDateString(currentUser.revokeProAfter) || "unknown"}.</p>
                 }
 
                 <div className="buttons">
-                    <Link className={"filled"} href={"/dashboard"}>To your Dashboard</Link>
+                    <Link className={"filled"} href={"/dashboard"}>My Dashboard</Link>
                 </div>
             </>
         )

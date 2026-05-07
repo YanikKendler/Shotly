@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.kendler.yanik</groupId>
     <artifactId>backend</artifactId>
-    <version>1.4.2</version>
+    <version>1.5.0</version>
 
     <properties>
         <compiler-plugin.version>3.14.0</compiler-plugin.version>
@@ -129,6 +129,12 @@
             <groupId>io.quarkiverse.bucket4j</groupId>
             <artifactId>quarkus-bucket4j</artifactId>
             <version>1.0.7</version>
+        </dependency>
+
+        <!-- Health Check -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-health</artifactId>
         </dependency>
     </dependencies>
 

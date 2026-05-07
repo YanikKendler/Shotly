@@ -2,12 +2,9 @@ package me.kendler.yanik.endpoints;
 
 import io.quarkus.panache.common.Sort;
 import jakarta.inject.Inject;
-import me.kendler.yanik.dto.shotlist.ShotlistCollection;
+import me.kendler.yanik.dto.shotlist.*;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationCreateDTO;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationDTO;
-import me.kendler.yanik.dto.shotlist.ShotlistCreateDTO;
-import me.kendler.yanik.dto.shotlist.ShotlistDTO;
-import me.kendler.yanik.dto.shotlist.ShotlistEditDTO;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationEditDTO;
 import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.rateLimiting.RateLimited;
@@ -18,6 +15,7 @@ import me.kendler.yanik.socket.ShotlistUpdateDTO;
 import me.kendler.yanik.socket.ShotlistUpdateType;
 import me.kendler.yanik.socket.ShotlistWebsocketService;
 import me.kendler.yanik.socket.payload.CollaborationPayload;
+import me.kendler.yanik.socket.payload.ShotlistPayload;
 import org.eclipse.microprofile.graphql.GraphQLApi;
 import org.eclipse.microprofile.graphql.Mutation;
 import org.eclipse.microprofile.graphql.Query;
@@ -46,7 +44,12 @@ public class ShotlistResource {
 
     @Query
     public ShotlistCollection getShotlists() {
-        return shotlistRepository.findAllForUser(jwt);
+        return shotlistRepository.findAllForUser(jwt, false);
+    }
+
+    @Query
+    public ShotlistCollection getArchivedShotlists() {
+        return shotlistRepository.findAllForUser(jwt, true);
     }
 
     @Query
@@ -70,14 +73,65 @@ public class ShotlistResource {
 
     @Mutation
     public ShotlistDTO updateShotlist(ShotlistEditDTO editDTO) {
-        userRepository.checkShotlistEditRights(shotlistRepository.findByIdValidated(editDTO.id()), jwt);
-        return shotlistRepository.update(editDTO);
+        Shotlist affectedShotlist = shotlistRepository.findByIdValidated(editDTO.id());
+        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
+
+        ShotlistDTO result = shotlistRepository.update(editDTO);
+
+        shotlistWebsocketService.broadcast(
+                affectedShotlist.id,
+                new ShotlistUpdateDTO(
+                        ShotlistUpdateType.SHOTLIST_UPDATED,
+                        userRepository.findOrCreateByJWT(jwt).id,
+                        new ShotlistPayload(
+                                result.toMinimalDTO()
+                        )
+                )
+        );
+
+        return result;
+    }
+
+    @Mutation
+    public ShotlistDTO updateShotlistAsOwner(ShotlistEditAsOwnerDTO editDTO) {
+        Shotlist affectedShotlist = shotlistRepository.findByIdValidated(editDTO.id());
+        userRepository.checkShotlistOwner(affectedShotlist, jwt);
+
+        ShotlistDTO result = shotlistRepository.updateAsOwner(editDTO);
+
+        shotlistWebsocketService.broadcast(
+                affectedShotlist.id,
+                new ShotlistUpdateDTO(
+                        ShotlistUpdateType.SHOTLIST_UPDATED,
+                        userRepository.findOrCreateByJWT(jwt).id,
+                        new ShotlistPayload(
+                                result.toMinimalDTO()
+                        )
+                )
+        );
+
+        return result;
     }
 
     @Mutation
     public ShotlistDTO deleteShotlist(UUID id) {
-        userRepository.checkShotlistOwner(shotlistRepository.findByIdValidated(id), jwt);
-        return shotlistRepository.delete(id);
+        Shotlist affectedShotlist = shotlistRepository.findByIdValidated(id);
+        userRepository.checkShotlistOwner(affectedShotlist, jwt);
+
+        ShotlistDTO result = shotlistRepository.delete(id);
+
+        shotlistWebsocketService.broadcast(
+                affectedShotlist.id,
+                new ShotlistUpdateDTO(
+                        ShotlistUpdateType.SHOTLIST_DELETED,
+                        userRepository.findOrCreateByJWT(jwt).id,
+                        new ShotlistPayload(
+                                result.toMinimalDTO()
+                        )
+                )
+        );
+
+        return result;
     }
 
     /*

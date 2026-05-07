@@ -1,0 +1,14 @@
+.textCycle{
+  //outline: 1px solid red;
+  overflow: hidden;
+  height: 1.5em;
+  line-height: 1em;
+  display: grid;
+  align-items: center;
+  min-width: 30ch;
+
+  span{
+    display: block;
+    grid-area: 1 / 1 / 2 / 2;
+  }
+}

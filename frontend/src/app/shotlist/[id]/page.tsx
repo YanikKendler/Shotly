@@ -2,50 +2,44 @@
 
 import gql from "graphql-tag"
 import React, {useEffect, useRef, useState} from "react"
-import {ApolloQueryResult, InteropApolloQueryResult, useApolloClient} from "@apollo/client"
+import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {
     CollaborationDto,
     CollaborationType,
-    Query, SceneDto,
-    ShotAttributeDefinitionBase,
-    UserDto,
+    Query,
+    SceneDto,
+    ShotAttributeDefinitionBase, UserMinimalDto,
     UserTier
 } from "../../../../lib/graphql/generated"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
-import {Check, House, LoaderCircle, Menu, Settings2, X} from "lucide-react"
 import './shotlist.scss'
-import ErrorPage from "@/components/feedback/errorPage/errorPage"
+import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import ShotlistOptionsDialog, {
-    ShotlistOptionsDialogPage,
+    ShotlistOptionsDialogMainPage, ShotlistOptionsDialogPages, ShotlistOptionsDialogRef,
     ShotlistOptionsDialogSubPage
-} from "@/components/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
-import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
+} from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
+import LoadingPage from "@/components/app/feedback/loadingPage/loadingPage"
 import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
 import auth from "@/Auth"
 import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
-import Utils, {uuidRegex} from "@/util/Utils"
+import Utils, {uuidRegex} from "@/utility/Utils"
 import Config from "@/Config"
-import {GenericError, SelectOption, ShotlyErrorCode} from "@/util/Types"
-import SheetManager, {SheetManagerRef} from "@/components/shotlist/table/sheetManager/sheetManager"
-import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
-import Skeleton from "react-loading-skeleton"
+import {GenericError, SelectOption, ShotlyErrorCode} from "@/utility/Types"
+import SheetManager, {SheetManagerRef} from "@/components/app/shotlist/table/sheetManager/sheetManager"
+import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/app/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
 import {
-    CollaborationPayload,
-    ShotlistSyncService,
     ShotlistUpdateDTO,
     ShotlistUpdateType,
-    UserMinimalDTO,
-    UserPayload
-} from "@/service/ShotlistSyncService"
-import HelpLink from "@/components/helpLink/helpLink"
-import Link from "next/link"
-import DotLoader from "@/components/DotLoader"
-import SimpleTooltip from "@/components/tooltip/simpleTooltip"
-import {errorNotification, infoNotification} from "@/service/NotificationService"
-import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys"//package has incorrectly configured type exports
-import {DialogRef} from "@/components/dialog/dialog"
+} from "@/service/useShotlistSync"
+import {errorNotification} from "@/service/NotificationService"
+import {DialogRef} from "@/components/basic/dialog/dialog"
+import {useShotlistSync} from "@/service/useShotlistSync"
+import useShotlistKeybinds from "@/service/useShotlistKeybinds"
+import ShotlistFloater, {ShotlistFloaterRef} from "@/components/app/shotlist/shotlistFloater/shotlistFloater"
+import ReadOnlyBanner from "@/components/app/shotlist/readOnlyBanner/readOnlyBanner"
+import ShotlistHeader from "@/components/app/shotlist/shotlistHeader/shotlistHeader"
 
 export interface SelectedScene {
     id: string | null
@@ -54,7 +48,12 @@ export interface SelectedScene {
 
 export interface ReadOnlyState {
     isReadOnly: boolean
-    reason?: "tooManyShotlists" | "collaborationViewOnly"
+    reason?: "tooManyShotlists" | "collaborationViewOnly" | "archived"
+}
+
+export interface PresentCollaborator {
+    updatedAt: Date
+    user: UserMinimalDto
 }
 
 export type SaveState = "saved" | "saving" | "error"
@@ -62,13 +61,13 @@ export type SaveState = "saved" | "saving" | "error"
 export default function Shotlist() {
     const client = useApolloClient()
     const router = useRouter()
-    const syncService = useRef<ShotlistSyncService | null>(null)
+    const syncService = useRef<null>(null)
     const searchParams = useSearchParams()
     const params = useParams<{ id: string }>()
 
     const id = params?.id || ""
     /* TODO
-    * should handle this better because currently the scene positon is null so the scene nums in the rows would be displayed wrong
+    * should handle this better because currently if the scene positon is null the scene nums in the rows would be displayed wrong
     * should probably just shift the selected scene to shotcontext
     */
     const sceneId = searchParams?.get('sid')
@@ -76,38 +75,32 @@ export default function Shotlist() {
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
     const [selectedScene, setSelectedScene] = useState<SelectedScene>({ id: sceneId, position: null })
-    const [selectedOptionsDialogPage, setSelectedOptionsDialogPage] = useState<{main: ShotlistOptionsDialogPage, sub: ShotlistOptionsDialogSubPage} | null>(null)
     const [elementIsBeingDragged, setElementIsBeingDragged] = useState(false)
     const [sidebarOpen, setSidebarOpen] = useState(false)
-    const [readOnlyBannerVisible, setReadOnlyBannerVisible] = useState(true)
 
-    const shotlistOptionsDialogRef = useRef<DialogRef>(null);
+    const shotlistOptionsDialogRef = useRef<ShotlistOptionsDialogRef>(null);
 
     const [reloadKey, setReloadKey] = useState(0)
     const [reloadInProgress, setReloadInProgress] = useState(false)
 
     const [readOnlyState, setReadOnlyState] = useState<ReadOnlyState>({isReadOnly: false})
+    const [isArchived, setIsArchived] = useState(false)
 
     const [shotCount, setShotCount] = useState(0)
     const [sceneCount, setSceneCount] = useState(0)
 
-    const [presentCollaborators, setPresentCollaborators] = useState<Map<string, UserMinimalDTO>>()
+    /* TODO invalidate collaborators if they have been inactive for more than 60 seconds or whatever */
+    const [presentCollaborators, setPresentCollaborators] = useState<Map<string, PresentCollaborator>>(new Map())
 
-    const selectedSceneRef = useRef<SelectedScene>(selectedScene)
     const focusedCell = useRef({row: -1, column:-1})
+
     const headerRef = useRef<HTMLDivElement>(null)
     const sheetManagerRef = useRef<SheetManagerRef>(null)
-    const sidebarRef = useRef<ShotlistSidebarRef>(null);
-    const saveIndicatorRef = useRef<HTMLDivElement>(null)
+    const sidebarRef = useRef<ShotlistSidebarRef>(null)
+    const floaterRef = useRef<ShotlistFloaterRef>(null)
 
     const [shotSelectOptionsCache, setShotSelectOptionsCache] = useState(new Map<number, SelectOption[]>())
     const [sceneSelectOptionsCache, setSceneSelectOptionsCache] = useState(new Map<number, SelectOption[]>())
-    const websocketRef = useRef<WebSocket | null>(null)
-    const websocketRetriesRef = useRef<number>(0)
-
-    //this needs to be a ref to avoid captures by the websocket (should probably just have made the whole websocket logic a ref..)
-    const refreshShotlistFunction = useRef<() => void>(() => {});
-    const currentUserRef = useRef<UserDto | null>(null)
 
     const saveStateMap = useRef<Map<string, SaveState>>(new Map())
 
@@ -123,103 +116,12 @@ export default function Shotlist() {
     })
 
     useEffect(() => {
-        refreshShotlistFunction.current = () => {
-            setReloadInProgress(true)
-            loadData(true).then(() => {
-                setReloadInProgress(false)
-                setReloadKey(k => k + 1)
-            })
-            setShotSelectOptionsCache(new Map())
-            setSceneSelectOptionsCache(new Map())
-        }
-
-        const handleOnline = () => reconnectWebsocket();
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === "visible") reconnectWebsocket();
-        };
-
-        window.addEventListener("online", handleOnline);
-        document.addEventListener("visibilitychange", handleVisibilityChange);
-
-        // Cleanup
-        return () => {
-            window.removeEventListener("online", handleOnline);
-            document.removeEventListener("visibilitychange", handleVisibilityChange);
-        };
-    }, [])
-
-    useEffect(() => {
-        let unsubscribe = tinykeys(window, {
-            "ArrowLeft": (e) => sheetManagerRef.current?.moveFocusedCell(e, 0, -1),
-            "ArrowRight": (e) => sheetManagerRef.current?.moveFocusedCell(e, 0, 1),
-            "ArrowUp": (e) => sheetManagerRef.current?.moveFocusedCell(e, -1, 0),
-            "ArrowDown": (e) => sheetManagerRef.current?.moveFocusedCell(e, 1, 0),
-            "Control+Enter": event => {
-                event.preventDefault()
-                sheetManagerRef.current?.handleCreateShotKeybind.current()
-            },
-            "Alt+Enter": event => {
-                event.preventDefault()
-                sheetManagerRef.current?.handleCreateShotKeybind.current()
-            },
-            "Alt+N": event => {
-                event.preventDefault()
-                sheetManagerRef.current?.handleCreateShotKeybind.current()
-            },
-            "Alt+([1-9])": event => {
-                event.preventDefault()
-
-                const scenePositionToSelect = Number(event.key) - 1
-
-                const sceneIdToSelect = sidebarRef.current?.getScene(scenePositionToSelect)?.id || null
-
-                setSelectedScene({id: sceneIdToSelect, position: scenePositionToSelect})
-            },
-            "Alt+O": event => {
-                event.preventDefault()
-                shotlistOptionsDialogRef.current?.open()
-            },
-            "Alt+A": event => {
-                event.preventDefault()
-                sidebarRef.current?.openAccountDialog()
-            },
-            "Alt+H": event => {
-                event.preventDefault()
-                router.push("/dashboard")
-            },
-            "Alt+S": event => {
-                event.preventDefault()
-                sidebarRef.current?.createScene()
-            },
-            "Alt+.": event => {
-                event.preventDefault()
-                const currentRow = focusedCell.current.row
-
-                if(currentRow < 0) {
-                    infoNotification({title: "Select a cell to use this shortcut"})
-                    return
-                }
-
-                /*const cellRef = sheetManagerRef.current?.getCellRef(focusedCell.current.row, focusedCell.current.column)
-                cellRef?.closeMenu()*/
-
-                (document.activeElement as HTMLDivElement).blur()
-
-                const rowRef = sheetManagerRef.current?.getRowRef(currentRow)
-                rowRef?.openContextOptions()
-            }
-        })
-        return () => {
-            unsubscribe()
-        }
-    }, [])
-
-    useEffect(() => {
         if(!auth.isAuthenticated()){
-            router.replace('/')
+            auth.login()
             return
         }
 
+        //validate shotlist id
         if(!uuidRegex.test(id)){
             setQuery(current => ({
                 ...current,
@@ -233,24 +135,9 @@ export default function Shotlist() {
 
         if(!auth.getUser()) return
 
-        loadData(true).then((query: InteropApolloQueryResult<Query> | undefined) => {
-            //use user from the promise as to not run into react state race conditions
-            if(id != "" && query?.data.shotlist && query.data.shotlist.id)
-                joinShotlistWebsocket(query?.data.currentUser?.id || "unknown")
-        })
-
-        syncService.current = new ShotlistSyncService(id)
-
-        return () => {
-            websocketRef.current?.close(1000, "client logout")
-            websocketRef.current = null
-        }
+        //initially load data
+        loadData(true)
     }, [id])
-
-    useEffect(() => {
-        if(syncService.current)
-            syncService.current.isReadOnly = readOnlyState.isReadOnly
-    }, [readOnlyState]);
 
     useEffect(() => {
         //intro tour
@@ -272,35 +159,32 @@ export default function Shotlist() {
             query.data.shotlist.scenes &&
             query.data.shotlist.scenes[0]?.id != undefined
         ) {
-            selectScene(query.data.shotlist.scenes[0].id, query.data.shotlist.scenes[0]?.position || null)
+            setSelectedScene({
+                id: query.data.shotlist.scenes[0].id,
+                position: query.data.shotlist.scenes[0]?.position || null
+            })
         }
-
-        //read only state
-        if(query.data.shotlist?.collaborations)
-            calculateReadOnlyState()
-
-        //current user ref
-        if(query.data.currentUser)
-            currentUserRef.current = query.data.currentUser
     }, [query])
 
     useEffect(() => {
-        //set page name
+        //update page name
         setTimeout(() => {
             document.title = `Shotly | ${query.data.shotlist?.name || "Shotlist"}`
         },500)
     }, [query.data.shotlist?.name]);
 
     useEffect(() => {
-        selectedSceneRef.current = selectedScene
-    }, [selectedScene]);
+        //read only state
+        calculateReadOnlyState()
+    }, [isArchived, query]);
 
     useEffect(() => {
-        shotlistContextFunctionsRef.current = {
-            addShotSelectOption,
-            addSceneSelectOption
-        }
-    }, [shotSelectOptionsCache, sceneSelectOptionsCache]);
+        sheetManagerRef.current?.showLoader()
+
+        const url = new URL(window.location.href)
+        url.searchParams.set("sid", selectedScene.id || "")
+        router.replace(url.toString())
+    }, [selectedScene]);
 
     const loadData = async (noCache: boolean = false) => {
         const result = await client.query({
@@ -309,6 +193,7 @@ export default function Shotlist() {
                     shotlist(id: $id){
                         id
                         name
+                        archived
                         scenes{
                             id
                             position
@@ -379,9 +264,24 @@ export default function Shotlist() {
 
         setSceneCount(result.data.shotlist?.scenes?.length || 0)
 
+        setIsArchived(result.data.shotlist.archived == true)
+
         setQuery(result)
 
         return result
+    }
+
+    const refreshShotlist = async () => {
+        setReloadInProgress(true)
+
+        await loadData(true)
+
+        setReloadInProgress(false)
+
+        setShotSelectOptionsCache(new Map())
+        setSceneSelectOptionsCache(new Map())
+
+        setReloadKey(k => k + 1)
     }
 
     const handleShotlistError = (error: GenericError) => {
@@ -407,9 +307,7 @@ export default function Shotlist() {
             newFinalState = "saving"
         }
 
-        if(saveIndicatorRef.current) {
-            saveIndicatorRef.current.setAttribute("data-state", newFinalState)
-        }
+        floaterRef.current?.displaySaveState(newFinalState)
     }
 
     const setFocusedCell= (row: number, column: number) => {
@@ -427,7 +325,7 @@ export default function Shotlist() {
             }
         }
 
-        websocketRef.current?.send(JSON.stringify(updateDTO))
+        sync.send(updateDTO)
     }
 
     const broadCastSceneAttributeSelect = (attributeId: number) => {
@@ -442,175 +340,7 @@ export default function Shotlist() {
             }
         }
 
-        websocketRef.current?.send(JSON.stringify(updateDTO))
-    }
-
-    //TODO move this to the service completely or make it a use hook or at least a ref function to avoid captures
-    const joinShotlistWebsocket = (currentUserId: string) => {
-        if (websocketRef.current) {
-            websocketRef.current.onclose = null
-            websocketRef.current.onerror = null
-            websocketRef.current.close(1000, "client relog")
-        }
-
-        const websocket = new WebSocket(`${Config.websocketURL}/shotlist/${id}/${currentUserId}`)
-        websocketRef.current = websocket
-
-        websocket.onopen = () => {
-            console.info('Connected to WebSocket server')
-            websocketRetriesRef.current = 0
-        }
-        websocket.onmessage = (message) => {
-            let updateDTO = JSON.parse(message.data) as ShotlistUpdateDTO
-
-            if(!updateDTO) {
-                errorNotification({
-                    title: "Could not sync incoming changes.",
-                    sub: "Try refreshing the page to fix the issue",
-                })
-                return
-            }
-
-            if(!syncService.current) {
-                console.error("syncService not initialized")
-                return
-            }
-
-            switch (updateDTO.payload.kind) {
-                case "shotAttribute":
-                    syncService.current.updateShotAttribute(updateDTO.payload, sheetManagerRef.current)
-                    break
-                case "shot":
-                    if(updateDTO.payload.shot.sceneId != selectedSceneRef.current.id) return
-
-                    switch (updateDTO.type) {
-                        case ShotlistUpdateType.SHOT_ADDED:
-                            syncService.current.createShot(updateDTO.payload, sheetManagerRef.current)
-                            break
-                        case ShotlistUpdateType.SHOT_UPDATED:
-                            syncService.current.updateShot(updateDTO.payload, sheetManagerRef.current)
-                            break
-                        case ShotlistUpdateType.SHOT_DELETED:
-                            syncService.current.deleteShot(updateDTO.payload, sheetManagerRef.current)
-                            break
-                    }
-                    break
-                case "user":
-                    const userPayload = updateDTO.payload as UserPayload
-                    if(updateDTO.type == ShotlistUpdateType.USER_JOINED){
-                        setPresentCollaborators(prev => {
-                            const newMap = new Map(prev)
-                            newMap.set(userPayload.user.id, userPayload.user)
-                            return newMap
-                        })
-                    }
-                    else if(updateDTO.type == ShotlistUpdateType.USER_LEFT){
-                        setPresentCollaborators(prev => {
-                            const newMap = new Map(prev)
-                            newMap.forEach(user => {
-                                if(user.id == userPayload.user.id)
-                                    newMap.delete(user.id)
-                            })
-                            return newMap
-                        })
-                    }
-
-                    break
-                case "collaboration":
-                    switch (updateDTO.type){
-                        case ShotlistUpdateType.COLLABORATION_TYPE_UPDATED:
-                            //a collaboration type changed (we are only interested in possible changes to our own collaboration types)
-                            syncService.current.collaboratorTypeChanged(
-                                updateDTO.payload as CollaborationPayload,
-                                setQuery
-                            )
-                            break
-                        case ShotlistUpdateType.COLLABORATION_DELETED:
-                            if(currentUserRef.current?.id == updateDTO.payload.userId){
-                                setQuery(current => ({
-                                    ...current,
-                                    errors: [{
-                                        message: "Your collaboration to this shotlist has been removed",
-                                        extensions: { code: ShotlyErrorCode.READ_NOT_ALLOWED }
-                                    }]
-                                }))
-                            }
-                            break
-                    }
-                    break
-                case "presentCollaborators":
-                    const collabMap = new Map<string, UserMinimalDTO>()
-                    updateDTO.payload.collaborators.forEach(user => collabMap.set(user.id, user))
-                    setPresentCollaborators(collabMap)
-                    break
-                case "sceneAttribute":
-                    syncService.current.updateSceneAttribute(updateDTO.payload, sidebarRef.current)
-                    break
-                case "scene":
-                    switch (updateDTO.type) {
-                        case ShotlistUpdateType.SCENE_ADDED:
-                            syncService.current.createScene(updateDTO.payload, sidebarRef.current)
-                            break
-                        case ShotlistUpdateType.SCENE_DELETED:
-                            syncService.current.deleteScene(updateDTO.payload, sidebarRef.current)
-                            break
-                        case ShotlistUpdateType.SCENE_UPDATED:
-                            syncService.current.updateScene(updateDTO.payload, sidebarRef.current)
-                            break
-                    }
-                    break
-                case "sceneAttributeOption":
-                    syncService.current.sceneAttributeOptionCreated(updateDTO.payload, shotlistContextFunctionsRef.current.addSceneSelectOption)
-                    break
-                case "shotAttributeOption":
-                    syncService.current.shotAttributeOptionCreated(updateDTO.payload, shotlistContextFunctionsRef.current.addShotSelectOption)
-                    break
-                case "selectedCell":
-                    syncService.current.setCollaboratorCellHighlight(updateDTO, selectedSceneRef.current, sheetManagerRef.current)
-                    break
-                case "selectedSceneAttribute":
-                    syncService.current.setCollaboratorSceneAttributeHighlight(updateDTO, selectedSceneRef.current, sidebarRef.current)
-                case "empty":
-                    switch (updateDTO.type) {
-                        case ShotlistUpdateType.SHOTLIST_OPTIONS_UPDATED:
-                            refreshShotlistFunction.current()
-                            break
-                    }
-                    break
-            }
-        }
-
-        websocket.onclose = (event) => {
-            console.info('Disconnected from WebSocket server')
-
-            if (event.code !== 1000) {
-                reconnectWebsocket()
-            }
-        }
-
-        websocket.onerror = (error) => {
-            console.error('WebSocket error:', error)
-        }
-    }
-
-    const reconnectWebsocket = () => {
-        // Don't reconnect if we don't have a user yet
-        if (!currentUserRef.current?.id || !query?.data?.shotlist?.id) {
-            return
-        }
-
-        if (websocketRef.current?.readyState === WebSocket.OPEN || websocketRef.current?.readyState === WebSocket.CONNECTING) {
-            return
-        }
-
-        const delay = Math.min(1000 * 2 ** websocketRetriesRef.current, 30000)
-
-        setTimeout(() => {
-            websocketRetriesRef.current++
-            console.info("Attempting reconnect, attempt", websocketRetriesRef.current, "with user id", currentUserRef.current?.id)
-            if(currentUserRef.current?.id)
-                joinShotlistWebsocket(currentUserRef.current?.id)
-        }, delay)
+        sync.send(updateDTO)
     }
 
     const loadShotSelectOptions = async (shotAttributeDefinitionId: number) => {
@@ -752,36 +482,57 @@ export default function Shotlist() {
             }
         })
 
+        if(isArchived) {
+            newState = {
+                isReadOnly: true,
+                reason: "archived"
+            }
+        }
+
         if(newState.isReadOnly != readOnlyState.isReadOnly) {
             setReadOnlyState(newState)
         }
     }
 
-    const selectScene = (id: string | null, position: number | null) => {
-        setSelectedScene({
-            id: id,
-            position: position,
-        })
+    const openShotlistOptionsDialog = (pages?: ShotlistOptionsDialogPages) => {
+        if(!shotlistOptionsDialogRef.current){
+            errorNotification({
+                title: "Failed to open options dialog",
+                autoClose: true,
+                tryAgainLater: true,
+            })
+            return
+        }
 
-        const url = new URL(window.location.href)
-        url.searchParams.set("sid", id || "")
-        router.push(url.toString())
+        shotlistOptionsDialogRef.current.open(pages)
     }
 
-    const openShotlistOptionsDialog = (page: { main: ShotlistOptionsDialogPage, sub?: ShotlistOptionsDialogSubPage }) => {
-        setSelectedOptionsDialogPage({main: page.main, sub: page.sub || ShotlistOptionsDialogSubPage.shot})
-        shotlistOptionsDialogRef.current?.open()
-    }
+    const sync = useShotlistSync({
+        shotlistId: id,
+        currentUserId: query.data.currentUser?.id || null,
+        sheetManagerRef: sheetManagerRef,
+        sidebarRef: sidebarRef,
+        selectedScene: selectedScene,
+        setQuery: setQuery,
+        setIsArchived: setIsArchived,
+        setReloadInProgress: setReloadInProgress,
+        presentCollaborators: presentCollaborators,
+        setPresentCollaborators: setPresentCollaborators,
+        addShotSelectOption: addShotSelectOption,
+        addSceneSelectOption: addSceneSelectOption,
+        refreshShotlist: refreshShotlist
+    })
 
-    //used in the socket handler
-    //has to be at the bottom because the functions have to be initialized before being used in the context value
-    const shotlistContextFunctionsRef = useRef({
-        addShotSelectOption,
-        addSceneSelectOption
+    useShotlistKeybinds({
+        sheetManagerRef: sheetManagerRef,
+        sidebarRef: sidebarRef,
+        openShotlistOptionsDialog: openShotlistOptionsDialog,
+        focusedCell: focusedCell,
+        setSelectedScene: setSelectedScene,
     })
 
     if(!auth.getUser())
-        return <LoadingPage title={Config.loadingMessage.authGetUser}/>
+        return <LoadingPage/>
 
     if(query.errors && query.errors.length > 0) {
         switch (query.errors[0]?.extensions?.code as ShotlyErrorCode) {
@@ -835,97 +586,63 @@ export default function Shotlist() {
             loadSceneSelectOptions: loadSceneSelectOptions,
             addSceneSelectOption: addSceneSelectOption,
 
-            websocketRef: websocketRef,
             broadCastSceneAttributeSelect: broadCastSceneAttributeSelect,
+
             setSaveState: setSaveState,
-            handleError: handleShotlistError
+            handleError: handleShotlistError,
+
+            presentCollaborators: presentCollaborators
         }}>
-            {
-                readOnlyBannerVisible && readOnlyState.isReadOnly == true &&
-                <div
-                    className="readOnlyBanner"
-                >
-                    This Shotlist is in <span className={"bold"}>read-only</span> mode because
-                    {
-                        readOnlyState.reason == "tooManyShotlists" ?
-                        " the shotlists owner has exceeded the maximum number of Shotlist available with the basic tier" :
-                        ' the shotlists owner set your collaboration type to "viewer"'
-                    }.
-                    <button onClick={() => setReadOnlyBannerVisible(false)}><X size={18}/></button>
-                </div>
-            }
+            <ReadOnlyBanner readOnlyState={readOnlyState}/>
+
             <main className={`shotlist`} key={reloadKey}>
-                <PanelGroup autoSaveId={"shotly-shotlist-sidebar-width"} direction="horizontal"
-                            className={"PanelGroup"}>
+                <PanelGroup
+                    autoSaveId={"shotly-shotlist-sidebar-width"}
+                    direction="horizontal"
+                    className={"PanelGroup"}
+                >
                     <Panel
                         defaultSize={20}
                         maxSize={30}
                         minSize={12}
                         className={`sidebar collapse ${sidebarOpen ? "open" : "closed"}`}
                     >
-                        {
-                            query.loading ?
-                            <div style={{display: "flex", flexDirection: "column", padding: ".5rem", height: "100%"}} className={"content"}>
-                                <div className={"top"}>
-                                    <Link href={`../dashboard`}>
-                                        <House strokeWidth={2.5} size={20}/>
-                                    </Link>
-                                    <Skeleton height="2rem" width={"18ch"} style={{marginLeft: ".5rem"}}/>
-                                </div>
-                                <Skeleton height="2rem" count={6} style={{marginBottom: ".3rem"}}/>
-                            </div> :
-                            <ShotlistSidebar
-                                query={query}
-                                setQuery={setQuery}
-                                sceneCount={sceneCount}
-                                setSceneCount={setSceneCount}
-                                selectedScene={selectedScene}
-                                selectScene={selectScene}
+                        <ShotlistSidebar
+                            query={query}
+                            setQuery={setQuery}
+                            sceneCount={sceneCount}
+                            setSceneCount={setSceneCount}
+                            selectedScene={selectedScene}
+                            setSelectedScene={setSelectedScene}
 
-                                isReadOnly={readOnlyState.isReadOnly}
-                                setSidebarOpen={setSidebarOpen}
-                                reloadInProgress={reloadInProgress}
+                            isReadOnly={readOnlyState.isReadOnly}
+                            setSidebarOpen={setSidebarOpen}
+                            reloadInProgress={reloadInProgress}
 
-                                openShotlistOptionsDialog={() => {
-                                    shotlistOptionsDialogRef.current?.open()
-                                    driverObj.destroy()
-                                }}
+                            openShotlistOptionsDialog={() => {
+                                shotlistOptionsDialogRef.current?.open()
+                                driverObj.destroy()
+                            }}
 
-                                presentCollaborators={Array.from(presentCollaborators?.values() || [])}
+                            presentCollaborators={Array.from(presentCollaborators?.values().map(c => c.user) || [])}
 
-                                ref={sidebarRef}
-                            />
-                        }
+                            refreshWebsocketConnection={() => sync.connect(true)}
+
+                            ref={sidebarRef}
+                        />
                     </Panel>
+
                     <PanelResizeHandle className="PanelResizeHandle sidebarResize" hitAreaMargins={{fine: 5, coarse: 10}}/>
+
                     <Panel className={`content ${reloadInProgress && "reloading"}`} id={"shotTable"}>
-                        <div className="header" ref={headerRef}>
-                            <div className="number"><p>#</p></div>
-                            {
-                                query.loading ?
-                                <>
-                                    <Skeleton width="18vw" height="1rem" style={{marginRight: ".5rem"}}/>
-                                    <Skeleton width="18vw" height="1rem" style={{marginRight: ".5rem"}}/>
-                                    <Skeleton width="18vw" height="1rem" style={{marginRight: ".5rem"}}/>
-                                </> :
-                                !query.data.shotlist?.shotAttributeDefinitions || query.data.shotlist.shotAttributeDefinitions.length == 0 ?
-                                <p className={"empty"}>No shot attributes defined</p> :
-                                (query.data.shotlist.shotAttributeDefinitions as ShotAttributeDefinitionBase[]).map((attr: any, index) => (
-                                    <div className={`attribute`} key={attr.id}><p>{attr.name || "Unnamed"}</p></div>
-                                ))
-                            }
-                            <button
-                                className={"add"}
-                                onClick={() => openShotlistOptionsDialog({
-                                    main: ShotlistOptionsDialogPage.attributes,
-                                    sub: ShotlistOptionsDialogSubPage.shot
-                                })}
-                                /*tabIndex={-1}*/
-                            ><Settings2 size={16}/></button>
-                        </div>
+                        <ShotlistHeader
+                            ref={headerRef}
+                            query={query}
+                            openShotlistOptionsDialog={openShotlistOptionsDialog}
+                        />
                         <SheetManager
                             selectedScene={selectedScene}
-                            pageLoading={query.loading}
+                            queryIsLoading={query.loading}
                             shotAttributeDefinitions={query.data.shotlist?.shotAttributeDefinitions as ShotAttributeDefinitionBase[] || null}
                             isReadOnly={readOnlyState.isReadOnly}
                             shotlistHeaderRef={headerRef}
@@ -934,35 +651,18 @@ export default function Shotlist() {
                     </Panel>
                 </PanelGroup>
 
-                <div className="floater">
-                    {
-                        reloadInProgress &&
-                        <SimpleTooltip
-                            text={"The reload is triggered when either you or a collaborator make changes to the shotlist options like adding/removing attributes."}
-                            fontSize={0.85}
-                            offset={0}
-                            delay={0}
-                        >
-                            <div className="reloading">
-                                Shotlist is reloading<DotLoader/>
-                            </div>
-                        </SimpleTooltip>
-                    }
-                    <div className="saveIndicator" data-state="saved" ref={saveIndicatorRef} aria-hidden>
-                        <span className="saving"><LoaderCircle size={18}/></span>
-                        <span className="saved"><Check size={18} strokeWidth={2.5}/></span>
-                        <span className="error">!</span>
-                    </div>
-                    <HelpLink link="https://docs.shotly.at/shotlist/navigation" name={"Shotlist"}/>
-                    <button className="openSidebar" onClick={() => setSidebarOpen(true)}><Menu/></button>
-                </div>
+                <ShotlistFloater
+                    ref={floaterRef}
+                    refreshShotlist={refreshShotlist}
+                    reloadInProgress={reloadInProgress}
+                    setSidebarOpen={setSidebarOpen}
+                />
             </main>
             <ShotlistOptionsDialog
                 ref={shotlistOptionsDialogRef}
-                selectedPage={selectedOptionsDialogPage}
                 shotlistId={id || null}
                 refreshShotlist={() => {
-                    refreshShotlistFunction.current()
+                    refreshShotlist()
 
                     const updateDTO: ShotlistUpdateDTO = {
                         type: ShotlistUpdateType.SHOTLIST_OPTIONS_UPDATED,
@@ -975,9 +675,11 @@ export default function Shotlist() {
                     //the websocket message and queries its own shotlist before the update from the first user has
                     //been processed, causing the shotlist to not be updated properly
                     setTimeout(() => {
-                        websocketRef.current?.send(JSON.stringify(updateDTO))
+                        sync.send(updateDTO)
                     },300)
                 }}
+                isArchived={isArchived}
+                setIsArchived={setIsArchived}
                 isReadOnly={readOnlyState.isReadOnly}
             ></ShotlistOptionsDialog>
         </ShotlistContext.Provider>

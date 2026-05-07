@@ -12,7 +12,9 @@ import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.auth0.Auth0Service;
 import me.kendler.yanik.dto.StatCounts;
+import me.kendler.yanik.dto.shotlist.collaboration.CollaborationDTO;
 import me.kendler.yanik.dto.user.UserAdminUpdateDTO;
+import me.kendler.yanik.dto.user.UserBlockDTO;
 import me.kendler.yanik.dto.user.UserDTO;
 import me.kendler.yanik.dto.user.UserEditDTO;
 import me.kendler.yanik.error.ShotlyErrorCode;
@@ -24,6 +26,10 @@ import me.kendler.yanik.model.template.shotAttributes.ShotTextAttributeTemplate;
 import me.kendler.yanik.repositories.template.SceneAttributeTemplateRepository;
 import me.kendler.yanik.repositories.template.ShotAttributeTemplateRepository;
 import me.kendler.yanik.repositories.template.TemplateRepository;
+import me.kendler.yanik.socket.ShotlistUpdateDTO;
+import me.kendler.yanik.socket.ShotlistUpdateType;
+import me.kendler.yanik.socket.ShotlistWebsocketService;
+import me.kendler.yanik.socket.payload.CollaborationPayload;
 import me.kendler.yanik.stripe.StripeService;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
@@ -61,6 +67,9 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
 
     @Inject
     CurrentVertxRequest currentVertxRequest;
+
+    @Inject
+    ShotlistWebsocketService shotlistWebsocketService;
 
     private static final Logger LOGGER = Logger.getLogger(UserRepository.class);
 
@@ -162,18 +171,18 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     }
 
     @Transactional
-    public User update(UserEditDTO editDTO, JsonWebToken jwt) {
+    public UserDTO update(UserEditDTO editDTO, JsonWebToken jwt) {
         User user = findOrCreateByJWT(jwt);
         if (editDTO.name() != null) {
             user.name = editDTO.name();
         }
         persist(user);
         LOGGER.infof("Updated user: %s", user.toString());
-        return user;
+        return user.toDTO();
     }
 
     @Transactional
-    public User delete(JsonWebToken jwt) {
+    public UserDTO delete(JsonWebToken jwt) {
         User user = findOrCreateByJWT(jwt);
 
         LOGGER.infof("Deleting user: %s", user.toString());
@@ -190,6 +199,10 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
             collaborationRepository.delete(collaboration.id);
         }
 
+        getEntityManager().createNativeQuery("DELETE FROM app_user_blocked_user WHERE user_id = ?1 or blocked_user_id = ?1")
+                .setParameter(1, user.id)
+                .executeUpdate();
+
         getEntityManager().createNativeQuery("DELETE FROM app_user WHERE id = ?1")
                 .setParameter(1, user.id)
                 .executeUpdate();
@@ -198,7 +211,7 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
 
         auth0Service.deleteUser(user.auth0Sub);
 
-        return user;
+        return user.toDTO();
     }
 
     public String triggerPasswordReset(JsonWebToken jwt) {
@@ -207,28 +220,63 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     }
 
     @Transactional
-    public User setHowDidYourHearReason(JsonWebToken jwt, String reason) {
+    public UserDTO setHowDidYourHearReason(JsonWebToken jwt, String reason) {
         User user = findOrCreateByJWT(jwt);
 
         user.howDidYouHearReason = reason;
 
-        return user;
+        return user.toDTO();
     }
 
-    /*@Transactional
-    public User setAllowAnalytics(JsonWebToken jwt, boolean allow) {
-        User user = findOrCreateByJWT(jwt);
+    @Transactional
+    public UserDTO updateUserBlocking(JsonWebToken jwt, UserBlockDTO blockDTO) {
+        User currentUser = findOrCreateByJWT(jwt);
+        User blockedUser = findById(blockDTO.userId());
 
-        user.allowAnalytics = allow;
+        if(currentUser.equals(blockedUser))
+            throw new ShotlyException("You cannot block yourself", ShotlyErrorCode.INVALID_INPUT);
 
-        return user;
-    }*/
+        if(blockDTO.isBlocked()) {
+            currentUser.blockedUsers.add(blockedUser);
+
+            List<Collaboration> affectedCollaborations = collaborationRepository.find(
+                        """
+                            (shotlist.owner.id = ?1 and user.id = ?2)
+                            OR
+                            (shotlist.owner.id = ?2 and user.id = ?1)
+                        """,
+                    blockedUser.id,
+                    currentUser.id
+            ).list();
+
+            affectedCollaborations.forEach(collab -> {
+                CollaborationDTO result = collaborationRepository.delete(collab.id);
+
+                shotlistWebsocketService.broadcast(
+                    collab.shotlist.id,
+                    new ShotlistUpdateDTO(
+                        ShotlistUpdateType.COLLABORATION_DELETED,
+                        currentUser.id,
+                        new CollaborationPayload(
+                            result.user().id(),
+                            result.collaborationType()
+                        )
+                    )
+                );
+            });
+        }
+        else {
+            currentUser.blockedUsers.remove(blockedUser);
+        }
+
+        return currentUser.toDTO();
+    }
+
+    //ADMIN
 
     @Transactional
     public UserDTO adminUserUpdate(UserAdminUpdateDTO updateDTO) {
         User user = findById(updateDTO.id());
-
-        System.out.println(updateDTO.toString());
 
         if(user == null)
             throw new ShotlyException("User not found", ShotlyErrorCode.NOT_FOUND);
@@ -288,6 +336,10 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         return count == null ? 0L : count;
     }
 
+    /*
+        ACCESS CHECKS
+     */
+
     // ADMIN
 
     public boolean isAdmin(JsonWebToken jwt) {
@@ -310,6 +362,11 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
 
     // SHOTLIST
 
+    /**
+     * Checks if the shotlists owner has reached the maximum allowed shotlists which would make it readOnly
+     * @param shotlist to be checked
+     * @return true or false
+     */
     @Transactional
     public boolean shotlistIsEditable(Shotlist shotlist) {
         //refetch owner to prevent lazy loading issues
@@ -362,6 +419,9 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     }
 
     public void checkShotlistEditRights(Shotlist shotlist, JsonWebToken jwt) {
+        if(shotlist.isArchived) {
+            throw new ShotlyException("This shotlist is archived and cannot be edited", ShotlyErrorCode.WRITE_NOT_ALLOWED);
+        }
         if(!shotlistIsEditable(shotlist)) {
             throw new ShotlyException("This shotlist is read only", ShotlyErrorCode.SHOTLIST_LIMIT_REACHED);
         }

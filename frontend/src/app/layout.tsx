@@ -3,19 +3,19 @@ import 'react-loading-skeleton/dist/skeleton.css'
 import React from "react"
 import {ApolloWrapper} from "@/wrapper/ApolloWrapper"
 import {Inter} from 'next/font/google'
-import {Toast, Tooltip} from "radix-ui"
+import {Tooltip} from "radix-ui"
 import AuthWrapper from "@/wrapper/AuthWrapper"
 import Config from "@/Config"
 import {Metadata, Viewport} from "next"
 import {SkeletonTheme} from "react-loading-skeleton"
 import {Toaster} from "react-hot-toast"
 import {CircleAlert, CircleCheck} from "lucide-react"
-import Script from "next/script"
 import Link from "next/link"
+import Ralph from "@/components/app/ralph/ralph"
 
 export const metadata: Metadata = {
     description:
-        "A freemium, source available, no-AI, clean and simple shotlist creation tool for filmmakers.",
+        "A clean and simple shotlist creation tool for filmmakers. Freemium, source available, no AI.",
     keywords: [
         "shotlist",
         "shotlist creation",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: "Shotly | Shotlist creation made easy",
         description:
-            "A freemium, source available, no-AI, clean and simple shotlist creation tool for filmmakers.",
+            "A clean and simple shotlist creation tool for filmmakers. Freemium, source available, no AI.",
         url: "https://shotly.at",
         siteName: "Shotly",
         images: [
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: "Shotly | Shotlist creation made easy",
         description:
-            "Create clean, professional shotlists with Shotly. Source available and no AI.",
+            "A clean and simple shotlist creation tool for filmmakers. Freemium, source available, no AI.",
         images: ["https://shotly.at/og-image.jpg"],
     },
     authors: [{ name: "Yanik Kendler", url: "https://yanik.kendler.me" }],
@@ -144,6 +144,7 @@ export default function RootLayout({
                     },
                 }}
             />
+            <Ralph/>
         </body>
         </html>
     )

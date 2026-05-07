@@ -1,0 +1,69 @@
+main.shotlist .header{
+  display: flex;
+  align-items: center;
+  padding-left: 1.5rem;
+  padding-right: 1.8rem;
+  overflow-x: auto;
+  position: relative;
+
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+
+  &::-webkit-scrollbar {
+    display: none; /*Chrome, Safari and Opera */
+  }
+
+  @media screen and (max-width: 500px){
+    padding-inline: 1.5rem .5rem;
+  }
+
+  div{
+    width: 100%;
+    padding: .5rem .3rem;
+    font-weight: bold;
+    font-size: calc(.9rem * var(--shotlist-scale));
+
+    &.number{
+      width: 4ch;
+      flex-shrink: 0;
+      text-align: center;
+      color: var(--text-40);
+      position: sticky;
+      left: 0;
+      background-color: var(--sidebar-bg);
+
+      @media screen and (max-width: 500px){
+        left: -1.5rem;
+      }
+    }
+
+    &.attribute{
+      min-width: var(--shotAttribute-width);
+
+      p {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+
+  .empty{
+    font-size: .85rem;
+    color: var(--text-40);
+    margin-inline: auto;
+  }
+
+  .add{
+    position: fixed;
+    right: .3rem;
+    color: var(--text-50);
+    padding: .4rem;
+    background-color: var(--sidebar-bg);
+
+    &:hover{
+      color: var(--text);
+      background-color: var(--contrast);
+    }
+  }
+}

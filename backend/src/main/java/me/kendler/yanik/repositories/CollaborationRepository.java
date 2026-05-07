@@ -115,6 +115,9 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
                 currentUser.id //only the owner can add collaborators
         ).list();
 
+        //dont add as collaborator if shotlist owner is blocked from inviting
+        users = users.stream().filter(u -> !u.blockedUsers.contains(shotlist.owner)).toList();
+
         if(users == null || users.isEmpty()){
             throw new ShotlyException("User with email " + createDTO.email() + " not found.", ShotlyErrorCode.NOT_FOUND);
         }

@@ -1,0 +1,37 @@
+main.home {
+  .header{
+    display: flex;
+    justify-content: flex-end;
+    padding: .3rem .5rem;
+    gap: .5rem;
+
+    @media screen and (max-width: 500px){
+      display: none;
+    }
+
+    button{
+      padding: .4rem .8rem;
+      font-size: .95rem;
+
+      &.shotlist{
+        background-color: var(--accent);
+        color: var(--text-100);
+        font-weight: 600;
+
+        &:hover{
+          background-color: var(--accent-60);
+        }
+      }
+
+      &.template{
+        font-weight: 600;
+        color: var(--accent);
+        background-color: var(--transparent-accent-10);
+
+        &:hover {
+          background-color: var(--transparent-accent-20);
+        }
+      }
+    }
+  }
+}

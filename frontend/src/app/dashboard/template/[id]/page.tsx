@@ -3,18 +3,17 @@
 import "./template.scss"
 import {useParams, useRouter} from "next/navigation"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
-import ErrorPage from "@/components/feedback/errorPage/errorPage"
+import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 import React, {useEffect, useState} from "react"
 import {
     Query,
-    SceneAttributeTemplateBase, SceneAttributeType,
+    SceneAttributeTemplateBase,
     ShotAttributeTemplateBase,
-    ShotAttributeType,
 } from "../../../../../lib/graphql/generated"
 import gql from "graphql-tag"
 import {wuGeneral} from "@yanikkendler/web-utils"
-import {ChevronDown, Info, List, Menu, NotepadText, Pen, Pencil, Plus, Trash, Type} from "lucide-react"
-import TextField from "@/components//inputs/textField/textField"
+import { Info, Pencil, Trash } from "lucide-react"
+import TextField from "@/components/basic/textField/textField"
 import {
     closestCenter,
     DndContext,
@@ -25,21 +24,23 @@ import {
     useSensors
 } from "@dnd-kit/core"
 import {arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy} from "@dnd-kit/sortable"
-import {Popover} from "radix-ui"
-import ShotAttributeTemplate from "@/components/template/shotAttributeTemplate/shotAttributeTemplate"
-import {AnyShotAttributeTemplate, ShotlyErrorCode} from "@/util/Types"
-import Utils, {uuidRegex} from "@/util/Utils"
+import ShotAttributeTemplate from "@/components/app/template/shotAttributeTemplate/shotAttributeTemplate"
+import {AnyShotAttributeTemplate, ShotlyErrorCode} from "@/utility/Types"
+import Utils, {uuidRegex} from "@/utility/Utils"
 import Config from "@/Config"
 import Link from "next/link"
-import SceneAttributeTemplate from "@/components/template/sceneAttributeTemplate/sceneAttributeTemplate"
-import {router} from "next/client"
-import {useConfirmDialog} from "@/components/dialogs/confirmDialog/confirmDialog"
+import SceneAttributeTemplate from "@/components/app/template/sceneAttributeTemplate/sceneAttributeTemplate"
+import {useConfirmDialog} from "@/components/app/dialogs/confirmDialog/confirmDialog"
 import {driver} from "driver.js"
 import Skeleton from "react-loading-skeleton"
 import auth from "@/Auth"
-import SimplePopover from "@/components/popover/simplePopover"
-import {errorNotification} from "@/service/NotificationService"
+import SimplePopover from "@/components/basic/popover/simplePopover"
+import {errorNotification, successNotification} from "@/service/NotificationService"
 import {td} from "@/service/Analytics"
+import CreateShotAttributeTemplatePopup
+    from "@/components/app/template/createShotAttributeTemplatePopup/createShotAttributeTemplatePopup"
+import CreateSceneAttributeTemplatePopup
+    from "@/components/app/template/createSceneAttributeTemplatePopup/createSceneAttributeTemplatePopup"
 
 export default function Template (){
     const params = useParams<{ id: string }>()
@@ -71,6 +72,7 @@ export default function Template (){
     })
 
     useEffect(() => {
+        //validate template id
         if(!uuidRegex.test(id)){
             setQuery(current => ({
                 ...current,
@@ -83,7 +85,6 @@ export default function Template (){
         }
 
         if(!auth.getUser()) return
-
 
         loadTemplate()
 
@@ -234,45 +235,12 @@ export default function Template (){
             return;
         }
 
+        successNotification({
+            title: "Successfully deleted template",
+            message: "Returning to the dashboard"
+        })
+
         router.push("/dashboard");
-    }
-
-    async function createShotAttributeDefinition(type: ShotAttributeType) {
-        const {data, errors} = await client.mutate({
-            mutation: gql`
-                mutation createShotAttributeTemplate($templateId: String!, $attributeType: ShotAttributeType!) {
-                    createShotAttributeTemplate(createDTO: {templateId: $templateId, type: $attributeType}) {
-                        id
-                        name
-                        position
-                        type
-                    }
-                }
-            `,
-            variables: {templateId: id, attributeType: type},
-        });
-        if (errors) {
-            errorNotification({
-                title: "Failed to create shot attribute definition",
-                tryAgainLater: true
-            })
-            console.error(errors);
-            return;
-        }
-
-        setQuery(current => ({
-            ...current,
-            data: {
-                ...current.data,
-                template:{
-                    ...current.data.template,
-                    shotAttributes: [
-                        ...(current.data.template?.shotAttributes || []),
-                        data.createShotAttributeTemplate
-                    ]
-                }
-            }
-        }))
     }
 
     function handleShotDefinitionDragEnd(event: any) {
@@ -339,41 +307,6 @@ export default function Template (){
                 }
             }
         })
-    }
-
-    async function createSceneAttributeDefinition(type: SceneAttributeType) {
-        const {data, errors} = await client.mutate({
-            mutation: gql`
-                mutation createSceneAttributeTemplate($templateId: String!, $attributeType: SceneAttributeType!) {
-                    createSceneAttributeTemplate(createDTO: {templateId: $templateId, type: $attributeType}) {
-                        id
-                        name
-                        position
-                        type
-                    }
-                }
-            `,
-            variables: {templateId: id, attributeType: type},
-        });
-        if (errors) {
-            errorNotification({
-                title: "Failed to create scene attribute definition",
-                tryAgainLater: true
-            })
-            console.error(errors);
-            return;
-        }
-
-        setQuery(current => ({
-            ...current,
-            data: {
-                ...current.data,
-                template:{
-                    ...current.data.template,
-                    sceneAttributes: [...(current.data.template?.sceneAttributes || []), data.createSceneAttributeTemplate]
-                }
-            }
-        }))
     }
 
     function handleSceneAttributeDragEnd(event: any) {
@@ -445,16 +378,20 @@ export default function Template (){
     if(query.errors && query.errors.length > 0) {
         switch (query.errors[0]?.extensions?.code as ShotlyErrorCode) {
             case ShotlyErrorCode.NOT_FOUND:
-                return <ErrorPage
-                    title='404'
-                    description='Sorry, we could not find the Template you were looking for. Please check the URL or return to the Dashboard.'
-                />
+                return <main className="template dashboardContent">
+                    <ErrorPage
+                        title='404'
+                        description='Sorry, we could not find the Template you were looking for. Please check the URL or return to the Dashboard.'
+                    />
+                </main>
             case ShotlyErrorCode.WRITE_NOT_ALLOWED:
             case ShotlyErrorCode.READ_NOT_ALLOWED:
-                return <ErrorPage
-                    title='405'
-                    description='Sorry, you are not allowed to access this Template. Please check the URL or return to the Dashboard.'
-                />
+                return <main className="template dashboardContent">
+                    <ErrorPage
+                        title='405'
+                        description='Sorry, you are not allowed to access this Template. Please check the URL or return to the Dashboard.'
+                    />
+                </main>
         }
     }
 
@@ -478,8 +415,10 @@ export default function Template (){
                             />
                             <div className="spacerContainer">
                                 <p className="spacer">{query.data.template?.name}</p>
-                                <Pencil size={18}
-                                        style={{display: query.data.template?.name == "" ? "none" : "block"}}/>
+                                <Pencil
+                                    size={18}
+                                    style={{display: query.data.template?.name == "" ? "none" : "block"}}
+                                />
                             </div>
                         </>
                     }
@@ -496,7 +435,7 @@ export default function Template (){
                             template <i>after</i> it has been edited will use the updated attributes.
                             <br/>
                             <br/>
-                            <Link href={"https://docs.shotly.at/templates"} target={"_blank"} className={"inline"}>Template Documentation</Link>
+                            <Link href={"https://docs.shotly.at/templates"} target={"_blank"} className={"inline noPadding"}>Template Documentation</Link>
                         </p>
                     }
                     className={"noClickFx default infoTrigger"}
@@ -514,6 +453,7 @@ export default function Template (){
             </div>
 
             <h3>Scene attributes</h3>
+
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -541,31 +481,15 @@ export default function Template (){
                     }
                 </SortableContext>
             </DndContext>
-            {
-                query.loading ?
-                    <Skeleton height="2rem" count={2}/> :
-                    <Popover.Root>
-                        <Popover.Trigger className={"add"}>Add scene attribute <Plus size={20}/></Popover.Trigger>
-                        <Popover.Portal>
-                            <Popover.Content className="popoverContent addAttributeTemplatePopup" sideOffset={5}
-                                             align={"start"}>
-                                <button onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneTextAttribute)}>
-                                    <Type size={16} strokeWidth={3}/>Text
-                                </button>
-                                <button
-                                    onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneSingleSelectAttribute)}>
-                                    <ChevronDown size={16} strokeWidth={3}/>Single select
-                                </button>
-                                <button
-                                    onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneMultiSelectAttribute)}>
-                                    <List size={16} strokeWidth={3}/>Multi select
-                                </button>
-                            </Popover.Content>
-                        </Popover.Portal>
-                    </Popover.Root>
-            }
+
+            <CreateSceneAttributeTemplatePopup
+                setQuery={setQuery}
+                templateId={id}
+                isLoading={query.loading}
+            />
 
             <h3>Shot attributes</h3>
+
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -590,29 +514,12 @@ export default function Template (){
                     }
                 </SortableContext>
             </DndContext>
-            {
-                query.loading ?
-                <Skeleton height="2rem" count={2}/> :
-                <Popover.Root>
-                    <Popover.Trigger className={"add"}>Add shot attribute <Plus size={20}/></Popover.Trigger>
-                    <Popover.Portal>
-                        <Popover.Content className="popoverContent addAttributeTemplatePopup" sideOffset={5}
-                                         align={"start"}>
-                            <button onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotTextAttribute)}><Type
-                                size={16} strokeWidth={3}/>Text
-                            </button>
-                            <button
-                                onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotSingleSelectAttribute)}>
-                                <ChevronDown size={16} strokeWidth={3}/>Single select
-                            </button>
-                            <button
-                                onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotMultiSelectAttribute)}>
-                                <List size={16} strokeWidth={3}/>Multi select
-                            </button>
-                        </Popover.Content>
-                    </Popover.Portal>
-                </Popover.Root>
-            }
+
+            <CreateShotAttributeTemplatePopup
+                setQuery={setQuery}
+                templateId={id}
+                isLoading={query.loading}
+            />
 
             {ConfirmDialog}
         </main>

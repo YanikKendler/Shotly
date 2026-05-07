@@ -1,26 +1,102 @@
 import toast from "react-hot-toast"
-import {Info} from "lucide-react"
+import {CircleCheck, CircleX, Info, X} from "lucide-react"
 
-export function errorNotification({ message, title, sub, tryAgainLater}:{message?: string, title?: string, sub?: string, tryAgainLater?: boolean}) {
-    const subMessage = sub ? sub : tryAgainLater ? "Please try again later." : null
-    toast.error((t) => (
-        <div>
-            {title && <p className="title">{title}</p>}
-            {message && <p className="message">{message}</p>}
-            {subMessage && <p className="sub">{subMessage}</p>}
-        </div>
-    ))
+export interface NotificationAction {
+    label: string,
+    onClick: () => void
 }
 
-export function infoNotification({ message, title, sub}:{message?: string, title?: string, sub?: string}) {
+export interface NotificationProps {
+    title?: string,
+    message?: string,
+    sub?: string,
+    action?: NotificationAction
+}
+
+export interface ErrorNotificationProps extends NotificationProps {
+    tryAgainLater?: boolean
+    autoClose?: boolean
+}
+
+export function errorNotification({ title, message, sub, tryAgainLater, action, autoClose} : ErrorNotificationProps) {
+    const subMessage = sub ? sub : tryAgainLater ? "Please try again later." : null
+    toast.error((t) => (
+        <>
+            <div className="content">
+                {title && <p className="title">{title}</p>}
+                {message && <p className="message">{message}</p>}
+                {subMessage && <p className="sub">{subMessage}</p>}
+            </div>
+            {
+                action &&
+                <button
+                    className={"default action"}
+                    onClick={() => {
+                        action.onClick()
+                        toast.dismiss(t.id)
+                    }}
+                >
+                    {action.label}
+                </button>
+            }
+            <button className={"default round close"} onClick={() => toast.dismiss(t.id)}><X size={22}/></button>
+        </>
+    ), {
+        icon: <CircleX/>,
+        duration: autoClose ? 10000 : Infinity
+    })
+}
+
+export function infoNotification({ title, message, sub, action} : NotificationProps) {
     toast((t) => (
-        <div>
-            {title && <p className="title">{title}</p>}
-            {message && <p className="message">{message}</p>}
-            {sub && <p className="sub">{sub}</p>}
-        </div>
+        <>
+            <div className={"content"}>
+                {title && <p className="title">{title}</p>}
+                {message && <p className="message">{message}</p>}
+                {sub && <p className="sub">{sub}</p>}
+            </div>
+            {
+                action &&
+                <button
+                    className={"default action"}
+                    onClick={() => {
+                        action.onClick()
+                        toast.dismiss(t.id)
+                    }}
+                >
+                    {action.label}
+                </button>
+            }
+        </>
     ), {
         icon: <Info/>,
-        duration: 1400
+        duration: ((title?.length || 0) + (message?.length || 0) + (sub?.length || 0)) * 50
+    })
+}
+
+export function successNotification({ title, message, sub, action} : NotificationProps) {
+    toast.success((t) => (
+        <>
+            <div className={"content"}>
+                {title && <p className="title">{title}</p>}
+                {message && <p className="message">{message}</p>}
+                {sub && <p className="sub">{sub}</p>}
+            </div>
+            {
+                action &&
+                <button
+                    className={"default action"}
+                    onClick={() => {
+                        action.onClick()
+                        toast.dismiss(t.id)
+                    }}
+                >
+                    {action.label}
+                </button>
+            }
+        </>
+    ), {
+        icon: <CircleCheck/>,
+        duration: ((title?.length || 0) + (message?.length || 0) + (sub?.length || 0)) * 50
     })
 }

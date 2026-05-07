@@ -6,10 +6,7 @@ import jakarta.inject.Inject;
 import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.dto.StatCounts;
-import me.kendler.yanik.dto.shotlist.ShotlistCollection;
-import me.kendler.yanik.dto.shotlist.ShotlistCreateDTO;
-import me.kendler.yanik.dto.shotlist.ShotlistDTO;
-import me.kendler.yanik.dto.shotlist.ShotlistEditDTO;
+import me.kendler.yanik.dto.shotlist.*;
 import me.kendler.yanik.error.ShotlyErrorCode;
 import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.Collaboration;
@@ -23,14 +20,12 @@ import me.kendler.yanik.model.template.Template;
 import me.kendler.yanik.repositories.scene.SceneAttributeDefinitionRepository;
 import me.kendler.yanik.repositories.scene.SceneRepository;
 import me.kendler.yanik.repositories.shot.ShotAttributeDefinitionRepository;
-import me.kendler.yanik.repositories.template.SceneAttributeTemplateRepository;
 import me.kendler.yanik.repositories.template.TemplateRepository;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.ZonedDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -81,18 +76,25 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
         return shotlist.toDTO();
     }
 
-    public ShotlistCollection findAllForUser(JsonWebToken jwt) {
+    public ShotlistCollection findAllForUser(JsonWebToken jwt, boolean areArchived) {
         User user = userRepository.findOrCreateByJWT(jwt);
 
         List<ShotlistDTO> personalShotlists = user
                 .shotlists
                 .stream()
+                .filter(s -> s.isArchived == areArchived)
                 .map(Shotlist::toDTO)
                 .toList();
 
         List<ShotlistDTO> sharedShotlists = find(
-                "select distinct s from Shotlist s join s.collaborations c where c.user.id = ?1 AND c.collaborationState = 'ACCEPTED'",
-                user.id
+            """
+                    select distinct s from Shotlist s 
+                    join s.collaborations c 
+                    where c.user.id = ?1 
+                    AND c.collaborationState = 'ACCEPTED'
+                    AND s.isArchived = ?2
+                """,
+                user.id, areArchived
         )
             .stream()
             .map(Shotlist::toDTO)
@@ -136,6 +138,13 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
     public ShotlistDTO update(ShotlistEditDTO editDTO){
         Shotlist shotlist = findById(editDTO.id());
         shotlist.name = editDTO.name();
+        shotlist.registerEdit();
+        return shotlist.toDTO();
+    }
+
+    public ShotlistDTO updateAsOwner(ShotlistEditAsOwnerDTO editDTO) {
+        Shotlist shotlist = findById(editDTO.id());
+        shotlist.isArchived = editDTO.isArchived();
         shotlist.registerEdit();
         return shotlist.toDTO();
     }

@@ -11,6 +11,7 @@ import jakarta.persistence.*;
 import me.kendler.yanik.dto.scene.attributeDefinitions.SceneAttributeDefinitionBaseDTO;
 import me.kendler.yanik.dto.shot.attributeDefinitions.ShotAttributeDefinitionBaseDTO;
 import me.kendler.yanik.dto.shotlist.ShotlistDTO;
+import me.kendler.yanik.dto.shotlist.ShotlistMinimalDTO;
 import me.kendler.yanik.model.scene.Scene;
 import me.kendler.yanik.model.scene.attributeDefinitions.SceneAttributeDefinitionBase;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotAttributeDefinitionBase;
@@ -50,6 +51,9 @@ public class Shotlist extends PanacheEntityBase {
     public Set<Collaboration> collaborations = new HashSet<>();
 
     public String name;
+
+    public boolean isArchived = false;
+
     public ZonedDateTime createdAt;
     public ZonedDateTime editedAt;
 
@@ -116,8 +120,21 @@ public class Shotlist extends PanacheEntityBase {
                     .collect(Collectors.toList()),
             this.collaborations.size(),
             this.name,
+            this.isArchived,
             this.createdAt,
             this.editedAt
+        );
+    }
+
+    public ShotlistMinimalDTO toMinimalDTO() {
+        return new ShotlistMinimalDTO(
+            id,
+            owner.id,
+            template != null ? template.id : null,
+            name,
+            isArchived,
+            createdAt,
+            editedAt
         );
     }
 

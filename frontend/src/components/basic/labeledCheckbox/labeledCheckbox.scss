@@ -1,0 +1,12 @@
+div.labeledCheckbox{
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-top: 1rem;
+
+  label{
+    font-size: .95rem;
+    color: var(--text-30);
+    user-select: none;
+  }
+}

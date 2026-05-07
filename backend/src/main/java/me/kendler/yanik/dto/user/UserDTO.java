@@ -20,6 +20,7 @@ public record UserDTO (
         Boolean isActive,
         Set<Shotlist> shotlists,
         Set<Template> templates,
+        Set<UserMinimalDTO> blockedUsers,
         Integer shotlistCount,
         Integer templateCount,
         ZonedDateTime createdAt,

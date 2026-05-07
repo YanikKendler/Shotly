@@ -1,0 +1,159 @@
+div.shotlistOptionsDialogExportTab{
+  h3{
+    font-weight: 600;
+    font-size: .9rem;
+    margin-top: 1.5rem;
+    margin-bottom: .2rem;
+    color: var(--text-30);
+
+    &:first-of-type{
+      margin-top: 0;
+    }
+  }
+
+  h4 {
+    font-weight: 600;
+    font-size: .85rem;
+    color: var(--text-40);
+    margin-top: .6rem;
+    margin-bottom: .3rem;
+    margin-left: .15rem;
+  }
+
+  .settings{
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+
+    &.secondary{
+      padding-left: .5rem;
+      gap: .2rem;
+    }
+
+    .setting{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      width: 100%;
+      min-height: 2.5rem;
+      flex-shrink: 0;
+
+      .left{
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        color: var(--text-10);
+        font-weight: 500;
+        font-size: .9rem;
+
+        @media screen and (max-width: 600px) {
+          font-size: .85rem;
+        }
+
+        > svg{
+          color: var(--text-30);
+        }
+      }
+
+      .right{
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+
+        button{
+          color: var(--text-30);
+          border: 2px solid var(--default-interactable-border);
+
+          &:hover{
+            color: var(--text);
+            border-color: var(--default-interactable-hover-border);
+          }
+
+          &.remove:hover{
+            color: var(--bad);
+            border-color: var(--bad);
+          }
+        }
+      }
+
+      .textField{
+        width: 100%;
+        font-size: .9rem;
+      }
+    }
+
+    .combinationInfo{
+      color: var(--text-60);
+      font-size: .75rem;
+      margin-left: 1rem;
+      text-wrap: nowrap;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+  }
+
+  .separator{
+    margin-block: 1.3rem;
+  }
+
+  div.addButtons {
+    display: flex;
+    gap: .5rem;
+    margin-top: 2rem;
+
+    button.add{
+      border: 2px solid var(--default-interactable-border);
+      color: var(--text-30);
+      padding-block: .4rem;
+      padding-inline: .6rem;
+      font-weight: 500;
+      font-size: .85rem;
+      width: fit-content;
+
+      &:not([disabled]):hover{
+        border-color: var(--default-interactable-hover-border);
+        color: var(--text-10);
+      }
+    }
+  }
+
+  .bottom{
+    button{
+      padding: .5rem .8rem;
+      font-size: .95rem;
+      width: fit-content;
+
+      &.export{
+        font-weight: bold;
+        color: var(--contrast);
+        background-color: var(--accent);
+
+        &:hover{
+          background-color: var(--accent-55);
+        }
+      }
+
+      &.secondary{
+        color: var(--text-20);
+        /*border: 2px solid var(--default-interactable-light-border);*/
+        background-color: var(--transparent-gray-20);
+
+        &:hover{
+          background-color: var(--transparent-gray-30);
+          color: var(--text);
+        }
+      }
+
+      @media screen and (max-width: 600px) {
+        span {
+          display: none;
+        }
+      }
+    }
+
+    .helpLink{
+      margin-left: auto;
+    }
+  }
+}

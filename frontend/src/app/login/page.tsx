@@ -3,7 +3,7 @@
 
 import {useEffect} from "react"
 import auth from "@/Auth"
-import LoadingPage from "@/components/feedback/loadingPage/loadingPage"
+import LoadingPage from "@/components/app/feedback/loadingPage/loadingPage"
 import Config from "@/Config"
 
 /**
@@ -16,6 +16,6 @@ export default function LoginRedirectPage() {
     }, []);
 
     return (
-        <LoadingPage title={Config.loadingMessage.login}/>
+        <LoadingPage/>
     )
 }

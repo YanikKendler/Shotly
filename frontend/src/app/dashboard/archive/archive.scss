@@ -1,0 +1,37 @@
+main.archive{
+  > div.top{
+    display: flex;
+    align-items: center;
+    gap: .1rem;
+    width: 100%;
+
+    button {
+      color: var(--text-40);
+    }
+
+    .right{
+      margin-left: auto;
+    }
+  }
+
+  h2{
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  h3{
+    font-size: .95rem;
+    color: var(--text-40);
+    font-weight: 500;
+    margin-top: 1rem;
+    margin-bottom: .5rem;
+    margin-left: .1rem;
+  }
+
+  .empty{
+    font-size: .85rem;
+    color: var(--text-50);
+    margin-top: .5rem;
+    line-height: 150%;
+  }
+}

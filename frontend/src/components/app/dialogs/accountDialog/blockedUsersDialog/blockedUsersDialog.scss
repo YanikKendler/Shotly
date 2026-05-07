@@ -1,0 +1,52 @@
+.blockedUsersDialogContent {
+  padding-top: .75rem;
+  max-width: 500px;
+
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h2 {
+      font-weight: 500;
+    }
+  }
+
+  .empty {
+    color: var(--text-50);
+    margin-block: 1.5rem;
+    font-size: .9rem;
+    text-align: center;
+  }
+
+  .entry {
+    font-size: .9rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    span.gray{
+      color: var(--text-30);
+    }
+
+    button {
+      font-size: .85rem;
+      border: 1px solid var(--default-interactable-border);
+    }
+  }
+
+  .bottom {
+    color: var(--text-60);
+    font-size: .85rem;
+    margin-top: 1.5rem;
+
+    a {
+      padding: .2rem;
+      color: var(--text-50);
+
+      &:hover{
+        text-decoration: underline;
+      }
+    }
+  }
+}

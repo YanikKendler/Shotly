@@ -1,0 +1,24 @@
+.readOnlyBanner{
+  width: 100%;
+  padding-inline: .5rem;
+  background-color: var(--accent-92);
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  @media screen and (max-width: 500px) {
+    font-size: .85rem;
+  }
+
+  p{
+    margin-inline: auto;
+    margin-block: .3rem;
+    font-size: .8rem;
+  }
+
+  button{
+    &:hover{
+      background-color: var(--transparent-accent-10);
+    }
+  }
+}

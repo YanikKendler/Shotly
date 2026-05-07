@@ -1,4 +1,4 @@
-import {BuildMode} from "@/util/Utils"
+import {BuildMode} from "@/utility/Utils"
 
 export default class Config {
     static readonly mode: BuildMode =
@@ -45,16 +45,33 @@ export default class Config {
         templateTourCompleted: "shotly-template-tour-completed",
         isLoggedIn: "shotly-is-logged-in",
         hasLoggedInBefore: "shotly-has-logged-in-before",
-        userIdentifier: "shotly-user-identifier"
+        userIdentifier: "shotly-user-identifier",
+        latestVersionUsed: "shotly-latest-version-used",
     }
 
     static readonly loadingMessage = {
-        authGetUser: "Logging you in...",
         redirect: "You will be redirected shortly...",
-        login: "Logging you in...",
+        generics: [
+            "Fetching data",
+            "Loading document",
+            "Rendering elements",
+            "Requesting user",
+            "Preparing view",
+            "Connecting to service",
+            "Applying styles",
+            "Authorizing session",
+            "Resolving endpoint",
+            "Getting things ready",
+            "Just a moment",
+            "Petting the dog"
+        ]
     }
 
     static readonly constant = {
         maxCollaboratorsInFreePlan: 5
+    }
+
+    static readonly cssVar = {
+        scale: "--shotlist-scale-setting"
     }
 }

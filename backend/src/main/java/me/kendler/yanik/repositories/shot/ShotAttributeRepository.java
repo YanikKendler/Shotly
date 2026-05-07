@@ -9,6 +9,7 @@ import me.kendler.yanik.dto.shot.attributes.ShotAttributeBaseDTO;
 import me.kendler.yanik.error.ShotlyErrorCode;
 import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.Shotlist;
+import me.kendler.yanik.model.shot.Shot;
 import me.kendler.yanik.model.shot.attributes.ShotAttributeBase;
 import me.kendler.yanik.model.shot.attributes.ShotMultiSelectAttribute;
 import me.kendler.yanik.model.shot.attributes.ShotSingleSelectAttribute;
@@ -52,5 +53,11 @@ public class ShotAttributeRepository implements PanacheRepository<ShotAttributeB
                 .registerEdit();
 
         return attribute.toDTO();
+    }
+
+    public Shot getShotByAttributeId(Long attributeId) {
+        return getEntityManager().createQuery("select s from Shot s join s.attributes a where a.id = :attributeId", Shot.class)
+                .setParameter("attributeId", attributeId)
+                .getSingleResult();
     }
 }

@@ -25,6 +25,19 @@ public record ShotlistDTO(
     List<CollaborationDTO> collaborations,
     Integer collaboratorCount,
     String name,
+    Boolean isArchived,
     ZonedDateTime createdAt,
     ZonedDateTime editedAt
-) { }
+) {
+    public ShotlistMinimalDTO toMinimalDTO(){
+        return new ShotlistMinimalDTO(
+            id,
+            owner.id(),
+            template != null ? template.id : null,
+            name,
+            isArchived,
+            createdAt,
+            editedAt
+        );
+    }
+}

@@ -1,5 +1,5 @@
 import "../pro.scss"
-import SimplePage from "@/components/simplePage/simplePage"
+import SimplePage from "@/components/app/simplePage/simplePage"
 import {Home} from "lucide-react"
 import Link from "next/link"
 

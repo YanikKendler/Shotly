@@ -8,15 +8,17 @@
   --accent: hsl(18, 100%, 47%);
   --accent-55: hsl(18, 100%, 55%);
   --accent-60: hsl(18, 100%, 60%);
-  --accent-70: hsl(18, 100%, 70%);
-  --accent-80: hsl(18, 100%, 75%);
+  --accent-70: hsl(18, 100%, 65%);
+  --accent-80: hsl(19, 100%, 70%);
   --accent-90: hsl(19, 81%, 86%);
   --accent-92: hsl(19, 81%, 92%);
   --accent-95: hsl(19, 81%, 95%);
   --accent-98: hsl(19, 81%, 98%);
 
   --collaborator: hsl(48, 100%, 47%);
+  --collaborator-dark: hsl(48, 100%, 40%);
   --collaborator-text: hsl(48, 100%, 10%);
+  --collaborator-contrast: hsl(0, 0%, 0%);
 
   --bad-10: hsl(0, 85%, 10%);
   --bad-20: hsl(0, 80%, 20%);
@@ -46,6 +48,7 @@
   --text-40: hsl(0, 0%, 40%);
   --text-50: hsl(0, 0%, 50%);
   --text-60: hsl(0, 0%, 60%);
+  --text-65: hsl(0, 0%, 65%);
   --text-70: hsl(0, 0%, 70%);
   --text-80: hsl(0, 0%, 80%);
   --text-90: hsl(0, 0%, 90%);
@@ -53,16 +56,17 @@
 
   --contrast: hsl(0, 0%, 100%);
 
-  --transparent-black-10: hsla(0, 0%, 0%, 10%);
-  --transparent-black-15: hsla(0, 0%, 0%, 15%);
-  --transparent-black-20: hsla(0, 0%, 0%, 20%);
-  --transparent-black-30: hsla(0, 0%, 0%, 30%);
+  --transparent-contrast-10: hsla(0, 0%, 90%, 10%);
+  --transparent-contrast-15: hsla(0, 0%, 90%, 15%);
+  --transparent-contrast-20: hsla(0, 0%, 90%, 20%);
+  --transparent-contrast-30: hsla(0, 0%, 90%, 30%);
 
   --transparent-gray-10: hsla(0, 0%, 50%, 10%);
   --transparent-gray-20: hsla(0, 0%, 50%, 20%);
   --transparent-gray-30: hsla(0, 0%, 50%, 30%);
 
   --transparent-bad-10: hsla(0, 70%, 60%, 10%);
+  --transparent-bad-20: hsla(0, 70%, 60%, 20%);
   --transparent-good-10: hsla(120, 40%, 50%, 10%);
 
   --transparent-accent-05: hsla(20, 100%, 50%, 7%);
@@ -77,7 +81,7 @@
   --sidebar-bottom-button-bg: hsl(12, 9%, 92%);
   --sidebar-bottom-button-border: hsl(0, 0%, 65%);
 
-  --popup-border: hsl(0, 0%, 82%);
+  --popup-border: hsl(0, 0%, 88%);
   --select-menu-border: hsl(0, 0%, 75%);
   --select-menu-multivalue-bg: hsl(0, 0%, 90%);
 
@@ -94,16 +98,23 @@
   --skelleton-highlight-color: hsl(0, 0%, 100%);
 
   --switch-bg: hsl(0, 0%, 80%);
-  --switch-knob-bg: hsl(0, 0%, 35%);
+  --switch-knob-bg: hsl(0, 0%, 40%);
   --switch-knob-focused-bg: hsl(0, 0%, 30%);
   --switch-knob-hover-bg: hsl(0, 0%, 15%);
 
   --toast-bg: hsl(0, 0%, 100%);
 
+
   --sidebar-width: 400px;
   --shotAttribute-width: calc(10rem * var(--shotlist-scale));
 
-  --shotlist-scale: 1;
+  --shotlist-scale-mobile-adjust: 1;
+  --shotlist-scale-setting: 1;
+  --shotlist-scale: calc(var(--shotlist-scale-setting) * var(--shotlist-scale-mobile-adjust));
+
+  @media screen and (max-width: 500px) {
+    --shotlist-scale-mobile-adjust: 0.9;
+  }
 }
 
 [data-theme="dark"] {
@@ -124,7 +135,9 @@
   --accent-98: hsl(19, 70%, 5%);
 
   --collaborator: hsl(48, 90%, 65%);
+  --collaborator-dark: hsl(48, 90%, 55%);
   --collaborator-text: hsl(48, 20%, 70%);
+  --collaborator-contrast: hsl(0, 0%, 10%);
 
   --bad-95: hsl(0, 90%, 5%);
   --bad-90: hsl(0, 85%, 10%);
@@ -154,12 +167,18 @@
   --text-40: hsl(0, 0%, 60%);
   --text-50: hsl(0, 0%, 50%);
   --text-60: hsl(0, 0%, 40%);
+  --text-65: hsl(0, 0%, 35%);
   --text-70: hsl(0, 0%, 30%);
   --text-80: hsl(0, 0%, 20%);
   --text-90: hsl(0, 0%, 17%);
   --text-100: hsl(0, 0%, 5%);
 
   --contrast: hsl(0, 0%, 10%);
+
+  --transparent-contrast-10: hsla(0, 0%, 0%, 10%);
+  --transparent-contrast-15: hsla(0, 0%, 0%, 15%);
+  --transparent-contrast-20: hsla(0, 0%, 0%, 20%);
+  --transparent-contrast-30: hsla(0, 0%, 0%, 30%);
 
   --sidebar-bg: hsl(20, 20%, 5%);
   --home-button-bg: hsl(14, 21%, 8%);
@@ -263,7 +282,7 @@ svg {
     position: sticky;
     top: 0;
     z-index: 200;
-    font-size: .9rem;
+    font-size: .8rem;
 
     a {
       font-weight: bold;
@@ -363,6 +382,12 @@ button, a{
     user-select: auto;
   }
 
+  &.round{
+    border-radius: 100%;
+    aspect-ratio: 1;
+    height: fit-content;
+  }
+
   svg{
     flex-shrink: 0;
   }
@@ -376,8 +401,16 @@ span.bold, b, strong{
   font-weight: bold;
 }
 
+span.small, small{
+  font-size: .9em;
+}
+
 span.italic, i{
   font-style: italic;
+}
+
+:where(span.gray) {
+  color: var(--text-40);
 }
 
 span.wrap{
@@ -395,7 +428,7 @@ span.truncate{
 span.key{
   background-color: var(--transparent-gray-10);
   border: 1px solid var(--text-50);
-  padding: .3em;
+  padding: .2em .3em;
   display: inline-block;
   border-radius: .3em;
   font-family: monospace;
@@ -416,6 +449,17 @@ span.key{
   svg {
     height: .9em;
     width: .9em;
+  }
+}
+
+span.chip{
+  background-color: var(--transparent-gray-30);
+  font-size: .9rem;
+  padding: .2em .5em;
+  border-radius: 10rem;
+
+  &.small{
+    font-size: .8rem;
   }
 }
 
@@ -559,7 +603,7 @@ span.key{
         left: .5rem;
         right: .5rem;
 
-        button{
+        button, a{
           background-color: var(--sidebar-bottom-button-bg);
           border: 1px solid var(--sidebar-bottom-button-border);
           width: 100%;
@@ -568,6 +612,11 @@ span.key{
 
           &:hover{
             border-color: var(--text-20);
+          }
+
+          &.selected {
+            border-color: var(--accent);
+            color: var(--accent-40);
           }
 
           @media screen and (max-width: 600px){
@@ -608,33 +657,39 @@ span.key{
   }
 }
 
-// Style radix collapsible
+// Floater
 
-.CollapsibleContent {
-  overflow: hidden;
-}
-.CollapsibleContent[data-state="open"] {
-  animation: slideDown 300ms ease-out;
-}
-.CollapsibleContent[data-state="closed"] {
-  animation: slideUp 300ms ease-out;
-}
+.floater {
+  position: absolute;
+  bottom: 1rem;
+  right: 1.3rem;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
 
-@keyframes slideDown {
-  from {
-    height: 0;
+  > * {
+    box-shadow: .2rem .2rem .5rem .2rem var(--transparent-contrast-15);
   }
-  to {
-    height: var(--radix-collapsible-content-height);
-  }
-}
 
-@keyframes slideUp {
-  from {
-    height: var(--radix-collapsible-content-height);
+  button {
+    background-color: var(--contrast);
+    border: 2px solid var(--default-interactable-border);
+    border-radius: 100%;
+    height: 35px;
+    width: 35px;
+    display: grid;
+    place-content: center;
+    color: var(--text-30);
   }
-  to {
-    height: 0;
+
+  .openSidebar {
+    height: 45px;
+    width: 45px;
+    display: none;
+
+    @media screen and (max-width: 500px) {
+      display: flex;
+    }
   }
 }
 
@@ -706,7 +761,6 @@ span.key{
 
 .tooltipContent, .popoverContent {
   background-color: var(--contrast);
-  padding: .4rem;
   font-size: .9rem;
   border-radius: .5rem;
   border: 2px solid var(--popup-border);
@@ -718,27 +772,27 @@ span.key{
   display: flex;
   flex-direction: column;
   gap: .3rem;
+  color: var(--text-20);
+  box-shadow: .2rem .2rem .5rem .2rem var(--transparent-contrast-15);
 
   &.left{
     text-align: left;
   }
 
-  :where(svg){
-    color: var(--text-20);
+  :where(> svg){
+    color: var(--text-40);
   }
 
   /* Arrow */
   > span > svg {
     fill: var(--popup-border);
   }
-}
 
-.popoverContent{
-  overflow-y: auto;
-  scrollbar-width: thin;
-
-  &.noScroll{
-    overflow-y: initial;
+  .scrollArea{
+    overflow-y: auto;
+    scrollbar-width: thin;
+    max-height: 15rem;
+    padding: .3rem;
   }
 }
 
@@ -879,6 +933,7 @@ body button.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot {
   position: relative;
   -webkit-tap-highlight-color: var(--accent);
   flex-shrink: 0;
+  cursor: pointer;
 
   &[data-state="checked"] {
     background-color: var(--accent);
@@ -933,8 +988,12 @@ body .toast{
   &.error{
     background-color: var(--bad-95);
 
-    svg{
+    > svg{
       color: var(--bad);
+    }
+
+    > div{
+      margin-right: 0;
     }
   }
 
@@ -944,6 +1003,11 @@ body .toast{
     svg{
       color: var(--good);
     }
+  }
+
+  > div {
+    display: flex;
+    align-items: center;
   }
 
   .title{
@@ -957,9 +1021,21 @@ body .toast{
 
   .sub{
     font-size: .8rem;
-    color: var(--text-20);
-    margin-top: .2rem;
+    color: var(--text-30);
+    margin-top: .1rem;
     font-weight: bold;
+  }
+
+  button.action{
+    font-size: .85rem;
+    margin-left: .3rem;
+    color: var(--text-20);
+    font-weight: 500;
+  }
+
+  button.close {
+    color: var(--text-50);
+    margin-left: .2rem;
   }
 }
 
@@ -972,4 +1048,13 @@ body .toast{
     to {
         transform: rotate(360deg);
     }
+}
+
+@keyframes opacityIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

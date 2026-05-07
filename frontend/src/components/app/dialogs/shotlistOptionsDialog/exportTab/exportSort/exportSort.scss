@@ -1,0 +1,46 @@
+.shotlistOptionsDialogExportTab .setting.sort {
+  .left{
+    .number{
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    &.left.left > svg {
+      color: var(--text);
+    }
+
+    .grip{
+      cursor: grab;
+      color: var(--text-65);
+      display: flex;
+      align-items: center;
+      border-radius: .3rem;
+      padding-block: .3rem;
+      transition: background-color .2s, color .2s;
+
+      &:hover{
+        background-color: var(--transparent-gray-10);
+        color: var(--text-30);
+      }
+    }
+
+    button.order{
+      font-size: .75rem;
+      color: var(--text-40);
+      border-radius: 2rem;
+      font-weight: 600;
+      padding: .5rem;
+      border: none;
+
+      &:hover {
+        color: var(--text-20);
+      }
+
+      .details{
+        display: flex;
+        align-items: center;
+        gap: .1rem;
+      }
+    }
+  }
+}

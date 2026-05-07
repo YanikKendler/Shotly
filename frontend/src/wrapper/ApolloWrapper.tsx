@@ -6,7 +6,7 @@ import auth from "@/Auth"
 import {setContext} from "@apollo/client/link/context"
 import {onError} from "@apollo/client/link/error"
 import Config from "@/Config"
-import {ShotlyErrorCode} from "@/util/Types"
+import {ShotlyErrorCode} from "@/utility/Types"
 import React from "react"
 import {errorNotification} from "@/service/NotificationService"
 
@@ -61,7 +61,8 @@ export function makeClient() {
                     case ShotlyErrorCode.TOO_MANY_REQUESTS:
                         errorNotification({
                             title: "You have been doing that a lot!",
-                            message: "Please try again later.",
+                            tryAgainLater: true,
+                            autoClose: true
                         })
                         break
                 }

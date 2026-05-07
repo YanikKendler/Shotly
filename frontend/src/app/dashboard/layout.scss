@@ -1,9 +1,9 @@
 [data-theme="dark"] main.home{
-  --howDidYouhearBg: hsl(0, 0%, 5%);
+  --floater-dialog-bg: hsl(0, 0%, 5%);
 }
 
 main.home{
-  --howDidYouhearBg: hsl(0, 0%, 100%);
+  --floater-dialog-bg: hsl(0, 0%, 100%);
 
   height: 100%;
   width: 100%;
@@ -11,156 +11,12 @@ main.home{
   display: flex;
   flex-direction: column;
 
-  .sidebar{
-    @media screen and (max-width: 500px){
-      --sidebar-width: 100vw;
-    }
-
-    >.content{
-      gap: .5rem;
-
-      .top{
-        height: 2.5rem; /*Matches the nav bar*/
-      }
-
-      .list{
-        gap: .5rem;
-
-        .bottom {
-          .new {
-            color: var(--accent-40);
-            border-color: var(--accent);
-            display: none;
-
-            @media screen and (max-width: 500px) {
-              display: flex;
-            }
-          }
-        }
-
-        .collaborationRequestsTrigger{
-          position: relative;
-
-          .badge{
-            aspect-ratio: 1;
-            height: 1.4rem;
-            display: grid;
-            place-items: center;
-            border-radius: 100%;
-            font-weight: bold;
-            text-align: center;
-            background-color: var(--collaborator);
-            color: var(--contrast);
-            position: absolute;
-            right: -.5rem;
-            bottom: 1rem;
-          }
-        }
-      }
-    }
-
-    .CollapsibleRoot.dashboardSidebar{
-      button{
-        width: 100%;
-        font-size: .9rem;
-        font-weight: 500;
-        color: var(--text-30);
-        padding: .3rem;
-
-        &:hover{
-          background-color: var(--transparent-gray-10);
-          color: var(--text);
-        }
-
-        svg.chevron{
-          transition: rotate .2s;
-        }
-      }
-
-      a{
-        padding: .2rem;
-        padding-left: .4rem;
-        justify-content: left;
-        gap: .3rem;
-        color: var(--text-20);
-        font-weight: 500;
-
-        &:hover{
-          background-color: var(--transparent-gray-10);
-          text-decoration: underline;
-          color: var(--text);
-        }
-      }
-
-      &[data-state="open"] svg.chevron{
-        rotate: 180deg;
-      }
-
-      button.create{
-        margin-left: .4rem;
-        margin-top: .2rem;
-        width: calc(100% - .4rem);
-        font-size: .9rem;
-        justify-content: center;
-        color: var(--accent);
-        background-color: var(--transparent-accent-10);
-
-        &:hover{
-          background-color: var(--transparent-accent-20);
-          color: var(--accent-55);
-        }
-      }
-
-      .empty{
-        font-size: .9rem;
-        color: var(--text-50);
-        margin: .3rem .5rem;
-      }
-    }
-  }
-
   .headerContainer{
     display: flex;
     flex-direction: column;
     width: 100%;
     height: 100%;
     margin-left: 1px;
-
-    .header{
-      display: flex;
-      justify-content: flex-end;
-      padding: .3rem .5rem;
-      gap: .5rem;
-
-      @media screen and (max-width: 500px){
-        display: none;
-      }
-
-      button{
-        padding: .4rem .8rem;
-        font-size: .95rem;
-
-        &.shotlist{
-          background-color: var(--accent);
-          color: var(--text-100);
-          font-weight: 600;
-
-          &:hover{
-            background-color: var(--accent-60);
-          }
-        }
-
-        &.template{
-          font-weight: 600;
-          color: var(--accent);
-          background-color: var(--transparent-accent-10);
-
-          &:hover {
-            background-color: var(--transparent-accent-20);
-          }
-        }
-      }
-    }
 
     .dashboardContent{
       background-color: var(--contrast);
@@ -177,28 +33,7 @@ main.home{
     }
   }
 
-  .floater {
-    position: absolute;
-    bottom: 1rem;
-    right: 1.3rem;
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-
-    .openSidebar {
-      background-color: var(--contrast);
-      border: 2px solid var(--default-interactable-border);
-      border-radius: 100%;
-      padding: .6rem;
-      display: none;
-
-      @media screen and (max-width: 500px) {
-        display: flex;
-      }
-    }
-  }
-
-  .introQuestions{
+  .dialogFloater{
     position: absolute;
     right: .5rem;
     bottom: .5rem;
@@ -208,9 +43,11 @@ main.home{
     display: flex;
     flex-direction: column;
     gap: .5rem;
+    max-height: 100svh;
+    overflow-y: auto;
 
     > div{
-      background-color: var(--howDidYouhearBg);
+      background-color: var(--floater-dialog-bg);
       padding: 1rem;
       border-radius: .5rem;
       box-shadow: 5px 5px 15px 5px hsla(0, 0%, 0%, 20%);
@@ -238,11 +75,40 @@ main.home{
         }
       }
 
+      ul {
+        font-size: .9rem;
+        margin-bottom: .75rem;
+
+        li {
+          margin-left: 1.2rem;
+          margin-top: .3rem;
+          color: var(--text-20);
+
+          &::marker {
+            color: var(--accent-40);
+          }
+        }
+      }
+
       .textField{
         font-size: .9rem;
       }
 
-      > button, .buttons button {
+     a:not(.buttons a) {
+        color: var(--text-40);
+        padding: 0;
+        text-decoration: underline;
+
+        &:hover {
+          color: var(--text);
+        }
+
+        &.small {
+          font-size: .9em;
+        }
+      }
+
+      > button, .buttons button, .buttons a{
         width: 100%;
         justify-content: center;
         font-size: .9rem;
@@ -265,70 +131,15 @@ main.home{
         }
       }
 
+      div.top{
+        display: flex;
+        justify-content: space-between;
+      }
+
       div.buttons{
         display: flex;
         gap: .5rem;
       }
-    }
-  }
-}
-
-[data-theme="dark"] .popoverContent.CollaborationRequests{
-  --reloadButtonBg: hsl(0, 0%, 8%);
-}
-
-.popoverContent.CollaborationRequests{
-  --reloadButtonBg: hsl(0, 0%, 95%);
-
-  min-width: var(--radix-popover-trigger-width);
-  max-width: 90vw;
-  border: 1px solid var(--default-interactable-border);
-  padding: .3rem;
-
-  .empty{
-    padding: .5rem;
-    color: var(--text-50);
-  }
-
-  .collaborationRequest{
-    display: flex;
-    align-items: center;
-    gap: .3rem;
-    margin: .1rem;
-
-    p{
-      text-align: left;
-      color: var(--text-20);
-      margin-right: .2rem;
-
-      span{
-        color: var(--text);
-      }
-    }
-
-    button{
-      border: 1px solid var(--default-interactable-border);
-      padding: .3rem;
-      aspect-ratio: 1;
-      height: fit-content;
-
-      &:hover{
-        border-color: var(--accent);
-        color: var(--accent);
-      }
-    }
-  }
-
-  .reload{
-    justify-content: flex-start;
-    background-color: var(--reloadButtonBg);
-    color: var(--text-30);
-    font-size: .9rem;
-    border: 1px solid var(--default-interactable-border);
-
-    &:not([disabled]):hover{
-      color: var(--text-10);
-      border: 1px solid var(--default-interactable-hover-border);
     }
   }
 }

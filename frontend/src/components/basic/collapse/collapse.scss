@@ -1,0 +1,18 @@
+div.collapsableContent{
+  //populated by ts
+  --expanded-height: 0px;
+
+  overflow: hidden;
+  transition: height ease-out, padding, opacity;
+  transition-duration: 300ms;
+  height: 0;
+  box-sizing: content-box;
+
+  &.expanded {
+    height: var(--expanded-height);
+  }
+
+  &:not(.expanded) {
+    padding: 0 !important;
+  }
+}
