@@ -485,7 +485,7 @@ export default function ExportTab(
                  * returns false at the end to signify that none of the above were the case - not passed
                  */
                 const matchesFilters = (shot.attributes as AnyShotAttribute[]).every(attribute => {
-                    const filter = customSceneFilters.find(f => f.definitionId == attribute.definition?.id)
+                    const filter = customShotFilters.find(f => f.definitionId == attribute.definition?.id)
 
                     if(!filter || filter.value.length == 0) return true //no filter was defined or no options were selected
 
