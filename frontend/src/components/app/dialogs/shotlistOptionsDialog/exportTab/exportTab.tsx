@@ -563,9 +563,20 @@ export default function ExportTab(
     }
 
     async function exportShotlist() {
+        setExportRunning(true)
+
+        infoNotification({
+            title: "Generating your export!",
+        })
+
         const data: ShotlistDto | null = await loadFilteredData()
 
         if (!data) {
+            errorNotification({
+                title: "Export failed",
+                message: "Could not load data for export."
+            })
+            setExportRunning(false)
             return
         }
 
@@ -576,8 +587,6 @@ export default function ExportTab(
             sortCount: customSceneSorts.length + customShotSorts.length,
             selectedScenes: setSelectedScenes.length
         })
-
-        setExportRunning(true)
 
         switch (selectedFileType) {
             case "CSV":
@@ -590,10 +599,6 @@ export default function ExportTab(
                 exportXLSX(data)
                 break
         }
-
-        infoNotification({
-            title: "Generating your export!",
-        })
         
         setTimeout(() => {
             setExportRunning(false)

@@ -56,6 +56,9 @@ export default function ExportPreview({
                     !data ?
                     <p className="empty">Sorry! Data could not be loaded. Please try again.</p>
                     :
+                    data.scenes?.every(s => s?.shots?.length == 0) ?
+                    <p className="empty">No results, please try different filters.</p>
+                    :
                     <div className={`exportPreview ${hideSceneHeadings && "sceneHeadingsHidden"}`}>
                         {/* Top Level Scene Attribute Names */}
                         {
