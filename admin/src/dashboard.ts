@@ -1000,10 +1000,10 @@ export class Dashboard extends LitElement {
                         ]
                   }}
                 >
-                  <option value="Name" selected>Name</option>
+                  <option value="Name">Name</option>
                   <option value="CreatedAt">Oldest</option>
                   <option value="CreatedAtReverse">Newest</option>
-                  <option value="ActiveAt">Last Active</option>
+                  <option value="ActiveAt" selected>Last Active</option>
                   <option value="Tier">Tier</option>
                 </select>
                 <input type="text" placeholder="search" @input=${(e: Event) => {
