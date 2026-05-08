@@ -48,7 +48,6 @@ interface CellProps {
 /**
  * Represents a single cell in the spreadsheet aka a shot attribute
  */
-//TODO set cursor to end of textfield on navigation using tab
 const ValueCellBase = forwardRef<CellRef, CellProps>(({
     attribute,
     row,

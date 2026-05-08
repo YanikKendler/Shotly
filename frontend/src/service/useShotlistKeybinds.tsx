@@ -26,8 +26,6 @@ export default function useShotlistKeybinds({
 }) {
     const router = useRouter()
 
-    //TODO ignore keybinds if dialog is open
-
     useEffect(() => {
         let unsubscribe = tinykeys(window, {
             "ArrowLeft": event => {

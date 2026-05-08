@@ -845,7 +845,7 @@ export default function ExportTab(
                 </div>
                 <div className="setting">
                     <div className="left">
-                        <Rows4 size={22}/> {/*TODO custom heading strikethrough icon*/}
+                        <Rows4 size={22}/>
                         <p>Hide scene headings</p>
                     </div>
 

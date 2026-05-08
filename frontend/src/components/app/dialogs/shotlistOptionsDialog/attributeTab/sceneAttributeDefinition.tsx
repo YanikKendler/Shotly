@@ -19,7 +19,6 @@ import {wuGeneral} from "@yanikkendler/web-utils"
 import Skeleton from "react-loading-skeleton"
 import {errorNotification, successNotification} from "@/service/NotificationService"
 
-//TODO swap cursor while dragging
 export default function SceneAttributeDefinition({attributeDefinition, onDelete, dataChanged}: {attributeDefinition: AnySceneAttributeDefinition, onDelete: (id: number) => void, dataChanged: () => void}) {
 
     const [definition, setDefinition] = useState<AnySceneAttributeDefinition>({} as AnySceneAttributeDefinition)
