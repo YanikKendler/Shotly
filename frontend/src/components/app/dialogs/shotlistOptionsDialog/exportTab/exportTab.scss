@@ -102,7 +102,7 @@ div.shotlistOptionsDialogExportTab{
     gap: .5rem;
     margin-top: 2rem;
 
-    button.add{
+    button.add {
       border: 2px solid var(--default-interactable-border);
       color: var(--text-30);
       padding-block: .4rem;
@@ -111,14 +111,12 @@ div.shotlistOptionsDialogExportTab{
       font-size: .85rem;
       width: fit-content;
 
-      &:not([disabled]):hover{
+      &:not([disabled]):hover {
         border-color: var(--default-interactable-hover-border);
         color: var(--text-10);
       }
     }
   }
-
-
 
   .bottom.bottom{
     padding-bottom: 1.3rem;

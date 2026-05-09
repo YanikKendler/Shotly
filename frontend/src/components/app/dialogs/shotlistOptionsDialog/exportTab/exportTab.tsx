@@ -58,7 +58,7 @@ import Sortable from "sortablejs"
 
 type SelectedFileTypes = "PDF" | "CSV" | "XLSX"
 
-export type ExportFilterMethod = "exclude" | "include"
+export type ExportFilterMethod = "exclude" | "include" | "includeOnly"
 
 export interface ExportFilterSetting {
     definitionId: number
@@ -391,23 +391,29 @@ export default function ExportTab(
                 if(!filter || filter.value.length == 0) return true //no filter was defined or no options were selected
 
                 let filterIncludesValue = false
+                let filterMatchesExactly = false
 
                 switch (attribute.type){
                     case "SceneSingleSelectAttributeDTO":
                         const singleValueId = (attribute as SceneSingleSelectAttributeDto).singleSelectValue?.id
                         filterIncludesValue = filter.value.some(v => v.value == singleValueId)
+                        filterMatchesExactly = filter.value[0].value == singleValueId
                         break
                     case "SceneMultiSelectAttributeDTO":
                         const multiValue = (attribute as SceneMultiSelectAttributeDto).multiSelectValue
-                        filterIncludesValue = multiValue
-                            ?.some(value => filter.value.some(v => v.value == value?.id))
+                        filterIncludesValue = multiValue && multiValue.length > 0 &&
+                            multiValue.some(value => value && filter.value.some(v => v.value == value.id))
+                            || false
+                        filterMatchesExactly = multiValue && multiValue.length == filter.value.length &&
+                            multiValue.every(value => value && filter.value.some(v => v.value == value.id))
                             || false
                         break
                 }
 
                 if(
                     (filter.method == "include" && filterIncludesValue) ||
-                    (filter.method == "exclude" && !filterIncludesValue)
+                    (filter.method == "exclude" && !filterIncludesValue) ||
+                    (filter.method == "includeOnly" && filterMatchesExactly)
                 )
                     return true
 
@@ -480,6 +486,7 @@ export default function ExportTab(
             scene.shots.forEach(shot => {
                 if(!shot) return
 
+
                 /**
                  * returns true early if no filter is applicable or a filter exists and passed
                  * returns false at the end to signify that none of the above were the case - not passed
@@ -490,23 +497,30 @@ export default function ExportTab(
                     if(!filter || filter.value.length == 0) return true //no filter was defined or no options were selected
 
                     let filterIncludesValue = false
+                    let filterMatchesExactly = false
 
                     switch (attribute.type){
                         case "ShotSingleSelectAttributeDTO":
                             const singleValueId = (attribute as ShotSingleSelectAttributeDto).singleSelectValue?.id
                             filterIncludesValue = filter.value.some(v => v.value == singleValueId)
+                            filterMatchesExactly = filter.value[0].value == singleValueId
                             break
                         case "ShotMultiSelectAttributeDTO":
                             const multiValue = (attribute as ShotMultiSelectAttributeDto).multiSelectValue
-                             filterIncludesValue = multiValue
-                                ?.some(value => filter.value.some(v => v.value == value?.id))
+
+                             filterIncludesValue = multiValue && multiValue.length > 0 &&
+                                multiValue.some(value => value && filter.value.some(v => v.value == value.id))
+                                || false
+                             filterMatchesExactly = multiValue && multiValue.length == filter.value.length &&
+                                multiValue.every(value => value && filter.value.some(v => v.value == value.id))
                                 || false
                             break
                     }
 
                     if(
                         (filter.method == "include" && filterIncludesValue) ||
-                        (filter.method == "exclude" && !filterIncludesValue)
+                        (filter.method == "exclude" && !filterIncludesValue) ||
+                        (filter.method == "includeOnly" && filterMatchesExactly)
                     )
                         return true
 
@@ -664,7 +678,10 @@ export default function ExportTab(
     const toggleSceneFilterMethod = (attributeDefinitionId: number) => {
         setCustomSceneFilters(current => current.map(f => {
             if(f.definitionId == attributeDefinitionId) {
-                const newMethod = f.method == "include" ? "exclude" : "include"
+                const newMethod =
+                    f.method == "include" ? "includeOnly" :
+                    f.method == "includeOnly" ? "exclude" :
+                        "include"
                 return {...f, method: newMethod}
             }
 
@@ -675,7 +692,10 @@ export default function ExportTab(
     const toggleShotFilterMethod = (attributeDefinitionId: number) => {
         setCustomShotFilters(current => current.map(f => {
             if(f.definitionId == attributeDefinitionId) {
-                const newMethod = f.method == "include" ? "exclude" : "include"
+                const newMethod =
+                    f.method == "include" ? "includeOnly" :
+                    f.method == "includeOnly" ? "exclude" :
+                        "include"
                 return {...f, method: newMethod}
             }
 

@@ -1,5 +1,5 @@
 import {ForwardRefExoticComponent} from "react"
-import {Equal, EqualNot, LucideProps, X} from "lucide-react"
+import {Equal, EqualApproximately, EqualNot, LucideProps, X} from "lucide-react"
 import MultiSelect from "@/components/basic/multiSelect/multiSelect"
 import {MultiValue} from "react-select"
 import {SelectOption} from "@/utility/Types"
@@ -31,11 +31,10 @@ export default function ExportFilter({
     onToggleMethod: () => void
 }) {
 
+    //TODO docs for includeOnly
     const humanReadableMethod = new Map<ExportFilterMethod, string>([
         ["include", `is one of`],
-/*
-        ["include", `is ${filter.value.length != 1 ? "one of" : ""}`],
-*/
+        ["includeOnly", "is exactly"],
         ["exclude", "is not"]
     ])
 
@@ -60,9 +59,12 @@ export default function ExportFilter({
                     />
 
                     <div className="details">
-                        { filter.method == "include" ?
-                            <Equal size={14}/> :
-                            <EqualNot size={14}/>
+                        {
+                            filter.method == "include" ?
+                                <EqualApproximately size={14}/> :
+                            filter.method == "includeOnly" ?
+                                <Equal size={14}/> :
+                                <EqualNot size={14}/>
                         }
                     </div>
                 </button>
