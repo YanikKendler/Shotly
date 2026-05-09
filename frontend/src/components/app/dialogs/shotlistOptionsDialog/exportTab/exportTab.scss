@@ -118,7 +118,20 @@ div.shotlistOptionsDialogExportTab{
     }
   }
 
-  .bottom{
+
+
+  .bottom.bottom{
+    padding-bottom: 1.3rem;
+
+    .small{
+      font-size: .7rem;
+      color: var(--text-50);
+      position: absolute;
+      bottom: 0;
+      margin-left: .1rem;
+      margin-bottom: .2rem;
+    }
+
     button{
       padding: .5rem .8rem;
       font-size: .95rem;

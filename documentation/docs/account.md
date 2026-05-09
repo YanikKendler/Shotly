@@ -32,7 +32,7 @@ In this dialog you can also change your user settings:
 
 ### Blocked users
 
-The first row allows you to manage blocked users by clicking the `Manage` button. This opens a dialog where you can see all users that you have blocked via the [Collaborations Popup](dashboard.md#collaborations) on the dashboard. 
+This row allows you to view and unblock users by clicking the `Manage` button. This opens a dialog where you can see all users that you have blocked via the [Collaborations Popup](dashboard.md#collaborations) on the dashboard. 
 
 The following happens when blocking a user:
 

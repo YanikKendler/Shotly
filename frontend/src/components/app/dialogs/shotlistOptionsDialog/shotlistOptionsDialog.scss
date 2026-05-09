@@ -154,7 +154,7 @@
       background-color: var(--contrast);
       gap: .5rem;
       position: sticky;
-      bottom: 0rem; //account for padding on parent
+      bottom: 0; //account for padding on parent
       left: 0;
       right: 0;
     }

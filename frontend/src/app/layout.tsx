@@ -120,7 +120,7 @@ export default function RootLayout({
                 {(Config.mode === "dev-deployment") && <div className="infoBanner">You are currently viewing a development deployment. Please go to <Link className={"inline noPadding"} href={"https://shotly.at"}>Shotly.at</Link> instead.</div>}
                 <AuthWrapper> {/*should be the outermost*/}
                     <ApolloWrapper> {/*should also be out*/}
-                        <Tooltip.Provider>
+                        <Tooltip.Provider skipDelayDuration={0}> {/*deactivate instant open of tooltips... kinda: https://github.com/radix-ui/primitives/issues/3873*/}
                             <SkeletonTheme baseColor="var(--skelleton-base-color)" highlightColor="var(--skelleton-highlight-color)">
                                 {children}
                             </SkeletonTheme>

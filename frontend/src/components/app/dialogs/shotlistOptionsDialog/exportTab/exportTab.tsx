@@ -797,10 +797,6 @@ export default function ExportTab(
         }
     }, [])
 
-    const exist = {
-        filters: (customSceneFilters.length + customShotFilters.length) > 0,
-        sorts: (customSceneSorts.length + customShotSorts.length) > 0
-    }
 
     if(!shotlist) return <div className={"shotlistOptionsDialogExportTab shotlistOptionsDialogPage"}>
         <div className="top">
@@ -812,6 +808,18 @@ export default function ExportTab(
         <Skeleton height={"2rem"} count={2} style={{marginTop: ".5rem"}}/>
         <Skeleton height={"2rem"} width={"15ch"} style={{marginTop: "2rem"}}/>
     </div>
+
+    const exist = {
+        filters: (customSceneFilters.length + customShotFilters.length) > 0,
+        sorts: (customSceneSorts.length + customShotSorts.length) > 0
+    }
+
+    const filteredData = filterData(shotlistPreviewCache)
+
+    const dataStats = {
+        scenes: filteredData?.scenes?.length ?? -1,
+        shots: filteredData?.scenes?.reduce((sum, s) => sum + (s?.shots?.length ?? 0), 0) ?? -1
+    }
 
     return (
         <div className={"shotlistOptionsDialogExportTab shotlistOptionsDialogPage"}>
@@ -1020,7 +1028,16 @@ export default function ExportTab(
 
             <span className="scrollSpacer" aria-hidden></span>
 
+
             <div className="bottom">
+                <p className="small">
+                    {"Exporting "}
+                    {dataStats.shots >= 0 ? dataStats.shots : "##"}
+                    {` shot${dataStats.shots > 0 && "s"} from `}
+                    {dataStats.scenes >= 0 ? dataStats.scenes : "##"}
+                    {` scene${dataStats.scenes > 0 && "s"}.`}
+                </p>
+
                 <button
                     className={"export"}
                     onClick={exportShotlist}
@@ -1028,12 +1045,12 @@ export default function ExportTab(
                 >
                     {
                         exportRunning ?
-                        <span>{"Exporting"}<DotLoader/></span> :
-                        <><span>Download shotlist</span><Download size={16} strokeWidth={3}/></>
+                            <span>{"Exporting"}<DotLoader/></span> :
+                            <><span>Download shotlist</span><Download size={16} strokeWidth={3}/></>
                     }
                 </button>
                 <ExportPreview
-                    data={filterData(shotlistPreviewCache)}
+                    data={filteredData}
                     exportShotlist={exportShotlist}
                     hideSceneHeadings={hideSceneHeadings}
                     scenePositionLUT={scenePositionLUT}
