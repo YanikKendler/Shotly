@@ -30,6 +30,7 @@ export interface DashboardSidebarProps {
     setSidebarOpen: Dispatch<SetStateAction<boolean>>
 }
 
+//TODO template selected state
 const DashboardSidebar = forwardRef<DashboardSidebarRef, DashboardSidebarProps>(({
     query,
     reloadShotlists,

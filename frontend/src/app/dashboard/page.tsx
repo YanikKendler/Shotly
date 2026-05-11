@@ -132,7 +132,7 @@ export default function Overview() {
                 {templates?.slice(0, 8)?.sort(Utils.orderShotlistsOrTemplatesByName)?.map((template: TemplateDto) => (
                     <DashboardGridTemplate template={template} key={template.id}/>
                 ))}
-                <button className={"dashboardGridItem add"} onClick={openCreateTemplateDialog}>
+                <button className={"dashboardGridItem add template"} onClick={openCreateTemplateDialog}>
                     <span><Plus size={22}/>New Template</span>
                 </button>
             </DashboardGrid>
