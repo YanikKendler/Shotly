@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import me.kendler.yanik.dto.shot.ShotDTO;
+import me.kendler.yanik.model.Comment;
 import me.kendler.yanik.model.scene.Scene;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotAttributeDefinitionBase;
 import me.kendler.yanik.model.shot.attributes.ShotAttributeBase;
@@ -25,6 +26,8 @@ public class Shot extends PanacheEntityBase {
     @OneToMany(fetch = FetchType.LAZY)
     @BatchSize(size = 5)
     public Set<ShotAttributeBase> attributes = new HashSet<>();
+    @OneToMany(mappedBy = "shot")
+    public List<Comment> comments = new LinkedList<>();
     public int position;
     public boolean isSubshot;
     public ZonedDateTime createdAt;
@@ -53,6 +56,7 @@ public class Shot extends PanacheEntityBase {
                     .sorted(Comparator.comparingInt(attr -> attr.definition.position))
                     .map(ShotAttributeBase::toDTO)
                     .collect(Collectors.toList()),
+            this.comments.stream().filter(c -> !c.isArchived).map(Comment::toDTO).toList(),
             this.position,
             this.isSubshot,
             this.createdAt

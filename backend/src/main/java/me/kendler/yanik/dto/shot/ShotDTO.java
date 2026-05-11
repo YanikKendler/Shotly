@@ -1,5 +1,6 @@
 package me.kendler.yanik.dto.shot;
 
+import me.kendler.yanik.dto.comment.CommentDTO;
 import me.kendler.yanik.dto.shot.attributes.ShotAttributeBaseDTO;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -9,6 +10,7 @@ public record ShotDTO (
     UUID id,
     UUID sceneId,
     List<ShotAttributeBaseDTO> attributes,
+    List<CommentDTO> activeComments,
     int position,
     boolean isSubshot,
     ZonedDateTime createdAt
