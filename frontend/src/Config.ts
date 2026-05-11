@@ -8,7 +8,7 @@ export default class Config {
                 "prod-deployment" :
                 "dev-deployment"
 
-    //for testing
+    //for testing - leave the mode check as a safeguard
     static readonly OVERRIDE_INTRO_CHECKS = false && this.mode != "prod-deployment"
 
     static readonly backendURL =

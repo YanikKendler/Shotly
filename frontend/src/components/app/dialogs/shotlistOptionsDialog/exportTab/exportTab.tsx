@@ -122,6 +122,7 @@ export default function ExportTab(
     const shotSortContainerRef = useRef<Sortable>(null);
 
     const [shotlistPreviewCache, setShotlistPreviewCache] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
+    const [previewData, setPreviewData] = useState<ShotlistDto | null>(null)
 
     const scenePositionLUT = useRef<Map<string, number>>(new Map())
 
@@ -140,10 +141,13 @@ export default function ExportTab(
         setScenesAsOptions(Utils.scenesToSelectOptions(shotlist?.scenes))
     }, [shotlist])
 
-    //save settings to local storage
     useEffect(() => {
         if(!shotlist || !shotlist.id) return
 
+        //update preview
+        setPreviewData(filterData(shotlistPreviewCache))
+
+        //save settings to local storage
         const settingsObject: ExportSettingsLocalStorage = {
             selectedFileType: selectedFileType,
             hideSceneHeadings: hideSceneHeadings,
@@ -166,6 +170,10 @@ export default function ExportTab(
         customSceneSorts,
         customShotSorts
     ])
+
+    useEffect(() => {
+        setPreviewData(filterData(shotlistPreviewCache))
+    }, [shotlistPreviewCache]);
 
     const generateFileName = () => {
         return `shotly_${shotlist?.name?.replace(/\s/g, "-") || "unnamed-shotlist"}_${wuTime.toDateTimeString(Date.now(), {timeSeparator: "-", dateSeparator: "-", dateTimeSeparator: "_"})}`
@@ -834,11 +842,9 @@ export default function ExportTab(
         sorts: (customSceneSorts.length + customShotSorts.length) > 0
     }
 
-    const filteredData = filterData(shotlistPreviewCache)
-
     const dataStats = {
-        scenes: filteredData?.scenes?.length ?? -1,
-        shots: filteredData?.scenes?.reduce((sum, s) => sum + (s?.shots?.length ?? 0), 0) ?? -1
+        scenes: previewData?.scenes?.length ?? -1,
+        shots: previewData?.scenes?.reduce((sum, s) => sum + (s?.shots?.length ?? 0), 0) ?? -1
     }
 
     return (
@@ -1053,9 +1059,9 @@ export default function ExportTab(
                 <p className="small">
                     {"Exporting "}
                     {dataStats.shots >= 0 ? dataStats.shots : "##"}
-                    {` shot${dataStats.shots > 0 && "s"} from `}
+                    {` shot${dataStats.shots == 1 ? "" : "s"} from `}
                     {dataStats.scenes >= 0 ? dataStats.scenes : "##"}
-                    {` scene${dataStats.scenes > 0 && "s"}.`}
+                    {` scene${dataStats.scenes == 1 ? "" : "s"}.`}
                 </p>
 
                 <button
@@ -1070,7 +1076,7 @@ export default function ExportTab(
                     }
                 </button>
                 <ExportPreview
-                    data={filteredData}
+                    data={previewData}
                     exportShotlist={exportShotlist}
                     hideSceneHeadings={hideSceneHeadings}
                     scenePositionLUT={scenePositionLUT}
