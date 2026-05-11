@@ -666,6 +666,7 @@ span.chip{
   display: flex;
   align-items: center;
   gap: .5rem;
+  z-index: 200;
 
   > * {
     box-shadow: .2rem .2rem .5rem .2rem var(--transparent-contrast-15);
@@ -979,7 +980,6 @@ body button.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot.SwitchRoot {
 }
 
 // style react-hot-toast
-
 
 body .toast{
   background-color: var(--toast-bg);

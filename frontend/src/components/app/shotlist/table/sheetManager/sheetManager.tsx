@@ -35,6 +35,7 @@ import {
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import CreatorCell from "@/components/app/shotlist/table/cell/creatorCell"
 import LoaderCell from "@/components/app/shotlist/table/cell/loaderCell"
+import ScrollArea from "@/components/basic/scrollArea/ScrollArea"
 
 export interface SheetManagerRef {
     getCellRef: (row: number, column: number) => CellRef | null
@@ -83,7 +84,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     //all updates from this value can run in the background to not cause lag or freeze and impact UX
     const deferredSelectedScene = useDeferredValue(selectedScene)
 
-    const shotTableElement = useRef<HTMLDivElement | null>(null)
+    const scrollAreaRef = useRef<HTMLDivElement | null>(null)
     const isSyncingScroll = useRef(false) //to not detect updating the scroll as a scroll
     const cellRefs = useRef(new Map<number, Map<number, CellRef | null>>) //Map[row = shot][column = attribute]
     const rowRefs = useRef<Map<number, RowRef | null>>(new Map())
@@ -432,7 +433,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     }, [query.data.shots])
 
     const handleScroll = () => {
-        const table = shotTableElement.current
+        const table = scrollAreaRef.current
         const header = shotlistHeaderRef.current
 
         if (!table || !header) return
@@ -541,29 +542,27 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         }
     }, [moveShot, shotlistContext])
 
+    let content = <p>error</p>
+
     if(query.errors && query.errors.length > 0){
-        const error = query.errors[0]?.extensions?.code as ShotlyErrorCode
+        const errorCode = query.errors[0]?.extensions?.code as ShotlyErrorCode
 
-        return <div className="sheetManager">
-            {
-                error == ShotlyErrorCode.NOT_FOUND ?
-                    <ErrorDisplay
-                        title="Scene was not found"
-                        description="The selected scene was not found, please select one from the Sidebar."
-                    /> :
-                    <ErrorDisplay
-                        title="Scene could not be loaded"
-                        description="The selected scene could not be loaded, please select one from the Sidebar."
-                    />
-            }
-        </div>
+        if(errorCode == ShotlyErrorCode.NOT_FOUND)
+            content = <ErrorDisplay
+                title="Scene was not found"
+                description="The selected scene was not found, please select one from the Sidebar."
+            />
+        else
+            content = <ErrorDisplay
+                title="Scene could not be loaded"
+                description="The selected scene could not be loaded, please select one from the Sidebar."
+            />
     }
-
-    if(query.error)
-        return <div className="sheetManager"><ErrorDisplay title={query.error.message}/></div>
-
-    if(!queryIsLoading && (!shotAttributeDefinitions || (!isReadOnly && shotAttributeDefinitions.length == 0))) {
-        return <div className="sheetManager">
+    else if(query.error) {
+        content = <ErrorDisplay title={query.error.message}/>
+    }
+    else if(!queryIsLoading && (!shotAttributeDefinitions || (!isReadOnly && shotAttributeDefinitions.length == 0))) {
+        content = (
             <p className={"empty"}>
                 {"Create a "}
                 <button
@@ -577,37 +576,25 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                 </button>
                 {" to get started"}
             </p>
-        </div>
+        )
     }
-
-    if(queryIsLoading || query.loading) {
-        return <div className="sheetManager">
-            <Skeleton count={5} height="38px"/>
-        </div>
+    else if(queryIsLoading || query.loading) {
+        content = <Skeleton count={5} height="38px"/>
     }
-
-    if(deferredSelectedScene.id == null)
-        return <div className="sheetManager">
-            <p className="empty">Please select a scene from the sidebar</p>
-        </div>
-
-    if(isReadOnly){
+    else if(deferredSelectedScene.id == null) {
+        content = <p className="empty">Please select a scene from the sidebar</p>
+    }
+    else if(isReadOnly){
         if((query.data.shots && query.data.shots.length <= 0)){
-            return <div className="sheetManager">
+            content = (
                 <p className={"empty"}>
                     No Shots here yet ¯\(o_o)/¯
                 </p>
-            </div>
+            )
         }
     }
-
-    return (
-        <div
-            className="sheetManager"
-            onScroll={handleScroll}
-            onScrollEnd={handleScroll}
-            ref={shotTableElement}
-        >
+    else {
+        content = <>
             <div ref={shotContainerRef}>
                 {(query.data.shots as ShotDto[])?.map((shot: ShotDto, row: number) => (
                     <Row
@@ -626,7 +613,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                             }
                         }}
                     >
-                        {(shot.attributes as AnyShotAttribute[]).map((attribute: AnyShotAttribute, column: number)=> (
+                        {(shot.attributes as AnyShotAttribute[]).map((attribute: AnyShotAttribute, column: number) => (
                             <ValueCell
                                 key={attribute.id}
                                 attribute={attribute}
@@ -673,8 +660,18 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                     })}
                 </div>
             }
-            {/*<p className={"shotCount"}>{query.data.shots?.length}</p>*/}
-        </div>
+        </>
+    }
+
+    return (
+        <ScrollArea
+            className={"sheetManager"}
+            onScroll={handleScroll}
+            onScrollEnd={handleScroll}
+            viewportRef={scrollAreaRef}
+        >
+            {content}
+        </ScrollArea>
     )
 })
 

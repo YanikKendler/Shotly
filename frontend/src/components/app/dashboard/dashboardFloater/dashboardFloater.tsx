@@ -55,7 +55,7 @@ export default function DashboardFloater({
         <div className="floater">
             <SimpleTooltip text={refreshBlocked ? "please wait a few seconds" : "refresh"} fontSize={0.8}>
                 <button
-                    className={"default round right noClickFx"}
+                    className={"round right noClickFx"}
                     ref={refreshButtonRef}
                     onClick={refresh}
                     disabled={refreshBlocked}

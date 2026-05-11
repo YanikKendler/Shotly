@@ -1,2 +1,8 @@
 main.home .floater{
+  button {
+    &:hover{
+      color: var(--text);
+      border-color: var(--default-interactable-hover-border);
+    }
+  }
 }

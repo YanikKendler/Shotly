@@ -11,10 +11,22 @@ main.shotlist .floater{
     color: var(--accent-20);
   }
 
-  .saveIndicator{
+  button, .saveIndicator{
     background-color: var(--contrast);
     border: 2px solid var(--default-interactable-border);
     border-radius: 5rem;
+
+    &:hover{
+      border-color: var(--default-interactable-hover-border);
+      color: var(--text);
+
+      &::before {
+        display: block;
+      }
+    }
+  }
+
+  .saveIndicator{
     font-size: .8rem;
     height: 35px;
     display: grid;
@@ -42,14 +54,6 @@ main.shotlist .floater{
       z-index: 9999;
 
       display: none;
-    }
-
-    &:hover{
-      border-color: var(--default-interactable-hover-border);
-
-      &::before {
-        display: block;
-      }
     }
 
     .saved, .saving, .error{

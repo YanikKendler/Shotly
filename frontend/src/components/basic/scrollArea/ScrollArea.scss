@@ -1,0 +1,61 @@
+.scrollArea {
+  --scrollbar-size: 10px;
+  --scrollbar-bg: var(--transparent-contrast-20);
+  --scrollThumb-bg: light-dark(green, hsl(0, 0%, 30%));
+  --scrollThumb-hover-bg: light-dark(green, hsl(0, 0%, 50%));
+
+  overflow: hidden;
+
+  .viewport {
+    width: 100%;
+    height: 100%;
+  }
+
+  .scrollbar {
+    display: flex;
+    user-select: none;
+    /* disable browser handling of all panning and zooming gestures on touch devices */
+    touch-action: none;
+    padding: 2px;
+    background: var(--scrollbar-bg);
+    z-index: 100;
+
+    &[data-orientation="vertical"] {
+      width: var(--scrollbar-size);
+    }
+
+    &[data-orientation="horizontal"] {
+      flex-direction: column;
+      height: var(--scrollbar-size);
+    }
+  }
+
+  .scrollThumb {
+    flex: 1;
+    background: var(--scrollThumb-bg);
+    border-radius: var(--scrollbar-size);
+    position: relative;
+    transition: background 160ms ease-out;
+
+    &:hover{
+      background-color: var(--scrollThumb-hover-bg);
+    }
+
+    /* increase target size for touch devices https://www.w3.org/WAI/WCAG21/Understanding/target-size.html */
+    &::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      height: 100%;
+      min-width: 44px;
+      min-height: 44px;
+    }
+  }
+
+  .corner {
+    background: var(--scrollbar-bg);
+  }
+}
