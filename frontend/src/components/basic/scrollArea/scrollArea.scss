@@ -1,8 +1,8 @@
 .scrollArea {
   --scrollbar-size: 10px;
   --scrollbar-bg: var(--transparent-contrast-20);
-  --scrollThumb-bg: light-dark(green, hsl(0, 0%, 30%));
-  --scrollThumb-hover-bg: light-dark(green, hsl(0, 0%, 50%));
+  --scrollThumb-bg: light-dark(hsl(0, 0%, 70%), hsl(0, 0%, 30%));
+  --scrollThumb-hover-bg: light-dark(hsl(0, 0%, 50%), hsl(0, 0%, 50%));
 
   overflow: hidden;
 
