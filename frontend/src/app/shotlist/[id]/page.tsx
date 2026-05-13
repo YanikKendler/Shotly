@@ -245,7 +245,9 @@ export default function Shotlist() {
                         }
                     }
                     currentUser {
-                        id
+                        id,
+                        name,
+                        email
                     }
                 }`,
             variables: {id: id},
@@ -591,7 +593,9 @@ export default function Shotlist() {
             setSaveState: setSaveState,
             handleError: handleShotlistError,
 
-            presentCollaborators: presentCollaborators
+            presentCollaborators: presentCollaborators,
+
+            currentUser: query.data.currentUser ?? null
         }}>
             <ReadOnlyBanner readOnlyState={readOnlyState}/>
 

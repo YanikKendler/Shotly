@@ -6,6 +6,7 @@ import {
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {GenericError, SelectOption} from "@/utility/Types"
 import {PresentCollaborator, SaveState} from "@/app/shotlist/[id]/page"
+import {UserDto} from "../../lib/graphql/generated"
 
 export interface ShotlistContextProps {
     openShotlistOptionsDialog: (pages?: ShotlistOptionsDialogPages) => void
@@ -32,6 +33,8 @@ export interface ShotlistContextProps {
     handleError: (error: GenericError) => void
 
     presentCollaborators: Map<string, PresentCollaborator>
+
+    currentUser: UserDto | null
 }
 
 export const ShotlistContext = createContext<ShotlistContextProps>({
@@ -62,5 +65,7 @@ export const ShotlistContext = createContext<ShotlistContextProps>({
     setSaveState: () => {},
     handleError: () => {},
     //for displaying collaborator names from cellHighlight
-    presentCollaborators: new Map()
+    presentCollaborators: new Map(),
+    //general use
+    currentUser: null
 })
