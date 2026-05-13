@@ -29,10 +29,8 @@ export default function Comment({
 
     const editorRef = useRef<MarkdownEditorRef>(null);
 
-    if(!comment) return null
-
     useEffect(() => {
-        if(comment.text) {
+        if(comment?.text) {
             const unsafeHTML = marked.parse(Utils.removeZeroWidthChars(comment.text)) as string
             Utils.sanitizeStringAndOnlyUseSimpleTags(unsafeHTML)
                 .then(cleaned => setCleanedHTML(cleaned))
@@ -64,7 +62,7 @@ export default function Comment({
                     }
                 }
             `,
-            variables: {id: comment.id, text: sanitizedCommentText},
+            variables: {id: comment?.id, text: sanitizedCommentText},
         })
 
         if (result.errors) {
@@ -75,13 +73,50 @@ export default function Comment({
             console.error(result.errors)
             setIsBeingEdited(true)
             updateComment({
-                text: comment.text
+                text: comment?.text
             })
             return
         }
 
         successNotification({
             title: "Comment updated"
+        })
+    }
+
+    const archiveComment = async () => {
+        updateComment({
+            ...comment,
+            archived: true
+        })
+
+        const result = await client.mutate({
+            mutation: gql`
+                mutation upd($id: String!){
+                    updateComment(updateDTO:{
+                        id: $id,
+                        isArchived: true,
+                    }){
+                        id
+                    }
+                }
+            `,
+            variables: {id: comment?.id},
+        })
+
+        if (result.errors) {
+            errorNotification({
+                title: "Failed to archive comment",
+                tryAgainLater: true
+            })
+            console.error(result.errors)
+            updateComment({
+                archived: false
+            })
+            return
+        }
+
+        successNotification({
+            title: "Comment archived"
         })
     }
 
@@ -96,6 +131,8 @@ export default function Comment({
             setIsBeingEdited(false)
         }, 180)
     }
+
+    if(!comment || comment.archived) return null
 
     return (
         <div className={`comment ${isBeingEdited && "isBeingEdited"}`} key={comment?.id ?? ""}>
@@ -113,7 +150,7 @@ export default function Comment({
                             </button>
                         </SimpleTooltip>
                         <SimpleTooltip text={"Completed"} delay={100} fontSize={0.75}>
-                            <button onClick={() => {}}>
+                            <button onClick={archiveComment}>
                                 <CircleCheckBig size={16}/>
                             </button>
                         </SimpleTooltip>

@@ -12,6 +12,8 @@ import {errorNotification} from "@/service/NotificationService"
 import Comment from "@/components/app/shotlist/table/commentPopover/comment/comment"
 import MarkdownEditor, {MarkdownEditorRef} from "@/components/basic/markdownEditor/markdownEditor"
 
+//TODO does not disappear if all comments are archived
+
 export default function CommentPopover ({
     isOpen,
     onOpenChange,
@@ -138,7 +140,7 @@ export default function CommentPopover ({
                     </div>
                     <div className="content">
                         {
-                            !comments || comments.length <= 0 ?
+                            !comments || comments.length <= 0 || comments.every(c => c?.archived) ?
                             <p className="empty">No comments yet</p>
                             :
                             comments.toReversed().map(comment => (
