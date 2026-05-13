@@ -14,7 +14,7 @@ export default function freeForStudents(){
                 CHANGELOG.map(change => (
                     <div key={change.version}>
                         <h2>{change.version} <span className="chip small">{wuTime.toDateString(change.date, {yearDigits: 4})}</span></h2>
-                        <div dangerouslySetInnerHTML={{__html: marked.parse(Utils.cleanMarkdownString(change.changes))}}></div>
+                        <div dangerouslySetInnerHTML={{__html: marked.parse(Utils.trimMarkdownStringWhitespaces(change.changes))}}></div>
                     </div>
                 ))
             }

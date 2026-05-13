@@ -1,0 +1,102 @@
+.markdownEditor{
+  --md-editor-font-family: inherit;
+  --md-editor-background-color: transparent;
+  --md-editor-box-shadow-color: transparent;
+  --color-accent-fg: var(--accent);
+  --color-neutral-muted: var(--transparent-gray-20);
+  --color-prettylights-syntax-constant: var(--text-20);
+  --color-prettylights-syntax-markup-deleted-text: var(--text-20);
+  --color-prettylights-syntax-comment: var(--text-50);
+
+  height: fit-content !important;
+  max-height: 10rem;
+
+  .w-md-editor-area{
+    scrollbar-width: thin;
+  }
+
+  .w-md-editor-content{
+    scrollbar-width: thin;
+    scroll-padding: .5rem;
+  }
+
+  .w-md-editor-text{
+    height: 100%;
+    color: var(--text-20);
+    min-height: 32px !important;
+    padding: .5rem;
+    transition: min-height 200ms ease-out;
+
+    textarea{
+      padding-bottom: 0;
+    }
+
+    pre .token.strike .content{
+      text-decoration: line-through;
+    }
+  }
+
+  .w-md-editor-toolbar{
+    transition: max-height 200ms;
+    overflow: hidden;
+    flex-shrink: 0;
+    background-color: var(--transparent-contrast-10);
+    border-radius: .3rem;
+    border: none;
+    padding: 0;
+    align-items: center;
+    max-height: 0;
+
+    ul{
+      display: flex;
+      align-items: center;
+      margin-left: .2rem;
+    }
+
+    button {
+      border-radius: .3rem;
+      height: auto;
+      margin: 0;
+      padding: .3rem;
+
+      &:hover{
+        background-color: var(--transparent-accent-10);
+      }
+
+      &[data-name=action]{
+        background-color: var(--transparent-accent-20);
+        color: var(--accent);
+        padding: .5rem;
+        justify-content: center;
+        flex-grow: 0;
+        font-size: .85rem;
+        font-weight: 500;
+
+        &:disabled:hover{
+          background-color: var(--transparent-accent-20);
+          color: var(--accent);
+          cursor: initial;
+        }
+
+        &:not(:disabled):hover{
+          background-color: var(--transparent-accent-30);
+        }
+      }
+    }
+
+    .w-md-editor-toolbar-divider{
+      background-color: var(--default-interactable-border);
+      margin: 3px !important;
+    }
+  }
+
+  &:focus-within, &.hasValue {
+    .w-md-editor-text {
+      min-height: 36px !important;
+    }
+
+    .w-md-editor-toolbar {
+      max-height: 2rem;
+    }
+  }
+}

@@ -61,11 +61,52 @@ export enum CollaborationType {
   View = 'VIEW'
 }
 
+export type Comment = {
+  __typename?: 'Comment';
+  /** ISO-8601 */
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  /** ISO-8601 */
+  editedAt?: Maybe<Scalars['DateTime']['output']>;
+  id?: Maybe<Scalars['String']['output']>;
+  isArchived: Scalars['Boolean']['output'];
+  isEdited: Scalars['Boolean']['output'];
+  shot?: Maybe<Shot>;
+  text?: Maybe<Scalars['String']['output']>;
+  user?: Maybe<User>;
+};
+
+export type CommentCreateDtoInput = {
+  id?: InputMaybe<Scalars['String']['input']>;
+  shotId?: InputMaybe<Scalars['String']['input']>;
+  text?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CommentDto = {
+  __typename?: 'CommentDTO';
+  archived?: Maybe<Scalars['Boolean']['output']>;
+  /** ISO-8601 */
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  edited?: Maybe<Scalars['Boolean']['output']>;
+  /** ISO-8601 */
+  editedAt?: Maybe<Scalars['DateTime']['output']>;
+  id?: Maybe<Scalars['String']['output']>;
+  shotId?: Maybe<Scalars['String']['output']>;
+  text?: Maybe<Scalars['String']['output']>;
+  user?: Maybe<UserMinimalDto>;
+};
+
+export type CommentEditDtoInput = {
+  id?: InputMaybe<Scalars['String']['input']>;
+  isArchived?: InputMaybe<Scalars['Boolean']['input']>;
+  text?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** Mutation root */
 export type Mutation = {
   __typename?: 'Mutation';
   acceptOrDeclineCollaboration?: Maybe<CollaborationDto>;
   addCollaboration?: Maybe<Array<Maybe<CollaborationDto>>>;
+  addComment?: Maybe<CommentDto>;
   adminUpdateUser?: Maybe<UserDto>;
   createScene?: Maybe<SceneDto>;
   createSceneAttributeDefinition?: Maybe<SceneAttributeDefinitionBaseDto>;
@@ -98,6 +139,7 @@ export type Mutation = {
   leaveCollaboration?: Maybe<CollaborationDto>;
   refreshCollaboration?: Maybe<CollaborationDto>;
   triggerPasswordReset?: Maybe<Scalars['String']['output']>;
+  updateComment?: Maybe<CommentDto>;
   updateScene?: Maybe<SceneDto>;
   updateSceneAttribute?: Maybe<SceneAttributeBaseDto>;
   updateSceneAttributeDefinition?: Maybe<SceneAttributeDefinitionBaseDto>;
@@ -127,6 +169,12 @@ export type MutationAcceptOrDeclineCollaborationArgs = {
 /** Mutation root */
 export type MutationAddCollaborationArgs = {
   createDTO?: InputMaybe<CollaborationCreateDtoInput>;
+};
+
+
+/** Mutation root */
+export type MutationAddCommentArgs = {
+  createDTO?: InputMaybe<CommentCreateDtoInput>;
 };
 
 
@@ -311,6 +359,12 @@ export type MutationRefreshCollaborationArgs = {
 
 
 /** Mutation root */
+export type MutationUpdateCommentArgs = {
+  updateDTO?: InputMaybe<CommentEditDtoInput>;
+};
+
+
+/** Mutation root */
 export type MutationUpdateSceneArgs = {
   editDTO?: InputMaybe<SceneEditDtoInput>;
 };
@@ -416,7 +470,9 @@ export type Query = {
   __typename?: 'Query';
   allShotlists?: Maybe<Array<Maybe<ShotlistDto>>>;
   allTemplates?: Maybe<Array<Maybe<TemplateDto>>>;
+  archivedComments?: Maybe<Array<Maybe<CommentDto>>>;
   archivedShotlists?: Maybe<ShotlistCollection>;
+  comments?: Maybe<Array<Maybe<CommentDto>>>;
   currentUser?: Maybe<UserDto>;
   pendingCollaborations?: Maybe<Array<Maybe<CollaborationDto>>>;
   recentActiveUserStats?: Maybe<StatCounts>;
@@ -435,6 +491,18 @@ export type Query = {
   template?: Maybe<TemplateDto>;
   templates?: Maybe<Array<Maybe<TemplateDto>>>;
   users?: Maybe<Array<Maybe<UserDto>>>;
+};
+
+
+/** Query root */
+export type QueryArchivedCommentsArgs = {
+  shotId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** Query root */
+export type QueryCommentsArgs = {
+  shotId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -713,6 +781,7 @@ export type SceneTextAttributeTemplateDto = SceneAttributeTemplateBaseDto & Type
 export type Shot = {
   __typename?: 'Shot';
   attributes?: Maybe<Array<Maybe<ShotAttributeBase>>>;
+  comments?: Maybe<Array<Maybe<Comment>>>;
   /** ISO-8601 */
   createdAt?: Maybe<Scalars['DateTime']['output']>;
   id?: Maybe<Scalars['String']['output']>;
@@ -799,6 +868,7 @@ export enum ShotAttributeType {
 
 export type ShotDto = {
   __typename?: 'ShotDTO';
+  activeComments?: Maybe<Array<Maybe<CommentDto>>>;
   attributes?: Maybe<Array<Maybe<ShotAttributeBaseDto>>>;
   /** ISO-8601 */
   createdAt?: Maybe<Scalars['DateTime']['output']>;
@@ -1264,7 +1334,7 @@ export type BlockUserMutationVariables = Exact<{
 }>;
 
 
-export type BlockUserMutation = { __typename?: 'Mutation', updateUserBlocking?: { __typename?: 'UserDTO', id?: string | null, blockedUsers?: Array<{ __typename?: 'UserMinimalDTO', name?: string | null } | null> | null } | null };
+export type BlockUserMutation = { __typename?: 'Mutation', updateUserBlocking?: { __typename?: 'UserDTO', id?: string | null } | null };
 
 export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1280,6 +1350,13 @@ export type DeleteUserMutationVariables = Exact<{ [key: string]: never; }>;
 
 
 export type DeleteUserMutation = { __typename?: 'Mutation', deleteUser?: { __typename?: 'UserDTO', id?: string | null } | null };
+
+export type UnblockUserMutationVariables = Exact<{
+  userId: Scalars['String']['input'];
+}>;
+
+
+export type UnblockUserMutation = { __typename?: 'Mutation', updateUserBlocking?: { __typename?: 'UserDTO', id?: string | null } | null };
 
 export type CreateShotlistDataQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1497,7 +1574,7 @@ export type ShotlistForExportQuery = { __typename?: 'Query', shotlist?: { __type
             | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
             | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
            | null }
-       | null> | null, shots?: Array<{ __typename?: 'ShotDTO', id?: string | null, position: number, attributes?: Array<
+       | null> | null, shots?: Array<{ __typename?: 'ShotDTO', id?: string | null, position: number, sceneId?: string | null, attributes?: Array<
           | { __typename?: 'ShotMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
               | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
               | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
@@ -2593,9 +2670,6 @@ export const BlockUserDocument = gql`
     mutation blockUser($userId: String!) {
   updateUserBlocking(blockDTO: {userId: $userId, isBlocked: true}) {
     id
-    blockedUsers {
-      name
-    }
   }
 }
     `;
@@ -2743,6 +2817,39 @@ export function useDeleteUserMutation(baseOptions?: Apollo.MutationHookOptions<D
 export type DeleteUserMutationHookResult = ReturnType<typeof useDeleteUserMutation>;
 export type DeleteUserMutationResult = Apollo.MutationResult<DeleteUserMutation>;
 export type DeleteUserMutationOptions = Apollo.BaseMutationOptions<DeleteUserMutation, DeleteUserMutationVariables>;
+export const UnblockUserDocument = gql`
+    mutation unblockUser($userId: String!) {
+  updateUserBlocking(blockDTO: {userId: $userId, isBlocked: false}) {
+    id
+  }
+}
+    `;
+export type UnblockUserMutationFn = Apollo.MutationFunction<UnblockUserMutation, UnblockUserMutationVariables>;
+
+/**
+ * __useUnblockUserMutation__
+ *
+ * To run a mutation, you first call `useUnblockUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUnblockUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [unblockUserMutation, { data, loading, error }] = useUnblockUserMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useUnblockUserMutation(baseOptions?: Apollo.MutationHookOptions<UnblockUserMutation, UnblockUserMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UnblockUserMutation, UnblockUserMutationVariables>(UnblockUserDocument, options);
+      }
+export type UnblockUserMutationHookResult = ReturnType<typeof useUnblockUserMutation>;
+export type UnblockUserMutationResult = Apollo.MutationResult<UnblockUserMutation>;
+export type UnblockUserMutationOptions = Apollo.BaseMutationOptions<UnblockUserMutation, UnblockUserMutationVariables>;
 export const CreateShotlistDataDocument = gql`
     query createShotlistData {
   templates {
@@ -3582,6 +3689,7 @@ export const ShotlistForExportDocument = gql`
             textValue
           }
         }
+        sceneId
       }
     }
     sceneAttributeDefinitions {

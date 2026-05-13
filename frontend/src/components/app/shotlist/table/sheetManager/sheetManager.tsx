@@ -15,6 +15,7 @@ import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import ErrorDisplay from "@/components/app/feedback/errorDisplay/errorDisplay"
 import "./sheetManager.scss"
 import {
+    CommentDto,
     Query,
     ShotAttributeDefinitionBase,
     ShotDto, ShotMultiSelectAttributeDto,
@@ -202,6 +203,15 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                                 textValue
                             }
                         }
+                        activeComments {
+                            id,
+                            user {
+                                id,
+                                name
+                            },
+                            text,
+                            edited
+                        }
                         sceneId
                     }
                 }
@@ -269,15 +279,15 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     }
 
     const updateShotCache = (shots: ShotDto[], sceneId: string | null = deferredSelectedScene.id) => {
-        if(sceneId) {
-            shotCache.current.set(sceneId, {
-                shots: shots,
-                timestamp: Date.now()
-            })
+        if(!sceneId) {
+            console.warn("Could not set shot cache because scene id is null")
+            return
         }
-        else {
-            console.warn("Could not set scene cache because scene id is null")
-        }
+
+        shotCache.current.set(sceneId, {
+            shots: shots,
+            timestamp: Date.now()
+        })
     }
 
     const setCreationLoaderVisibility = (visible:boolean) => {
@@ -445,7 +455,6 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     }, [query])
 
     const onMoveShot = useCallback((shotId: string, to: number) => {
-
         const from = query.data.shots?.findIndex((shot) => shot?.id == shotId)
 
         if(from == undefined || from < 0) return
@@ -469,6 +478,24 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
             header.scrollLeft = table.scrollLeft
             isSyncingScroll.current = false
         })
+    }
+
+    const onCreateComment = (comment: CommentDto) => {
+        const currentShots = [...query.data.shots || []] as ShotDto[]
+        const newShots = currentShots.map(shot => {
+            if(shot.id == comment.shotId){
+                return {
+                    ...shot,
+                    activeComments: [...shot.activeComments || [], comment]
+                }
+            }
+            return shot
+        })
+
+        updateShotCache(newShots)
+
+        forceAdditionalPadding.current = true
+        checkIfAdditionalPaddingIsNeeded(true)
     }
 
     const updateShotCacheShotAttributeValue = (
@@ -623,12 +650,6 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                 {(query.data.shots as ShotDto[])?.map((shot: ShotDto, row: number) => (
                     <Row
                         key={shot.id}
-                        shot={shot}
-                        position={row}
-                        scenePosition={deferredSelectedScene.position || 0}
-                        onDelete={onDeleteShot}
-                        moveShot={moveShot}
-                        isReadOnly={isReadOnly}
                         ref={(node) => {
                             rowRefs.current.set(row, node)
 
@@ -643,6 +664,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                         moveShot={moveShot}
                         isReadOnly={isReadOnly}
                         setTemporaryPaddingVisible={(visible) => checkIfAdditionalPaddingIsNeeded(visible)}
+                        onCreateComment={onCreateComment}
                     >
                         {(shot.attributes as AnyShotAttribute[]).map((attribute: AnyShotAttribute, column: number) => (
                             <ValueCell

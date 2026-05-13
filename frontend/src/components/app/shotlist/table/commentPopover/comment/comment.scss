@@ -1,0 +1,73 @@
+.commentPopover .comment {
+  display: flex;
+  flex-direction: column;
+  text-align: start;
+  padding: .5rem;
+  gap: .2rem;
+  position: relative;
+  border-block: 1px solid transparent;
+  transition: border 0.2s;
+
+  > .top {
+    display: flex;
+    align-items: center;
+
+    p {
+      color: var(--text-40);
+      font-weight: 500;
+      font-size: .85rem;
+
+      span.edited{
+        font-style: italic;
+        font-weight: 400;
+        font-size: .8rem;
+      }
+    }
+
+    div.buttons{
+      display: flex;
+      position: absolute;
+      right: .25rem;
+      top: .25rem;
+      opacity: 0;
+      transition: opacity 100ms ease-out;
+
+      &:has(*:focus-visible){
+        opacity: 1;
+      }
+
+      button {
+        padding: 0;
+        height: 1.5rem;
+        aspect-ratio: 1;
+        justify-content: center;
+        color: var(--text-40);
+
+        &:hover{
+          color: var(--accent);
+          background-color: var(--transparent-accent-10);
+        }
+      }
+    }
+  }
+
+  &:hover {
+    border-color: var(--default-interactable-border);
+
+    .top .buttons {
+      opacity: 1;
+    }
+  }
+
+  div.text {
+    font-size: .85rem;
+
+    a {
+      display: inline;
+      padding: 0;
+      font-size: inherit;
+      text-decoration: underline;
+      color: var(--accent);
+    }
+  }
+}

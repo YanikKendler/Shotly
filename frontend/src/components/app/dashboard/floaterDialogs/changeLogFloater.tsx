@@ -14,7 +14,7 @@ export default function ChangeLogFloater({
                 <h3>Whats new?</h3>
                 <span className={"bold small gray"}>Shotly v{CHANGELOG[0].version}</span>
             </div>
-            <div dangerouslySetInnerHTML={{__html: marked.parse(Utils.cleanMarkdownString(CHANGELOG[0].changes))}}></div>
+            <div dangerouslySetInnerHTML={{__html: marked.parse(Utils.trimMarkdownStringWhitespaces(CHANGELOG[0].changes))}}></div>
             <div className="buttons">
                 <button
                     onClick={hideFloater}

@@ -6,6 +6,8 @@ import {NetworkStatus} from "@apollo/client"
 import {UserSettings} from "@/components/app/dialogs/accountDialog/accountDialog"
 import Config from "@/Config"
 import {SceneAttributeParser} from "@/utility/AttributeParser"
+import {rehype} from "rehype"
+import rehypeSanitize from "rehype-sanitize"
 
 export interface fontSizeBreakpoint {
     length: number
@@ -42,8 +44,8 @@ export default class Utils {
     }
 
     //AI generated
-    static numberToShotLetter(shotNum: number, sceneNum?: number | null, displaySceneNumbersOverride?: boolean): string {
-        if (shotNum < 0 || sceneNum == null) {
+    static numberToShotLetter(shotNum: number, sceneNum: number, displaySceneNumbersOverride?: boolean): string {
+        if (shotNum < 0 || sceneNum < 0) {
             return "##"
         }
 
@@ -143,11 +145,50 @@ export default class Utils {
         return o
     }
 
-    static cleanMarkdownString = (str: string) =>
+    /**
+     * Removes leading and trailing whitespace from each line in a markdown string
+     * @param str
+     */
+    static trimMarkdownStringWhitespaces = (str: string) =>
         str.split('\n')
             .map(line => line.trim())
             .join('\n')
             .trim();
+
+    static removeZeroWidthChars = (str: string) => {
+        return str.replace(/^[\u200B\u200C\u200D\u200E\u200F\uFEFF]/,"")
+    }
+
+    static async sanitizeString(dirtyString: string) {
+        const file = await rehype()
+            .data('settings', { fragment: true }) // Prevents adding <html><body> tags
+            .use(rehypeSanitize)                   // Uses GitHub's safe default schema
+            .process(dirtyString)
+
+        return String(file)
+    }
+
+    static async sanitizeStringAndOnlyUseSimpleTags(dirtyString: string) {
+        const allowedSimpleTags = {
+            tagNames: [
+                'p', 'br', 'b', 'strong', 'i', 'em', 'del',
+                'ul', 'ol', 'li', 'blockquote', 'a'
+            ],
+            attributes: {
+                'a': ['href', 'title', 'target']
+            },
+            protocols: {
+                href: ['http', 'https', 'mailto', 'tel']
+            }
+        }
+
+        const file = await rehype()
+            .data('settings', { fragment: true }) // Prevents adding <html><body> tags
+            .use(rehypeSanitize, allowedSimpleTags)
+            .process(dirtyString)
+
+        return String(file)
+    }
 
     /**
      * Compares two versions. Returns true if newVersion is strictly

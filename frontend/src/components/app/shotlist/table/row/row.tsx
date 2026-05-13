@@ -4,19 +4,17 @@ import {Popover} from "radix-ui"
 import {
     ArrowBigDown,
     ArrowBigUp,
-    CornerDownRight,
     GripVertical,
     List,
+    MessageSquareText,
     MoveDown,
     MoveUp,
-    NotepadText,
     Trash
 } from "lucide-react"
 import {useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import {ShotlistContext} from "@/context/ShotlistContext"
-import {ShotDto} from "../../../../../../lib/graphql/generated"
-import {ValueCell} from "../cell/valueCell"
+import {CommentDto, ShotDto} from "../../../../../../lib/graphql/generated"
 import Utils from "@/utility/Utils"
 import Separator from "@/components/basic/separator/separator"
 import {
@@ -26,6 +24,7 @@ import {
 import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys"
 import {successNotification} from "@/service/NotificationService"
 import CellBase from "@/components/app/shotlist/table/cell/cellBase"
+import CommentPopover from "@/components/app/shotlist/table/commentPopover/commentPopover"
 
 export interface RowRef {
     closeContextOptions: () => void,
@@ -41,6 +40,7 @@ export interface RowProps {
     isReadOnly: boolean
     children: ReactNode
     setTemporaryPaddingVisible: (visible: boolean) => void
+    onCreateComment: (comment: CommentDto) => void
 }
 
 /**
@@ -57,25 +57,31 @@ const RowBase = forwardRef<RowRef, RowProps>(({
     isReadOnly,
     children,
     setTemporaryPaddingVisible,
+    onCreateComment
 }, ref) => {
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
 
     const [contextOptionsOpen, setContextOptionsOpen] = useState(false)
+    const [commentPopoverOpen, setCommentPopoverOpen] = useState(false)
 
     const [markAsDeleted, setMarkAsDeleted] = useState(false)
 
     const keybindUnsubscribe = useRef(() => {})
 
     useEffect(() => {
+        setTemporaryPaddingVisible(commentPopoverOpen)
+    }, [commentPopoverOpen])
+
+    useEffect(() => {
         keybindUnsubscribe.current()
 
         if(contextOptionsOpen){
             keybindUnsubscribe.current = tinykeys(window, {
-                "Delete": e => {
+                "C": e => {
                     e.preventDefault()
                     e.stopImmediatePropagation()
-                    deleteShot()
+                    addComment()
                 },
                 "ArrowUp": (e) => {
                     e.preventDefault()
@@ -86,6 +92,11 @@ const RowBase = forwardRef<RowRef, RowProps>(({
                     e.preventDefault()
                     e.stopImmediatePropagation()
                     moveShot(shot.id as string, position+1)
+                },
+                "Delete": e => {
+                    e.preventDefault()
+                    e.stopImmediatePropagation()
+                    deleteShot()
                 },
                 "E": e => {
                     e.preventDefault()
@@ -146,9 +157,13 @@ const RowBase = forwardRef<RowRef, RowProps>(({
         shotlistContext.setSaveState("deleteShot", "saved")
     }
 
+    const addComment = () => {
+        setCommentPopoverOpen(true)
+    }
+
     return (
     <div
-        className={`sheetRow ${contextOptionsOpen && "active"} ${markAsDeleted && "deleting"}`}
+        className={`sheetRow ${(contextOptionsOpen || commentPopoverOpen) && "active"} ${markAsDeleted && "deleting"}`}
         data-shot-id={shot.id}
     >
         <CellBase
@@ -166,20 +181,23 @@ const RowBase = forwardRef<RowRef, RowProps>(({
                         setContextOptionsOpen(open)
                     }}
                 >
-                    <Popover.Trigger
-                        className="grip"
-                    >
+                    <Popover.Trigger className="grip">
                         <GripVertical size={22}/>
                     </Popover.Trigger>
                     <Popover.Portal>
-                        <Popover.Content className="popoverContent shotContextOptionsPopup" align={"center"} onCloseAutoFocus={e => e.preventDefault()} onOpenAutoFocus={e => e.preventDefault()}>
-                            {/*<Popover.Close asChild><button disabled={true}><CornerDownRight size={18}/> Make Subshot</button></Popover.Close>
-                            <Popover.Close asChild><button disabled={true}><NotepadText size={18}/> Notes</button></Popover.Close>*/}
+                        <Popover.Content
+                            className="popoverContent shotContextOptionsPopup"
+                            align={"center"}
+                            onCloseAutoFocus={e => e.preventDefault()}
+                            onOpenAutoFocus={e => e.preventDefault()}
+                        >
+                            {/*<Popover.Close asChild><button disabled={true}><CornerDownRight size={18}/> Make Subshot</button></Popover.Close>*/}
+
                             <Popover.Close asChild>
-                                <button className={"bad"} onClick={deleteShot}>
-                                    <Trash size={18}/>
-                                    Delete
-                                    <span className="key subtle">Del</span>
+                                <button onClick={addComment}>
+                                    <MessageSquareText size={18}/>
+                                    Comment
+                                    <span className="key subtle">C</span>
                                 </button>
                             </Popover.Close>
 
@@ -209,6 +227,16 @@ const RowBase = forwardRef<RowRef, RowProps>(({
                             <Separator/>
 
                             <Popover.Close asChild>
+                                <button className={"bad"} onClick={deleteShot}>
+                                    <Trash size={18}/>
+                                    Delete
+                                    <span className="key subtle">Del</span>
+                                </button>
+                            </Popover.Close>
+
+                            <Separator/>
+
+                            <Popover.Close asChild>
                                 <button onClick={() => shotlistContext.openShotlistOptionsDialog({
                                     main: ShotlistOptionsDialogMainPage.attributes,
                                     sub: ShotlistOptionsDialogSubPage.shot})}
@@ -226,6 +254,17 @@ const RowBase = forwardRef<RowRef, RowProps>(({
             }
         </CellBase>
         {children}
+        {
+            !isReadOnly &&
+            <CommentPopover
+                isOpen={commentPopoverOpen}
+                onOpenChange={setCommentPopoverOpen}
+                shot={shot}
+                scenePosition={scenePosition}
+                buttonIsVisible={commentPopoverOpen || (shot?.activeComments?.length ?? -1) > 0}
+                onCreateComment={onCreateComment}
+            />
+        }
     </div>
     )
 })
