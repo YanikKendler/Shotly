@@ -20,13 +20,22 @@
   border-top-left-radius: 1rem;
 
   .viewport{
-    padding: 1.5rem;
-    padding-bottom: 7rem;
+    padding: {
+      top: 1.5rem;
+      left: 1.5rem;
+      right: calc(1.5rem + var(--sheet-additional-padding-right));
+      bottom: 7rem;
+    };
+
+    transition: padding 0.3s;
 
     @media screen and (max-width: 600px){
-      padding: .5rem;
-      padding-left: 1.5rem;
-      padding-bottom: 3rem;
+      padding: {
+        top: 0.5rem;
+        left: 1.5rem;
+        right: calc(0.5rem + var(--sheet-additional-padding-right));
+        bottom: 3rem;
+      };
     }
   }
 

@@ -40,6 +40,7 @@ export interface RowProps {
     moveShot: (shotId: string, newPos: number) => void
     isReadOnly: boolean
     children: ReactNode
+    setTemporaryPaddingVisible: (visible: boolean) => void
 }
 
 /**
@@ -55,6 +56,7 @@ const RowBase = forwardRef<RowRef, RowProps>(({
     moveShot,
     isReadOnly,
     children,
+    setTemporaryPaddingVisible,
 }, ref) => {
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)

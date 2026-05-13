@@ -61,7 +61,6 @@ export type SaveState = "saved" | "saving" | "error"
 export default function Shotlist() {
     const client = useApolloClient()
     const router = useRouter()
-    const syncService = useRef<null>(null)
     const searchParams = useSearchParams()
     const params = useParams<{ id: string }>()
 
@@ -94,6 +93,7 @@ export default function Shotlist() {
 
     const focusedCell = useRef({row: -1, column:-1})
 
+    const shotlistElementRef = useRef<HTMLDivElement>(null);
     const headerRef = useRef<HTMLDivElement>(null)
     const sheetManagerRef = useRef<SheetManagerRef>(null)
     const sidebarRef = useRef<ShotlistSidebarRef>(null)
@@ -599,7 +599,7 @@ export default function Shotlist() {
         }}>
             <ReadOnlyBanner readOnlyState={readOnlyState}/>
 
-            <main className={`shotlist`} key={reloadKey}>
+            <main className={`shotlist`} key={reloadKey} ref={shotlistElementRef}>
                 <PanelGroup
                     autoSaveId={"shotly-shotlist-sidebar-width"}
                     direction="horizontal"
@@ -645,12 +645,17 @@ export default function Shotlist() {
                             openShotlistOptionsDialog={openShotlistOptionsDialog}
                         />
                         <SheetManager
+                            ref={sheetManagerRef}
                             selectedScene={selectedScene}
                             queryIsLoading={query.loading}
                             shotAttributeDefinitions={query.data.shotlist?.shotAttributeDefinitions as ShotAttributeDefinitionBase[] || null}
                             isReadOnly={readOnlyState.isReadOnly}
                             shotlistHeaderRef={headerRef}
-                            ref={sheetManagerRef}
+                            setAdditionalPadding={(needsPadding) => {
+                                console.log("setting padding", needsPadding)
+                                shotlistElementRef?.current?.style
+                                    .setProperty("--sheet-additional-padding-right", needsPadding ? "1.5rem" : "0rem")
+                            }}
                         />
                     </Panel>
                 </PanelGroup>

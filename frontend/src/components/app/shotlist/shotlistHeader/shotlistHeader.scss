@@ -2,9 +2,10 @@ main.shotlist .header{
   display: flex;
   align-items: center;
   padding-left: 1.5rem;
-  padding-right: 1.8rem;
+  padding-right: calc(1.8rem + var(--sheet-additional-padding-right));
   overflow-x: auto;
   position: relative;
+  transition: padding 0.3s;
 
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */

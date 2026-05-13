@@ -35,7 +35,7 @@ import {
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import CreatorCell from "@/components/app/shotlist/table/cell/creatorCell"
 import LoaderCell from "@/components/app/shotlist/table/cell/loaderCell"
-import ScrollArea from "@/components/basic/scrollArea/ScrollArea"
+import ScrollArea from "@/components/basic/scrollArea/scrollArea"
 
 export interface SheetManagerRef {
     getCellRef: (row: number, column: number) => CellRef | null
@@ -58,6 +58,7 @@ export interface SheetManagerProps {
     shotAttributeDefinitions: ShotAttributeDefinitionBase[] | null
     isReadOnly: boolean
     shotlistHeaderRef: RefObject<HTMLDivElement | null>
+    setAdditionalPadding: (needsPadding: boolean) => void
 }
 
 export interface ShotCacheEntry {
@@ -76,7 +77,8 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     queryIsLoading,
     shotAttributeDefinitions,
     isReadOnly,
-    shotlistHeaderRef
+    shotlistHeaderRef,
+    setAdditionalPadding
 }, ref) => {
     const shotlistContext = useContext(ShotlistContext)
     const client = useApolloClient()
@@ -99,6 +101,8 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     const handleCreateShotKeybind = useRef(() => {})
 
     const shotCache = useRef<ShotCache>(new Map())
+
+    const forceAdditionalPadding = useRef(false)
 
     useImperativeHandle(ref, () => ({
         getCellRef: getCellRef,
@@ -153,7 +157,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                 loadShots()
             }
         })
-    }, [deferredSelectedScene]) //happens deferred
+    }, [deferredSelectedScene]) //runs in the background to not block other actions like scene selection
 
     useEffect(() => {
         // select a attribute (in a newly created shot)
@@ -165,6 +169,9 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
             attributePositionToSelect.current = -1
         }
+
+        forceAdditionalPadding.current = false
+        checkIfAdditionalPaddingIsNeeded()
     }, [query.data.shots])
 
     const loadShots = async () => {
@@ -217,6 +224,23 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         }
 
         setShots(result.data.shots)
+    }
+
+    /**
+     * optionally add padding on the right to make space for comment floater button
+     * @param override for temporary opening while adding a new comment
+     */
+    const checkIfAdditionalPaddingIsNeeded = (override: boolean = false) => {
+        if(query.data.shots == null) return
+
+        const anyShotHasComments = query.data.shots.some(shot => (shot?.activeComments?.length ?? -1) > 0)
+
+        if(forceAdditionalPadding.current || override || anyShotHasComments){
+            setAdditionalPadding(true)
+        }
+        else {
+            setAdditionalPadding(false)
+        }
     }
 
     const showLoader = () => {
@@ -612,6 +636,13 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                                 rowRefs.current.delete(row)
                             }
                         }}
+                        shot={shot}
+                        position={row}
+                        scenePosition={deferredSelectedScene.position || 0}
+                        onDelete={onDeleteShot}
+                        moveShot={moveShot}
+                        isReadOnly={isReadOnly}
+                        setTemporaryPaddingVisible={(visible) => checkIfAdditionalPaddingIsNeeded(visible)}
                     >
                         {(shot.attributes as AnyShotAttribute[]).map((attribute: AnyShotAttribute, column: number) => (
                             <ValueCell
