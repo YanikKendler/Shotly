@@ -51,6 +51,10 @@
       display: flex;
       align-items: center;
       margin-left: .2rem;
+
+      &:has(button.action){
+        gap: .3rem;
+      }
     }
 
     button {
@@ -63,7 +67,7 @@
         background-color: var(--transparent-accent-10);
       }
 
-      &[data-name=action]{
+      &.action{
         background-color: var(--transparent-accent-20);
         color: var(--accent);
         padding: .5rem;
@@ -81,6 +85,20 @@
         &:not(:disabled):hover{
           background-color: var(--transparent-accent-30);
         }
+
+        &.small{
+          padding: .35rem;
+        }
+
+        &.gray{
+            background-color: var(--transparent-gray-20);
+            color: var(--text-20);
+
+            &:hover {
+              color: var(--text);
+              background-color: var(--transparent-gray-30);
+            }
+        }
       }
     }
 
@@ -90,13 +108,21 @@
     }
   }
 
-  &:focus-within, &.hasValue {
-    .w-md-editor-text {
-      min-height: 36px !important;
-    }
+  &:not(.forceToolbarHidden) {
+    &:focus-within, &.hasValue {
+      .w-md-editor-text {
+        min-height: 36px !important;
+      }
 
-    .w-md-editor-toolbar {
-      max-height: 2rem;
+      .w-md-editor-toolbar {
+        max-height: 2rem;
+      }
+    }
+  }
+
+  &.delayClose:not(:focus-within) {
+    .w-md-editor-toolbar, .w-md-editor-text {
+      transition-delay: 200ms;
     }
   }
 }

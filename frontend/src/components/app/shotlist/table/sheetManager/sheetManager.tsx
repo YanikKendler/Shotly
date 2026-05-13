@@ -210,7 +210,8 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                                 name
                             },
                             text,
-                            edited
+                            edited,
+                            shotId
                         }
                         sceneId
                     }
@@ -498,6 +499,40 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         checkIfAdditionalPaddingIsNeeded(true)
     }
 
+    const onUpdateComment = (updatedComment: CommentDto) => {
+        const currentShots = shotCache.current.get(selectedScene.id || "")?.shots || []
+
+        console.log(updatedComment)
+
+        const newShots = currentShots.map(shot => {
+            if(shot.id == updatedComment.shotId){
+                let newComments = shot.activeComments || []
+
+                if(updatedComment.archived == true)
+                    newComments = newComments.filter(c => c?.id != updatedComment.id)
+                else
+                    newComments = newComments.map(c => {
+                        if(c?.id == updatedComment?.id) return updatedComment
+
+                        return c
+                    })
+
+                console.log(newComments)
+
+                return {
+                    ...shot,
+                    activeComments: newComments
+                }
+            }
+            return shot
+        })
+
+        updateShotCache(newShots)
+
+        //TODO this needs logic rework or smth
+        checkIfAdditionalPaddingIsNeeded()
+    }
+
     const updateShotCacheShotAttributeValue = (
         inputValue: ShotAttributeValueCollection,
         attributeId: number,
@@ -665,6 +700,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                         isReadOnly={isReadOnly}
                         setTemporaryPaddingVisible={(visible) => checkIfAdditionalPaddingIsNeeded(visible)}
                         onCreateComment={onCreateComment}
+                        onUpdateComment={onUpdateComment}
                     >
                         {(shot.attributes as AnyShotAttribute[]).map((attribute: AnyShotAttribute, column: number) => (
                             <ValueCell

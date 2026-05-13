@@ -1,41 +1,54 @@
 import MDEditor, {commands, ICommand, RefMDEditor} from '@uiw/react-md-editor/common';
 import rehypeSanitize from "rehype-sanitize"
 import "./markdownEditor.scss"
-import {forwardRef, ReactElement, ReactNode, useImperativeHandle, useMemo, useRef} from "react"
+import {forwardRef, ReactElement, ReactNode, useEffect, useImperativeHandle, useMemo, useRef, useState} from "react"
 import {
     Bold, Italic, Strikethrough, List,
     ListOrdered, Quote, Link as LinkIcon
 } from "lucide-react";
 
 export interface MarkdownEditorRef {
-    focus: () => void
+    focus: () => void,
+    forceToolBarHidden: () => void
 }
 
 export interface MarkdownEditorProps {
     value: string | undefined,
     onValueChange: (value: string | undefined) => void
     placeholder?: string
-    action?: MarkdownEditorAction
+    actions?: MarkdownEditorAction[]
     toolbarCanHide?: boolean
+    autoFocus?: boolean
+    delayClose?: boolean
 }
 
 export interface MarkdownEditorAction {
     name: string
     label: string
     icon: ReactElement
-    shortcut: string
-    disabled: boolean
+    shortcut?: string
+    disabled?: boolean
     onClick: () => void
+    className?: string
 }
 
 const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
     value,
     onValueChange,
     placeholder,
-    action,
-    toolbarCanHide = true
+    actions,
+    toolbarCanHide = true,
+    autoFocus = false,
+    delayClose = false
 }, ref) =>{
-    const editorElementRef = useRef<RefMDEditor>(null);
+    const [forceToolBarHidden, setForceToolBarHidden] = useState(true)
+
+    const editorElementRef = useRef<RefMDEditor>(null)
+
+    useEffect(() => {
+        //remove after first render to trigger toolbar animation
+        setForceToolBarHidden(false)
+    }, []);
 
     useImperativeHandle(ref, () => ({
         focus: () => {
@@ -44,7 +57,8 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
             if(!container) return
 
             container.querySelector("textarea")?.focus()
-        }
+        },
+        forceToolBarHidden: () => setForceToolBarHidden(true)
     }))
 
     /**
@@ -83,27 +97,33 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
         ];
     }, [])
 
-    let additionalAction: ICommand | null = null
+    let extraCommands: ICommand[] = []
 
-    if(action)
-        additionalAction = {
+    if(actions && actions.length > 0)
+        extraCommands = actions.map(action => ({
             name: 'action',
             keyCommand: 'action',
-            buttonProps: { 'aria-label': action.label, "disabled": action.disabled },
+            buttonProps: { 'aria-label': action.label, "disabled": action.disabled, "className": `action ${action.className}`},
             shortcuts: action.shortcut,
             icon: action.icon,
             execute: action.onClick
-        }
+        }))
 
     return (
         <MDEditor
             ref={editorElementRef}
-            className={`markdownEditor ${(value?.length || 0) > 0 && "hasValue"} ${!toolbarCanHide && "hasValue"}`}
+            className={`
+                markdownEditor
+                ${(value?.length || 0) > 0 && "hasValue"}
+                ${!toolbarCanHide && "hasValue"}
+                ${forceToolBarHidden && "forceToolbarHidden"}
+                ${delayClose && "delayClose"}
+            `}
             value={value}
             onChange={onValueChange}
             preview={"edit"}
             commands={customCommands}
-            extraCommands={additionalAction ? [additionalAction] : []}
+            extraCommands={extraCommands}
             textareaProps={{
                 placeholder: placeholder
             }}
@@ -113,6 +133,7 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
             visibleDragbar={false}
             toolbarBottom={true}
             defaultTabEnable={true}
+            autoFocus={autoFocus}
         />
     )
 })

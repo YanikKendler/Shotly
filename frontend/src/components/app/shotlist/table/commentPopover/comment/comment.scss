@@ -8,6 +8,10 @@
   border-block: 1px solid transparent;
   transition: border 0.2s;
 
+  &.isBeingEdited{
+    background-color: var(--transparent-gray-10);
+  }
+
   > .top {
     display: flex;
     align-items: center;
@@ -51,7 +55,7 @@
     }
   }
 
-  &:hover {
+  &:hover, &.isBeingEdited{
     border-color: var(--default-interactable-border);
 
     .top .buttons {
@@ -69,5 +73,7 @@
       text-decoration: underline;
       color: var(--accent);
     }
+
+    /*TODO lists*/
   }
 }

@@ -652,7 +652,6 @@ export default function Shotlist() {
                             isReadOnly={readOnlyState.isReadOnly}
                             shotlistHeaderRef={headerRef}
                             setAdditionalPadding={(needsPadding) => {
-                                console.log("setting padding", needsPadding)
                                 shotlistElementRef?.current?.style
                                     .setProperty("--sheet-additional-padding-right", needsPadding ? "1.5rem" : "0rem")
                             }}

@@ -18,6 +18,8 @@ export interface ErrorNotificationProps extends NotificationProps {
     autoClose?: boolean
 }
 
+//TODO central duration calculation with minimum length and longer time in general
+
 export function errorNotification({ title, message, sub, tryAgainLater, action, autoClose} : ErrorNotificationProps) {
     const subMessage = sub ? sub : tryAgainLater ? "Please try again later." : null
     toast.error((t) => (

@@ -18,7 +18,8 @@ export default function CommentPopover ({
     shot,
     scenePosition,
     buttonIsVisible,
-    onCreateComment
+    onCreateComment,
+    onUpdateComment
 }:{
     isOpen: boolean
     onOpenChange: (open: boolean) => void
@@ -26,6 +27,7 @@ export default function CommentPopover ({
     scenePosition: number
     buttonIsVisible: boolean
     onCreateComment: (comment: CommentDto) => void
+    onUpdateComment: (comment: CommentDto) => void
 }) {
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
@@ -143,6 +145,16 @@ export default function CommentPopover ({
                                 <Comment
                                     key={comment?.id}
                                     comment={comment}
+                                    updateComment={(updatedComment) => {
+                                        setComments(current => {
+                                            return current.map(c => {
+                                                if(c?.id == updatedComment?.id) return updatedComment
+
+                                                return c
+                                            })
+                                        })
+                                        onUpdateComment(updatedComment)
+                                    }}
                                 />
                             ))
                         }
@@ -153,14 +165,15 @@ export default function CommentPopover ({
                             placeholder={"Add a comment..."}
                             value={commentText}
                             onValueChange={setCommentText}
-                            action={{
+                            actions={[{
                                 name: "sendComment",
                                 icon: <Send size={16}/>,
                                 shortcut: "crtl+m", //TODO
                                 label: "Send the comment",
                                 disabled: wuConstants.Regex.empty.test(commentText || ""),
                                 onClick: sendComment
-                            }}
+                            }]}
+                            delayClose={true}
                         />
                     </div>
                 </Popover.Content>

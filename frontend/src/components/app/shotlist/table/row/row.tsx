@@ -41,6 +41,7 @@ export interface RowProps {
     children: ReactNode
     setTemporaryPaddingVisible: (visible: boolean) => void
     onCreateComment: (comment: CommentDto) => void
+    onUpdateComment: (comment: CommentDto) => void
 }
 
 /**
@@ -57,7 +58,8 @@ const RowBase = forwardRef<RowRef, RowProps>(({
     isReadOnly,
     children,
     setTemporaryPaddingVisible,
-    onCreateComment
+    onCreateComment,
+    onUpdateComment
 }, ref) => {
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
@@ -263,6 +265,7 @@ const RowBase = forwardRef<RowRef, RowProps>(({
                 scenePosition={scenePosition}
                 buttonIsVisible={commentPopoverOpen || (shot?.activeComments?.length ?? -1) > 0}
                 onCreateComment={onCreateComment}
+                onUpdateComment={onUpdateComment}
             />
         }
     </div>
