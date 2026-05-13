@@ -40,7 +40,7 @@ export default function BlockedUsersDialog({
 
         const result = await client.mutate({
             mutation: gql`
-                mutation blockUser($userId: String!) {
+                mutation unblockUser($userId: String!) {
                     updateUserBlocking(blockDTO: {
                         userId: $userId,
                         isBlocked: false

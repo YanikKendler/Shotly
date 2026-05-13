@@ -22,6 +22,7 @@
   --second-cell-hover-bg: hsl(0, 0%, 86%);
 
   display: flex;
+  align-items: center;
   min-width: 100%;
   position: relative;
   background-color: var(--row-bg);
@@ -50,7 +51,7 @@
     border-bottom-left-radius: .3rem;
   }
 
-  .sheetCell:last-of-type{
+  :nth-last-child(1 of .sheetCell){
     border-top-right-radius: .3rem;
     border-bottom-right-radius: .3rem;
   }
@@ -75,7 +76,7 @@
   }
 }
 
-.shotContextOptionsPopup{
+.popoverContent.shotContextOptionsPopup{
   padding: calc(.3rem * var(--shotlist-scale));
 
   button{

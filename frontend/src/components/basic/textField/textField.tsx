@@ -1,9 +1,35 @@
 import {Info, X} from "lucide-react"
-import React, {useCallback, useEffect, useRef, useState} from "react"
+import React, {forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState} from "react"
 import "./textField.scss"
 import {wuGeneral} from "@yanikkendler/web-utils/dist"
 import Skeleton from "react-loading-skeleton"
 import SimplePopover from "@/components/basic/popover/simplePopover"
+
+export interface TextFieldRef {
+    focus: () => void
+}
+
+export interface TextFieldProps {
+    label?: string
+    value?: string | null
+    defaultValue?: string
+    valueChange?: (value: string) => void
+    placeholder?: string
+    info?: string
+    disabled?: boolean
+    maxLength?: number
+    maxWidth?: string
+    inputClass?: string
+    showLengthError?: boolean
+    debounceValueChange?: boolean
+    autoComplete?: boolean
+    loading?: boolean
+    color?: "gray" | "accent"
+    visible?: boolean,
+    clearable?: boolean,
+    ignoreOuterWhitespace?: boolean,
+    onEnterPress?: (value: string) => void
+}
 
 /**
  * simple input wrapper for use in static UIs like settings pages
@@ -21,54 +47,38 @@ import SimplePopover from "@/components/basic/popover/simplePopover"
  * @param debounceValueChange
  * @constructor
  */
-export default function TextField(
-    {
-        label,
-        value,
-        defaultValue = "",
-        valueChange = () => {},
-        placeholder = "",
-        info,
-        disabled = false,
-        maxLength = 255,
-        maxWidth = "40ch",
-        inputClass = "",
-        showLengthError = true,
-        debounceValueChange = false,
-        autoComplete = true,
-        loading = false,
-        color = "gray",
-        visible = true,
-        clearable = false,
-        ignoreOuterWhitespace = true,
-        onEnter = () => {}
-    }
-    :
-    {
-        label?: string
-        value?: string | null
-        defaultValue?: string
-        valueChange?: (value: string) => void
-        placeholder?: string
-        info?: string
-        disabled?: boolean
-        maxLength?: number
-        maxWidth?: string
-        inputClass?: string
-        showLengthError?: boolean
-        debounceValueChange?: boolean
-        autoComplete?: boolean
-        loading?: boolean
-        color?: "gray" | "accent"
-        visible?: boolean,
-        clearable?: boolean,
-        ignoreOuterWhitespace?: boolean,
-        onEnter?: (value: string) => void
-    }
-) {
-    const [currentValue, setCurrentValue] = useState<string>(value || defaultValue);
-    const [error, setError] = useState<string>("");
-    const [errorType, setErrorType] = useState<"warning" | "max">("warning");
+const TextField = forwardRef<TextFieldRef, TextFieldProps>(({
+    label,
+    value,
+    defaultValue = "",
+    valueChange = () => {},
+    placeholder = "",
+    info,
+    disabled = false,
+    maxLength = 255,
+    maxWidth = "40ch",
+    inputClass = "",
+    showLengthError = true,
+    debounceValueChange = false,
+    autoComplete = true,
+    loading = false,
+    color = "gray",
+    visible = true,
+    clearable = false,
+    ignoreOuterWhitespace = true,
+    onEnterPress = () => {}
+}, ref) => {
+    const [currentValue, setCurrentValue] = useState<string>(value || defaultValue)
+    const [error, setError] = useState<string>("")
+    const [errorType, setErrorType] = useState<"warning" | "max">("warning")
+
+    const inputRef = useRef<HTMLInputElement>(null)
+
+    useImperativeHandle(ref, () => ({
+        focus: () => {
+            inputRef.current?.focus()
+        }
+    }))
 
     useEffect(() => {
         if (value == undefined) return
@@ -125,7 +135,7 @@ export default function TextField(
 
     const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if(e.key == "Enter")
-            onEnter(currentValue)
+            onEnterPress(currentValue)
     }
 
     const ignoreProps = !autoComplete ? {
@@ -152,6 +162,8 @@ export default function TextField(
                             <div className="clearButtonContainer">
                                 <input
                                     id={label}
+                                    name={label}
+                                    ref={inputRef}
                                     type="text"
                                     placeholder={placeholder}
                                     value={currentValue}
@@ -180,5 +192,7 @@ export default function TextField(
                 }
             </div>
         </div>
-    );
-}
+    )
+})
+
+export default TextField

@@ -390,7 +390,7 @@ export default function CollaboratorsTab(
                                 }}
                                 value={inputValue}
                                 autoComplete={false}
-                                onEnter={addCollaborator}
+                                onEnterPress={addCollaborator}
                             />
                             <button
                                 className={"accent"}
