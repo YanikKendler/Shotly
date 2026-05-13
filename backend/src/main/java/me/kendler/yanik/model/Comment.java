@@ -13,7 +13,6 @@ import java.util.UUID;
 @Table(name = "comment")
 public class Comment extends PanacheEntityBase {
     @Id
-    @GeneratedValue
     public UUID id;
     @ManyToOne
     public Shot shot;
@@ -31,6 +30,7 @@ public class Comment extends PanacheEntityBase {
     }
 
     public Comment(UUID id, Shot shot, User user, String text) {
+        this();
         this.id = id;
         this.shot = shot;
         this.user = user;

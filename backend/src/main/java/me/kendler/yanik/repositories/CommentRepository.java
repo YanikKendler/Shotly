@@ -25,7 +25,7 @@ public class CommentRepository implements PanacheRepositoryBase<Comment, UUID> {
     ShotRepository shotRepository;
 
     public CommentDTO create(CommentCreateDTO createDTO, JsonWebToken jwt){
-        Shot shot = shotRepository.findByIdValidated(createDTO.id());
+        Shot shot = shotRepository.findByIdValidated(createDTO.shotId());
         User user = userRepository.findOrCreateByJWT(jwt);
 
         Comment comment = new Comment(

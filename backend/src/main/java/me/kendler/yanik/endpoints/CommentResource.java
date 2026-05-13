@@ -1,6 +1,7 @@
 package me.kendler.yanik.endpoints;
 
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import me.kendler.yanik.dto.comment.CommentCreateDTO;
 import me.kendler.yanik.dto.comment.CommentDTO;
 import me.kendler.yanik.dto.comment.CommentEditDTO;
@@ -21,6 +22,7 @@ import java.util.UUID;
 
 @GraphQLApi
 @RateLimited()
+@Transactional
 public class CommentResource {
     @Inject
     JsonWebToken jwt;
