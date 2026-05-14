@@ -8,7 +8,7 @@ import io.smallrye.graphql.api.Union;
  * The payload of the ShotlistUpdateDTO that is sent on every update to the shotlist
  * The payload contains the actual data that was changed (and additional stuff for properly updating the client state)
  *
- * The "kind" property is used to determine kind of payload in the frontend to make serialisation easier
+ * The kind property is used to determine kind of payload in the frontend to make serialisation easier
  */
 /*@Union
 @JsonTypeInfo(
@@ -20,11 +20,9 @@ import io.smallrye.graphql.api.Union;
         @JsonSubTypes.Type(value = ShotAttributePayload.class, name = "shotAttribute"),
         @JsonSubTypes.Type(value = UserPayload.class, name = "user"),
         @JsonSubTypes.Type(value = ShotPayload.class, name = "shot"),
-        @JsonSubTypes.Type(value = ShotDetailPayload.class, name = "shotDetail"),
         @JsonSubTypes.Type(value = CollaborationPayload.class, name = "collaboration"),
         @JsonSubTypes.Type(value = PresentCollaboratorsPayload.class, name = "presentCollaborators"),
         @JsonSubTypes.Type(value = ScenePayload.class, name = "scene"),
-        @JsonSubTypes.Type(value = SceneDetailPayload.class, name = "sceneDetail"),
         @JsonSubTypes.Type(value = SceneAttributePayload.class, name = "sceneAttribute"),
         @JsonSubTypes.Type(value = SceneSelectOptionPayload.class, name = "sceneAttributeOption"),
         @JsonSubTypes.Type(value = ShotSelectOptionPayload.class, name = "shotAttributeOption"),
@@ -40,9 +38,7 @@ public sealed interface ShotlistUpdatePayload permits
         CollaborationPayload,
         ShotAttributePayload,
         ShotPayload,
-        ShotDetailPayload,
         ScenePayload,
-        SceneDetailPayload,
         SceneAttributePayload,
         SceneSelectOptionPayload,
         ShotSelectOptionPayload,

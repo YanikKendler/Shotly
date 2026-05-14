@@ -71,15 +71,6 @@ export interface ShotAttributePayload {
 
 export interface ShotPayload {
     kind: "shot"
-    id: string
-    sceneId: string
-    position: number
-    isSubshot: boolean
-    createdAt: Date
-}
-
-export interface ShotDetailPayload {
-    kind: "shotDetail"
     shot: ShotDto
 }
 
@@ -96,14 +87,6 @@ export interface PresentCollaboratorsPayload {
 
 export interface ScenePayload {
     kind: "scene"
-    id: string
-    position: number
-    shotCount: number
-    createdAt: Date
-}
-
-export interface SceneDetailPayload {
-    kind: "sceneDetail"
     scene: SceneDto
 }
 
@@ -148,11 +131,9 @@ export type ShotlistUpdatePayload =
     UserPayload |
     ShotAttributePayload |
     ShotPayload |
-    ShotDetailPayload |
     CollaborationPayload |
     PresentCollaboratorsPayload |
     ScenePayload |
-    SceneDetailPayload |
     SceneAttributePayload |
     SceneAttributeOptionPayload |
     ShotAttributeOptionPayload |
@@ -404,19 +385,14 @@ export function useShotlistSync({
                 break
             case "ShotPayload":
                 switch (updateDTO.type) {
-
+                    case ShotlistUpdateType.ShotAdded:
+                        createShot(updateDTO.payload)
+                        break
                     case ShotlistUpdateType.ShotUpdated:
                         updateShot(updateDTO.payload)
                         break
                     case ShotlistUpdateType.ShotDeleted:
                         deleteShot(updateDTO.payload)
-                        break
-                }
-                break
-            case "ShotDetailPayload":
-                switch (updateDTO.type) {
-                    case ShotlistUpdateType.ShotAdded:
-                        createShot(updateDTO.payload)
                         break
                 }
                 break
@@ -493,18 +469,14 @@ export function useShotlistSync({
                 break
             case "ScenePayload":
                 switch (updateDTO.type) {
+                    case ShotlistUpdateType.SceneAdded:
+                        createScene(updateDTO.payload)
+                        break
                     case ShotlistUpdateType.SceneDeleted:
                         deleteScene(updateDTO.payload)
                         break
                     case ShotlistUpdateType.SceneUpdated:
                         updateScene(updateDTO.payload)
-                        break
-                }
-                break
-            case "SceneDetailPayload":
-                switch (updateDTO.type) {
-                    case ShotlistUpdateType.SceneAdded:
-                        createScene(updateDTO.payload)
                         break
                 }
                 break
@@ -575,7 +547,7 @@ export function useShotlistSync({
         }
     }
 
-    const createShot = (payload: ShotDetailPayload)=> {
+    const createShot = (payload: ShotPayload)=> {
         if(!payload.shot || !payload.shot.id || !sheetManagerRef?.current) return
 
         if(payload.shot.sceneId == selectedScene?.id) {
@@ -593,23 +565,23 @@ export function useShotlistSync({
     }
 
     const updateShot = (payload: ShotPayload)=> {
-        if(!payload || !payload.id || !sheetManagerRef?.current) return
+        if(!payload.shot || !payload.shot.id || !sheetManagerRef?.current) return
 
-        if(payload.sceneId == selectedScene?.id) {
-            sheetManagerRef.current.onMoveShot(payload.id, payload.position)
+        if(payload.shot.sceneId == selectedScene?.id) {
+            sheetManagerRef.current.onMoveShot(payload.shot.id, payload.shot.position)
         }
         else {
-            const currentCache = sheetManagerRef.current.shotCache.current.get(payload.sceneId || "")
+            const currentCache = sheetManagerRef.current.shotCache.current.get(payload.shot.sceneId || "")
 
             if(!currentCache) return
 
             const newShots = currentCache.shots
                 .map(shot => {
-                    if(shot.id == payload.id)
+                    if(shot.id == payload.shot.id)
                         return {
                             ...shot,
-                            position: payload.position,
-                            subshot: payload.subshot
+                            position: payload.shot.position,
+                            subshot: payload.shot.subshot
                         }
                     else
                         return shot
@@ -619,18 +591,18 @@ export function useShotlistSync({
     }
 
     const deleteShot = (payload: ShotPayload)=> {
-        if(!payload || !payload.id || !sheetManagerRef?.current) return
+        if(!payload.shot || !payload.shot.id || !sheetManagerRef?.current) return
 
-        if(payload.sceneId == selectedScene?.id) {
-            sheetManagerRef?.current.onDeleteShot(payload.id)
+        if(payload.shot.sceneId == selectedScene?.id) {
+            sheetManagerRef?.current.onDeleteShot(payload.shot.id)
         }
         else {
-            const currentCache = sheetManagerRef?.current.shotCache.current.get(payload.sceneId || "")
+            const currentCache = sheetManagerRef?.current.shotCache.current.get(payload.shot.sceneId || "")
 
             if(!currentCache) return
 
-            const newShots = currentCache.shots.filter(shot => shot.id != payload.id)
-            sheetManagerRef?.current.updateShotCache(newShots, payload.sceneId)
+            const newShots = currentCache.shots.filter(shot => shot.id != payload.shot.id)
+            sheetManagerRef?.current.updateShotCache(newShots, payload.shot.sceneId)
         }
     }
 
@@ -643,22 +615,22 @@ export function useShotlistSync({
         attributeRef?.setValue(SceneAttributeParser.toMultiTypeValue(payload.attribute))
     }
 
-    const createScene = (payload: SceneDetailPayload)=> {
+    const createScene = (payload: ScenePayload)=> {
         if(!payload.scene || !payload.scene.id || !sidebarRef?.current) return
 
         sidebarRef?.current.onCreateScene(payload.scene)
     }
 
     const updateScene = (payload: ScenePayload)=> {
-        if(!payload || !payload.id || !sidebarRef?.current) return
+        if(!payload.scene || !payload.scene.id || !sidebarRef?.current) return
 
-        sidebarRef?.current.onMoveScene(payload.id, payload.position)
+        sidebarRef?.current.onMoveScene(payload.scene.id, payload.scene.position)
     }
 
     const deleteScene = (payload: ScenePayload)=> {
-        if(!payload || !payload.id || !sidebarRef?.current) return
+        if(!payload.scene || !payload.scene.id || !sidebarRef?.current) return
 
-        sidebarRef?.current.onDeleteScene(payload.id)
+        sidebarRef?.current.onDeleteScene(payload.scene.id)
     }
 
     const shotAttributeOptionCreated = (payload: ShotSelectOptionPayload)=> {

@@ -16,7 +16,6 @@ import me.kendler.yanik.repositories.scene.SceneSelectAttributeOptionDefinitionR
 import me.kendler.yanik.socket.ShotlistUpdateDTO;
 import me.kendler.yanik.socket.ShotlistUpdateType;
 import me.kendler.yanik.socket.ShotlistSyncService;
-import me.kendler.yanik.socket.payload.SceneDetailPayload;
 import me.kendler.yanik.socket.payload.SceneSelectOptionPayload;
 import me.kendler.yanik.socket.payload.SceneAttributePayload;
 import me.kendler.yanik.socket.payload.ScenePayload;
@@ -61,7 +60,7 @@ public class SceneResource {
                 new ShotlistUpdateDTO(
                         ShotlistUpdateType.SCENE_ADDED,
                         userRepository.findOrCreateByJWT(jwt).id,
-                        new SceneDetailPayload(
+                        new ScenePayload(
                                 result
                         )
                 )
