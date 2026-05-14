@@ -12,24 +12,22 @@ import {errorNotification} from "@/service/NotificationService"
 import Comment from "@/components/app/shotlist/table/commentPopover/comment/comment"
 import MarkdownEditor, {MarkdownEditorRef} from "@/components/basic/markdownEditor/markdownEditor"
 
-//TODO does not disappear if all comments are archived
-
 export default function CommentPopover ({
     isOpen,
     onOpenChange,
     shot,
     scenePosition,
-    buttonIsVisible,
     onCreateComment,
-    onUpdateComment
+    onUpdateComment,
+    showOnHover
 }:{
     isOpen: boolean
     onOpenChange: (open: boolean) => void
     shot: ShotDto
     scenePosition: number
-    buttonIsVisible: boolean
     onCreateComment: (comment: CommentDto) => void
     onUpdateComment: (comment: CommentDto) => void
+    showOnHover: boolean
 }) {
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
@@ -41,18 +39,14 @@ export default function CommentPopover ({
     const contentElementRef = useRef<HTMLDivElement>(null)
     const editorRef = useRef<MarkdownEditorRef>(null);
 
-    const [overrideButtonVisibility, setOverrideButtonVisibility] = useState(false)
-
     useEffect(() => {
         setComments(shot?.activeComments ?? [])
-        setOverrideButtonVisibility(false)
     }, [shot]);
 
     const sendComment = async () => {
         if(!commentText || wuConstants.Regex.empty.test(commentText)) return
 
         setCommentText("")
-        setOverrideButtonVisibility(true)
 
         const sanitizedCommentText = await Utils.sanitizeString(commentText)
 
@@ -108,15 +102,16 @@ export default function CommentPopover ({
         }
     }
 
+    const buttonIsVisible = isOpen || (comments && comments.length > 0 && comments.some(c => !c?.archived))
+
     return (
         <Popover.Root
             open={isOpen}
             onOpenChange={onOpenChange}
         >
-            {
-                (buttonIsVisible || overrideButtonVisibility) &&
-                <div className="commentTriggerWrapper">
-                    <Popover.Trigger className="comments">
+            { (isOpen || showOnHover) &&
+                <div className={`commentTriggerWrapper`}>
+                    <Popover.Trigger className={`comments ${buttonIsVisible && "visible"} ${showOnHover && "showOnHover"}`}>
                         <MessageSquareText size={16}/>
                     </Popover.Trigger>
                 </div>
@@ -133,7 +128,6 @@ export default function CommentPopover ({
 
                         editorRef.current?.focus()
                     }}
-                    forceMount={true}
                 >
                     <div className="top">
                         <p role={"heading"}>Comments • Shot {Utils.numberToShotLetter(shot.position, scenePosition)}</p>

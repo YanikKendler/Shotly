@@ -141,21 +141,21 @@ export default function Comment({
                     {comment?.user?.name ?? "Unknown"}
                     { comment?.edited && <span className="edited"> (edited)</span> }
                 </p>
-                {
-                    comment.user?.id == shotlistContext.currentUser?.id &&
-                    <div className="buttons">
+                <div className="buttons">
+                    {
+                        comment.user?.id == shotlistContext.currentUser?.id &&
                         <SimpleTooltip text={`${isBeingEdited ? "Cancel" : "Edit"}`} delay={100} fontSize={0.75}>
                             <button onClick={toggleEditor}>
                                 <Pencil size={14}/>
                             </button>
                         </SimpleTooltip>
-                        <SimpleTooltip text={"Completed"} delay={100} fontSize={0.75}>
-                            <button onClick={archiveComment}>
-                                <CircleCheckBig size={16}/>
-                            </button>
-                        </SimpleTooltip>
-                    </div>
-                }
+                    }
+                    <SimpleTooltip text={"Completed"} delay={100} fontSize={0.75}>
+                        <button onClick={archiveComment}>
+                            <CircleCheckBig size={16}/>
+                        </button>
+                    </SimpleTooltip>
+                </div>
             </div>
             {
                 isBeingEdited ?

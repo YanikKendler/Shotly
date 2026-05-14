@@ -105,6 +105,8 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
     const forceAdditionalPadding = useRef(false)
 
+    const [commentPresentInScene, setCommentPresentInScene] = useState(false)
+
     useImperativeHandle(ref, () => ({
         getCellRef: getCellRef,
         findCellRef: findCellRef,
@@ -145,6 +147,8 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         cellRefs.current.clear()
         rowRefs.current.clear()
 
+        setCommentPresentInScene(false)
+
         showLoader()
 
         setTimeout(() => {
@@ -172,7 +176,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         }
 
         forceAdditionalPadding.current = false
-        checkIfAdditionalPaddingIsNeeded()
+        checkIfCommentIsPresent()
     }, [query.data.shots])
 
     const loadShots = async () => {
@@ -241,16 +245,23 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
      * optionally add padding on the right to make space for comment floater button
      * @param override for temporary opening while adding a new comment
      */
-    const checkIfAdditionalPaddingIsNeeded = (override: boolean = false) => {
-        if(query.data.shots == null) return
+    const checkIfCommentIsPresent = (override: boolean = false) => {
+        const shots = shotCache.current.get(selectedScene.id || "")?.shots
 
-        const anyShotHasComments = query.data.shots.some(shot => (shot?.activeComments?.length ?? -1) > 0)
+        if(!shots) return
 
-        if(forceAdditionalPadding.current || override || anyShotHasComments){
+        const anyShotHasComments = shots.some(shot => (shot?.activeComments?.length ?? -1) > 0)
+
+        if(override){
             setAdditionalPadding(true)
+        }
+        else if(anyShotHasComments){
+            setAdditionalPadding(true)
+            setCommentPresentInScene(true)
         }
         else {
             setAdditionalPadding(false)
+            setCommentPresentInScene(false)
         }
     }
 
@@ -495,8 +506,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
         updateShotCache(newShots)
 
-        forceAdditionalPadding.current = true
-        checkIfAdditionalPaddingIsNeeded(true)
+        checkIfCommentIsPresent()
     }
 
     const onUpdateComment = (updatedComment: CommentDto) => {
@@ -528,9 +538,6 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         })
 
         updateShotCache(newShots)
-
-        //TODO this needs logic rework or smth
-        checkIfAdditionalPaddingIsNeeded()
     }
 
     const updateShotCacheShotAttributeValue = (
@@ -698,9 +705,10 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                         onDelete={onDeleteShot}
                         moveShot={moveShot}
                         isReadOnly={isReadOnly}
-                        setTemporaryPaddingVisible={(visible) => checkIfAdditionalPaddingIsNeeded(visible)}
+                        setTemporaryPaddingVisible={(visible) => checkIfCommentIsPresent(visible)}
                         onCreateComment={onCreateComment}
                         onUpdateComment={onUpdateComment}
+                        commentPresentInScene={commentPresentInScene}
                     >
                         {(shot.attributes as AnyShotAttribute[]).map((attribute: AnyShotAttribute, column: number) => (
                             <ValueCell

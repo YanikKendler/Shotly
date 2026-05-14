@@ -18,10 +18,33 @@
   background-color: var(--comment-button-bg);
   z-index: 150;
   border: 1px solid var(--default-interactable-border);
+  opacity: 0;
+
+  &:not(.visible).showOnHover{
+    border: none;
+    color: var(--text-50);
+
+    &:hover{
+      opacity: 1;
+      background-color: var(--comment-button-bg);
+    }
+  }
+
+  &.visible {
+    opacity: 1;
+  }
 
   &:hover{
     background-color: var(--transparent-gray-30);
     color: var(--accent-60);
+  }
+
+  // increase target size
+  &::before{
+    content: "";
+    position: absolute;
+    height: calc(40px * var(--shotlist-scale));
+    width: 2rem;
   }
 }
 
@@ -58,6 +81,7 @@
       text-align: center;
       color: var(--text-50);
       font-size: .85rem;
+      user-select: none;
     }
   }
 
