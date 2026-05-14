@@ -15,7 +15,7 @@ import me.kendler.yanik.repositories.scene.SceneRepository;
 import me.kendler.yanik.repositories.scene.SceneSelectAttributeOptionDefinitionRepository;
 import me.kendler.yanik.socket.ShotlistUpdateDTO;
 import me.kendler.yanik.socket.ShotlistUpdateType;
-import me.kendler.yanik.socket.ShotlistWebsocketService;
+import me.kendler.yanik.socket.ShotlistSyncService;
 import me.kendler.yanik.socket.payload.SceneDetailPayload;
 import me.kendler.yanik.socket.payload.SceneSelectOptionPayload;
 import me.kendler.yanik.socket.payload.SceneAttributePayload;
@@ -41,7 +41,7 @@ public class SceneResource {
     UserRepository userRepository;
 
     @Inject
-    ShotlistWebsocketService shotlistWebsocketService;
+    ShotlistSyncService syncService;
 
     @Query
     public List<SceneDTO> getScenes(UUID shotlistId) {
@@ -56,7 +56,7 @@ public class SceneResource {
 
         SceneDTO result = sceneRepository.create(shotlistId);
 
-        shotlistWebsocketService.broadcast(
+        syncService.broadcast(
                 shotlistId,
                 new ShotlistUpdateDTO(
                         ShotlistUpdateType.SCENE_ADDED,
@@ -77,7 +77,7 @@ public class SceneResource {
 
         SceneDTO result = sceneRepository.delete(id);
 
-        shotlistWebsocketService.broadcast(
+        syncService.broadcast(
                 affectedShotlist.id,
                 new ShotlistUpdateDTO(
                         ShotlistUpdateType.SCENE_DELETED,
@@ -98,7 +98,7 @@ public class SceneResource {
 
         SceneDTO result = sceneRepository.update(editDTO);
 
-        shotlistWebsocketService.broadcast(
+        syncService.broadcast(
                 affectedShotlist.id,
                 new ShotlistUpdateDTO(
                         ShotlistUpdateType.SCENE_UPDATED,
@@ -162,7 +162,7 @@ public class SceneResource {
 
         SceneAttributeBaseDTO result = sceneAttributeRepository.update(editDTO);
 
-        shotlistWebsocketService.broadcast(
+        syncService.broadcast(
                 affectedShotlist.id,
                 new ShotlistUpdateDTO(
                         ShotlistUpdateType.SCENE_ATTRIBUTE_UPDATED,
@@ -204,7 +204,7 @@ public class SceneResource {
 
         SceneSelectAttributeOptionDefinition result = sceneSelectAttributeOptionDefinitionRepository.create(createDTO);
 
-        shotlistWebsocketService.broadcast(
+        syncService.broadcast(
             affectedShotlist.id,
             new ShotlistUpdateDTO(
                 ShotlistUpdateType.SCENE_SELECT_OPTION_CREATED,

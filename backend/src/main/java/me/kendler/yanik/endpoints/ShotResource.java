@@ -18,7 +18,7 @@ import me.kendler.yanik.repositories.shot.ShotRepository;
 import me.kendler.yanik.repositories.shot.ShotSelectAttributeOptionDefinitionRepository;
 import me.kendler.yanik.socket.ShotlistUpdateDTO;
 import me.kendler.yanik.socket.ShotlistUpdateType;
-import me.kendler.yanik.socket.ShotlistWebsocketService;
+import me.kendler.yanik.socket.ShotlistSyncService;
 import me.kendler.yanik.socket.payload.ShotDetailPayload;
 import me.kendler.yanik.socket.payload.ShotSelectOptionPayload;
 import me.kendler.yanik.socket.payload.ShotAttributePayload;
@@ -48,7 +48,7 @@ public class ShotResource {
     UserRepository userRepository;
 
     @Inject
-    ShotlistWebsocketService shotlistWebsocketService;
+    ShotlistSyncService syncService;
 
     private static final Logger LOGGER = Logger.getLogger(ShotResource.class);
 
@@ -66,7 +66,7 @@ public class ShotResource {
 
         ShotDTO result = shotRepository.create(sceneId);
 
-        shotlistWebsocketService.broadcast(
+        syncService.broadcast(
                 affectedShotlist.id,
                 new ShotlistUpdateDTO(
                     ShotlistUpdateType.SHOT_ADDED,
@@ -88,7 +88,7 @@ public class ShotResource {
 
         ShotDTO result = shotRepository.delete(id);
 
-        shotlistWebsocketService.broadcast(
+        syncService.broadcast(
                 affectedShotlist.id,
                 new ShotlistUpdateDTO(
                     ShotlistUpdateType.SHOT_DELETED,
@@ -109,7 +109,7 @@ public class ShotResource {
 
         ShotDTO result = shotRepository.update(editDTO);
 
-        shotlistWebsocketService.broadcast(
+        syncService.broadcast(
             affectedShotlist.id,
             new ShotlistUpdateDTO(
                 ShotlistUpdateType.SHOT_UPDATED,
@@ -174,7 +174,7 @@ public class ShotResource {
 
         ShotAttributeBaseDTO result = shotAttributeRepository.update(editDTO);
 
-        shotlistWebsocketService.broadcast(
+        syncService.broadcast(
                 affectedShotlist.id,
                 new ShotlistUpdateDTO(
                         ShotlistUpdateType.SHOT_ATTRIBUTE_UPDATED,
@@ -218,7 +218,7 @@ public class ShotResource {
 
         ShotSelectAttributeOptionDefinition result = shotSelectAttributeOptionDefinitionRepository.create(createDTO);
 
-        shotlistWebsocketService.broadcast(
+        syncService.broadcast(
             affectedShotlist.id,
             new ShotlistUpdateDTO(
                 ShotlistUpdateType.SHOT_SELECT_OPTION_CREATED,

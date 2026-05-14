@@ -28,7 +28,7 @@ import me.kendler.yanik.repositories.template.ShotAttributeTemplateRepository;
 import me.kendler.yanik.repositories.template.TemplateRepository;
 import me.kendler.yanik.socket.ShotlistUpdateDTO;
 import me.kendler.yanik.socket.ShotlistUpdateType;
-import me.kendler.yanik.socket.ShotlistWebsocketService;
+import me.kendler.yanik.socket.ShotlistSyncService;
 import me.kendler.yanik.socket.payload.CollaborationPayload;
 import me.kendler.yanik.stripe.StripeService;
 import org.eclipse.microprofile.jwt.JsonWebToken;
@@ -69,7 +69,7 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     CurrentVertxRequest currentVertxRequest;
 
     @Inject
-    ShotlistWebsocketService shotlistWebsocketService;
+    ShotlistSyncService syncService;
 
     private static final Logger LOGGER = Logger.getLogger(UserRepository.class);
 
@@ -252,7 +252,7 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
             affectedCollaborations.forEach(collab -> {
                 CollaborationDTO result = collaborationRepository.delete(collab.id);
 
-                shotlistWebsocketService.broadcast(
+                syncService.broadcast(
                     collab.shotlist.id,
                     new ShotlistUpdateDTO(
                         ShotlistUpdateType.COLLABORATION_DELETED,

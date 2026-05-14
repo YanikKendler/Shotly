@@ -50,6 +50,12 @@ export type CollaborationEditDtoInput = {
   id?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CollaborationPayload = {
+  __typename?: 'CollaborationPayload';
+  type?: Maybe<CollaborationType>;
+  userId?: Maybe<Scalars['String']['output']>;
+};
+
 export enum CollaborationState {
   Accepted = 'ACCEPTED',
   Declined = 'DECLINED',
@@ -99,6 +105,11 @@ export type CommentEditDtoInput = {
   id?: InputMaybe<Scalars['String']['input']>;
   isArchived?: InputMaybe<Scalars['Boolean']['input']>;
   text?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type EmptyPayload = {
+  __typename?: 'EmptyPayload';
+  success: Scalars['Boolean']['output'];
 };
 
 /** Mutation root */
@@ -465,6 +476,11 @@ export type MutationUpdateUserBlockingArgs = {
   blockDTO?: InputMaybe<UserBlockDtoInput>;
 };
 
+export type PresentCollaboratorsPayload = {
+  __typename?: 'PresentCollaboratorsPayload';
+  collaborators?: Maybe<Array<Maybe<UserMinimalDto>>>;
+};
+
 /** Query root */
 export type Query = {
   __typename?: 'Query';
@@ -619,6 +635,11 @@ export type SceneAttributeEditDtoInput = {
   textValue?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type SceneAttributePayload = {
+  __typename?: 'SceneAttributePayload';
+  attribute?: Maybe<SceneAttributeBaseDto>;
+};
+
 export type SceneAttributeTemplateBase = {
   __typename?: 'SceneAttributeTemplateBase';
   id?: Maybe<Scalars['BigInteger']['output']>;
@@ -663,6 +684,11 @@ export type SceneDto = {
   shots?: Maybe<Array<Maybe<ShotDto>>>;
 };
 
+export type SceneDetailPayload = {
+  __typename?: 'SceneDetailPayload';
+  scene?: Maybe<SceneDto>;
+};
+
 export type SceneEditDtoInput = {
   id?: InputMaybe<Scalars['String']['input']>;
   position: Scalars['Int']['input'];
@@ -692,6 +718,15 @@ export type SceneMultiSelectAttributeTemplateDto = SceneAttributeTemplateBaseDto
   options?: Maybe<Array<Maybe<SceneSelectAttributeOptionTemplate>>>;
   position: Scalars['Int']['output'];
   type?: Maybe<Scalars['String']['output']>;
+};
+
+export type ScenePayload = {
+  __typename?: 'ScenePayload';
+  /** ISO-8601 */
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  id?: Maybe<Scalars['String']['output']>;
+  position: Scalars['Int']['output'];
+  shotCount: Scalars['Int']['output'];
 };
 
 export type SceneSelectAttributeOptionCreateDtoInput = {
@@ -726,6 +761,11 @@ export type SceneSelectAttributeOptionTemplate = {
 export type SceneSelectAttributeOptionTemplateEditDtoInput = {
   id?: InputMaybe<Scalars['BigInteger']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SceneSelectOptionPayload = {
+  __typename?: 'SceneSelectOptionPayload';
+  optionDefinition?: Maybe<SceneSelectAttributeOptionDefinition>;
 };
 
 export type SceneSingleSelectAttributeDto = SceneAttributeBaseDto & TypeName & {
@@ -776,6 +816,19 @@ export type SceneTextAttributeTemplateDto = SceneAttributeTemplateBaseDto & Type
   name?: Maybe<Scalars['String']['output']>;
   position: Scalars['Int']['output'];
   type?: Maybe<Scalars['String']['output']>;
+};
+
+export type SelectedCellPayload = {
+  __typename?: 'SelectedCellPayload';
+  column: Scalars['Int']['output'];
+  row: Scalars['Int']['output'];
+  sceneId?: Maybe<Scalars['String']['output']>;
+};
+
+export type SelectedSceneAttributePayload = {
+  __typename?: 'SelectedSceneAttributePayload';
+  attributeId?: Maybe<Scalars['BigInteger']['output']>;
+  sceneId?: Maybe<Scalars['String']['output']>;
 };
 
 export type Shot = {
@@ -833,6 +886,13 @@ export type ShotAttributeEditDtoInput = {
   textValue?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type ShotAttributePayload = {
+  __typename?: 'ShotAttributePayload';
+  attribute?: Maybe<ShotAttributeBaseDto>;
+  sceneId?: Maybe<Scalars['String']['output']>;
+  shotId?: Maybe<Scalars['String']['output']>;
+};
+
 export type ShotAttributeTemplateBase = {
   __typename?: 'ShotAttributeTemplateBase';
   id?: Maybe<Scalars['BigInteger']['output']>;
@@ -878,6 +938,11 @@ export type ShotDto = {
   subshot: Scalars['Boolean']['output'];
 };
 
+export type ShotDetailPayload = {
+  __typename?: 'ShotDetailPayload';
+  shot?: Maybe<ShotDto>;
+};
+
 export type ShotEditDtoInput = {
   id?: InputMaybe<Scalars['String']['input']>;
   position: Scalars['Int']['input'];
@@ -907,6 +972,16 @@ export type ShotMultiSelectAttributeTemplateDto = ShotAttributeTemplateBaseDto &
   options?: Maybe<Array<Maybe<ShotSelectAttributeOptionTemplate>>>;
   position: Scalars['Int']['output'];
   type?: Maybe<Scalars['String']['output']>;
+};
+
+export type ShotPayload = {
+  __typename?: 'ShotPayload';
+  /** ISO-8601 */
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  id?: Maybe<Scalars['String']['output']>;
+  position: Scalars['Int']['output'];
+  sceneId?: Maybe<Scalars['String']['output']>;
+  subshot: Scalars['Boolean']['output'];
 };
 
 export type ShotSelectAttributeOptionCreateDtoInput = {
@@ -941,6 +1016,11 @@ export type ShotSelectAttributeOptionTemplate = {
 export type ShotSelectAttributeOptionTemplateEditDtoInput = {
   id?: InputMaybe<Scalars['BigInteger']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ShotSelectOptionPayload = {
+  __typename?: 'ShotSelectOptionPayload';
+  optionDefinition?: Maybe<ShotSelectAttributeOptionDefinition>;
 };
 
 export type ShotSingleSelectAttributeDto = ShotAttributeBaseDto & TypeName & {
@@ -1052,6 +1132,58 @@ export type ShotlistEditDtoInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type ShotlistMinimalDto = {
+  __typename?: 'ShotlistMinimalDTO';
+  archived?: Maybe<Scalars['Boolean']['output']>;
+  /** ISO-8601 */
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  /** ISO-8601 */
+  editedAt?: Maybe<Scalars['DateTime']['output']>;
+  id?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  ownerId?: Maybe<Scalars['String']['output']>;
+  templateId?: Maybe<Scalars['String']['output']>;
+};
+
+export type ShotlistPayload = {
+  __typename?: 'ShotlistPayload';
+  shotlist?: Maybe<ShotlistMinimalDto>;
+};
+
+export type ShotlistUpdateDto = {
+  __typename?: 'ShotlistUpdateDTO';
+  payload?: Maybe<ShotlistUpdatePayload>;
+  /** ISO-8601 */
+  timestamp?: Maybe<Scalars['DateTime']['output']>;
+  type?: Maybe<ShotlistUpdateType>;
+  userId?: Maybe<Scalars['String']['output']>;
+};
+
+export type ShotlistUpdatePayload = CollaborationPayload | EmptyPayload | PresentCollaboratorsPayload | SceneAttributePayload | SceneDetailPayload | ScenePayload | SceneSelectOptionPayload | SelectedCellPayload | SelectedSceneAttributePayload | ShotAttributePayload | ShotDetailPayload | ShotPayload | ShotSelectOptionPayload | ShotlistPayload | UserPayload;
+
+export enum ShotlistUpdateType {
+  CollaborationDeleted = 'COLLABORATION_DELETED',
+  CollaborationTypeUpdated = 'COLLABORATION_TYPE_UPDATED',
+  CollaboratorCellSelected = 'COLLABORATOR_CELL_SELECTED',
+  CollaboratorSceneAttributeSelected = 'COLLABORATOR_SCENE_ATTRIBUTE_SELECTED',
+  PresentCollaborators = 'PRESENT_COLLABORATORS',
+  SceneAdded = 'SCENE_ADDED',
+  SceneAttributeUpdated = 'SCENE_ATTRIBUTE_UPDATED',
+  SceneDeleted = 'SCENE_DELETED',
+  SceneSelectOptionCreated = 'SCENE_SELECT_OPTION_CREATED',
+  SceneUpdated = 'SCENE_UPDATED',
+  ShotlistDeleted = 'SHOTLIST_DELETED',
+  ShotlistOptionsUpdated = 'SHOTLIST_OPTIONS_UPDATED',
+  ShotlistUpdated = 'SHOTLIST_UPDATED',
+  ShotAdded = 'SHOT_ADDED',
+  ShotAttributeUpdated = 'SHOT_ATTRIBUTE_UPDATED',
+  ShotDeleted = 'SHOT_DELETED',
+  ShotSelectOptionCreated = 'SHOT_SELECT_OPTION_CREATED',
+  ShotUpdated = 'SHOT_UPDATED',
+  UserJoined = 'USER_JOINED',
+  UserLeft = 'USER_LEFT'
+}
+
 export type StatCounts = {
   __typename?: 'StatCounts';
   eightHours?: Maybe<Scalars['Int']['output']>;
@@ -1060,6 +1192,19 @@ export type StatCounts = {
   sevenDays?: Maybe<Scalars['Int']['output']>;
   thirtyDays?: Maybe<Scalars['Int']['output']>;
   twentyFourHours?: Maybe<Scalars['Int']['output']>;
+};
+
+/** Subscription root */
+export type Subscription = {
+  __typename?: 'Subscription';
+  shotlistUpdates?: Maybe<ShotlistUpdateDto>;
+};
+
+
+/** Subscription root */
+export type SubscriptionShotlistUpdatesArgs = {
+  shotlistId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Template = {
@@ -1177,6 +1322,11 @@ export type UserMinimalDto = {
   tier?: Maybe<UserTier>;
 };
 
+export type UserPayload = {
+  __typename?: 'UserPayload';
+  user?: Maybe<UserMinimalDto>;
+};
+
 export enum UserTier {
   Basic = 'BASIC',
   Pro = 'PRO',
@@ -1286,7 +1436,7 @@ export type ShotlistQuery = { __typename?: 'Query', shotlist?: { __typename?: 'S
       | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
       | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
       | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-     | null> | null, owner?: { __typename?: 'UserDTO', id?: string | null, tier?: UserTier | null, shotlistCount?: number | null } | null, collaborations?: Array<{ __typename?: 'CollaborationDTO', collaborationType?: CollaborationType | null, user?: { __typename?: 'UserDTO', id?: string | null } | null } | null> | null } | null, currentUser?: { __typename?: 'UserDTO', id?: string | null } | null };
+     | null> | null, owner?: { __typename?: 'UserDTO', id?: string | null, tier?: UserTier | null, shotlistCount?: number | null } | null, collaborations?: Array<{ __typename?: 'CollaborationDTO', collaborationType?: CollaborationType | null, user?: { __typename?: 'UserDTO', id?: string | null } | null } | null> | null } | null, currentUser?: { __typename?: 'UserDTO', id?: string | null, name?: string | null, email?: string | null } | null };
 
 export type GetShotSelectAttributeOptionsQueryVariables = Exact<{
   definitionId: Scalars['BigInteger']['input'];
@@ -1724,6 +1874,30 @@ export type UpdateShotAttributeMutation = { __typename?: 'Mutation', updateShotA
     | { __typename?: 'ShotTextAttributeDTO', id?: any | null }
    | null };
 
+export type UpdateCommentMutationVariables = Exact<{
+  id: Scalars['String']['input'];
+  text: Scalars['String']['input'];
+}>;
+
+
+export type UpdateCommentMutation = { __typename?: 'Mutation', updateComment?: { __typename?: 'CommentDTO', id?: string | null } | null };
+
+export type ArchiveCommentMutationVariables = Exact<{
+  id: Scalars['String']['input'];
+}>;
+
+
+export type ArchiveCommentMutation = { __typename?: 'Mutation', updateComment?: { __typename?: 'CommentDTO', id?: string | null } | null };
+
+export type AddCommentMutationVariables = Exact<{
+  id: Scalars['String']['input'];
+  shotId: Scalars['String']['input'];
+  text: Scalars['String']['input'];
+}>;
+
+
+export type AddCommentMutation = { __typename?: 'Mutation', addComment?: { __typename?: 'CommentDTO', id?: string | null } | null };
+
 export type CreateShotOptionMutationVariables = Exact<{
   definitionId: Scalars['BigInteger']['input'];
   name: Scalars['String']['input'];
@@ -1760,7 +1934,7 @@ export type ShotsQuery = { __typename?: 'Query', shots?: Array<{ __typename?: 'S
           | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
           | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
          | null }
-     | null> | null } | null> | null };
+     | null> | null, activeComments?: Array<{ __typename?: 'CommentDTO', id?: string | null, text?: string | null, edited?: boolean | null, shotId?: string | null, user?: { __typename?: 'UserMinimalDTO', id?: string | null, name?: string | null } | null } | null> | null } | null> | null };
 
 export type CreateShotMutationVariables = Exact<{
   sceneId: Scalars['String']['input'];
@@ -1906,6 +2080,30 @@ export type UpdateShotSelectAttributeOptionTemplateMutationVariables = Exact<{
 
 
 export type UpdateShotSelectAttributeOptionTemplateMutation = { __typename?: 'Mutation', updateShotSelectAttributeOptionTemplate?: { __typename?: 'ShotSelectAttributeOptionTemplate', id?: any | null } | null };
+
+export type OnShotlistUpdateSubscriptionVariables = Exact<{
+  shotlistId: Scalars['String']['input'];
+  userId: Scalars['String']['input'];
+}>;
+
+
+export type OnShotlistUpdateSubscription = { __typename?: 'Subscription', shotlistUpdates?: { __typename?: 'ShotlistUpdateDTO', type?: ShotlistUpdateType | null, userId?: string | null, payload?:
+      | { __typename?: 'CollaborationPayload' }
+      | { __typename?: 'EmptyPayload' }
+      | { __typename?: 'PresentCollaboratorsPayload', collaborators?: Array<{ __typename?: 'UserMinimalDTO', id?: string | null, name?: string | null } | null> | null }
+      | { __typename?: 'SceneAttributePayload' }
+      | { __typename?: 'SceneDetailPayload' }
+      | { __typename?: 'ScenePayload' }
+      | { __typename?: 'SceneSelectOptionPayload' }
+      | { __typename?: 'SelectedCellPayload' }
+      | { __typename?: 'SelectedSceneAttributePayload' }
+      | { __typename?: 'ShotAttributePayload' }
+      | { __typename?: 'ShotDetailPayload' }
+      | { __typename?: 'ShotPayload' }
+      | { __typename?: 'ShotSelectOptionPayload' }
+      | { __typename?: 'ShotlistPayload' }
+      | { __typename?: 'UserPayload', user?: { __typename?: 'UserMinimalDTO', id?: string | null, name?: string | null } | null }
+     | null } | null };
 
 
 export const ArchiveDocument = gql`
@@ -2378,6 +2576,8 @@ export const ShotlistDocument = gql`
   }
   currentUser {
     id
+    name
+    email
   }
 }
     `;
@@ -4243,6 +4443,108 @@ export function useUpdateShotAttributeMutation(baseOptions?: Apollo.MutationHook
 export type UpdateShotAttributeMutationHookResult = ReturnType<typeof useUpdateShotAttributeMutation>;
 export type UpdateShotAttributeMutationResult = Apollo.MutationResult<UpdateShotAttributeMutation>;
 export type UpdateShotAttributeMutationOptions = Apollo.BaseMutationOptions<UpdateShotAttributeMutation, UpdateShotAttributeMutationVariables>;
+export const UpdateCommentDocument = gql`
+    mutation updateComment($id: String!, $text: String!) {
+  updateComment(updateDTO: {id: $id, text: $text}) {
+    id
+  }
+}
+    `;
+export type UpdateCommentMutationFn = Apollo.MutationFunction<UpdateCommentMutation, UpdateCommentMutationVariables>;
+
+/**
+ * __useUpdateCommentMutation__
+ *
+ * To run a mutation, you first call `useUpdateCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCommentMutation, { data, loading, error }] = useUpdateCommentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      text: // value for 'text'
+ *   },
+ * });
+ */
+export function useUpdateCommentMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCommentMutation, UpdateCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCommentMutation, UpdateCommentMutationVariables>(UpdateCommentDocument, options);
+      }
+export type UpdateCommentMutationHookResult = ReturnType<typeof useUpdateCommentMutation>;
+export type UpdateCommentMutationResult = Apollo.MutationResult<UpdateCommentMutation>;
+export type UpdateCommentMutationOptions = Apollo.BaseMutationOptions<UpdateCommentMutation, UpdateCommentMutationVariables>;
+export const ArchiveCommentDocument = gql`
+    mutation archiveComment($id: String!) {
+  updateComment(updateDTO: {id: $id, isArchived: true}) {
+    id
+  }
+}
+    `;
+export type ArchiveCommentMutationFn = Apollo.MutationFunction<ArchiveCommentMutation, ArchiveCommentMutationVariables>;
+
+/**
+ * __useArchiveCommentMutation__
+ *
+ * To run a mutation, you first call `useArchiveCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useArchiveCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [archiveCommentMutation, { data, loading, error }] = useArchiveCommentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useArchiveCommentMutation(baseOptions?: Apollo.MutationHookOptions<ArchiveCommentMutation, ArchiveCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ArchiveCommentMutation, ArchiveCommentMutationVariables>(ArchiveCommentDocument, options);
+      }
+export type ArchiveCommentMutationHookResult = ReturnType<typeof useArchiveCommentMutation>;
+export type ArchiveCommentMutationResult = Apollo.MutationResult<ArchiveCommentMutation>;
+export type ArchiveCommentMutationOptions = Apollo.BaseMutationOptions<ArchiveCommentMutation, ArchiveCommentMutationVariables>;
+export const AddCommentDocument = gql`
+    mutation addComment($id: String!, $shotId: String!, $text: String!) {
+  addComment(createDTO: {id: $id, shotId: $shotId, text: $text}) {
+    id
+  }
+}
+    `;
+export type AddCommentMutationFn = Apollo.MutationFunction<AddCommentMutation, AddCommentMutationVariables>;
+
+/**
+ * __useAddCommentMutation__
+ *
+ * To run a mutation, you first call `useAddCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addCommentMutation, { data, loading, error }] = useAddCommentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      shotId: // value for 'shotId'
+ *      text: // value for 'text'
+ *   },
+ * });
+ */
+export function useAddCommentMutation(baseOptions?: Apollo.MutationHookOptions<AddCommentMutation, AddCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddCommentMutation, AddCommentMutationVariables>(AddCommentDocument, options);
+      }
+export type AddCommentMutationHookResult = ReturnType<typeof useAddCommentMutation>;
+export type AddCommentMutationResult = Apollo.MutationResult<AddCommentMutation>;
+export type AddCommentMutationOptions = Apollo.BaseMutationOptions<AddCommentMutation, AddCommentMutationVariables>;
 export const CreateShotOptionDocument = gql`
     mutation createShotOption($definitionId: BigInteger!, $name: String!) {
   createShotSelectAttributeOption(
@@ -4342,6 +4644,16 @@ export const ShotsDocument = gql`
       ... on ShotTextAttributeDTO {
         textValue
       }
+    }
+    activeComments {
+      id
+      user {
+        id
+        name
+      }
+      text
+      edited
+      shotId
     }
     sceneId
   }
@@ -4891,3 +5203,49 @@ export function useUpdateShotSelectAttributeOptionTemplateMutation(baseOptions?:
 export type UpdateShotSelectAttributeOptionTemplateMutationHookResult = ReturnType<typeof useUpdateShotSelectAttributeOptionTemplateMutation>;
 export type UpdateShotSelectAttributeOptionTemplateMutationResult = Apollo.MutationResult<UpdateShotSelectAttributeOptionTemplateMutation>;
 export type UpdateShotSelectAttributeOptionTemplateMutationOptions = Apollo.BaseMutationOptions<UpdateShotSelectAttributeOptionTemplateMutation, UpdateShotSelectAttributeOptionTemplateMutationVariables>;
+export const OnShotlistUpdateDocument = gql`
+    subscription OnShotlistUpdate($shotlistId: String!, $userId: String!) {
+  shotlistUpdates(shotlistId: $shotlistId, userId: $userId) {
+    type
+    userId
+    payload {
+      ... on PresentCollaboratorsPayload {
+        collaborators {
+          id
+          name
+        }
+      }
+      ... on UserPayload {
+        user {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useOnShotlistUpdateSubscription__
+ *
+ * To run a query within a React component, call `useOnShotlistUpdateSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useOnShotlistUpdateSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useOnShotlistUpdateSubscription({
+ *   variables: {
+ *      shotlistId: // value for 'shotlistId'
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useOnShotlistUpdateSubscription(baseOptions: Apollo.SubscriptionHookOptions<OnShotlistUpdateSubscription, OnShotlistUpdateSubscriptionVariables> & ({ variables: OnShotlistUpdateSubscriptionVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<OnShotlistUpdateSubscription, OnShotlistUpdateSubscriptionVariables>(OnShotlistUpdateDocument, options);
+      }
+export type OnShotlistUpdateSubscriptionHookResult = ReturnType<typeof useOnShotlistUpdateSubscription>;
+export type OnShotlistUpdateSubscriptionResult = Apollo.SubscriptionResult<OnShotlistUpdateSubscription>;

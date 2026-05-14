@@ -2,6 +2,7 @@ package me.kendler.yanik.socket.payload;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.smallrye.graphql.api.Union;
 
 /**
  * The payload of the ShotlistUpdateDTO that is sent on every update to the shotlist
@@ -9,10 +10,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  *
  * The "kind" property is used to determine kind of payload in the frontend to make serialisation easier
  */
+/*@Union
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
-        property = "kind"
+        property = "__typename"
 )
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ShotAttributePayload.class, name = "shotAttribute"),
@@ -27,10 +29,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = SceneSelectOptionPayload.class, name = "sceneAttributeOption"),
         @JsonSubTypes.Type(value = ShotSelectOptionPayload.class, name = "shotAttributeOption"),
         @JsonSubTypes.Type(value = SelectedCellPayload.class, name = "selectedCell"),
-        @JsonSubTypes.Type(value = SelectSceneAttributePayload.class, name = "selectedSceneAttribute"),
+        @JsonSubTypes.Type(value = SelectedSceneAttributePayload.class, name = "selectedSceneAttribute"),
         @JsonSubTypes.Type(value = ShotlistPayload.class, name = "shotlist"),
         @JsonSubTypes.Type(value = EmptyPayload.class, name = "empty"),
-})
+})*/
+@Union
 public sealed interface ShotlistUpdatePayload permits
         UserPayload,
         PresentCollaboratorsPayload,
@@ -44,7 +47,7 @@ public sealed interface ShotlistUpdatePayload permits
         SceneSelectOptionPayload,
         ShotSelectOptionPayload,
         SelectedCellPayload,
-        SelectSceneAttributePayload,
+        SelectedSceneAttributePayload,
         ShotlistPayload,
         EmptyPayload
 { }

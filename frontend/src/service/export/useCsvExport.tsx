@@ -45,7 +45,7 @@ export default function useCsvExport({
             (scene.shots as ShotDto[]).forEach(shot => {
                 let row: string[] = [Utils.numberToShotLetter(
                     shot.position,
-                    scenePositionLUT.current.get(shot.sceneId ?? ""),
+                    scenePositionLUT.current.get(shot.sceneId ?? "") ?? -1,
                     hideSceneHeadings ? true : undefined
                 )]; //hrmpf
 

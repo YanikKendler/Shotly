@@ -290,7 +290,7 @@ export default function PdfExportTemplate({
                                             <Text>
                                                 {Utils.numberToShotLetter(
                                                     shot.position,
-                                                    scenePositionLUT.current.get(shot.sceneId ?? ""),
+                                                    scenePositionLUT.current.get(shot.sceneId ?? "") ?? -1,
                                                     hideSceneHeadings ? true : undefined
                                                 )}
                                             </Text>

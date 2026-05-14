@@ -107,7 +107,7 @@ export default function ExportPreview({
                                         <div className="cell numberCell">
                                             {Utils.numberToShotLetter(
                                                 shot.position,
-                                                scenePositionLUT.current.get(shot.sceneId ?? ""),
+                                                scenePositionLUT.current.get(shot.sceneId ?? "") ?? -1,
                                                 hideSceneHeadings ? true : undefined
                                             )}
                                         </div>

@@ -90,7 +90,6 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
                 {i < shortcut.length - 1 ? " + " : ""}
             </>
         )}</>
-        console.log(res)
         return res
     }
 

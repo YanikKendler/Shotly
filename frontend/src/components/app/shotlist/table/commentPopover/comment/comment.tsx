@@ -67,7 +67,7 @@ const Comment = forwardRef<CommentRef, CommentProps>(({
 
         const result = await client.mutate({
             mutation: gql`
-                mutation upd($id: String!, $text: String!){
+                mutation updateComment($id: String!, $text: String!){
                     updateComment(updateDTO:{
                         id: $id,
                         text: $text,
@@ -105,7 +105,7 @@ const Comment = forwardRef<CommentRef, CommentProps>(({
 
         const result = await client.mutate({
             mutation: gql`
-                mutation upd($id: String!){
+                mutation archiveComment($id: String!){
                     updateComment(updateDTO:{
                         id: $id,
                         isArchived: true,

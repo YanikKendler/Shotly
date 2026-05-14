@@ -1,7 +1,11 @@
 package me.kendler.yanik.socket.payload;
 
-import me.kendler.yanik.socket.ShotlistUpdateType;
 
 public record EmptyPayload(
-
-) implements ShotlistUpdatePayload { }
+    // GraphQL requires at least one field to exist
+    boolean success
+) implements ShotlistUpdatePayload {
+    public EmptyPayload() {
+        this(true);
+    }
+}

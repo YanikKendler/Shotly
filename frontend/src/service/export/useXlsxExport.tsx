@@ -60,7 +60,7 @@ export default function useXlsxExport({
                 if (!shot) return;
                 const shotRow: any[] = [Utils.numberToShotLetter(
                     shot.position,
-                    scenePositionLUT.current.get(shot.sceneId ?? ""),
+                    scenePositionLUT.current.get(shot.sceneId ?? "") ?? -1,
                     hideSceneHeadings ? true : undefined
                 )];
                 (shot.attributes || []).forEach((attr) => {

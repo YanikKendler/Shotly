@@ -1,6 +1,8 @@
 package me.kendler.yanik.endpoints;
 
 import io.quarkus.panache.common.Sort;
+import io.smallrye.graphql.api.Subscription;
+import io.smallrye.mutiny.Multi;
 import jakarta.inject.Inject;
 import me.kendler.yanik.dto.shotlist.*;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationCreateDTO;
@@ -11,9 +13,9 @@ import me.kendler.yanik.rateLimiting.RateLimited;
 import me.kendler.yanik.repositories.CollaborationRepository;
 import me.kendler.yanik.repositories.ShotlistRepository;
 import me.kendler.yanik.repositories.UserRepository;
+import me.kendler.yanik.socket.ShotlistSyncService;
 import me.kendler.yanik.socket.ShotlistUpdateDTO;
 import me.kendler.yanik.socket.ShotlistUpdateType;
-import me.kendler.yanik.socket.ShotlistWebsocketService;
 import me.kendler.yanik.socket.payload.CollaborationPayload;
 import me.kendler.yanik.socket.payload.ShotlistPayload;
 import org.eclipse.microprofile.graphql.GraphQLApi;
@@ -40,7 +42,7 @@ public class ShotlistResource {
     UserRepository userRepository;
 
     @Inject
-    ShotlistWebsocketService shotlistWebsocketService;
+    ShotlistSyncService syncService;
 
     @Query
     public ShotlistCollection getShotlists() {
@@ -78,7 +80,7 @@ public class ShotlistResource {
 
         ShotlistDTO result = shotlistRepository.update(editDTO);
 
-        shotlistWebsocketService.broadcast(
+        syncService.broadcast(
                 affectedShotlist.id,
                 new ShotlistUpdateDTO(
                         ShotlistUpdateType.SHOTLIST_UPDATED,
@@ -99,7 +101,7 @@ public class ShotlistResource {
 
         ShotlistDTO result = shotlistRepository.updateAsOwner(editDTO);
 
-        shotlistWebsocketService.broadcast(
+        syncService.broadcast(
                 affectedShotlist.id,
                 new ShotlistUpdateDTO(
                         ShotlistUpdateType.SHOTLIST_UPDATED,
@@ -120,7 +122,7 @@ public class ShotlistResource {
 
         ShotlistDTO result = shotlistRepository.delete(id);
 
-        shotlistWebsocketService.broadcast(
+        syncService.broadcast(
                 affectedShotlist.id,
                 new ShotlistUpdateDTO(
                         ShotlistUpdateType.SHOTLIST_DELETED,
@@ -166,7 +168,7 @@ public class ShotlistResource {
 
         CollaborationDTO result = collaborationRepository.update(editDTO);
 
-        shotlistWebsocketService.broadcast(
+        syncService.broadcast(
                 affectedShotlist.id,
                 new ShotlistUpdateDTO(
                         ShotlistUpdateType.COLLABORATION_TYPE_UPDATED,
@@ -188,7 +190,7 @@ public class ShotlistResource {
 
         CollaborationDTO result = collaborationRepository.delete(id);
 
-        shotlistWebsocketService.broadcast(
+        syncService.broadcast(
                 affectedShotlist.id,
                 new ShotlistUpdateDTO(
                         ShotlistUpdateType.COLLABORATION_DELETED,
@@ -209,7 +211,7 @@ public class ShotlistResource {
 
         CollaborationDTO result = collaborationRepository.leave(affectedShotlist.id, jwt);
 
-        shotlistWebsocketService.broadcast(
+        syncService.broadcast(
                 affectedShotlist.id,
                 new ShotlistUpdateDTO(
                         ShotlistUpdateType.COLLABORATION_DELETED,
@@ -230,4 +232,19 @@ public class ShotlistResource {
 
         return collaborationRepository.refresh(id);
     }
+
+    /*
+     * SYNC
+     */
+
+    @Subscription
+    public Multi<ShotlistUpdateDTO> shotlistUpdates(UUID shotlistId, UUID userId) {
+        return syncService.subscribe(shotlistId, userId);
+    }
+
+    /*@Mutation
+    public boolean broadcastShotlistUpdate(UUID shotlistId, ShotlistUpdateDTO update) {
+        syncService.broadcast(shotlistId, update);
+        return true;
+    }*/
 }

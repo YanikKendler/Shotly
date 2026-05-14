@@ -1,6 +1,6 @@
 "use client";
 
-import {from, HttpLink} from "@apollo/client";
+import {from, HttpLink, split} from "@apollo/client";
 import {ApolloClient, ApolloNextAppProvider, InMemoryCache,} from "@apollo/client-integration-nextjs";
 import auth from "@/Auth"
 import {setContext} from "@apollo/client/link/context"
@@ -9,28 +9,29 @@ import Config from "@/Config"
 import {ShotlyErrorCode} from "@/utility/Types"
 import React from "react"
 import {errorNotification} from "@/service/NotificationService"
+import {GraphQLWsLink} from "@apollo/client/link/subscriptions"
+import {createClient} from "graphql-ws"
+import {getMainDefinition} from "@apollo/client/utilities"
 
 export function makeClient() {
     const httpLink = new HttpLink({
         uri: Config.backendURL + "/graphql",
-        fetchOptions: {
-            // you can pass additional options that should be passed to `fetch` here,
-            // e.g. Next.js-related `fetch` options regarding caching and revalidation
-            // see https://nextjs.org/docs/app/api-reference/functions/fetch#fetchurl-options
-        },
-        // you can override the default `fetchOptions` on a per query basis
-        // via the `context` property on the options passed as a second argument
-        // to an Apollo Client data fetching hook, e.g.:
-        // const { data } = useSuspenseQuery(MY_QUERY, { context: { fetchOptions: { ... }}});
-    });
+    })
 
-    /*return new ApolloClient({
-        cache: new InMemoryCache(),
-        link: httpLink,
-    });*/
+    const wsLink = typeof window !== "undefined"
+        ? new GraphQLWsLink(createClient({
+            url: Config.backendURL.replace("http", "ws") + "/graphql",
+            connectionParams: async () => {
+                const token = auth.getIdToken();
+                return {
+                    authorization: token ? `Bearer ${token}` : "",
+                };
+            },
+        }))
+        : null;
 
     const authLink = setContext(async (_, {headers}) => {
-        const token = await auth.getIdToken()
+        const token = auth.getIdToken()
         // return the headers to the context so httpLink can read them
         return {
             headers: {
@@ -77,9 +78,37 @@ export function makeClient() {
                 redirectToServerError()
             }
         }
-    });
+    })
+
+    const httpChain = from([authLink, errorLink, httpLink]);
+
+    let splitLink = httpChain
+
+    //Redirect subscriptions to websocket link and other stuff to http chain
+    if(typeof window !== "undefined" && wsLink)
+        splitLink = split(
+            ({ query }) => {
+                const definition = getMainDefinition(query);
+                return (
+                    definition.kind === 'OperationDefinition' &&
+                    definition.operation === 'subscription'
+                )
+            },
+            wsLink,
+            httpChain
+        )
 
     return new ApolloClient({
+        link: splitLink,
+        cache: new InMemoryCache(),
+        defaultOptions: {
+            watchQuery: { errorPolicy: "all" },
+            query: { errorPolicy: "all" },
+            mutate: { errorPolicy: "all" },
+        },
+    })
+
+    /*return new ApolloClient({
         link: from([authLink, errorLink, httpLink]),
         cache: new InMemoryCache(),
         defaultOptions: {
@@ -93,7 +122,7 @@ export function makeClient() {
                 errorPolicy: "all",
             },
         },
-    })
+    })*/
 }
 
 function redirectToServerError() {

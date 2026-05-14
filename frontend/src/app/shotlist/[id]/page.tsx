@@ -8,7 +8,7 @@ import {
     CollaborationType,
     Query,
     SceneDto,
-    ShotAttributeDefinitionBase, UserMinimalDto,
+    ShotAttributeDefinitionBase, ShotlistUpdateDto, ShotlistUpdateType, UserMinimalDto,
     UserTier
 } from "../../../../lib/graphql/generated"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
@@ -29,10 +29,6 @@ import Config from "@/Config"
 import {GenericError, SelectOption, ShotlyErrorCode} from "@/utility/Types"
 import SheetManager, {SheetManagerRef} from "@/components/app/shotlist/table/sheetManager/sheetManager"
 import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/app/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
-import {
-    ShotlistUpdateDTO,
-    ShotlistUpdateType,
-} from "@/service/useShotlistSync"
 import {errorNotification} from "@/service/NotificationService"
 import {DialogRef} from "@/components/basic/dialog/dialog"
 import {useShotlistSync} from "@/service/useShotlistSync"
@@ -317,8 +313,9 @@ export default function Shotlist() {
     const setFocusedCell= (row: number, column: number) => {
         focusedCell.current = {row, column}
 
-        const updateDTO: ShotlistUpdateDTO = {
-            type: ShotlistUpdateType.COLLABORATOR_CELL_SELECTED,
+        //TODO
+       /* const updateDTO: ShotlistUpdateDto = {
+            type: ShotlistUpdateType.CollaboratorCellSelected,
             userId: query.data.currentUser?.id || "unknown",
             timestamp: new Date(),
             payload: {
@@ -329,12 +326,13 @@ export default function Shotlist() {
             }
         }
 
-        sync.send(updateDTO)
+        sync.send(updateDTO)*/
     }
 
     const broadCastSceneAttributeSelect = (attributeId: number) => {
-        const updateDTO: ShotlistUpdateDTO = {
-            type: ShotlistUpdateType.COLLABORATOR_SCENE_ATTRIBUTE_SELECTED,
+        //TODO
+        /*const updateDTO: ShotlistUpdateDto = {
+            type: ShotlistUpdateType.CollaboratorSceneAttributeSelected,
             userId: query.data.currentUser?.id || "unknown",
             timestamp: new Date(),
             payload: {
@@ -344,7 +342,7 @@ export default function Shotlist() {
             }
         }
 
-        sync.send(updateDTO)
+        sync.send(updateDTO)*/
     }
 
     const loadShotSelectOptions = async (shotAttributeDefinitionId: number) => {
@@ -677,19 +675,20 @@ export default function Shotlist() {
                 refreshShotlist={() => {
                     refreshShotlist()
 
-                    const updateDTO: ShotlistUpdateDTO = {
-                        type: ShotlistUpdateType.SHOTLIST_OPTIONS_UPDATED,
+                    //TODO
+                    /*const updateDTO: ShotlistUpdateDto = {
+                        type: ShotlistUpdateType.ShotlistOptionsUpdated,
                         userId: query.data.currentUser?.id || "unknown",
                         timestamp: new Date(),
                         payload: {kind: "empty"}
-                    }
+                    }*/
 
                     //this is a super ugly fix for the potential race condition that happens when a collaborator recieves
                     //the websocket message and queries its own shotlist before the update from the first user has
                     //been processed, causing the shotlist to not be updated properly
-                    setTimeout(() => {
+                    /*setTimeout(() => {
                         sync.send(updateDTO)
-                    },300)
+                    },300)*/
                 }}
                 isArchived={isArchived}
                 setIsArchived={setIsArchived}

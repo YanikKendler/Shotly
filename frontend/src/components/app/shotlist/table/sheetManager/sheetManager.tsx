@@ -677,14 +677,12 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     else if(deferredSelectedScene.id == null) {
         content = <p className="empty">Please select a scene from the sidebar</p>
     }
-    else if(isReadOnly){
-        if((query.data.shots && query.data.shots.length <= 0)){
-            content = (
-                <p className={"empty"}>
-                    No Shots here yet ¯\(o_o)/¯
-                </p>
-            )
-        }
+    else if(isReadOnly && query.data.shots && query.data.shots.length <= 0) {
+        content = (
+            <p className={"empty"}>
+                No Shots here yet ¯\(o_o)/¯
+            </p>
+        )
     }
     else {
         content = <>

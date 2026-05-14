@@ -15,7 +15,7 @@ export interface NotificationProps {
 
 export interface ErrorNotificationProps extends NotificationProps {
     tryAgainLater?: boolean
-    autoClose?: boolean
+    autoClose?: boolean | number
 }
 
 //TODO central duration calculation with minimum length and longer time in general
@@ -45,7 +45,9 @@ export function errorNotification({ title, message, sub, tryAgainLater, action, 
         </>
     ), {
         icon: <CircleX/>,
-        duration: autoClose ? 10000 : Infinity
+        duration: autoClose ?
+            typeof autoClose == "number" ? autoClose : 10000
+            : Infinity
     })
 }
 
