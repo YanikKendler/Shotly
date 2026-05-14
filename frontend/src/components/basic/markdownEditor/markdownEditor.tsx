@@ -1,7 +1,10 @@
 import MDEditor, {commands, ICommand, RefMDEditor} from '@uiw/react-md-editor/common';
 import rehypeSanitize from "rehype-sanitize"
 import "./markdownEditor.scss"
-import {forwardRef, ReactElement, ReactNode, useEffect, useImperativeHandle, useMemo, useRef, useState} from "react"
+import {
+    forwardRef,
+    KeyboardEventHandler, ReactElement, ReactNode, useEffect, useImperativeHandle, useMemo, useRef, useState
+} from "react"
 import {
     Bold, Italic, Strikethrough, List,
     ListOrdered, Quote, Link as LinkIcon
@@ -20,13 +23,13 @@ export interface MarkdownEditorProps {
     toolbarCanHide?: boolean
     autoFocus?: boolean
     delayClose?: boolean
+    onKeyDown?: KeyboardEventHandler<HTMLDivElement>
 }
 
 export interface MarkdownEditorAction {
     name: string
     label: string
     icon: ReactElement
-    shortcut?: string
     disabled?: boolean
     onClick: () => void
     className?: string
@@ -39,7 +42,8 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
     actions,
     toolbarCanHide = true,
     autoFocus = false,
-    delayClose = false
+    delayClose = false,
+    onKeyDown
 }, ref) =>{
     const [forceToolBarHidden, setForceToolBarHidden] = useState(true)
 
@@ -104,7 +108,6 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
             name: 'action',
             keyCommand: 'action',
             buttonProps: { 'aria-label': action.label, "disabled": action.disabled, "className": `action ${action.className}`},
-            shortcuts: action.shortcut,
             icon: action.icon,
             execute: action.onClick
         }))
@@ -134,6 +137,7 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
             toolbarBottom={true}
             defaultTabEnable={true}
             autoFocus={autoFocus}
+            onKeyDown={onKeyDown}
         />
     )
 })

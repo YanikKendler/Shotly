@@ -1,6 +1,6 @@
 import {CommentDto} from "../../../../../../../lib/graphql/generated"
-import {Check, CircleCheck, CircleCheckBig, Pencil, Send, X} from "lucide-react"
-import {useContext, useEffect, useRef, useState} from "react"
+import {Check, CircleCheckBig, Pencil, X} from "lucide-react"
+import {forwardRef, RefObject, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
 import "./comment.scss"
 import {marked} from "marked"
 import Utils from "@/utility/Utils"
@@ -12,13 +12,20 @@ import gql from "graphql-tag"
 import {errorNotification, successNotification} from "@/service/NotificationService"
 import {useApolloClient} from "@apollo/client"
 
-export default function Comment({
-    comment,
-    updateComment
-}:{
+export interface CommentRef {
+    isBeingEdited: boolean
+    hideEditor: () => void
+}
+
+export interface CommentProps {
     comment: CommentDto | null
     updateComment: (comment: CommentDto) => void
-}){
+}
+
+const Comment = forwardRef<CommentRef, CommentProps>(({
+    comment,
+    updateComment,
+}, ref) =>{
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
 
@@ -28,6 +35,11 @@ export default function Comment({
     const [isBeingEdited, setIsBeingEdited] = useState(false)
 
     const editorRef = useRef<MarkdownEditorRef>(null);
+
+    useImperativeHandle(ref, () => ({
+        isBeingEdited: isBeingEdited,
+        hideEditor: hideEditor
+    }))
 
     useEffect(() => {
         if(comment?.text) {
@@ -42,6 +54,8 @@ export default function Comment({
         if(!newCommentText || wuConstants.Regex.empty.test(newCommentText)) return
 
         hideEditor()
+
+        if(newCommentText == comment?.text) return
 
         const sanitizedCommentText = await Utils.sanitizeString(newCommentText)
 
@@ -183,6 +197,12 @@ export default function Comment({
                         }
                     ]}
                     toolbarCanHide={false}
+                    onKeyDown={(e) => {
+                        if(e.key === "Enter" && (e.ctrlKey || e.metaKey)){
+                            e.preventDefault()
+                            updateCommentText()
+                        }
+                    }}
                 /> :
                 <div className={"text"} dangerouslySetInnerHTML={{
                     __html: cleanedHTML
@@ -190,4 +210,6 @@ export default function Comment({
             }
         </div>
     )
-}
+})
+
+export default Comment

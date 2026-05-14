@@ -9,9 +9,11 @@ import {useApolloClient} from "@apollo/client"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import gql from "graphql-tag"
 import {errorNotification} from "@/service/NotificationService"
-import Comment from "@/components/app/shotlist/table/commentPopover/comment/comment"
+import Comment, {CommentRef} from "@/components/app/shotlist/table/commentPopover/comment/comment"
 import MarkdownEditor, {MarkdownEditorRef} from "@/components/basic/markdownEditor/markdownEditor"
+import {RowRef} from "@/components/app/shotlist/table/row/row"
 
+//TODO docs
 export default function CommentPopover ({
     isOpen,
     onOpenChange,
@@ -37,7 +39,9 @@ export default function CommentPopover ({
     const [comments, setComments] = useState<Maybe<CommentDto>[]>([])
 
     const contentElementRef = useRef<HTMLDivElement>(null)
-    const editorRef = useRef<MarkdownEditorRef>(null);
+    const editorRef = useRef<MarkdownEditorRef>(null)
+
+    const commentRefs = useRef<Map<string, CommentRef | null>>(new Map())
 
     useEffect(() => {
         setComments(shot?.activeComments ?? [])
@@ -132,6 +136,12 @@ export default function CommentPopover ({
 
                         editorRef.current?.focus()
                     }}
+                    onEscapeKeyDown={e => {
+                        if(commentRefs.current.values().some(c => c?.isBeingEdited)) {
+                            commentRefs.current.values().forEach(c => c?.hideEditor())
+                            e.preventDefault()
+                        }
+                    }}
                 >
                     <div className="top">
                         <p role={"heading"}>Comments • Shot {Utils.numberToShotLetter(shot.position, scenePosition)}</p>
@@ -155,6 +165,19 @@ export default function CommentPopover ({
                                         })
                                         onUpdateComment(updatedComment)
                                     }}
+                                    ref={(node) => {
+                                        if(!comment?.id) {
+                                            console.error("could not set comment ref")
+                                            return
+                                        }
+
+                                        commentRefs.current.set(comment.id, node)
+
+                                        return () => {
+                                            if(comment?.id)
+                                                commentRefs.current.delete(comment.id)
+                                        }
+                                    }}
                                 />
                             ))
                         }
@@ -168,12 +191,17 @@ export default function CommentPopover ({
                             actions={[{
                                 name: "sendComment",
                                 icon: <Send size={16}/>,
-                                shortcut: "crtl+m", //TODO
-                                label: "Send the comment",
+                                label: "Send the comment crt+enter",
                                 disabled: wuConstants.Regex.empty.test(commentText || ""),
                                 onClick: sendComment
                             }]}
                             delayClose={true}
+                            onKeyDown={(e) => {
+                                if(e.key === "Enter" && (e.ctrlKey || e.metaKey)){
+                                    e.preventDefault()
+                                    sendComment()
+                                }
+                            }}
                         />
                     </div>
                 </Popover.Content>

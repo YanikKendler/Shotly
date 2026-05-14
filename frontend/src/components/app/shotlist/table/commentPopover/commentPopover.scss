@@ -13,7 +13,7 @@
   aspect-ratio: 1;
   margin-left: .25rem;
   justify-content: center;
-  transition: background-color .3s ease-out, color .3s ease-out;
+  transition: background-color .3s ease-out, color .3s ease-out, opacity 100ms;
   color: var(--accent);
   background-color: var(--comment-button-bg);
   z-index: 150;
