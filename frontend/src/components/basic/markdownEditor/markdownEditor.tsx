@@ -2,7 +2,7 @@ import MDEditor, {commands, ICommand, ICommandBase, RefMDEditor} from '@uiw/reac
 import rehypeSanitize from "rehype-sanitize"
 import "./markdownEditor.scss"
 import {
-    forwardRef,
+    forwardRef, Fragment,
     KeyboardEventHandler, ReactElement, ReactNode, useEffect, useImperativeHandle, useMemo, useRef, useState
 } from "react"
 import {
@@ -25,7 +25,7 @@ export interface MarkdownEditorProps {
     toolbarCanHide?: boolean
     autoFocus?: boolean
     delayClose?: boolean
-    onKeyDown?: KeyboardEventHandler<HTMLDivElement>
+    onCtrlEnter?: () => void
 }
 
 export interface MarkdownEditorAction {
@@ -42,6 +42,7 @@ interface ShotlyICommand extends ICommandBase<string> {
     label?: string,
     humanReadableShortcut?: string[],
     className?: string
+    disabled?: boolean
 }
 
 const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
@@ -52,7 +53,7 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
     toolbarCanHide = true,
     autoFocus = false,
     delayClose = false,
-    onKeyDown
+    onCtrlEnter
 }, ref) =>{
     const [forceToolBarHidden, setForceToolBarHidden] = useState(true)
 
@@ -85,12 +86,11 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
     }
 
     const renderShortcut = (shortcut: string[]): ReactNode => {
-        let res =  <>{shortcut.map((s, i) => <>
+        return <>{shortcut.map((s, i) => <Fragment key={i}>
                 <span className={"key"}>{wuText.upperOrLowerRange(s, 0, 0)}</span>
                 {i < shortcut.length - 1 ? " + " : ""}
-            </>
+            </Fragment>
         )}</>
-        return res
     }
 
     const customCommands = useMemo(() => {
@@ -159,7 +159,8 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
             execute: action.onClick,
             className: `action ${action.className}`,
             label: action.label,
-            humanReadableShortcut: action.humanReadableShortcut
+            humanReadableShortcut: action.humanReadableShortcut,
+            disabled: action.disabled
         })) as ShotlyICommand[]
 
     return (
@@ -178,7 +179,16 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
             commands={customCommands}
             extraCommands={extraCommands}
             textareaProps={{
-                placeholder: placeholder
+                placeholder: placeholder,
+                onKeyDownCapture: (e) => {
+                    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                        e.stopPropagation();
+                        e.preventDefault();
+
+                        if(onCtrlEnter)
+                            onCtrlEnter()
+                    }
+                },
             }}
             previewOptions={{
                 rehypePlugins: [[rehypeSanitize]],
@@ -186,8 +196,7 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
             visibleDragbar={false}
             toolbarBottom={true}
             defaultTabEnable={true}
-            autoFocus={autoFocus}
-            onKeyDown={onKeyDown}
+            autoFocusEnd={autoFocus}
             components={{
                 toolbar: (command, disabled, executeCommand) => {
                     const shotlyCommand = command as ShotlyICommand
@@ -196,7 +205,7 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
                         fontSize={0.75}
                     >
                         <button
-                            disabled={disabled}
+                            disabled={disabled || shotlyCommand.disabled}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 executeCommand(command, command.groupName)

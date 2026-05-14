@@ -215,12 +215,7 @@ const CommentPopover = forwardRef<CommentPopoverRef, CommentPopoverProps>(({
                                 humanReadableShortcut: ["Ctrl", "Enter"]
                             }]}
                             delayClose={true}
-                            onKeyDown={(e) => {
-                                if(e.key === "Enter" && (e.ctrlKey || e.metaKey)){
-                                    e.preventDefault()
-                                    sendComment()
-                                }
-                            }}
+                            onCtrlEnter={sendComment}
                         />
                     </div>
                 </Popover.Content>

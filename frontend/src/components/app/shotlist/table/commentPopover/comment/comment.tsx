@@ -199,12 +199,7 @@ const Comment = forwardRef<CommentRef, CommentProps>(({
                         }
                     ]}
                     toolbarCanHide={false}
-                    onKeyDown={(e) => {
-                        if(e.key === "Enter" && (e.ctrlKey || e.metaKey)){
-                            e.preventDefault()
-                            updateCommentText()
-                        }
-                    }}
+                    onCtrlEnter={updateCommentText}
                 /> :
                 <div className={"text"} dangerouslySetInnerHTML={{
                     __html: cleanedHTML
