@@ -42,6 +42,7 @@ export interface SheetManagerRef {
     getCellRef: (row: number, column: number) => CellRef | null
     findCellRef: (id: number) => CellRef | null
     getRowRef: (row: number) => RowRef | null
+    findRowRef: (shotId: string) => RowRef | null
     onMoveShot: (shotId: string, to: number) => void
     onCreateShot: (newShot: ShotDto) => void
     onDeleteShot: (shotId: string) => void
@@ -51,6 +52,8 @@ export interface SheetManagerRef {
     shotCache: RefObject<ShotCache>
     updateShotCache: (shots: ShotDto[], sceneId?: string | null) => void
     showLoader: () => void
+    addCommentToCache: (comment: CommentDto) => void
+    updateCommentInCache: (comment: CommentDto) => void
 }
 
 export interface SheetManagerProps {
@@ -111,6 +114,9 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         getCellRef: getCellRef,
         findCellRef: findCellRef,
         getRowRef: (row: number) => rowRefs.current.get(row) || null,
+        findRowRef: (shotId: string) => {
+            return [...rowRefs.current.values()].find(r => r?.id == shotId) || null
+        },
         onMoveShot: onMoveShot,
         onCreateShot: onCreateShot,
         onDeleteShot: onDeleteShot,
@@ -119,7 +125,9 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         updateShotCacheShotAttributeValue: updateShotCacheShotAttributeValue,
         shotCache: shotCache,
         updateShotCache: updateShotCache,
-        showLoader: showLoader
+        showLoader: showLoader,
+        addCommentToCache: addCommentToCache,
+        updateCommentInCache: updateCommentInCache
     }))
 
     useEffect(() => {
@@ -492,27 +500,30 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         })
     }
 
-    const onCreateComment = (comment: CommentDto) => {
-        const currentShots = [...query.data.shots || []] as ShotDto[]
+    const addCommentToCache = (newComment: CommentDto) => {
+        const currentShots = shotCache.current.get(newComment.sceneId || "")?.shots
+
+        if(!currentShots) return
+
         const newShots = currentShots.map(shot => {
-            if(shot.id == comment.shotId){
+            if(shot.id == newComment.shotId){
                 return {
                     ...shot,
-                    activeComments: [...shot.activeComments || [], comment]
+                    activeComments: [...shot.activeComments || [], newComment]
                 }
             }
             return shot
         })
 
-        updateShotCache(newShots)
+        updateShotCache(newShots, newComment.sceneId)
 
         checkIfCommentIsPresent()
     }
 
-    const onUpdateComment = (updatedComment: CommentDto) => {
-        const currentShots = shotCache.current.get(selectedScene.id || "")?.shots || []
+    const updateCommentInCache = (updatedComment: CommentDto) => {
+        const currentShots = shotCache.current.get(updatedComment.sceneId || "")?.shots
 
-        console.log(updatedComment)
+        if(!currentShots) return
 
         const newShots = currentShots.map(shot => {
             if(shot.id == updatedComment.shotId){
@@ -526,8 +537,6 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
                         return c
                     })
-
-                console.log(newComments)
 
                 return {
                     ...shot,
@@ -704,8 +713,8 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                         moveShot={moveShot}
                         isReadOnly={isReadOnly}
                         setTemporaryPaddingVisible={(visible) => checkIfCommentIsPresent(visible)}
-                        onCreateComment={onCreateComment}
-                        onUpdateComment={onUpdateComment}
+                        addCommentToCache={addCommentToCache}
+                        updateCommentInCache={updateCommentInCache}
                         commentPresentInScene={commentPresentInScene}
                     >
                         {(shot.attributes as AnyShotAttribute[]).map((attribute: AnyShotAttribute, column: number) => (

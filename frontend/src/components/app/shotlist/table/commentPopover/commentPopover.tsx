@@ -1,7 +1,7 @@
 import { Popover } from "radix-ui"
 import "./commentPopover.scss"
 import {MessageSquareText, Pencil, Send} from "lucide-react"
-import {useContext, useEffect, useRef, useState} from "react"
+import {forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
 import {CommentDto, Maybe, ShotDto} from "../../../../../../lib/graphql/generated"
 import Utils from "@/utility/Utils"
 import {wuConstants, wuText} from "@yanikkendler/web-utils/dist"
@@ -11,26 +11,32 @@ import gql from "graphql-tag"
 import {errorNotification} from "@/service/NotificationService"
 import Comment, {CommentRef} from "@/components/app/shotlist/table/commentPopover/comment/comment"
 import MarkdownEditor, {MarkdownEditorRef} from "@/components/basic/markdownEditor/markdownEditor"
-import {RowRef} from "@/components/app/shotlist/table/row/row"
 
-//TODO docs
-export default function CommentPopover ({
-    isOpen,
-    onOpenChange,
-    shot,
-    scenePosition,
-    onCreateComment,
-    onUpdateComment,
-    showOnHover
-}:{
+export interface CommentPopoverRef {
+    onCreateComment: (comment: CommentDto) => void
+    onUpdateComment: (comment: CommentDto) => void
+}
+
+export interface CommentPopoverProps {
     isOpen: boolean
     onOpenChange: (open: boolean) => void
     shot: ShotDto
     scenePosition: number
-    onCreateComment: (comment: CommentDto) => void
-    onUpdateComment: (comment: CommentDto) => void
+    addCommentToCache: (comment: CommentDto) => void
+    updateCommentInCache: (comment: CommentDto) => void
     showOnHover: boolean
-}) {
+}
+
+//TODO docs
+const CommentPopover = forwardRef<CommentPopoverRef, CommentPopoverProps>(({
+    isOpen,
+    onOpenChange,
+    shot,
+    scenePosition,
+    addCommentToCache,
+    updateCommentInCache,
+    showOnHover
+}, ref)=> {
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
 
@@ -42,6 +48,11 @@ export default function CommentPopover ({
     const editorRef = useRef<MarkdownEditorRef>(null)
 
     const commentRefs = useRef<Map<string, CommentRef | null>>(new Map())
+
+    useImperativeHandle(ref, () => ({
+        onCreateComment: onCreateComment,
+        onUpdateComment: onUpdateComment
+    }))
 
     useEffect(() => {
         setComments(shot?.activeComments ?? [])
@@ -63,6 +74,7 @@ export default function CommentPopover ({
         const newComment = {
             id: commentId,
             shotId: shot.id,
+            sceneId: shot.sceneId,
             user: {
                 id: shotlistContext.currentUser?.id,
                 name: shotlistContext.currentUser?.name ?? "Unknown"
@@ -70,13 +82,6 @@ export default function CommentPopover ({
             text: sanitizedCommentText,
             edited: false
         }
-
-        setComments(current => {
-            return [
-                ...current,
-                newComment
-            ]
-        })
 
         onCreateComment(newComment)
 
@@ -108,6 +113,28 @@ export default function CommentPopover ({
             })
             return
         }
+    }
+
+    const onCreateComment = (newComment: CommentDto) => {
+        setComments(current => {
+            return [
+                ...current,
+                newComment
+            ]
+        })
+
+        addCommentToCache(newComment)
+    }
+
+    const onUpdateComment = (updatedComment: CommentDto) => {
+        setComments(current => {
+            return current.map(c => {
+                if(c?.id == updatedComment?.id) return updatedComment
+
+                return c
+            })
+        })
+        updateCommentInCache(updatedComment)
     }
 
     const buttonIsVisible = isOpen || (comments && comments.length > 0 && comments.some(c => !c?.archived))
@@ -155,16 +182,7 @@ export default function CommentPopover ({
                                 <Comment
                                     key={comment?.id}
                                     comment={comment}
-                                    updateComment={(updatedComment) => {
-                                        setComments(current => {
-                                            return current.map(c => {
-                                                if(c?.id == updatedComment?.id) return updatedComment
-
-                                                return c
-                                            })
-                                        })
-                                        onUpdateComment(updatedComment)
-                                    }}
+                                    onUpdateComment={onUpdateComment}
                                     ref={(node) => {
                                         if(!comment?.id) {
                                             console.error("could not set comment ref")
@@ -209,4 +227,6 @@ export default function CommentPopover ({
             </Popover.Portal>
         </Popover.Root>
     )
-}
+})
+
+export default CommentPopover

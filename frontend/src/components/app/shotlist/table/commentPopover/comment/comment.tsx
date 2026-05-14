@@ -19,12 +19,12 @@ export interface CommentRef {
 
 export interface CommentProps {
     comment: CommentDto | null
-    updateComment: (comment: CommentDto) => void
+    onUpdateComment: (comment: CommentDto) => void
 }
 
 const Comment = forwardRef<CommentRef, CommentProps>(({
     comment,
-    updateComment,
+    onUpdateComment,
 }, ref) =>{
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
@@ -59,7 +59,7 @@ const Comment = forwardRef<CommentRef, CommentProps>(({
 
         const sanitizedCommentText = await Utils.sanitizeString(newCommentText)
 
-        updateComment({
+        onUpdateComment({
             ...comment,
             text: sanitizedCommentText,
             edited: true
@@ -86,7 +86,7 @@ const Comment = forwardRef<CommentRef, CommentProps>(({
             })
             console.error(result.errors)
             setIsBeingEdited(true)
-            updateComment({
+            onUpdateComment({
                 text: comment?.text
             })
             return
@@ -98,7 +98,7 @@ const Comment = forwardRef<CommentRef, CommentProps>(({
     }
 
     const archiveComment = async () => {
-        updateComment({
+        onUpdateComment({
             ...comment,
             archived: true
         })
@@ -123,7 +123,7 @@ const Comment = forwardRef<CommentRef, CommentProps>(({
                 tryAgainLater: true
             })
             console.error(result.errors)
-            updateComment({
+            onUpdateComment({
                 archived: false
             })
             return
@@ -195,7 +195,7 @@ const Comment = forwardRef<CommentRef, CommentProps>(({
                             disabled: wuConstants.Regex.empty.test(newCommentText || ""),
                             onClick: updateCommentText,
                             className: "small",
-                            humanReadableShortcut: ["Ctrl", "Enter"]
+                            humanReadableShortcut: ["ctrl", "enter"]
                         }
                     ]}
                     toolbarCanHide={false}

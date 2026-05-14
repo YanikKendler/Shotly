@@ -56,7 +56,11 @@ public class Shot extends PanacheEntityBase {
                     .sorted(Comparator.comparingInt(attr -> attr.definition.position))
                     .map(ShotAttributeBase::toDTO)
                     .collect(Collectors.toList()),
-            this.comments.stream().filter(c -> !c.isArchived).map(Comment::toDTO).toList(),
+            this.comments.stream()
+                    .filter(c -> !c.isArchived)
+                    .sorted(Comparator.comparing(c -> c.createdAt))
+                    .map(Comment::toDTO)
+                    .toList(),
             this.position,
             this.isSubshot,
             this.createdAt

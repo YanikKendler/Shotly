@@ -46,15 +46,15 @@ public class CommentRepository implements PanacheRepositoryBase<Comment, UUID> {
         Comment comment = findById(editDTO.id());
 
         if(editDTO.text() != null){
+            comment.isEdited = true;
             comment.text = editDTO.text();
         }
         if(editDTO.isArchived() != null) {
             comment.isArchived = editDTO.isArchived();
         }
 
-        comment.isEdited = true;
-        comment.editedAt = ZonedDateTime.now();
 
+        comment.editedAt = ZonedDateTime.now();
         comment.shot.scene.shotlist.registerEdit();
 
         persist(comment);

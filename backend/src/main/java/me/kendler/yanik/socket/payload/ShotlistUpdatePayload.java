@@ -20,5 +20,6 @@ public sealed interface ShotlistUpdatePayload permits
         ShotPayload,
         ShotSelectOptionPayload,
         ShotlistPayload,
-        UserPayload
+        UserPayload,
+        CommentPayload
 { }

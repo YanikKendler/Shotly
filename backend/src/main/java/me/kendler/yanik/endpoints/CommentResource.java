@@ -12,11 +12,16 @@ import me.kendler.yanik.rateLimiting.RateLimited;
 import me.kendler.yanik.repositories.CommentRepository;
 import me.kendler.yanik.repositories.UserRepository;
 import me.kendler.yanik.repositories.shot.ShotRepository;
+import me.kendler.yanik.socket.ShotlistSyncService;
+import me.kendler.yanik.socket.ShotlistUpdateDTO;
+import me.kendler.yanik.socket.ShotlistUpdateType;
+import me.kendler.yanik.socket.payload.CommentPayload;
 import org.eclipse.microprofile.graphql.GraphQLApi;
 import org.eclipse.microprofile.graphql.Mutation;
 import org.eclipse.microprofile.graphql.Query;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,13 +41,20 @@ public class CommentResource {
     @Inject
     ShotRepository shotRepository;
 
+    @Inject
+    ShotlistSyncService syncService;
+
     @Query
     public List<CommentDTO> getComments(UUID shotId){
         Shot affectedShot = shotRepository.findByIdValidated(shotId);
 
         userRepository.checkShotlistViewRights(affectedShot.scene.shotlist, jwt);
 
-        return affectedShot.comments.stream().filter(c -> !c.isArchived).map(Comment::toDTO).toList();
+        return affectedShot.comments.stream()
+                .filter(c -> !c.isArchived)
+                .sorted(Comparator.comparing(c -> c.createdAt))
+                .map(Comment::toDTO)
+                .toList();
     }
 
     @Query
@@ -50,7 +62,11 @@ public class CommentResource {
         Shot affectedShot = shotRepository.findByIdValidated(shotId);
         userRepository.checkShotlistViewRights(affectedShot.scene.shotlist, jwt);
 
-        return affectedShot.comments.stream().filter(c -> c.isArchived).map(Comment::toDTO).toList();
+        return affectedShot.comments.stream()
+                .filter(c -> c.isArchived)
+                .sorted(Comparator.comparing( c -> c.createdAt))
+                .map(Comment::toDTO)
+                .toList();
     }
 
     @Mutation
@@ -60,7 +76,13 @@ public class CommentResource {
 
         CommentDTO result = commentRepository.create(createDTO, jwt);
 
-        //TODO socket broadcast
+        syncService.broadcast(
+            affectedShotlist.id,
+            new ShotlistUpdateDTO(
+                ShotlistUpdateType.COMMENT_ADDED,
+                userRepository.findOrCreateByJWT(jwt).id,
+                new CommentPayload(result)
+        ));
 
         return result;
     }
@@ -73,7 +95,14 @@ public class CommentResource {
 
         CommentDTO result = commentRepository.update(updateDTO);
 
-        //TODO socket broadcast
+        syncService.broadcast(
+            affectedShotlist.id,
+            new ShotlistUpdateDTO(
+                    updateDTO.text() != null ? ShotlistUpdateType.COMMENT_TEXT : ShotlistUpdateType.COMMENT_ARCHIVAL,
+                    userRepository.findOrCreateByJWT(jwt).id,
+                    new CommentPayload(result)
+            )
+        );
 
         return result;
     }

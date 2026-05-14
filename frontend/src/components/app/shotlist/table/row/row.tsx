@@ -1,4 +1,14 @@
-import React, {forwardRef, memo, ReactNode, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
+import React, {
+    forwardRef,
+    memo,
+    ReactNode,
+    RefObject,
+    useContext,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+    useState
+} from "react"
 import "./row.scss"
 import {Popover} from "radix-ui"
 import {
@@ -24,11 +34,13 @@ import {
 import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys"
 import {successNotification} from "@/service/NotificationService"
 import CellBase from "@/components/app/shotlist/table/cell/cellBase"
-import CommentPopover from "@/components/app/shotlist/table/commentPopover/commentPopover"
+import CommentPopover, {CommentPopoverRef} from "@/components/app/shotlist/table/commentPopover/commentPopover"
 
 export interface RowRef {
+    id: string,
     closeContextOptions: () => void,
-    openContextOptions: () => void
+    openContextOptions: () => void,
+    commentPopoverRef: RefObject<CommentPopoverRef | null>,
 }
 
 export interface RowProps {
@@ -40,8 +52,8 @@ export interface RowProps {
     isReadOnly: boolean
     children: ReactNode
     setTemporaryPaddingVisible: (visible: boolean) => void
-    onCreateComment: (comment: CommentDto) => void
-    onUpdateComment: (comment: CommentDto) => void
+    addCommentToCache: (comment: CommentDto) => void
+    updateCommentInCache: (comment: CommentDto) => void
     commentPresentInScene: boolean
 }
 
@@ -59,8 +71,8 @@ const RowBase = forwardRef<RowRef, RowProps>(({
     isReadOnly,
     children,
     setTemporaryPaddingVisible,
-    onCreateComment,
-    onUpdateComment,
+    addCommentToCache,
+    updateCommentInCache,
     commentPresentInScene
 }, ref) => {
     const client = useApolloClient()
@@ -72,6 +84,15 @@ const RowBase = forwardRef<RowRef, RowProps>(({
     const [markAsDeleted, setMarkAsDeleted] = useState(false)
 
     const keybindUnsubscribe = useRef(() => {})
+
+    const commentPopoverRef = useRef<CommentPopoverRef>(null);
+
+    useImperativeHandle(ref, () => ({
+        id: shot.id ?? "unknown",
+        closeContextOptions: () => setContextOptionsOpen(false),
+        openContextOptions: () => setContextOptionsOpen(true),
+        commentPopoverRef: commentPopoverRef
+    }))
 
     useEffect(() => {
         setTemporaryPaddingVisible(commentPopoverOpen)
@@ -118,11 +139,6 @@ const RowBase = forwardRef<RowRef, RowProps>(({
             keybindUnsubscribe.current()
         }
     }, [contextOptionsOpen, position, shot.id, moveShot])
-
-    useImperativeHandle(ref, () => ({
-        closeContextOptions: () => setContextOptionsOpen(false),
-        openContextOptions: () => setContextOptionsOpen(true)
-    }))
 
     async function deleteShot(){
         shotlistContext.setSaveState("deleteShot", "saving")
@@ -261,12 +277,13 @@ const RowBase = forwardRef<RowRef, RowProps>(({
         {
             !isReadOnly &&
             <CommentPopover
+                ref={commentPopoverRef}
                 isOpen={commentPopoverOpen}
                 onOpenChange={setCommentPopoverOpen}
                 shot={shot}
                 scenePosition={scenePosition}
-                onCreateComment={onCreateComment}
-                onUpdateComment={onUpdateComment}
+                addCommentToCache={addCommentToCache}
+                updateCommentInCache={updateCommentInCache}
                 showOnHover={commentPresentInScene}
             />
         }

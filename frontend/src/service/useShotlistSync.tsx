@@ -1,13 +1,24 @@
-import {RefObject, useEffect, useRef, Dispatch, SetStateAction, useContext} from "react"
+import {Dispatch, RefObject, SetStateAction, useContext, useEffect, useRef} from "react"
 import {useLatestCallback} from "@/utility/useLatestCallback"
 import {SelectOption, ShotlyErrorCode} from "@/utility/Types"
 import {
-    Query, UserMinimalDto, SelectedCellPayload, SelectedSceneAttributePayload, ShotlistUpdateDto, ShotlistUpdateType,
-    UserPayload, CollaborationPayload, ShotlistPayload, ShotAttributePayload, ShotPayload,
-    SceneAttributePayload, ScenePayload, ShotSelectOptionPayload, SceneSelectOptionPayload
+    CollaborationPayload, CommentPayload,
+    Query,
+    SceneAttributePayload,
+    ScenePayload,
+    SceneSelectOptionPayload,
+    SelectedCellPayload,
+    SelectedSceneAttributePayload,
+    ShotAttributePayload,
+    ShotlistPayload,
+    ShotlistUpdateDto,
+    ShotlistUpdateType,
+    ShotPayload,
+    ShotSelectOptionPayload,
+    UserMinimalDto,
+    UserPayload
 } from "../../lib/graphql/generated"
-import Config from "@/Config"
-import {errorNotification, infoNotification, successNotification} from "@/service/NotificationService"
+import {errorNotification} from "@/service/NotificationService"
 import {SheetManagerRef} from "@/components/app/shotlist/table/sheetManager/sheetManager"
 import {PresentCollaborator, SelectedScene} from "@/app/shotlist/[id]/page"
 import {SceneAttributeParser, ShotAttributeParser} from "@/utility/AttributeParser"
@@ -199,6 +210,20 @@ const SHOTLIST_UPDATES_SUBSCRIPTION = gql`
                 ... on ShotlistPayload {
                     shotlist {
                         name
+                        archived
+                    }
+                }
+                ... on CommentPayload {
+                    comment {
+                        id,
+                        user {
+                            id,
+                            name
+                        },
+                        text,
+                        edited,
+                        shotId,
+                        sceneId,
                         archived
                     }
                 }
@@ -433,6 +458,17 @@ export function useShotlistSync({
                         break
                 }
                 break
+            case "CommentPayload":
+                switch (updateDTO.type) {
+                    case ShotlistUpdateType.CommentAdded:
+                        createComment(updateDTO.payload as CommentPayload)
+                        break
+                    case ShotlistUpdateType.CommentText:
+                    case ShotlistUpdateType.CommentArchival:
+                        console.log(updateDTO)
+                        updateComment(updateDTO.payload as CommentPayload)
+                        break
+                }
             case "EmptyPayload":
                 switch (updateDTO.type) {
                     case ShotlistUpdateType.ShotlistOptionsUpdated:
@@ -596,6 +632,42 @@ export function useShotlistSync({
             }
         })
     }
+
+    const createComment = (payload: CommentPayload)=> {
+        if(!payload.comment?.id || !payload.comment.shotId || !sheetManagerRef) return
+
+        if(payload.comment?.sceneId == selectedScene?.id) {
+            const popoverRef = sheetManagerRef.current
+                ?.findRowRef(payload.comment.shotId)
+                ?.commentPopoverRef.current
+
+            if(!popoverRef) return
+
+            popoverRef.onCreateComment(payload.comment)
+        }
+        else{
+            sheetManagerRef.current?.addCommentToCache(payload.comment)
+        }
+    }
+
+    const updateComment = (payload: CommentPayload)=> {
+        if(!payload.comment?.id || !payload.comment.shotId || !sheetManagerRef) return
+
+        if(payload.comment?.sceneId == selectedScene?.id) {
+            const popoverRef = sheetManagerRef.current
+                ?.findRowRef(payload.comment.shotId)
+                ?.commentPopoverRef.current
+
+            if(!popoverRef) return
+
+            popoverRef.onUpdateComment(payload.comment)
+        }
+        else{
+            sheetManagerRef.current?.updateCommentInCache(payload.comment)
+        }
+    }
+
+    // INPUT HIGHLIGHTING
 
     const setCollaboratorCellHighlight = (updateDTO: ShotlistUpdateDto)=> {
         if(updateDTO.payload?.__typename != "SelectedCellPayload" || !updateDTO.userId) return

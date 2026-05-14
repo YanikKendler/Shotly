@@ -41,6 +41,7 @@ public class Comment extends PanacheEntityBase {
         return new CommentDTO(
             this.id,
             this.shot.id,
+            this.shot.scene.id,
             this.user.toMinimalDTO(),
             this.text,
             this.isArchived,

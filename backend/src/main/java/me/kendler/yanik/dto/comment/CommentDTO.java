@@ -7,6 +7,7 @@ import java.util.UUID;
 public record CommentDTO(
     UUID id,
     UUID shotId,
+    UUID sceneId,
     UserMinimalDTO user,
     String text,
     Boolean isArchived,

@@ -37,28 +37,28 @@
         bottom: 3rem;
       };
     }
+
+    > div > .empty{
+      text-align: center;
+      margin-top: 2rem;
+      color: var(--text-50);
+
+      button.noShotAttributes{
+        text-decoration: underline;
+        padding: .3rem;
+        margin: -.3rem;
+        color: var(--accent);
+
+        &:hover{
+          color: var(--accent-40);
+        }
+      }
+    }
   }
 
   #shots{
     width: fit-content;
     min-width: 100%;
-  }
-
-  > .empty{
-    text-align: center;
-    margin-top: 2rem;
-    color: var(--text-50);
-
-    button.noShotAttributes{
-      text-decoration: underline;
-      padding: .3rem;
-      margin: -.3rem;
-      color: var(--accent);
-
-      &:hover{
-        color: var(--accent-40);
-      }
-    }
   }
 
   .shotCount {

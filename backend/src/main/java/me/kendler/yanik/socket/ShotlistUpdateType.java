@@ -1,5 +1,10 @@
 package me.kendler.yanik.socket;
 
+/**
+ * Determines the actual type of change that happened
+ * Multiple updateTypes can have the same payload
+ * because different things are being updated
+ */
 public enum ShotlistUpdateType {
     USER_JOINED,
     USER_LEFT,
@@ -20,5 +25,8 @@ public enum ShotlistUpdateType {
     COLLABORATOR_CELL_SELECTED,
     COLLABORATOR_SCENE_ATTRIBUTE_SELECTED,
     SHOTLIST_UPDATED,
-    SHOTLIST_DELETED
+    SHOTLIST_DELETED,
+    COMMENT_ADDED,
+    COMMENT_ARCHIVAL, //using two distinct types here to avoid having to figure out if archival has changed in frontend
+    COMMENT_TEXT,
 }
