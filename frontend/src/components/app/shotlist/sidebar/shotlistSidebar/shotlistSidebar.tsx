@@ -61,8 +61,10 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
     refreshWebsocketConnection
 }, ref) =>{
     const client = useApolloClient()
-    const {openAccountDialog, AccountDialog} = useAccountDialog()
     const shotlistContext = useContext(ShotlistContext)
+    const {openAccountDialog, AccountDialog} = useAccountDialog(
+        (isOpen)=> shotlistContext.blockKeyBinds.current.set("account", isOpen)
+    )
 
     const sortableRef = useRef<Sortable|null>(null)
 

@@ -43,6 +43,10 @@ export default function CommentPopover ({
         setComments(shot?.activeComments ?? [])
     }, [shot]);
 
+    useEffect(() => {
+        shotlistContext.blockKeyBinds.current.set("comments", isOpen)
+    }, [isOpen]);
+
     const sendComment = async () => {
         if(!commentText || wuConstants.Regex.empty.test(commentText)) return
 

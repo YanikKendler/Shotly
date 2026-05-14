@@ -35,6 +35,8 @@ export interface ShotlistContextProps {
     presentCollaborators: Map<string, PresentCollaborator>
 
     currentUser: UserDto | null
+
+    blockKeyBinds: RefObject<Map<string, boolean>>
 }
 
 export const ShotlistContext = createContext<ShotlistContextProps>({
@@ -67,5 +69,7 @@ export const ShotlistContext = createContext<ShotlistContextProps>({
     //for displaying collaborator names from cellHighlight
     presentCollaborators: new Map(),
     //general use
-    currentUser: null
+    currentUser: null,
+    //prevent stuff like creating a new shot while in the account dialog
+    blockKeyBinds: {current: new Map()}
 })

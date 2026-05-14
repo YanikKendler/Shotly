@@ -104,6 +104,8 @@ export default function Shotlist() {
 
     const saveStateMap = useRef<Map<string, SaveState>>(new Map())
 
+    const blockKeyBindsMap = useRef(new Map<string, boolean>())
+
     const driverObj = driver({
         showProgress: true,
         allowClose: true,
@@ -531,6 +533,7 @@ export default function Shotlist() {
         openShotlistOptionsDialog: openShotlistOptionsDialog,
         focusedCell: focusedCell,
         setSelectedScene: setSelectedScene,
+        blockKeyBinds: blockKeyBindsMap
     })
 
     if(!auth.getUser())
@@ -595,7 +598,9 @@ export default function Shotlist() {
 
             presentCollaborators: presentCollaborators,
 
-            currentUser: query.data.currentUser ?? null
+            currentUser: query.data.currentUser ?? null,
+
+            blockKeyBinds: blockKeyBindsMap
         }}>
             <ReadOnlyBanner readOnlyState={readOnlyState}/>
 

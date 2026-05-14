@@ -13,7 +13,8 @@ export default function useShotlistKeybinds({
     sidebarRef,
     setSelectedScene,
     openShotlistOptionsDialog,
-    focusedCell
+    focusedCell,
+    blockKeyBinds
 }:{
     sheetManagerRef: RefObject<SheetManagerRef | null>
     sidebarRef: RefObject<ShotlistSidebarRef | null>
@@ -23,36 +24,59 @@ export default function useShotlistKeybinds({
     setSelectedScene: Dispatch<SetStateAction<SelectedScene>>
 
     focusedCell: RefObject<{row: number, column: number}>
+
+    blockKeyBinds: RefObject<Map<string, boolean>>
 }) {
     const router = useRouter()
 
     useEffect(() => {
+        const isBlocked = () => {
+            return Array.from(blockKeyBinds.current.values()).some(v => v === true)
+        }
+
         let unsubscribe = tinykeys(window, {
+
             "ArrowLeft": event => {
+                if(isBlocked()) return
+
                 sheetManagerRef.current?.moveFocusedCell(event, 0, -1)
             },
             "ArrowRight": event => {
+                if(isBlocked()) return
+
                 sheetManagerRef.current?.moveFocusedCell(event, 0, 1)
             },
             "ArrowUp": event => {
+                if(isBlocked()) return
+
                 sheetManagerRef.current?.moveFocusedCell(event, -1, 0)
             },
             "ArrowDown": event => {
+                if(isBlocked()) return
+
                 sheetManagerRef.current?.moveFocusedCell(event, 1, 0)
             },
             "Control+Enter": event => {
+                if(isBlocked()) return
+
                 event.preventDefault()
                 sheetManagerRef.current?.handleCreateShotKeybind.current()
             },
             "Alt+Enter": event => {
+                if(isBlocked()) return
+
                 event.preventDefault()
                 sheetManagerRef.current?.handleCreateShotKeybind.current()
             },
             "Alt+N": event => {
+                if(isBlocked()) return
+
                 event.preventDefault()
                 sheetManagerRef.current?.handleCreateShotKeybind.current()
             },
             "Alt+([1-9])": event => {
+                if(isBlocked()) return
+
                 event.preventDefault()
 
                 const scenePositionToSelect = Number(event.key) - 1
@@ -62,10 +86,14 @@ export default function useShotlistKeybinds({
                 setSelectedScene({id: sceneIdToSelect, position: scenePositionToSelect})
             },
             "Alt+O": event => {
+                if(isBlocked()) return
+
                 event.preventDefault()
                 openShotlistOptionsDialog()
             },
             "Alt+A": event => {
+                if(isBlocked()) return
+
                 event.preventDefault()
                 sidebarRef.current?.openAccountDialog()
             },
@@ -74,10 +102,14 @@ export default function useShotlistKeybinds({
                 router.push("/dashboard")
             },
             "Alt+S": event => {
+                if(isBlocked()) return
+
                 event.preventDefault()
                 sidebarRef.current?.createScene()
             },
             "Alt+.": event => {
+                if(isBlocked()) return
+
                 event.preventDefault()
                 const currentRow = focusedCell.current.row
 

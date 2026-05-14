@@ -1,6 +1,6 @@
 'use client';
 
-import React, {forwardRef, RefObject, useEffect, useImperativeHandle, useRef, useState} from 'react';
+import React, {forwardRef, RefObject, useContext, useEffect, useImperativeHandle, useRef, useState} from 'react';
 import "./shotlistOptionsDialog.scss"
 import {Tabs, VisuallyHidden} from "radix-ui"
 import {FileDown, List, Users, X, Settings2} from "lucide-react"
@@ -19,6 +19,7 @@ import CollaboratorsTab from "@/components/app/dialogs/shotlistOptionsDialog/col
 import Separator from "@/components/basic/separator/separator"
 import {errorNotification, successNotification} from "@/service/NotificationService"
 import Dialog, {DialogRef} from "@/components/basic/dialog/dialog"
+import {ShotlistContext} from "@/context/ShotlistContext"
 
 export interface ShotlistOptionsDialogRef {
     open: (pages?: ShotlistOptionsDialogPages) => void
@@ -75,6 +76,7 @@ const ShotlistOptionsDialog = forwardRef<ShotlistOptionsDialogRef, ShotlistOptio
 
     const client = useApolloClient()
     const router = useRouter()
+    const shotlistContext = useContext(ShotlistContext)
 
     const lastRefresh = useRef(0);
 
@@ -320,9 +322,12 @@ const ShotlistOptionsDialog = forwardRef<ShotlistOptionsDialogRef, ShotlistOptio
                         loadData()
                         setDataChanged(false)
                     }
+
+                    shotlistContext.blockKeyBinds.current.set("shotlistOptions", true)
                 }
                 else {
                     runRefreshShotlistCheck()
+                    shotlistContext.blockKeyBinds.current.set("shotlistOptions", false)
                 }
             }}
             onRenderFinish={checkUrlAutoOpen}

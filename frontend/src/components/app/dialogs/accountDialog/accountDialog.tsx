@@ -50,7 +50,7 @@ export interface UserSettings {
     shotlistScale: number
 }
 
-export function useAccountDialog() {
+export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
     const client = useApolloClient()
     const {confirm, ConfirmDialog} = useConfirmDialog()
 
@@ -543,7 +543,17 @@ export function useAccountDialog() {
         )
 
     const AccountDialog = (
-        <Dialog contentClassName={"accountDialogContent"} ref={dialogElementRef} showScrollGradient>
+        <Dialog
+            contentClassName={"accountDialogContent"}
+            ref={dialogElementRef}
+            showScrollGradient
+            onOpenChange={isOpen => {
+                if(onOpenChange != undefined) {
+                    console.log("running openchange", onOpenChange, isOpen)
+                    onOpenChange(isOpen)
+                }
+            }}
+        >
             <div className="top sticky">
                 <h2 className={"title"}>Account</h2>
                 <button className={"close"} onClick={dialogElementRef.current?.close}>
