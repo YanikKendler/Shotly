@@ -58,13 +58,25 @@
   &:hover, &.isBeingEdited{
     border-color: var(--default-interactable-border);
 
-    .top .buttons {
-      opacity: 1;
+    .top {
+      .buttons {
+        opacity: 1;
+      }
+    }
+
+    .markdownEditor{
+      border-top: 1px solid var(--default-interactable-light-border);
+      margin-top: .2rem;
     }
   }
 
   div.text {
     font-size: .85rem;
+    padding-left: .1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5em;
+    line-height: 1.4em;
 
     a {
       display: inline;
@@ -75,5 +87,21 @@
     }
 
     /*TODO lists*/
+
+    ul, ol{
+      padding-left: 1.2rem;
+
+      li{
+        &::marker {
+          color: var(--text-30);
+        }
+      }
+    }
+
+    blockquote{
+      border-left: .1rem solid var(--text-50);
+      padding-left: .5em;
+      margin-left: .3em;
+    }
   }
 }
