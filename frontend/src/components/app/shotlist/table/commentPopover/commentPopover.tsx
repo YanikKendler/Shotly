@@ -191,9 +191,10 @@ export default function CommentPopover ({
                             actions={[{
                                 name: "sendComment",
                                 icon: <Send size={16}/>,
-                                label: "Send the comment crt+enter",
+                                label: "Send the comment",
                                 disabled: wuConstants.Regex.empty.test(commentText || ""),
-                                onClick: sendComment
+                                onClick: sendComment,
+                                humanReadableShortcut: ["Ctrl", "Enter"]
                             }]}
                             delayClose={true}
                             onKeyDown={(e) => {

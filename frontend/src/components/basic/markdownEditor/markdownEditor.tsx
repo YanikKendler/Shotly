@@ -1,4 +1,4 @@
-import MDEditor, {commands, ICommand, RefMDEditor} from '@uiw/react-md-editor/common';
+import MDEditor, {commands, ICommand, ICommandBase, RefMDEditor} from '@uiw/react-md-editor/common';
 import rehypeSanitize from "rehype-sanitize"
 import "./markdownEditor.scss"
 import {
@@ -9,6 +9,8 @@ import {
     Bold, Italic, Strikethrough, List,
     ListOrdered, Quote, Link as LinkIcon
 } from "lucide-react";
+import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
+import {wuText} from "@yanikkendler/web-utils/dist"
 
 export interface MarkdownEditorRef {
     focus: () => void,
@@ -32,6 +34,13 @@ export interface MarkdownEditorAction {
     icon: ReactElement
     disabled?: boolean
     onClick: () => void
+    className?: string
+    humanReadableShortcut?: string[]
+}
+
+interface ShotlyICommand extends ICommandBase<string> {
+    label?: string,
+    humanReadableShortcut?: string[],
     className?: string
 }
 
@@ -66,39 +75,79 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
     }))
 
     /**
-     * custom command to remove the default behavior of selecting the inserted list command: "- "
+     * custom command to remove the default behavior of selecting the inserted prefix
      * @param prefix
      */
-    const insertListPrefix = (prefix: string): ICommand["execute"] => (state, api) => {
+    const insertPrefix = (prefix: string): ICommand["execute"] => (state, api) => {
         api.replaceSelection(prefix);
         const newPos = state.selection.start + prefix.length;
         api.setSelectionRange({ start: newPos, end: newPos });
     }
 
+    const renderShortcut = (shortcut: string[]): ReactNode => {
+        let res =  <>{shortcut.map((s, i) => <>
+                <span className={"key"}>{wuText.upperOrLowerRange(s, 0, 0)}</span>
+                {i < shortcut.length - 1 ? " + " : ""}
+            </>
+        )}</>
+        console.log(res)
+        return res
+    }
+
     const customCommands = useMemo(() => {
         return [
-            { ...commands.bold, icon: <Bold size={14} /> },
-            { ...commands.italic, icon: <Italic size={14} /> },
-            { ...commands.strikethrough, icon: <Strikethrough size={14} /> },
+            {
+                ...commands.bold,
+                icon: <Bold size={14} />,
+                label: "Bold",
+                humanReadableShortcut: ["ctrl", "B"]
+            },
+            {
+                ...commands.italic,
+                icon: <Italic size={14} />,
+                label: "Italic",
+                humanReadableShortcut: ["ctrl", "I"]
+            },
+            {
+                ...commands.strikethrough,
+                icon: <Strikethrough size={14} />,
+                label: "Strikethrough",
+                humanReadableShortcut: ["ctrl", "shift", "X"]
+            },
 
             commands.divider,
 
             {
                 ...commands.unorderedListCommand,
                 icon: <List size={16} />,
-                execute: insertListPrefix("- ")
+                label: "Unordered List",
+                humanReadableShortcut: ["ctrl", "shift", "U"],
+                execute: insertPrefix("- ")
             },
             {
                 ...commands.orderedListCommand,
                 icon: <ListOrdered size={16} />,
-                execute: insertListPrefix("1. ")
+                label: "Ordered List",
+                humanReadableShortcut: ["ctrl", "shift", "O"],
+                execute: insertPrefix("1. ")
             },
 
             commands.divider,
 
-            { ...commands.quote, icon: <Quote size={13} /> },
-            { ...commands.link, icon: <LinkIcon size={14} /> },
-        ];
+            {
+                ...commands.quote,
+                icon: <Quote size={13} />,
+                label: "Quote",
+                humanReadableShortcut: ["ctrl", "Q"],
+                execute: insertPrefix("> ")
+            },
+            {
+                ...commands.link,
+                icon: <LinkIcon size={14} />,
+                label: "Link",
+                humanReadableShortcut: ["ctrl", "L"]
+            },
+        ] as ShotlyICommand[];
     }, [])
 
     let extraCommands: ICommand[] = []
@@ -107,10 +156,12 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
         extraCommands = actions.map(action => ({
             name: 'action',
             keyCommand: 'action',
-            buttonProps: { 'aria-label': action.label, "disabled": action.disabled, "className": `action ${action.className}`},
             icon: action.icon,
-            execute: action.onClick
-        }))
+            execute: action.onClick,
+            className: `action ${action.className}`,
+            label: action.label,
+            humanReadableShortcut: action.humanReadableShortcut
+        })) as ShotlyICommand[]
 
     return (
         <MDEditor
@@ -138,6 +189,26 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
             defaultTabEnable={true}
             autoFocus={autoFocus}
             onKeyDown={onKeyDown}
+            components={{
+                toolbar: (command, disabled, executeCommand) => {
+                    const shotlyCommand = command as ShotlyICommand
+                    return <SimpleTooltip
+                        content={<>{shotlyCommand.label} {renderShortcut(shotlyCommand?.humanReadableShortcut || [])}</>}
+                        fontSize={0.75}
+                    >
+                        <button
+                            disabled={disabled}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                executeCommand(command, command.groupName)
+                            }}
+                            className={shotlyCommand.className}
+                        >
+                            {command.icon}
+                        </button>
+                    </SimpleTooltip>
+                }
+            }}
         />
     )
 })

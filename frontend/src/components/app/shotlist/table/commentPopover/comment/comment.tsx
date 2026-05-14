@@ -43,7 +43,7 @@ const Comment = forwardRef<CommentRef, CommentProps>(({
 
     useEffect(() => {
         if(comment?.text) {
-            const unsafeHTML = marked.parse(Utils.removeZeroWidthChars(comment.text)) as string
+            const unsafeHTML = marked.parse(Utils.removeZeroWidthChars(comment.text), {breaks: true, gfm: true}) as string
             Utils.sanitizeStringAndOnlyUseSimpleTags(unsafeHTML)
                 .then(cleaned => setCleanedHTML(cleaned))
         }
@@ -185,7 +185,8 @@ const Comment = forwardRef<CommentRef, CommentProps>(({
                             icon: <X size={16}/>,
                             label: "Cancel",
                             onClick: hideEditor,
-                            className: "small gray"
+                            className: "small gray",
+                            humanReadableShortcut: ["Esc"]
                         },
                         {
                             name: "confirm",
@@ -193,7 +194,8 @@ const Comment = forwardRef<CommentRef, CommentProps>(({
                             label: "Confirm",
                             disabled: wuConstants.Regex.empty.test(newCommentText || ""),
                             onClick: updateCommentText,
-                            className: "small"
+                            className: "small",
+                            humanReadableShortcut: ["Ctrl", "Enter"]
                         }
                     ]}
                     toolbarCanHide={false}
