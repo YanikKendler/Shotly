@@ -26,7 +26,7 @@ import {driver} from "driver.js"
 import "driver.js/dist/driver.css";
 import Utils, {uuidRegex} from "@/utility/Utils"
 import Config from "@/Config"
-import {GenericError, SelectOption, ShotlyErrorCode} from "@/utility/Types"
+import {GenericError, RowColumn, SelectOption, ShotlyErrorCode} from "@/utility/Types"
 import SheetManager, {SheetManagerRef} from "@/components/app/shotlist/table/sheetManager/sheetManager"
 import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/app/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
 import {errorNotification} from "@/service/NotificationService"
@@ -87,7 +87,8 @@ export default function Shotlist() {
     /* TODO invalidate collaborators if they have been inactive for more than 60 seconds or whatever */
     const [presentCollaborators, setPresentCollaborators] = useState<Map<string, PresentCollaborator>>(new Map())
 
-    const focusedCell = useRef({row: -1, column:-1})
+    const focusedCell = useRef<RowColumn>({row: -1, column:-1})
+    const focusedSceneAttributeId = useRef(-1)
 
     const shotlistElementRef = useRef<HTMLDivElement>(null);
     const headerRef = useRef<HTMLDivElement>(null)
@@ -313,36 +314,20 @@ export default function Shotlist() {
     const setFocusedCell= (row: number, column: number) => {
         focusedCell.current = {row, column}
 
-        //TODO
-       /* const updateDTO: ShotlistUpdateDto = {
-            type: ShotlistUpdateType.CollaboratorCellSelected,
-            userId: query.data.currentUser?.id || "unknown",
-            timestamp: new Date(),
-            payload: {
-                kind: "selectedCell",
-                row: row,
-                column: column,
-                sceneId: selectedScene.id || "unknown"
-            }
-        }
-
-        sync.send(updateDTO)*/
+        sync.syncShotlistCellSelected({
+            row: row,
+            column: column,
+            sceneId: selectedScene.id || "unknown"
+        })
     }
 
-    const broadCastSceneAttributeSelect = (attributeId: number) => {
-        //TODO
-        /*const updateDTO: ShotlistUpdateDto = {
-            type: ShotlistUpdateType.CollaboratorSceneAttributeSelected,
-            userId: query.data.currentUser?.id || "unknown",
-            timestamp: new Date(),
-            payload: {
-                kind: "selectedSceneAttribute",
-                sceneId: selectedScene.id || "unknown",
-                attributeId: attributeId
-            }
-        }
+    const setFocusedSceneAttributeId = (attributeId: number) => {
+        focusedSceneAttributeId.current = attributeId
 
-        sync.send(updateDTO)*/
+        sync.syncShotlistSceneAttributeSelected({
+            sceneId: selectedScene.id || "unknown",
+            attributeId: attributeId
+        })
     }
 
     const loadShotSelectOptions = async (shotAttributeDefinitionId: number) => {
@@ -589,7 +574,8 @@ export default function Shotlist() {
             loadSceneSelectOptions: loadSceneSelectOptions,
             addSceneSelectOption: addSceneSelectOption,
 
-            broadCastSceneAttributeSelect: broadCastSceneAttributeSelect,
+            focusedSceneAttributeId: focusedSceneAttributeId,
+            setFocusedSceneAttributeId: setFocusedSceneAttributeId,
 
             setSaveState: setSaveState,
             handleError: handleShotlistError,
@@ -673,20 +659,7 @@ export default function Shotlist() {
                 refreshShotlist={() => {
                     refreshShotlist()
 
-                    //TODO
-                    /*const updateDTO: ShotlistUpdateDto = {
-                        type: ShotlistUpdateType.ShotlistOptionsUpdated,
-                        userId: query.data.currentUser?.id || "unknown",
-                        timestamp: new Date(),
-                        payload: {kind: "empty"}
-                    }*/
-
-                    //this is a super ugly fix for the potential race condition that happens when a collaborator recieves
-                    //the websocket message and queries its own shotlist before the update from the first user has
-                    //been processed, causing the shotlist to not be updated properly
-                    /*setTimeout(() => {
-                        sync.send(updateDTO)
-                    },300)*/
+                    sync.syncShotlistOptionsUpdated()
                 }}
                 isArchived={isArchived}
                 setIsArchived={setIsArchived}

@@ -6,7 +6,8 @@ import {SelectedScene} from "@/app/shotlist/[id]/page"
 import {DialogRef} from "@/components/basic/dialog/dialog"
 import {infoNotification} from "@/service/NotificationService"
 import {useRouter} from "next/navigation"
-import {ShotlistOptionsDialogPages} from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge" //package has incorrectly configured type exports
+import {ShotlistOptionsDialogPages} from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
+import {RowColumn} from "@/utility/Types" //package has incorrectly configured type exports
 
 export default function useShotlistKeybinds({
     sheetManagerRef,
@@ -23,7 +24,7 @@ export default function useShotlistKeybinds({
 
     setSelectedScene: Dispatch<SetStateAction<SelectedScene>>
 
-    focusedCell: RefObject<{row: number, column: number}>
+    focusedCell: RefObject<RowColumn>
 
     blockKeyBinds: RefObject<Map<string, boolean>>
 }) {
@@ -31,7 +32,7 @@ export default function useShotlistKeybinds({
 
     useEffect(() => {
         const isBlocked = () => {
-            return Array.from(blockKeyBinds.current.values()).some(v => v === true)
+            return Array.from(blockKeyBinds.current.values()).some(v => v == true)
         }
 
         let unsubscribe = tinykeys(window, {

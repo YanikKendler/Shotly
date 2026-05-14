@@ -149,6 +149,9 @@ export type Mutation = {
   howDidYourHearReason?: Maybe<UserDto>;
   leaveCollaboration?: Maybe<CollaborationDto>;
   refreshCollaboration?: Maybe<CollaborationDto>;
+  syncShotlistCellSelected: Scalars['Boolean']['output'];
+  syncShotlistOptionsUpdated: Scalars['Boolean']['output'];
+  syncShotlistSceneAttributeSelected: Scalars['Boolean']['output'];
   triggerPasswordReset?: Maybe<Scalars['String']['output']>;
   updateComment?: Maybe<CommentDto>;
   updateScene?: Maybe<SceneDto>;
@@ -366,6 +369,26 @@ export type MutationLeaveCollaborationArgs = {
 /** Mutation root */
 export type MutationRefreshCollaborationArgs = {
   id?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** Mutation root */
+export type MutationSyncShotlistCellSelectedArgs = {
+  payload?: InputMaybe<SelectedCellPayloadInput>;
+  shotlistId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** Mutation root */
+export type MutationSyncShotlistOptionsUpdatedArgs = {
+  shotlistId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** Mutation root */
+export type MutationSyncShotlistSceneAttributeSelectedArgs = {
+  payload?: InputMaybe<SelectedSceneAttributePayloadInput>;
+  shotlistId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -816,10 +839,21 @@ export type SelectedCellPayload = {
   sceneId?: Maybe<Scalars['String']['output']>;
 };
 
+export type SelectedCellPayloadInput = {
+  column: Scalars['Int']['input'];
+  row: Scalars['Int']['input'];
+  sceneId?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type SelectedSceneAttributePayload = {
   __typename?: 'SelectedSceneAttributePayload';
   attributeId?: Maybe<Scalars['BigInteger']['output']>;
   sceneId?: Maybe<Scalars['String']['output']>;
+};
+
+export type SelectedSceneAttributePayloadInput = {
+  attributeId?: InputMaybe<Scalars['BigInteger']['input']>;
+  sceneId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Shot = {

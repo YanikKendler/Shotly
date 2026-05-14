@@ -398,10 +398,14 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
     return <div
         className={`sceneAttribute ${isBlockedByCollaborator && "collaboratorHighlight"}`}
         onFocus={() => {
-            shotlistContext.broadCastSceneAttributeSelect(attribute.id)
+            shotlistContext.setFocusedSceneAttributeId(attribute.id)
         }}
         onBlur={() => {
-            shotlistContext.broadCastSceneAttributeSelect(-1)
+            setTimeout(() => {
+                //dont reset on direct switch between attributes
+                if(shotlistContext.focusedSceneAttributeId.current == attribute.id)
+                    shotlistContext.setFocusedSceneAttributeId(-1)
+            },100)
         }}
     >
         {content}

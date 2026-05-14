@@ -36,7 +36,7 @@ export function useCreateShotlistDialog() {
     }, [name, isCreating, selectedTemplateId])
 
     async function loadData() {
-        let {data, errors} = await client.query({
+        const {data, errors} = await client.query({
             query: gql`
                 query createShotlistData {
                     templates {

@@ -232,19 +232,4 @@ public class ShotlistResource {
 
         return collaborationRepository.refresh(id);
     }
-
-    /*
-     * SYNC
-     */
-
-    @Subscription
-    public Multi<ShotlistUpdateDTO> shotlistUpdates(UUID shotlistId, UUID userId) {
-        return syncService.subscribe(shotlistId, userId);
-    }
-
-    /*@Mutation
-    public boolean broadcastShotlistUpdate(UUID shotlistId, ShotlistUpdateDTO update) {
-        syncService.broadcast(shotlistId, update);
-        return true;
-    }*/
 }

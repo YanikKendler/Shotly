@@ -164,7 +164,11 @@ const ValueCellBase = forwardRef<CellRef, CellProps>(({
                 shotlistContext.setFocusedCell(row, column)
             }}
             onBlur={() => {
-                shotlistContext.setFocusedCell(-1, -1)
+                setTimeout(() => {
+                    //dont reset on direct switch between cells
+                    if(shotlistContext.focusedCell.current.row == row && shotlistContext.focusedCell.current.column == column)
+                        shotlistContext.setFocusedCell(-1, -1)
+                },100)
             }}
         >
             { attribute &&

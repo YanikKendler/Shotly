@@ -4,7 +4,7 @@ import {createContext, RefObject} from "react"
 import {
     ShotlistOptionsDialogPages,
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
-import {GenericError, SelectOption} from "@/utility/Types"
+import {GenericError, RowColumn, SelectOption} from "@/utility/Types"
 import {PresentCollaborator, SaveState} from "@/app/shotlist/[id]/page"
 import {UserDto} from "../../lib/graphql/generated"
 
@@ -16,7 +16,7 @@ export interface ShotlistContextProps {
     setShotCount: (count: number) => void
     sceneCount: number
     setSceneCount: (count: number) => void
-    focusedCell: RefObject<{row: number, column: number}>
+    focusedCell: RefObject<RowColumn>
     setFocusedCell: (row: number, column: number) => void
 
     getShotSelectOption: (shotAttributeDefinitionId: number) => SelectOption[]
@@ -27,7 +27,8 @@ export interface ShotlistContextProps {
     loadSceneSelectOptions: (sceneAttributeDefinitionId: number) => Promise<void>
     addSceneSelectOption: (sceneAttributeDefinitionId: number, option: SelectOption) => void
 
-    broadCastSceneAttributeSelect: (attributeId: number) => void
+    focusedSceneAttributeId: RefObject<number>
+    setFocusedSceneAttributeId: (attributeId: number) => void
 
     setSaveState: (key: string, saveState: SaveState) => void
     handleError: (error: GenericError) => void
@@ -62,7 +63,8 @@ export const ShotlistContext = createContext<ShotlistContextProps>({
     loadSceneSelectOptions: () => Promise.resolve(),
     addSceneSelectOption: () => {},
     //send websocket message to other clients (is not needed for other changes because the server syncs automatically)
-    broadCastSceneAttributeSelect: () => {},
+    focusedSceneAttributeId: { current: -1 },
+    setFocusedSceneAttributeId: () => {},
     //save state display and error handling
     setSaveState: () => {},
     handleError: () => {},

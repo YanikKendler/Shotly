@@ -1,4 +1,4 @@
-import {RefObject, useEffect, useRef, Dispatch, SetStateAction} from "react"
+import {RefObject, useEffect, useRef, Dispatch, SetStateAction, useContext} from "react"
 import {useLatestCallback} from "@/utility/useLatestCallback"
 import {SelectOption, ShotlyErrorCode} from "@/utility/Types"
 import {
@@ -15,7 +15,16 @@ import {ShotlistSidebarRef} from "@/components/app/shotlist/sidebar/shotlistSide
 import {ApolloQueryResult, useApolloClient, useSubscription} from "@apollo/client"
 import {useRouter} from "next/navigation"
 import gql from "graphql-tag"
+import {ShotlistContext} from "@/context/ShotlistContext"
 
+
+/**
+ * It would be lovely to only query the shot attributes for example if the shot was created
+ * but not if it was moved.
+ * But as far as I know it is not possible to query more or less data per type based on other data.
+ *
+ * TODO might be worth duplicating the payloads in the backend just to be able to define the query here
+ */
 const SHOTLIST_UPDATES_SUBSCRIPTION = gql`
     subscription OnShotlistUpdate($shotlistId: String!, $userId: String!) {
         shotlistUpdates(shotlistId: $shotlistId, userId: $userId) {
@@ -236,10 +245,9 @@ export function useShotlistSync({
 
     refreshShotlist: () => Promise<void>
 }) {
+    const client = useApolloClient()
     const router = useRouter()
-
-    const websocketRef = useRef<WebSocket | null>(null)
-    const websocketRetriesRef = useRef<number>(0)
+    const shotlistContext = useContext(ShotlistContext)
 
     const collaboratorSelectedCell = useRef<Map<string, SelectedCellPayload>>(new Map())
     const collaboratorSelectedSceneAttribute = useRef<Map<string, SelectedSceneAttributePayload>>(new Map())
@@ -249,10 +257,7 @@ export function useShotlistSync({
         variables: { shotlistId, userId: currentUserId },
         shouldResubscribe: true,
         onData: ({ data }) => {
-
             const updateDTO = data.data.shotlistUpdates
-
-            console.log("updateDto recieved", updateDTO)
 
             if (updateDTO) {
                 processUpdate(updateDTO)
@@ -262,31 +267,26 @@ export function useShotlistSync({
 
     // Handle high-level error notifications
     useEffect(() => {
-        if (error) {
+        if (error) { //error
             console.error('GraphQL Subscription error:', error)
             errorNotification({
                 title: "Could not sync incoming changes",
                 message: "Connection lost. Automatically retrying!",
                 autoClose: 5000
             })
+            shotlistContext.setSaveState("sync", "error")
         }
-    }, [error])
-
-    //log reconnect after error
-    useEffect(() => {
-        if (!error) {
-            successNotification({
+        if(error && loading) { //reconnecting
+            shotlistContext.setSaveState("sync", "saving")
+        }
+        if (!error) { //after reconnect
+            /*successNotification({
                 title: "Connected to sync service",
                 message: "Incoming changes can now be synced in real-time",
-            })
+            })*/
+            shotlistContext.setSaveState("sync", "saved")
         }
-    }, [error])
-
-    const send = (updateDTO: ShotlistUpdateDto) => {
-        if(!websocketRef.current) return
-
-        websocketRef.current.send(JSON.stringify(updateDTO))
-    }
+    }, [error, loading])
 
     const processUpdate = useLatestCallback((updateDTO: ShotlistUpdateDto) => {
         switch (updateDTO.payload?.__typename) {
@@ -647,5 +647,71 @@ export function useShotlistSync({
         collaboratorSelectedSceneAttribute.current.set(updateDTO.userId, updateDTO.payload)
     }
 
-    return {send}
+    // BROADCAST TO ALL
+
+    const syncShotlistOptionsUpdated = async () => {
+        const {data, errors} = await client.mutate({
+                mutation: gql`
+                    mutation syncShotlistOptionsUpdated($shotlistId: String) {
+                        syncShotlistOptionsUpdated(shotlistId: $shotlistId)
+                    }`,
+                variables: {shotlistId: shotlistId}
+            },
+        )
+
+        if(errors){
+            errorNotification({
+                title: "Failed to sync options update",
+                message: "Please refresh this page, collaborators might need to do the same."
+            })
+            console.error(errors)
+            return
+        }
+    }
+
+    const syncShotlistCellSelected = async (payload: SelectedCellPayload) => {
+        const {data, errors} = await client.mutate({
+                mutation: gql`
+                    mutation syncShotlistCellSelected($shotlistId: String, $payload: SelectedCellPayloadInput) {
+                        syncShotlistCellSelected(shotlistId: $shotlistId, payload: $payload)
+                    }`,
+                variables: {shotlistId: shotlistId, payload: payload}
+            },
+        )
+
+        if(errors){
+            errorNotification({
+                title: "Failed to sync cell selection",
+                message: "Please refresh this page."
+            })
+            console.error(errors)
+            return
+        }
+    }
+
+    const syncShotlistSceneAttributeSelected = async (payload: SelectedSceneAttributePayload) => {
+        const {data, errors} = await client.mutate({
+                mutation: gql`
+                    mutation syncShotlistSceneAttributeSelected($shotlistId: String, $payload: SelectedSceneAttributePayloadInput) {
+                        syncShotlistSceneAttributeSelected(shotlistId: $shotlistId, payload: $payload)
+                    }`,
+                variables: {shotlistId: shotlistId, payload: payload}
+            },
+        )
+
+        if(errors){
+            errorNotification({
+                title: "Failed to sync scene attribute selection",
+                message: "Please refresh this page."
+            })
+            console.error(errors)
+            return
+        }
+    }
+
+    return {
+        syncShotlistOptionsUpdated,
+        syncShotlistCellSelected,
+        syncShotlistSceneAttributeSelected
+    }
 }

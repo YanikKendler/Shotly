@@ -79,3 +79,8 @@ export interface GenericError{
     shotlyErrorCode?: ShotlyErrorCode
     cause?: any
 }
+
+export interface RowColumn {
+    row: number,
+    column: number
+}
