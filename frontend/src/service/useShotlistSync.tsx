@@ -20,13 +20,24 @@ const SHOTLIST_UPDATES_SUBSCRIPTION = gql`
     subscription OnShotlistUpdate($shotlistId: String!, $userId: String!) {
         shotlistUpdates(shotlistId: $shotlistId, userId: $userId) {
             type
-                userId
-                payload {
+            userId
+            timestamp
+            payload {
                 ... on PresentCollaboratorsPayload {
-                   collaborators { id, name }
+                    collaborators {
+                        id
+                        name
+                    }
                 }
                 ... on UserPayload {
-                   user { id, name }
+                    user {
+                        id
+                        name
+                    }
+                }
+                ... on CollaborationPayload {
+                    userId
+                    type
                 }
                 ... on ShotAttributePayload {
                     shotId
@@ -34,7 +45,156 @@ const SHOTLIST_UPDATES_SUBSCRIPTION = gql`
                     attribute {
                         id
                         type
+                        definition {
+                            id
+                            name
+                            position
+                            type
+                        }
+                        ... on ShotSingleSelectAttributeDTO {
+                            singleSelectValue {
+                                id
+                                name
+                            }
+                        }
+                        ... on ShotMultiSelectAttributeDTO {
+                            multiSelectValue {
+                                id
+                                name
+                            }
+                        }
+                        ... on ShotTextAttributeDTO {
+                            textValue
+                        }
                     }
+                }
+                ... on ShotPayload {
+                    shot {
+                        id
+                        position
+                        sceneId
+                        subshot
+                        attributes {
+                            id
+                            type
+                            definition {
+                                id
+                                name
+                                position
+                                type
+                            }
+                            ... on ShotSingleSelectAttributeDTO {
+                                singleSelectValue {
+                                    id
+                                    name
+                                }
+                            }
+                            ... on ShotMultiSelectAttributeDTO {
+                                multiSelectValue {
+                                    id
+                                    name
+                                }
+                            }
+                            ... on ShotTextAttributeDTO {
+                                textValue
+                            }
+                        }
+                    }
+                }
+                ... on SceneAttributePayload {
+                    attribute {
+                        id
+                        type
+                        definition {
+                            id
+                            name
+                            position
+                            type
+                        }
+                        ... on SceneSingleSelectAttributeDTO {
+                            singleSelectValue {
+                                id
+                                name
+                            }
+                        }
+                        ... on SceneMultiSelectAttributeDTO {
+                            multiSelectValue {
+                                id
+                                name
+                            }
+                        }
+                        ... on SceneTextAttributeDTO {
+                            textValue
+                        }
+                    }
+                }
+                ... on ScenePayload {
+                    scene {
+                        id
+                        position
+                        shotCount
+                        attributes {
+                            id
+                            type
+                            definition {
+                                id
+                                name
+                                position
+                                type
+                            }
+                            ... on SceneSingleSelectAttributeDTO {
+                                singleSelectValue {
+                                    id
+                                    name
+                                }
+                            }
+                            ... on SceneMultiSelectAttributeDTO {
+                                multiSelectValue {
+                                    id
+                                    name
+                                }
+                            }
+                            ... on SceneTextAttributeDTO {
+                                textValue
+                            }
+                        }
+                    }
+                }
+                ... on SceneSelectOptionPayload {
+                    optionDefinition {
+                        id
+                        name
+                        sceneAttributeDefinition {
+                            id
+                        }
+                    }
+                }
+                ... on ShotSelectOptionPayload {
+                    optionDefinition {
+                        id
+                        name
+                        shotAttributeDefinition {
+                            id
+                        }
+                    }
+                }
+                ... on SelectedCellPayload {
+                    row
+                    column
+                    sceneId
+                }
+                ... on SelectedSceneAttributePayload {
+                    attributeId
+                    sceneId
+                }
+                ... on ShotlistPayload {
+                    shotlist {
+                        name
+                        archived
+                    }
+                }
+                ... on EmptyPayload {
+                    success
                 }
             }
         }
@@ -112,15 +272,15 @@ export function useShotlistSync({
         }
     }, [error])
 
-    // Optional: Log connection state
+    //log reconnect after error
     useEffect(() => {
-        if (!loading && !error) {
+        if (!error) {
             successNotification({
                 title: "Connected to sync service",
                 message: "Incoming changes can now be synced in real-time",
             })
         }
-    }, [loading, error])
+    }, [error])
 
     const send = (updateDTO: ShotlistUpdateDto) => {
         if(!websocketRef.current) return

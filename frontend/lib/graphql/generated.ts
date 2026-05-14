@@ -2068,23 +2068,83 @@ export type OnShotlistUpdateSubscriptionVariables = Exact<{
 }>;
 
 
-export type OnShotlistUpdateSubscription = { __typename?: 'Subscription', shotlistUpdates?: { __typename?: 'ShotlistUpdateDTO', type?: ShotlistUpdateType | null, userId?: string | null, payload?:
-      | { __typename?: 'CollaborationPayload' }
-      | { __typename?: 'EmptyPayload' }
+export type OnShotlistUpdateSubscription = { __typename?: 'Subscription', shotlistUpdates?: { __typename?: 'ShotlistUpdateDTO', type?: ShotlistUpdateType | null, userId?: string | null, timestamp?: any | null, payload?:
+      | { __typename?: 'CollaborationPayload', userId?: string | null, type?: CollaborationType | null }
+      | { __typename?: 'EmptyPayload', success: boolean }
       | { __typename?: 'PresentCollaboratorsPayload', collaborators?: Array<{ __typename?: 'UserMinimalDTO', id?: string | null, name?: string | null } | null> | null }
-      | { __typename?: 'SceneAttributePayload' }
-      | { __typename?: 'ScenePayload' }
-      | { __typename?: 'SceneSelectOptionPayload' }
-      | { __typename?: 'SelectedCellPayload' }
-      | { __typename?: 'SelectedSceneAttributePayload' }
-      | { __typename?: 'ShotAttributePayload', shotId?: string | null, sceneId?: string | null, attribute?:
-          | { __typename?: 'ShotMultiSelectAttributeDTO', id?: any | null, type?: string | null }
-          | { __typename?: 'ShotSingleSelectAttributeDTO', id?: any | null, type?: string | null }
-          | { __typename?: 'ShotTextAttributeDTO', id?: any | null, type?: string | null }
+      | { __typename?: 'SceneAttributePayload', attribute?:
+          | { __typename?: 'SceneMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
+              | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+             | null }
+          | { __typename?: 'SceneSingleSelectAttributeDTO', id?: any | null, type?: string | null, singleSelectValue?: { __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
+              | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+             | null }
+          | { __typename?: 'SceneTextAttributeDTO', textValue?: string | null, id?: any | null, type?: string | null, definition?:
+              | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+             | null }
          | null }
-      | { __typename?: 'ShotPayload' }
-      | { __typename?: 'ShotSelectOptionPayload' }
-      | { __typename?: 'ShotlistPayload' }
+      | { __typename?: 'ScenePayload', scene?: { __typename?: 'SceneDTO', id?: string | null, position: number, shotCount: number, attributes?: Array<
+            | { __typename?: 'SceneMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
+                | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+               | null }
+            | { __typename?: 'SceneSingleSelectAttributeDTO', id?: any | null, type?: string | null, singleSelectValue?: { __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
+                | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+               | null }
+            | { __typename?: 'SceneTextAttributeDTO', textValue?: string | null, id?: any | null, type?: string | null, definition?:
+                | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+               | null }
+           | null> | null } | null }
+      | { __typename?: 'SceneSelectOptionPayload', optionDefinition?: { __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null, sceneAttributeDefinition?: { __typename?: 'SceneAttributeDefinitionBase', id?: any | null } | null } | null }
+      | { __typename?: 'SelectedCellPayload', row: number, column: number, sceneId?: string | null }
+      | { __typename?: 'SelectedSceneAttributePayload', attributeId?: any | null, sceneId?: string | null }
+      | { __typename?: 'ShotAttributePayload', shotId?: string | null, sceneId?: string | null, attribute?:
+          | { __typename?: 'ShotMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
+              | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+             | null }
+          | { __typename?: 'ShotSingleSelectAttributeDTO', id?: any | null, type?: string | null, singleSelectValue?: { __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
+              | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+             | null }
+          | { __typename?: 'ShotTextAttributeDTO', textValue?: string | null, id?: any | null, type?: string | null, definition?:
+              | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+             | null }
+         | null }
+      | { __typename?: 'ShotPayload', shot?: { __typename?: 'ShotDTO', id?: string | null, position: number, sceneId?: string | null, subshot: boolean, attributes?: Array<
+            | { __typename?: 'ShotMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
+                | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+               | null }
+            | { __typename?: 'ShotSingleSelectAttributeDTO', id?: any | null, type?: string | null, singleSelectValue?: { __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
+                | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+               | null }
+            | { __typename?: 'ShotTextAttributeDTO', textValue?: string | null, id?: any | null, type?: string | null, definition?:
+                | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+               | null }
+           | null> | null } | null }
+      | { __typename?: 'ShotSelectOptionPayload', optionDefinition?: { __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null, shotAttributeDefinition?: { __typename?: 'ShotAttributeDefinitionBase', id?: any | null } | null } | null }
+      | { __typename?: 'ShotlistPayload', shotlist?: { __typename?: 'ShotlistMinimalDTO', name?: string | null, archived?: boolean | null } | null }
       | { __typename?: 'UserPayload', user?: { __typename?: 'UserMinimalDTO', id?: string | null, name?: string | null } | null }
      | null } | null };
 
@@ -5191,6 +5251,7 @@ export const OnShotlistUpdateDocument = gql`
   shotlistUpdates(shotlistId: $shotlistId, userId: $userId) {
     type
     userId
+    timestamp
     payload {
       ... on PresentCollaboratorsPayload {
         collaborators {
@@ -5204,13 +5265,166 @@ export const OnShotlistUpdateDocument = gql`
           name
         }
       }
+      ... on CollaborationPayload {
+        userId
+        type
+      }
       ... on ShotAttributePayload {
         shotId
         sceneId
         attribute {
           id
           type
+          definition {
+            id
+            name
+            position
+            type
+          }
+          ... on ShotSingleSelectAttributeDTO {
+            singleSelectValue {
+              id
+              name
+            }
+          }
+          ... on ShotMultiSelectAttributeDTO {
+            multiSelectValue {
+              id
+              name
+            }
+          }
+          ... on ShotTextAttributeDTO {
+            textValue
+          }
         }
+      }
+      ... on ShotPayload {
+        shot {
+          id
+          position
+          sceneId
+          subshot
+          attributes {
+            id
+            type
+            definition {
+              id
+              name
+              position
+              type
+            }
+            ... on ShotSingleSelectAttributeDTO {
+              singleSelectValue {
+                id
+                name
+              }
+            }
+            ... on ShotMultiSelectAttributeDTO {
+              multiSelectValue {
+                id
+                name
+              }
+            }
+            ... on ShotTextAttributeDTO {
+              textValue
+            }
+          }
+        }
+      }
+      ... on SceneAttributePayload {
+        attribute {
+          id
+          type
+          definition {
+            id
+            name
+            position
+            type
+          }
+          ... on SceneSingleSelectAttributeDTO {
+            singleSelectValue {
+              id
+              name
+            }
+          }
+          ... on SceneMultiSelectAttributeDTO {
+            multiSelectValue {
+              id
+              name
+            }
+          }
+          ... on SceneTextAttributeDTO {
+            textValue
+          }
+        }
+      }
+      ... on ScenePayload {
+        scene {
+          id
+          position
+          shotCount
+          attributes {
+            id
+            type
+            definition {
+              id
+              name
+              position
+              type
+            }
+            ... on SceneSingleSelectAttributeDTO {
+              singleSelectValue {
+                id
+                name
+              }
+            }
+            ... on SceneMultiSelectAttributeDTO {
+              multiSelectValue {
+                id
+                name
+              }
+            }
+            ... on SceneTextAttributeDTO {
+              textValue
+            }
+          }
+        }
+      }
+      ... on SceneSelectOptionPayload {
+        optionDefinition {
+          id
+          name
+          sceneAttributeDefinition {
+            id
+          }
+        }
+      }
+      ... on ShotSelectOptionPayload {
+        optionDefinition {
+          id
+          name
+          shotAttributeDefinition {
+            id
+          }
+        }
+      }
+      ... on SelectedCellPayload {
+        row
+        column
+        sceneId
+      }
+      ... on SelectedSceneAttributePayload {
+        attributeId
+        sceneId
+      }
+      ... on ShotlistPayload {
+        shotlist {
+          name
+          archived
+        }
+      }
+      ... on EmptyPayload {
+        success
       }
     }
   }
