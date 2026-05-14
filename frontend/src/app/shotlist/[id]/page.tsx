@@ -633,8 +633,6 @@ export default function Shotlist() {
 
                             presentCollaborators={Array.from(presentCollaborators?.values().map(c => c.user) || [])}
 
-                            refreshWebsocketConnection={() => sync.connect(true)}
-
                             ref={sidebarRef}
                         />
                     </Panel>

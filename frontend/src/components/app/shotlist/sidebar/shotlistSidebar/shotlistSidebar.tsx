@@ -43,7 +43,6 @@ export interface ShotlistSidebarProps {
     setSidebarOpen: (open: boolean) => void
     openShotlistOptionsDialog: () => void
     presentCollaborators: UserMinimalDto[]
-    refreshWebsocketConnection: () => void
 }
 
 const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
@@ -58,7 +57,6 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
     setSidebarOpen,
     openShotlistOptionsDialog,
     presentCollaborators,
-    refreshWebsocketConnection
 }, ref) =>{
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
@@ -447,12 +445,9 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                             presentCollaborators && presentCollaborators.length > 0 && (
                                 <SimplePopover
                                     content={
-                                        <>
-                                            {Array.from(presentCollaborators).map(user => (
-                                                <p key={user.id}>{user.name}</p>
-                                            ))}
-                                            <button className="refresh default" onClick={refreshWebsocketConnection}>refresh connection</button>
-                                        </>
+                                        Array.from(presentCollaborators).map(user => (
+                                            <p key={user.id}>{user.name}</p>
+                                        ))
                                     }
                                     contentClassName={"collaborators"}
                                     className={"collaborators"}

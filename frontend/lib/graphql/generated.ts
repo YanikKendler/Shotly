@@ -684,11 +684,6 @@ export type SceneDto = {
   shots?: Maybe<Array<Maybe<ShotDto>>>;
 };
 
-export type SceneDetailPayload = {
-  __typename?: 'SceneDetailPayload';
-  scene?: Maybe<SceneDto>;
-};
-
 export type SceneEditDtoInput = {
   id?: InputMaybe<Scalars['String']['input']>;
   position: Scalars['Int']['input'];
@@ -722,11 +717,7 @@ export type SceneMultiSelectAttributeTemplateDto = SceneAttributeTemplateBaseDto
 
 export type ScenePayload = {
   __typename?: 'ScenePayload';
-  /** ISO-8601 */
-  createdAt?: Maybe<Scalars['DateTime']['output']>;
-  id?: Maybe<Scalars['String']['output']>;
-  position: Scalars['Int']['output'];
-  shotCount: Scalars['Int']['output'];
+  scene?: Maybe<SceneDto>;
 };
 
 export type SceneSelectAttributeOptionCreateDtoInput = {
@@ -938,11 +929,6 @@ export type ShotDto = {
   subshot: Scalars['Boolean']['output'];
 };
 
-export type ShotDetailPayload = {
-  __typename?: 'ShotDetailPayload';
-  shot?: Maybe<ShotDto>;
-};
-
 export type ShotEditDtoInput = {
   id?: InputMaybe<Scalars['String']['input']>;
   position: Scalars['Int']['input'];
@@ -976,12 +962,7 @@ export type ShotMultiSelectAttributeTemplateDto = ShotAttributeTemplateBaseDto &
 
 export type ShotPayload = {
   __typename?: 'ShotPayload';
-  /** ISO-8601 */
-  createdAt?: Maybe<Scalars['DateTime']['output']>;
-  id?: Maybe<Scalars['String']['output']>;
-  position: Scalars['Int']['output'];
-  sceneId?: Maybe<Scalars['String']['output']>;
-  subshot: Scalars['Boolean']['output'];
+  shot?: Maybe<ShotDto>;
 };
 
 export type ShotSelectAttributeOptionCreateDtoInput = {
@@ -1159,7 +1140,7 @@ export type ShotlistUpdateDto = {
   userId?: Maybe<Scalars['String']['output']>;
 };
 
-export type ShotlistUpdatePayload = CollaborationPayload | EmptyPayload | PresentCollaboratorsPayload | SceneAttributePayload | SceneDetailPayload | ScenePayload | SceneSelectOptionPayload | SelectedCellPayload | SelectedSceneAttributePayload | ShotAttributePayload | ShotDetailPayload | ShotPayload | ShotSelectOptionPayload | ShotlistPayload | UserPayload;
+export type ShotlistUpdatePayload = CollaborationPayload | EmptyPayload | PresentCollaboratorsPayload | SceneAttributePayload | ScenePayload | SceneSelectOptionPayload | SelectedCellPayload | SelectedSceneAttributePayload | ShotAttributePayload | ShotPayload | ShotSelectOptionPayload | ShotlistPayload | UserPayload;
 
 export enum ShotlistUpdateType {
   CollaborationDeleted = 'COLLABORATION_DELETED',
@@ -2092,13 +2073,15 @@ export type OnShotlistUpdateSubscription = { __typename?: 'Subscription', shotli
       | { __typename?: 'EmptyPayload' }
       | { __typename?: 'PresentCollaboratorsPayload', collaborators?: Array<{ __typename?: 'UserMinimalDTO', id?: string | null, name?: string | null } | null> | null }
       | { __typename?: 'SceneAttributePayload' }
-      | { __typename?: 'SceneDetailPayload' }
       | { __typename?: 'ScenePayload' }
       | { __typename?: 'SceneSelectOptionPayload' }
       | { __typename?: 'SelectedCellPayload' }
       | { __typename?: 'SelectedSceneAttributePayload' }
-      | { __typename?: 'ShotAttributePayload' }
-      | { __typename?: 'ShotDetailPayload' }
+      | { __typename?: 'ShotAttributePayload', shotId?: string | null, sceneId?: string | null, attribute?:
+          | { __typename?: 'ShotMultiSelectAttributeDTO', id?: any | null, type?: string | null }
+          | { __typename?: 'ShotSingleSelectAttributeDTO', id?: any | null, type?: string | null }
+          | { __typename?: 'ShotTextAttributeDTO', id?: any | null, type?: string | null }
+         | null }
       | { __typename?: 'ShotPayload' }
       | { __typename?: 'ShotSelectOptionPayload' }
       | { __typename?: 'ShotlistPayload' }
@@ -5219,6 +5202,14 @@ export const OnShotlistUpdateDocument = gql`
         user {
           id
           name
+        }
+      }
+      ... on ShotAttributePayload {
+        shotId
+        sceneId
+        attribute {
+          id
+          type
         }
       }
     }
