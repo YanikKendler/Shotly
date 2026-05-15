@@ -1,9 +1,9 @@
 import {useRouter, useSearchParams} from "next/navigation"
-import React, {useContext, useEffect, useState} from "react"
-import {Dialog} from "radix-ui"
+import React, {useContext, useEffect, useRef, useState} from "react"
 import "./justBoughtProDialog.scss"
 import {DashboardContext, DialogStep} from "@/context/DashboardContext"
 import Config from "@/Config"
+import Dialog, {DialogRef} from "@/components/basic/dialog/dialog"
 
 export default function JustBoughtProDialog(){
     const router = useRouter()
@@ -13,41 +13,35 @@ export default function JustBoughtProDialog(){
     const justBoughtPro = searchParams?.get('jbp') === 'true'
     const [justBoughtProDialogOpen, setJustBoughtProDialogOpen] = useState<boolean>(justBoughtPro)
 
+    const dialogRef = useRef<DialogRef>(null);
+
     useEffect(() => {
         if(dashboardContext.dialogStep !== DialogStep.PRO) return
 
         if (justBoughtPro || Config.OVERRIDE_INTRO_CHECKS) {
-            setJustBoughtProDialogOpen(true)
+            dialogRef.current?.setOpen(true)
         }
         else{
             dashboardContext.incrementDialogStep(DialogStep.PRO)
         }
     }, [dashboardContext.dialogStep])
 
-    const closeJustBoughtProDialog = ()  => {
-        dashboardContext.incrementDialogStep(DialogStep.PRO)
-
-        setJustBoughtProDialogOpen(false)
-
-        router.replace("/dashboard")
-    }
-
-    //not using onOpenChange because esc behaves weirdly
     return (
-        <Dialog.Root open={justBoughtProDialogOpen}>
-            <Dialog.Portal>
-                <Dialog.Overlay className={"dialogOverlay"}/>
-                <Dialog.Content
-                    aria-describedby={"just bought pro dialog"}
-                    className={"justBoughtProDialogContent dialogContent"}
+        <Dialog
+            ref={dialogRef}
+            onOpenChange={isOpen => {
+                if(!isOpen) {
+                    dashboardContext.incrementDialogStep(DialogStep.PRO)
 
-                >
-                    <Dialog.Title className={"title"}>Thank you for subscribing to Shotly Pro!</Dialog.Title>
-                    <p className={"financing"}>You are financing the development and server costs of Shotly, I am very grateful for that.</p>
-                    <p className={"issues"}>I hope you are satisfied with your purchase! If you do however encounter any problems, please open an issue via the account tab.</p>
-                    <button onClick={closeJustBoughtProDialog}>Start creating</button>
-                </Dialog.Content>
-            </Dialog.Portal>
-        </Dialog.Root>
+                    router.replace("/dashboard")
+                }
+            }}
+            contentClassName={"justBoughtProDialogContent"}
+        >
+            <h2>Thank you for subscribing to Shotly Pro!</h2>
+            <p className={"financing"}>You are financing the development and server costs of Shotly, I am very grateful for that.</p>
+            <p className={"issues"}>I hope you are satisfied with your purchase! If you do however encounter any problems, please don't hesitate to contact me via the account tab.</p>
+            <button onClick={() => dialogRef.current?.setOpen(false)}>Start creating</button>
+        </Dialog>
     )
 }

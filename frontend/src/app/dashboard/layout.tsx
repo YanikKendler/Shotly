@@ -27,6 +27,7 @@ import {CHANGELOG} from "@/data/changelog"
 import DashboardFloater from "@/components/app/dashboard/dashboardFloater/dashboardFloater";
 import DashboardSidebar, {DashboardSidebarRef} from "@/components/app/dashboard/sidebar/dashboardSidebar/dashboardSidebar"
 import useDashboardKeybinds from "@/service/useDashboardKeybinds"
+import DashboardDialogFloater from "@/components/app/dashboard/dashboardDialogFloater/dashboardDialogFloater"
 
 export interface DashboardQueryConf {
     loadShotlists: boolean
@@ -274,7 +275,9 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
             <JustBoughtProDialog/>
 
-            <div className={"dialogFloater"}>
+            <DashboardDialogFloater
+                visible={enterNameFloaterVisible || howDidYouHearFloaterVisible || changelogFloaterVisible}
+            >
                 {
                     enterNameFloaterVisible &&
                     <EnterNameFloater hideFloater={() => setEnterNameFloaterVisible(false)}/>
@@ -290,7 +293,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                         localStorage.setItem(Config.localStorageKey.latestVersionUsed, CHANGELOG[0].version)
                     }}/>
                 }
-            </div>
+            </DashboardDialogFloater>
         </main>
         </DashboardContext.Provider>
     );

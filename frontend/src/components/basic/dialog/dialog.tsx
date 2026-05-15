@@ -10,6 +10,7 @@ interface DialogProps {
     contentClassName?: string
     keyBinds?: KeyBindingMap
     showScrollGradient?: boolean
+    defaultOpen?: boolean
 }
 
 export interface DialogRef {
@@ -26,7 +27,8 @@ const Dialog = forwardRef<DialogRef, DialogProps>(({
     onRenderFinish = () => {},
     contentClassName = "",
     keyBinds = {},
-    showScrollGradient = false
+    showScrollGradient = false,
+    defaultOpen = false
 }, ref) => {
     const dialogElement = useRef<HTMLDivElement>(null)
     const removeKeyBinds = useRef<() => void>(() => {})
@@ -39,8 +41,9 @@ const Dialog = forwardRef<DialogRef, DialogProps>(({
 
         initialRenderFinished.current = true
         onRenderFinish()
+        if(defaultOpen == true)
+            open()
     }, [dialogElement.current])
-
 
     useImperativeHandle(ref, () => ({
         open: open,
@@ -52,7 +55,7 @@ const Dialog = forwardRef<DialogRef, DialogProps>(({
                 open()
         },
         setOpen: (isOpen) => {
-            if(open)
+            if(isOpen)
                 open()
             else
                 close()
@@ -88,7 +91,7 @@ const Dialog = forwardRef<DialogRef, DialogProps>(({
                 close()
             },
             ...keyBinds
-        })
+        }, {event: "keyup"})
     }
 
     const close = () => {
