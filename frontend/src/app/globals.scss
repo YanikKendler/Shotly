@@ -488,7 +488,7 @@ span.chip{
       top: 0;
       bottom: 0;
       left: 0;
-      z-index: 100;
+      z-index: 250;
       background-color: var(--transparent-gray-10);
       backdrop-filter: blur(10px);
       width: 100vw;
@@ -852,25 +852,46 @@ body .driver-popover {
     border-radius: .3rem;
 
     &.driver-popover-prev-btn{
-      border: .15rem solid var(--accent);
+      border: none;
       background-color: transparent;
-      color: var(--accent);
+      color: var(--text-40);
 
       &:not([disabled]):hover{
-        background-color: var(--transparent-accent-10);
-        color: var(--accent-44);
-        border-color: var(--accent-55);
+        background-color: var(--transparent-gray-10);
+        color: var(--text);
       }
     }
 
     &.driver-popover-next-btn{
-      background-color: var(--accent);
+      background-color: var(--transparent-accent-20);
       border: none;
-      color: var(--contrast);
+      color: var(--accent);
 
       &:hover{
-        background-color: var(--accent-60);
+        background-color: var(--transparent-accent-30);
       }
+    }
+
+    .iconContainer{
+      display: flex;
+      height: 100%;
+      align-items: center;
+      gap: .2rem;
+
+      .text{
+        translate: 0 .1rem;
+      }
+    }
+  }
+
+  .driver-popover-close-btn{
+    color: var(--text-50);
+    border-radius: 10rem;
+    margin: .2rem;
+
+    &:hover{
+      background-color: var(--transparent-gray-10);
+      color: var(--text);
     }
   }
 }

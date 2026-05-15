@@ -41,6 +41,7 @@ import CreateShotAttributeTemplatePopup
     from "@/components/app/template/createShotAttributeTemplatePopup/createShotAttributeTemplatePopup"
 import CreateSceneAttributeTemplatePopup
     from "@/components/app/template/createSceneAttributeTemplatePopup/createSceneAttributeTemplatePopup"
+import useIntro from "@/service/useIntro"
 
 export default function Template (){
     const params = useParams<{ id: string }>()
@@ -58,17 +59,42 @@ export default function Template (){
             coordinateGetter: sortableKeyboardCoordinates,
         }),
         useSensor(TouchSensor)
-    );
+    )
 
-    const driverObj = driver({
-        showProgress: true,
-        allowClose: true,
+    const intro = useIntro({
         steps: [
-            { popover: { title: 'Templates', description: 'Templates store any number of attributes for scenes and shotlists. A template can be selected when creating a new shotlist.' } },
-            { element: '.attributeTemplates', popover: { title: 'Shot Attributes', description: `Every shotlist that is created based on this template will automatically have all the attributes that are defined here.`, side: "left", align: 'center' }},
-            { element: '.infoTrigger', popover: { title: 'More info', description: 'You can always click here to read up on templates.', side: "bottom", align: 'center' }},
-            { element: 'button.add', popover: { description: 'Click here to add a new shot attribute to this template.', side: "bottom", align: 'center' }},
-        ]
+            { popover: {
+                title: 'Templates',
+                description: 'Templates store any number of attributes for scenes and shotlists. A template can be selected when creating a new shotlist.'
+            } },
+            {
+                element: '.attributeTemplates',
+                popover: {
+                    title: 'Shot Attributes',
+                    description: `Every shotlist that is created based on this template will automatically have all the attributes that are defined here.`,
+                    side: "left",
+                    align: 'center'
+                }
+            },
+            {
+                element: '.infoTrigger',
+                popover: {
+                    title: 'More info',
+                    description: 'You can always click here to read up on templates.',
+                    side: "bottom",
+                    align: 'center'
+                }
+            },
+            {
+                element: 'button.add',
+                popover: {
+                    description: 'Click here to add a new shot attribute to this template.',
+                    side: "bottom",
+                    align: 'center'
+                }
+            },
+        ],
+        telemetryLocation: "Template"
     })
 
     useEffect(() => {
@@ -90,7 +116,7 @@ export default function Template (){
 
         if(localStorage.getItem(Config.localStorageKey.templateTourCompleted) != "true") {
             localStorage.setItem(Config.localStorageKey.templateTourCompleted,"true")
-            driverObj.drive()
+            intro.show()
         }
     }, [id]);
 

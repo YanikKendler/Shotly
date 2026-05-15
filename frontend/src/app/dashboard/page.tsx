@@ -4,19 +4,18 @@ import Link from "next/link"
 import "./dashboard.scss"
 import React, {useContext, useEffect, useState} from "react"
 import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
-import {ArrowRight, Plus,} from "lucide-react"
+import {ArrowRight, ChevronLeft, ChevronRight, Plus,} from "lucide-react"
 import {ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
 import {useCreateShotlistDialog} from "@/components/app/dialogs/createShotlistDialog/createShotlistDialog"
 import Utils from "@/utility/Utils"
 import Config from "@/Config"
 import {useCreateTemplateDialog} from "@/components/app/dialogs/createTemplateDialog/createTemplateDialog"
-import {driver} from "driver.js"
-import "driver.js/dist/driver.css";
 import Skeleton from "react-loading-skeleton"
 import {DashboardContext, DialogStep} from "@/context/DashboardContext"
 import DashboardGridShotlist from "@/components/app/dashboard/grid/dashboardGridItem/dashboardGridShotlist"
 import DashboardGridTemplate from "@/components/app/dashboard/grid/dashboardGridItem/dashboardGridTemplate"
 import DashboardGrid from "@/components/app/dashboard/grid/dashboardGrid/dashboardGrid"
+import useIntro from "@/service/useIntro"
 
 export default function Overview() {
     const dashboardContext = useContext(DashboardContext)
@@ -27,28 +26,39 @@ export default function Overview() {
     const { openCreateShotlistDialog, CreateShotlistDialog } = useCreateShotlistDialog()
     const { openCreateTemplateDialog, CreateTemplateDialog } = useCreateTemplateDialog()
 
-    const driverObj = driver({
-        showProgress: true,
-        allowClose: true,
+    const intro = useIntro({
         steps: [
             { popover: { title: 'Welcome to Shotly', description: 'You will now get a quick tour of the Dashboard.' } },
-            { element: '.sidebar', popover: {
-                title: 'The Sidebar',
-                description: 'Here you see all your shotlists and Templates. You currently dont have any Shotlists, but a default Template was automatically created!',
-                side: "right",
-                align: 'center'
-            }},
-            { element: '.sidebar .content .list .bottom', popover: {
-                title: 'Account & Activity',
-                description: 'If someone invites you to their shotlist the request will be visible under "Collaborations". Using the "Account" button you can modify your account and change your settings.',
-                side: "right",
-                align: 'center'
-            }},
-            { element: '.gridItem.add.shotlist', popover: { description: 'Click here to create a new Shotlist.', side: "bottom", align: 'center' }},
+            {
+                element: '.sidebar',
+                popover: {
+                    title: 'The Sidebar',
+                    description: 'Here you see all your shotlists and Templates. You currently dont have any Shotlists, but a default Template was automatically created!',
+                    side: "right",
+                    align: 'center'
+                }
+            },
+            {
+                element: '.sidebar .content .list .bottom',
+                popover: {
+                    title: 'Account & Activity',
+                    description: 'Shotlist invites will be visible under "Collaborations". Using the "Account" button you can modify your account and change your settings.',
+                    side: "right",
+                    align: 'center'
+                }
+            },
+            {
+                element: window.innerWidth < 500 ? '.sidebar .content .list .bottom .new.shotlist' : '.dashboardGridItem.add.shotlist',
+                popover: {
+                    title: "Your next step",
+                    description: 'Click here to create a new Shotlist.',
+                    side: "bottom",
+                    align: 'center'
+                }
+            },
         ],
-        onDestroyed: () => {
-            dashboardContext.incrementDialogStep(DialogStep.TOUR)
-        },
+        telemetryLocation: "Dashboard",
+        onDestroy: () => dashboardContext.incrementDialogStep(DialogStep.TOUR)
     })
 
     //dashboard tour
@@ -57,7 +67,7 @@ export default function Overview() {
 
         if(localStorage.getItem(Config.localStorageKey.dashboardTourCompleted) != "true" || Config.OVERRIDE_INTRO_CHECKS){
             localStorage.setItem(Config.localStorageKey.dashboardTourCompleted, "true")
-            driverObj.drive()
+            intro.show()
         }
         else{
             dashboardContext.incrementDialogStep(DialogStep.TOUR)
@@ -121,7 +131,7 @@ export default function Overview() {
                     <DashboardGridShotlist shotlist={shotlist} key={shotlist.id}/>
                 ))}
                 <button className={"dashboardGridItem add shotlist"} onClick={() => {
-                    driverObj.destroy()
+                    intro.cancel()
                     openCreateShotlistDialog()
                 }}>
                     <span><Plus size={22}/>New Shotlist</span>

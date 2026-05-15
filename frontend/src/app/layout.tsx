@@ -12,6 +12,7 @@ import {Toaster} from "react-hot-toast"
 import {CircleAlert, CircleCheck} from "lucide-react"
 import Link from "next/link"
 import Ralph from "@/components/app/ralph/ralph"
+import "driver.js/dist/driver.css";
 
 export const metadata: Metadata = {
     description:

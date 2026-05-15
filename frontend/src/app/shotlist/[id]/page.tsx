@@ -16,26 +16,24 @@ import './shotlist.scss'
 import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import ShotlistOptionsDialog, {
-    ShotlistOptionsDialogMainPage, ShotlistOptionsDialogPages, ShotlistOptionsDialogRef,
-    ShotlistOptionsDialogSubPage
+    ShotlistOptionsDialogPages, ShotlistOptionsDialogRef,
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import LoadingPage from "@/components/app/feedback/loadingPage/loadingPage"
 import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
 import auth from "@/Auth"
 import {driver} from "driver.js"
-import "driver.js/dist/driver.css";
 import Utils, {uuidRegex} from "@/utility/Utils"
 import Config from "@/Config"
 import {GenericError, RowColumn, SelectOption, ShotlyErrorCode} from "@/utility/Types"
 import SheetManager, {SheetManagerRef} from "@/components/app/shotlist/table/sheetManager/sheetManager"
 import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/app/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
 import {errorNotification} from "@/service/NotificationService"
-import {DialogRef} from "@/components/basic/dialog/dialog"
 import {useShotlistSync} from "@/service/useShotlistSync"
 import useShotlistKeybinds from "@/service/useShotlistKeybinds"
 import ShotlistFloater, {ShotlistFloaterRef} from "@/components/app/shotlist/shotlistFloater/shotlistFloater"
 import ReadOnlyBanner from "@/components/app/shotlist/readOnlyBanner/readOnlyBanner"
 import ShotlistHeader from "@/components/app/shotlist/shotlistHeader/shotlistHeader"
+import useIntro from "@/service/useIntro"
 
 export interface SelectedScene {
     id: string | null
@@ -103,15 +101,14 @@ export default function Shotlist() {
 
     const blockKeyBindsMap = useRef(new Map<string, boolean>())
 
-    const driverObj = driver({
-        showProgress: true,
-        allowClose: true,
+    const intro = useIntro({
         steps: [
             { popover: { title: 'Your first Shotlist', description: 'This is where the fun beginns!' } },
             { element: '#sceneList', popover: { title: 'Scenes', description: 'Every scene has the same attributes(like location, time, actors etc.) which are defined via the shotlist options.', side: "right", align: 'center' }},
             { element: '#shotTable', popover: { title: 'Shots', description: 'Here you see all the shots of the currently selected scene. Each shot has a few attributes which are defined via the shotlist options.', side: "over", align: 'center' }},
             { element: '#shotlistOptions', popover: { title: 'Shotlist Options', description: 'Click here to open the shotlist options menu.', side: "top", align: 'center' }},
-        ]
+        ],
+        telemetryLocation: "Shotlist"
     })
 
     useEffect(() => {
@@ -143,7 +140,7 @@ export default function Shotlist() {
         if(!query.loading && !query.error && query.data && query.data.shotlist && query.data.shotlist.id) {
             if(localStorage.getItem(Config.localStorageKey.shotlistTourCompleted) != "true") {
                 localStorage.setItem(Config.localStorageKey.shotlistTourCompleted, "true")
-                driverObj.drive()
+                intro.show()
             }
         }
 
@@ -614,7 +611,7 @@ export default function Shotlist() {
 
                             openShotlistOptionsDialog={() => {
                                 shotlistOptionsDialogRef.current?.open()
-                                driverObj.destroy()
+                                intro.cancel()
                             }}
 
                             presentCollaborators={Array.from(presentCollaborators?.values().map(c => c.user) || [])}
@@ -640,7 +637,7 @@ export default function Shotlist() {
                             shotlistHeaderRef={headerRef}
                             setAdditionalPadding={(needsPadding) => {
                                 shotlistElementRef?.current?.style
-                                    .setProperty("--sheet-additional-padding-right", needsPadding ? "1.5rem" : "0rem")
+                                    .setProperty("--sheet-additional-padding-right", needsPadding ? "1.2rem" : "0rem")
                             }}
                         />
                     </Panel>
