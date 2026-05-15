@@ -27,8 +27,7 @@ import {ApolloQueryResult, useApolloClient, useSubscription} from "@apollo/clien
 import {useRouter} from "next/navigation"
 import gql from "graphql-tag"
 import {ShotlistContext} from "@/context/ShotlistContext"
-
-//TODO reload shotlist after reconnecting
+import {wuConstants} from "@yanikkendler/web-utils/dist"
 
 /**
  * It would be lovely to only query the shot attributes for example if the shot was created
@@ -278,6 +277,8 @@ export function useShotlistSync({
     const collaboratorSelectedCell = useRef<Map<string, SelectedCellPayload>>(new Map())
     const collaboratorSelectedSceneAttribute = useRef<Map<string, SelectedSceneAttributePayload>>(new Map())
 
+    const initialConnectTimestamp = useRef<number>(-1);
+
     const { data, loading, error } = useSubscription(SHOTLIST_UPDATES_SUBSCRIPTION, {
         skip: !currentUserId || !shotlistId,
         variables: { shotlistId, userId: currentUserId },
@@ -291,26 +292,20 @@ export function useShotlistSync({
         }
     })
 
-    // Handle high-level error notifications
     useEffect(() => {
-        if (error) { //error
+        if (error) {
             console.error('GraphQL Subscription error:', error)
             errorNotification({
                 title: "Could not sync incoming changes",
                 message: "Connection lost. Automatically retrying!",
                 autoClose: 5000
             })
-            shotlistContext.setSaveState("sync", "error")
         }
-        if(error && loading) { //reconnecting
-            shotlistContext.setSaveState("sync", "saving")
-        }
-        if (!error) { //after reconnect
-            /*successNotification({
-                title: "Connected to sync service",
-                message: "Incoming changes can now be synced in real-time",
-            })*/
-            shotlistContext.setSaveState("sync", "saved")
+        if(!error && !loading){
+            if(initialConnectTimestamp.current == -1)
+                initialConnectTimestamp.current = Date.now()
+            else if(initialConnectTimestamp.current < Date.now() - wuConstants.Time.msPerSecond * 10)
+                refreshShotlist().then()
         }
     }, [error, loading])
 
