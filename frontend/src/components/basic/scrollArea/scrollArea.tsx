@@ -1,6 +1,6 @@
 import React, {ReactNode, RefObject, UIEventHandler} from "react"
 import { ScrollArea as RadixScrollArea } from "radix-ui"
-import "./ScrollArea.scss"
+import "./scrollArea.scss"
 
 export default function ScrollArea({
     children,
