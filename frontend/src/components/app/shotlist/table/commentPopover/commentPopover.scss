@@ -3,6 +3,7 @@
   right: 0;
   width: 0;
   align-self: center;
+  z-index: 150;
 }
 
 .shotlist button.comments{
@@ -17,7 +18,6 @@
   transition: background-color .3s ease-out, color .3s ease-out, opacity 100ms;
   color: var(--accent);
   background-color: var(--comment-button-bg);
-  z-index: 150;
   border: 1px solid var(--default-interactable-border);
   opacity: 0;
 
@@ -36,7 +36,7 @@
   }
 
   &:hover{
-    background-color: var(--transparent-gray-30);
+    background-color: var(--comment-button-hover-bg);
     color: var(--accent-60);
   }
 

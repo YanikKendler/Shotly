@@ -28,6 +28,7 @@ import {useRouter} from "next/navigation"
 import gql from "graphql-tag"
 import {ShotlistContext} from "@/context/ShotlistContext"
 
+//TODO reload shotlist after reconnecting
 
 /**
  * It would be lovely to only query the shot attributes for example if the shot was created

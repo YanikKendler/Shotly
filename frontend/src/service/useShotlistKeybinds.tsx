@@ -30,6 +30,8 @@ export default function useShotlistKeybinds({
 }) {
     const router = useRouter()
 
+
+    //TODO show popover that informs that keybind is deactivated
     useEffect(() => {
         const isBlocked = () => {
             return Array.from(blockKeyBinds.current.values()).some(v => v == true)
