@@ -646,6 +646,7 @@ export default function Shotlist() {
                 <ShotlistFloater
                     ref={floaterRef}
                     refreshShotlist={refreshShotlist}
+                    restartSync={sync.restart}
                     reloadInProgress={reloadInProgress}
                     setSidebarOpen={setSidebarOpen}
                 />

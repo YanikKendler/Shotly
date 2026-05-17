@@ -279,7 +279,7 @@ export function useShotlistSync({
 
     const initialConnectTimestamp = useRef<number>(-1);
 
-    const { data, loading, error } = useSubscription(SHOTLIST_UPDATES_SUBSCRIPTION, {
+    const { data, loading, error, restart } = useSubscription(SHOTLIST_UPDATES_SUBSCRIPTION, {
         skip: !currentUserId || !shotlistId,
         variables: { shotlistId, userId: currentUserId },
         shouldResubscribe: true,
@@ -296,7 +296,7 @@ export function useShotlistSync({
         if (error) {
             console.error('GraphQL Subscription error:', error)
             errorNotification({
-                title: "Could not sync incoming changes",
+                title: "Shotlist sync error.",
                 message: "Connection lost. Automatically retrying!",
                 autoClose: 5000
             })
@@ -780,6 +780,7 @@ export function useShotlistSync({
     return {
         syncShotlistOptionsUpdated,
         syncShotlistCellSelected,
-        syncShotlistSceneAttributeSelected
+        syncShotlistSceneAttributeSelected,
+        restart
     }
 }

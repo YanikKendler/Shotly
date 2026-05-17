@@ -16,12 +16,14 @@ export interface ShotlistFloaterRef {
 export interface ShotlistFloaterProps {
     reloadInProgress: boolean
     refreshShotlist: () => Promise<void>
+    restartSync: () => void
     setSidebarOpen: Dispatch<SetStateAction<boolean>>
 }
 
 const ShotlistFloater = forwardRef<ShotlistFloaterRef, ShotlistFloaterProps>(({
     reloadInProgress,
     refreshShotlist,
+    restartSync,
     setSidebarOpen
 }, ref) => {
     const saveIndicatorRef = useRef<HTMLDivElement>(null)
@@ -46,8 +48,10 @@ const ShotlistFloater = forwardRef<ShotlistFloaterRef, ShotlistFloaterProps>(({
             wuAnimate.spin(refreshButtonRef.current, 300, 360)
 
         refreshShotlist().then(() => {
-            successNotification({title: "Shotlist reloaded.", message: "All data is up to date."})
+            successNotification({title: "Shotlist reloaded.", message: "All data is up to date.", sub: "Sync service was reconnected."})
         })
+
+        restartSync()
 
         setTimeout(() => {
             setRefreshBlocked(false)
