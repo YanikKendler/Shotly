@@ -18,17 +18,14 @@ export function makeClient() {
         uri: Config.backendURL + "/graphql",
     })
 
-    const wsLink = typeof window !== "undefined"
-        ? new GraphQLWsLink(createClient({
-            url: Config.backendURL.replace("http", "ws") + "/graphql",
-            connectionParams: async () => {
-                const token = auth.getIdToken();
-                return {
-                    authorization: token ? `Bearer ${token}` : "",
-                };
+    const wsLink = typeof window === "undefined" ? null : new GraphQLWsLink(
+        createClient({
+            url: async () => {
+                const token = auth.getIdToken()
+                return `${Config.websocketURL}/graphql?access_token=${token}`;
             },
-        }))
-        : null;
+        })
+    );
 
     const authLink = setContext(async (_, {headers}) => {
         const token = auth.getIdToken()

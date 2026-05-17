@@ -27,6 +27,7 @@ export interface CommentPopoverProps {
     showOnHover: boolean
 }
 
+//TODO readOnly support
 //TODO docs
 const CommentPopover = forwardRef<CommentPopoverRef, CommentPopoverProps>(({
     isOpen,
