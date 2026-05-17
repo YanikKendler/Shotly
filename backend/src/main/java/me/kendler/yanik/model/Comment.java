@@ -18,6 +18,7 @@ public class Comment extends PanacheEntityBase {
     public Shot shot;
     @ManyToOne
     public User user;
+    @Column(length = 1000)
     public String text;
     public boolean isArchived = false;
     public boolean isEdited = false;

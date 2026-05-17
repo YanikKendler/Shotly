@@ -26,6 +26,7 @@ export interface MarkdownEditorProps {
     autoFocus?: boolean
     delayClose?: boolean
     onCtrlEnter?: () => void
+    shortCharacterCountDisplay?: boolean
 }
 
 export interface MarkdownEditorAction {
@@ -53,16 +54,23 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
     toolbarCanHide = true,
     autoFocus = false,
     delayClose = false,
-    onCtrlEnter
+    onCtrlEnter,
+    shortCharacterCountDisplay = false
 }, ref) =>{
     const [forceToolBarHidden, setForceToolBarHidden] = useState(true)
+
+    const characterCountElement = useRef<HTMLSpanElement>(null)
 
     const editorElementRef = useRef<RefMDEditor>(null)
 
     useEffect(() => {
         //remove after first render to trigger toolbar animation
         setForceToolBarHidden(false)
-    }, []);
+    }, [])
+
+    useEffect(() => {
+        checkCharacterCount()
+    }, [value])
 
     useImperativeHandle(ref, () => ({
         focus: () => {
@@ -74,6 +82,32 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
         },
         forceToolBarHidden: () => setForceToolBarHidden(true)
     }))
+
+    const handleValueChange = (newValue: string | undefined) => {
+        if (!newValue || newValue.length <= 1000) {
+            onValueChange(newValue)
+            return
+        }
+    }
+
+    const checkCharacterCount = () => {
+        if(!characterCountElement.current) return
+
+        if(value && value.length >= 990) {
+            characterCountElement.current.style.display = "block"
+            characterCountElement.current.innerText = `${value.length}${shortCharacterCountDisplay ? "" : "/1000"}`
+        }
+        else {
+            characterCountElement.current.style.display = "none"
+        }
+
+        if(value && value.length >= 1000) {
+            characterCountElement.current.classList.add("max")
+        }
+        else {
+            characterCountElement.current.classList.remove("max")
+        }
+    }
 
     /**
      * custom command to remove the default behavior of selecting the inserted prefix
@@ -149,10 +183,14 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
         ] as ShotlyICommand[];
     }, [])
 
-    let extraCommands: ICommand[] = []
+    let extraCommands: ShotlyICommand[] = [{
+        name: 'characterCount',
+        keyCommand: 'characterCount',
+        execute: () => {},
+    }]
 
     if(actions && actions.length > 0)
-        extraCommands = actions.map(action => ({
+        actions.forEach(action => extraCommands.push({
             name: 'action',
             keyCommand: 'action',
             icon: action.icon,
@@ -161,7 +199,7 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
             label: action.label,
             humanReadableShortcut: action.humanReadableShortcut,
             disabled: action.disabled
-        })) as ShotlyICommand[]
+        }))
 
     return (
         <MDEditor
@@ -174,7 +212,7 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
                 ${delayClose && "delayClose"}
             `}
             value={value}
-            onChange={onValueChange}
+            onChange={handleValueChange}
             preview={"edit"}
             commands={customCommands}
             extraCommands={extraCommands}
@@ -200,6 +238,11 @@ const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
             components={{
                 toolbar: (command, disabled, executeCommand) => {
                     const shotlyCommand = command as ShotlyICommand
+
+                    if(command.name == "characterCount") {
+                        return <span ref={characterCountElement} className={`characterCount`}></span>
+                    }
+
                     return <SimpleTooltip
                         content={<>{shotlyCommand.label} {renderShortcut(shotlyCommand?.humanReadableShortcut || [])}</>}
                         fontSize={0.75}

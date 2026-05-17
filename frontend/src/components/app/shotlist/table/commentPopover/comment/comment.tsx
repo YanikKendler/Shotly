@@ -179,6 +179,7 @@ const Comment = forwardRef<CommentRef, CommentProps>(({
                     placeholder={"Enter comment..."}
                     value={newCommentText}
                     onValueChange={setNewCommentText}
+                    shortCharacterCountDisplay={true}
                     actions={[
                         {
                             name: "cancel",

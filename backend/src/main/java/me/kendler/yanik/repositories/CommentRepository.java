@@ -53,7 +53,6 @@ public class CommentRepository implements PanacheRepositoryBase<Comment, UUID> {
             comment.isArchived = editDTO.isArchived();
         }
 
-
         comment.editedAt = ZonedDateTime.now();
         comment.shot.scene.shotlist.registerEdit();
 

@@ -7,7 +7,7 @@ CREATE TABLE comment (
     user_id     UUID NOT NULL,
 
     -- Content
-    text        TEXT NOT NULL,
+    text        VARCHAR(1000) NOT NULL,
 
     -- Status Flags (Defaulting to false to match Java initialization)
     isArchived  BOOLEAN NOT NULL DEFAULT FALSE,

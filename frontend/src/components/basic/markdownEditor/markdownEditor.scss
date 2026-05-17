@@ -103,6 +103,15 @@
       }
     }
 
+    span.characterCount{
+      font-size: .8rem;
+      color: var(--text-50);
+
+      &.max{
+        color: var(--bad);
+      }
+    }
+
     .w-md-editor-toolbar-divider{
       background-color: var(--default-interactable-border);
       margin: 3px !important;
