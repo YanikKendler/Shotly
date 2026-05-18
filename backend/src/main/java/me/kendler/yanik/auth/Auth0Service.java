@@ -1,6 +1,5 @@
-package me.kendler.yanik.auth0;
+package me.kendler.yanik.auth;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;

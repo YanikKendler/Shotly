@@ -1,10 +1,12 @@
 package me.kendler.yanik.endpoints;
 
 import jakarta.inject.Inject;
+import me.kendler.yanik.auth.ShotlistAccessService;
 import me.kendler.yanik.dto.scene.*;
 import me.kendler.yanik.dto.scene.attributeDefinitions.SceneAttributeDefinitionBaseDTO;
 import me.kendler.yanik.dto.scene.attributes.SceneAttributeBaseDTO;
 import me.kendler.yanik.model.Shotlist;
+import me.kendler.yanik.model.User;
 import me.kendler.yanik.model.scene.attributeDefinitions.SceneAttributeDefinitionBase;
 import me.kendler.yanik.model.scene.attributeDefinitions.SceneSelectAttributeOptionDefinition;
 import me.kendler.yanik.rateLimiting.RateLimited;
@@ -42,28 +44,33 @@ public class SceneResource {
     @Inject
     ShotlistSyncService syncService;
 
+    @Inject
+    ShotlistAccessService accessService;
+
     @Query
     public List<SceneDTO> getScenes(UUID shotlistId) {
-        userRepository.checkShotlistViewRights(shotlistId, jwt);
+        accessService.checkView(shotlistId, jwt);
 
         return sceneRepository.listAllForShotlist(shotlistId);
     }
 
     @Mutation
     public SceneDTO createScene(UUID shotlistId) {
-        userRepository.checkShotlistEditRights(shotlistId, jwt);
+        User user = userRepository.findOrCreateByJWT(jwt);
+
+        accessService.checkEdit(shotlistId, user);
 
         SceneDTO result = sceneRepository.create(shotlistId);
 
         syncService.broadcast(
-                shotlistId,
-                new ShotlistUpdateDTO(
-                        ShotlistUpdateType.SCENE_ADDED,
-                        userRepository.findOrCreateByJWT(jwt).id,
-                        new ScenePayload(
-                                result
-                        )
+            shotlistId,
+            new ShotlistUpdateDTO(
+                ShotlistUpdateType.SCENE_ADDED,
+                user.id,
+                new ScenePayload(
+                    result
                 )
+            )
         );
 
         return result;
@@ -72,19 +79,21 @@ public class SceneResource {
     @Mutation
     public SceneDTO deleteScene(UUID id) {
         Shotlist affectedShotlist = sceneRepository.findByIdValidated(id).shotlist;
-        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
+        User user = userRepository.findOrCreateByJWT(jwt);
+
+        accessService.checkEdit(affectedShotlist, user);
 
         SceneDTO result = sceneRepository.delete(id);
 
         syncService.broadcast(
-                affectedShotlist.id,
-                new ShotlistUpdateDTO(
-                        ShotlistUpdateType.SCENE_DELETED,
-                        userRepository.findOrCreateByJWT(jwt).id,
-                        new ScenePayload(
-                                result
-                        )
+            affectedShotlist.id,
+            new ShotlistUpdateDTO(
+                ShotlistUpdateType.SCENE_DELETED,
+                user.id,
+                new ScenePayload(
+                    result
                 )
+            )
         );
 
         return result;
@@ -93,19 +102,21 @@ public class SceneResource {
     @Mutation
     public SceneDTO updateScene(SceneEditDTO editDTO) {
         Shotlist affectedShotlist = sceneRepository.findByIdValidated(editDTO.id()).shotlist;
-        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
+        User user = userRepository.findOrCreateByJWT(jwt);
+
+        accessService.checkEdit(affectedShotlist, user);
 
         SceneDTO result = sceneRepository.update(editDTO);
 
         syncService.broadcast(
-                affectedShotlist.id,
-                new ShotlistUpdateDTO(
-                        ShotlistUpdateType.SCENE_UPDATED,
-                        userRepository.findOrCreateByJWT(jwt).id,
-                        new ScenePayload(
-                                result
-                        )
+            affectedShotlist.id,
+            new ShotlistUpdateDTO(
+                ShotlistUpdateType.SCENE_UPDATED,
+                user.id,
+                new ScenePayload(
+                    result
                 )
+            )
         );
 
         return result;
@@ -120,28 +131,28 @@ public class SceneResource {
 
     @Query
     public List<SceneAttributeDefinitionBaseDTO> getSceneAttributeDefinitions(UUID shotlistId){
-        userRepository.checkShotlistViewRights(shotlistId, jwt);
+        accessService.checkView(shotlistId, jwt);
 
         return sceneAttributeDefinitionRepository.listAllForShotlist(shotlistId);
     }
 
     @Mutation
     public SceneAttributeDefinitionBaseDTO createSceneAttributeDefinition(SceneAttributeDefinitionCreateDTO createDTO){
-        userRepository.checkShotlistEditRights(createDTO.shotlistId(), jwt);
+        accessService.checkEdit(createDTO.shotlistId(), jwt);
 
         return sceneAttributeDefinitionRepository.create(createDTO);
     }
 
     @Mutation
     public SceneAttributeDefinitionBaseDTO deleteSceneAttributeDefinition(Long id){
-        userRepository.checkShotlistEditRights(sceneAttributeDefinitionRepository.getShotlistByDefinitionId(id), jwt);
+        accessService.checkEdit(sceneAttributeDefinitionRepository.getShotlistByDefinitionId(id), jwt);
 
         return sceneAttributeDefinitionRepository.delete(id);
     }
 
     @Mutation
     public SceneAttributeDefinitionBaseDTO updateSceneAttributeDefinition(SceneAttributeDefinitionEditDTO editDTO) {
-        userRepository.checkShotlistEditRights(sceneAttributeDefinitionRepository.getShotlistByDefinitionId(editDTO.id()), jwt);
+        accessService.checkEdit(sceneAttributeDefinitionRepository.getShotlistByDefinitionId(editDTO.id()), jwt);
 
         return sceneAttributeDefinitionRepository.update(editDTO);
     }
@@ -157,19 +168,21 @@ public class SceneResource {
     public SceneAttributeBaseDTO updateSceneAttribute(SceneAttributeEditDTO editDTO) {
         SceneAttributeDefinitionBase sceneAttributeDefinition = sceneAttributeRepository.findById(editDTO.id()).definition;
         Shotlist affectedShotlist = sceneAttributeDefinitionRepository.getShotlistByDefinitionId(sceneAttributeDefinition.id);
-        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
+        User user = userRepository.findOrCreateByJWT(jwt);
+
+        accessService.checkEdit(affectedShotlist, user);
 
         SceneAttributeBaseDTO result = sceneAttributeRepository.update(editDTO);
 
         syncService.broadcast(
-                affectedShotlist.id,
-                new ShotlistUpdateDTO(
-                        ShotlistUpdateType.SCENE_ATTRIBUTE_UPDATED,
-                        userRepository.findOrCreateByJWT(jwt).id,
-                        new SceneAttributePayload(
-                            result
-                        )
+            affectedShotlist.id,
+            new ShotlistUpdateDTO(
+                ShotlistUpdateType.SCENE_ATTRIBUTE_UPDATED,
+                user.id,
+                new SceneAttributePayload(
+                    result
                 )
+            )
         );
 
         return result;
@@ -184,14 +197,14 @@ public class SceneResource {
 
     @Query
     public List<SceneSelectAttributeOptionDefinition> getSceneSelectAttributeOptions(Long attributeDefinitionId) {
-        userRepository.checkShotlistViewRights(sceneAttributeDefinitionRepository.getShotlistByDefinitionId(attributeDefinitionId), jwt);
+        accessService.checkView(sceneAttributeDefinitionRepository.getShotlistByDefinitionId(attributeDefinitionId), jwt);
 
         return sceneSelectAttributeOptionDefinitionRepository.list("sceneAttributeDefinition.id = ?1 order by name", attributeDefinitionId);
     }
 
     @Query
     public List<SceneSelectAttributeOptionDefinition> searchSceneSelectAttributeOptions(SceneSelectAttributeOptionSearchDTO searchDTO){
-        userRepository.checkShotlistViewRights(sceneAttributeDefinitionRepository.getShotlistByDefinitionId(searchDTO.sceneAttributeDefinitionId()), jwt);
+        accessService.checkView(sceneAttributeDefinitionRepository.getShotlistByDefinitionId(searchDTO.sceneAttributeDefinitionId()), jwt);
 
         return sceneSelectAttributeOptionDefinitionRepository.search(searchDTO);
     }
@@ -199,7 +212,7 @@ public class SceneResource {
     @Mutation
     public SceneSelectAttributeOptionDefinition createSceneSelectAttributeOption(SceneSelectAttributeOptionCreateDTO createDTO){
         Shotlist affectedShotlist = sceneAttributeDefinitionRepository.getShotlistByDefinitionId(createDTO.attributeDefinitionId());
-        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
+        accessService.checkEdit(affectedShotlist, jwt);
 
         SceneSelectAttributeOptionDefinition result = sceneSelectAttributeOptionDefinitionRepository.create(createDTO);
 
@@ -220,7 +233,7 @@ public class SceneResource {
     @Mutation
     public SceneSelectAttributeOptionDefinition deleteSceneSelectAttributeOption(Long id){
         SceneAttributeDefinitionBase sceneAttributeDefinition = sceneSelectAttributeOptionDefinitionRepository.findById(id).sceneAttributeDefinition;
-        userRepository.checkShotlistEditRights(sceneAttributeDefinitionRepository.getShotlistByDefinitionId(sceneAttributeDefinition.id), jwt);
+        accessService.checkEdit(sceneAttributeDefinitionRepository.getShotlistByDefinitionId(sceneAttributeDefinition.id), jwt);
 
         return sceneSelectAttributeOptionDefinitionRepository.delete(id);
     }
@@ -228,7 +241,7 @@ public class SceneResource {
     @Mutation
     public SceneSelectAttributeOptionDefinition updateSceneSelectAttributeOption(SceneSelectAttributeOptionEditDTO editDTO) {
         SceneAttributeDefinitionBase sceneAttributeDefinition = sceneSelectAttributeOptionDefinitionRepository.findById(editDTO.id()).sceneAttributeDefinition;
-        userRepository.checkShotlistEditRights(sceneAttributeDefinitionRepository.getShotlistByDefinitionId(sceneAttributeDefinition.id), jwt);
+        accessService.checkEdit(sceneAttributeDefinitionRepository.getShotlistByDefinitionId(sceneAttributeDefinition.id), jwt);
 
         return sceneSelectAttributeOptionDefinitionRepository.update(editDTO);
     }

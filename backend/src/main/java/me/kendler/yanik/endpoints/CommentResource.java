@@ -2,11 +2,13 @@ package me.kendler.yanik.endpoints;
 
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import me.kendler.yanik.auth.ShotlistAccessService;
 import me.kendler.yanik.dto.comment.CommentCreateDTO;
 import me.kendler.yanik.dto.comment.CommentDTO;
 import me.kendler.yanik.dto.comment.CommentEditDTO;
 import me.kendler.yanik.model.Comment;
 import me.kendler.yanik.model.Shotlist;
+import me.kendler.yanik.model.User;
 import me.kendler.yanik.model.shot.Shot;
 import me.kendler.yanik.rateLimiting.RateLimited;
 import me.kendler.yanik.repositories.CommentRepository;
@@ -44,11 +46,14 @@ public class CommentResource {
     @Inject
     ShotlistSyncService syncService;
 
+    @Inject
+    ShotlistAccessService accessService;
+
     @Query
     public List<CommentDTO> getComments(UUID shotId){
         Shot affectedShot = shotRepository.findByIdValidated(shotId);
 
-        userRepository.checkShotlistViewRights(affectedShot.scene.shotlist, jwt);
+        accessService.checkView(affectedShot.scene.shotlist, jwt);
 
         return affectedShot.comments.stream()
                 .filter(c -> !c.isArchived)
@@ -60,7 +65,7 @@ public class CommentResource {
     @Query
     public List<CommentDTO> getArchivedComments(UUID shotId){
         Shot affectedShot = shotRepository.findByIdValidated(shotId);
-        userRepository.checkShotlistViewRights(affectedShot.scene.shotlist, jwt);
+        accessService.checkView(affectedShot.scene.shotlist, jwt);
 
         return affectedShot.comments.stream()
                 .filter(c -> c.isArchived)
@@ -72,7 +77,9 @@ public class CommentResource {
     @Mutation
     public CommentDTO addComment(CommentCreateDTO createDTO){
         Shotlist affectedShotlist = shotRepository.findByIdValidated(createDTO.shotId()).scene.shotlist;
-        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
+        User user = userRepository.findOrCreateByJWT(jwt);
+
+        accessService.checkEdit(affectedShotlist, user);
 
         CommentDTO result = commentRepository.create(createDTO, jwt);
 
@@ -80,7 +87,7 @@ public class CommentResource {
             affectedShotlist.id,
             new ShotlistUpdateDTO(
                 ShotlistUpdateType.COMMENT_ADDED,
-                userRepository.findOrCreateByJWT(jwt).id,
+                user.id,
                 new CommentPayload(result)
         ));
 
@@ -91,7 +98,9 @@ public class CommentResource {
     public CommentDTO updateComment(CommentEditDTO updateDTO){
         Comment affectedComment = commentRepository.findById(updateDTO.id());
         Shotlist affectedShotlist = affectedComment.shot.scene.shotlist;
-        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
+        User user = userRepository.findOrCreateByJWT(jwt);
+
+        accessService.checkEdit(affectedShotlist, user);
 
         CommentDTO result = commentRepository.update(updateDTO);
 
@@ -99,7 +108,7 @@ public class CommentResource {
             affectedShotlist.id,
             new ShotlistUpdateDTO(
                     updateDTO.text() != null ? ShotlistUpdateType.COMMENT_TEXT : ShotlistUpdateType.COMMENT_ARCHIVAL,
-                    userRepository.findOrCreateByJWT(jwt).id,
+                    user.id,
                     new CommentPayload(result)
             )
         );

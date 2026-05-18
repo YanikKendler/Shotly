@@ -6,6 +6,7 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.QueryParam;
+import me.kendler.yanik.auth.ShotlistAccessService;
 import me.kendler.yanik.model.User;
 import me.kendler.yanik.repositories.UserRepository;
 import me.kendler.yanik.socket.payload.EmptyPayload;
@@ -28,11 +29,13 @@ public class ShotlistSyncResource {
     @Inject
     UserRepository userRepository;
 
+    @Inject
+    ShotlistAccessService accessService;
+
     @Subscription
     public Multi<ShotlistUpdateDTO> shotlistUpdates(UUID shotlistId, UUID userId) {
-
         return Uni.createFrom().item(() -> {
-                userRepository.checkShotlistViewRights(shotlistId, jwt);
+                accessService.checkView(shotlistId, jwt);
                 return true;
             })
             .runSubscriptionOn(Infrastructure.getDefaultWorkerPool())
@@ -43,7 +46,7 @@ public class ShotlistSyncResource {
     public boolean syncShotlistOptionsUpdated(UUID shotlistId) {
         User user = userRepository.findOrCreateByJWT(jwt);
 
-        userRepository.checkShotlistEditRights(shotlistId, jwt);
+        accessService.checkEdit(shotlistId, jwt);
 
         syncService.broadcast(
             shotlistId,
@@ -61,7 +64,7 @@ public class ShotlistSyncResource {
     public boolean syncShotlistCellSelected(UUID shotlistId, SelectedCellPayload payload) {
         User user = userRepository.findOrCreateByJWT(jwt);
 
-        userRepository.checkShotlistEditRights(shotlistId, jwt);
+        accessService.checkEdit(shotlistId, jwt);
 
         syncService.broadcast(
             shotlistId,
@@ -79,7 +82,7 @@ public class ShotlistSyncResource {
     public boolean syncShotlistSceneAttributeSelected(UUID shotlistId, SelectedSceneAttributePayload payload) {
         User user = userRepository.findOrCreateByJWT(jwt);
 
-        userRepository.checkShotlistEditRights(shotlistId, jwt);
+        accessService.checkEdit(shotlistId, jwt);
 
         syncService.broadcast(
             shotlistId,

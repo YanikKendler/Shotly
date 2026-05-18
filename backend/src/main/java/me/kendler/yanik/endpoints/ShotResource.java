@@ -2,10 +2,12 @@ package me.kendler.yanik.endpoints;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
+import me.kendler.yanik.auth.ShotlistAccessService;
 import me.kendler.yanik.dto.shot.*;
 import me.kendler.yanik.dto.shot.attributeDefinitions.ShotAttributeDefinitionBaseDTO;
 import me.kendler.yanik.dto.shot.attributes.ShotAttributeBaseDTO;
 import me.kendler.yanik.model.Shotlist;
+import me.kendler.yanik.model.User;
 import me.kendler.yanik.model.shot.Shot;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotAttributeDefinitionBase;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotSelectAttributeOptionDefinition;
@@ -27,7 +29,6 @@ import org.eclipse.microprofile.graphql.Mutation;
 import org.eclipse.microprofile.graphql.Query;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -49,19 +50,25 @@ public class ShotResource {
     @Inject
     ShotlistSyncService syncService;
 
+    @Inject
+    ShotlistAccessService accessService;
+
     private static final Logger LOGGER = Logger.getLogger(ShotResource.class);
 
     @Query
     public List<ShotDTO> getShots(UUID sceneId) {
-        userRepository.checkShotlistViewRights(sceneRepository.findByIdValidated(sceneId).shotlist, jwt);
+        Shotlist affectedShotlist = sceneRepository.findByIdValidated(sceneId).shotlist;
+        accessService.checkView(affectedShotlist, jwt);
 
         return shotRepository.findAllForScene(sceneId);
     }
 
     @Mutation
-    public ShotDTO createShot(@PathParam("sceneId") UUID sceneId){
+    public ShotDTO createShot(UUID sceneId){
         Shotlist affectedShotlist = sceneRepository.findByIdValidated(sceneId).shotlist;
-        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
+        User user = userRepository.findOrCreateByJWT(jwt);
+
+        accessService.checkEdit(affectedShotlist, user);
 
         ShotDTO result = shotRepository.create(sceneId);
 
@@ -69,7 +76,7 @@ public class ShotResource {
                 affectedShotlist.id,
                 new ShotlistUpdateDTO(
                     ShotlistUpdateType.SHOT_ADDED,
-                    userRepository.findOrCreateByJWT(jwt).id,
+                    user.id,
                     new ShotPayload(
                         result
                     )
@@ -80,22 +87,23 @@ public class ShotResource {
     }
 
     @Mutation
-    public ShotDTO deleteShot(@PathParam("id") UUID id) {
+    public ShotDTO deleteShot(UUID id) {
         Shotlist affectedShotlist = shotRepository.findByIdValidated(id).scene.shotlist;
+        User user = userRepository.findOrCreateByJWT(jwt);
 
-        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
+        accessService.checkEdit(affectedShotlist, user);
 
         ShotDTO result = shotRepository.delete(id);
 
         syncService.broadcast(
-                affectedShotlist.id,
-                new ShotlistUpdateDTO(
-                    ShotlistUpdateType.SHOT_DELETED,
-                    userRepository.findOrCreateByJWT(jwt).id,
-                    new ShotPayload(
-                        result
-                    )
+            affectedShotlist.id,
+            new ShotlistUpdateDTO(
+                ShotlistUpdateType.SHOT_DELETED,
+                user.id,
+                new ShotPayload(
+                    result
                 )
+            )
         );
 
         return result;
@@ -104,7 +112,9 @@ public class ShotResource {
     @Mutation
     public ShotDTO updateShot(ShotEditDTO editDTO) {
         Shotlist affectedShotlist = shotRepository.findByIdValidated(editDTO.id()).scene.shotlist;
-        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
+        User user = userRepository.findOrCreateByJWT(jwt);
+
+        accessService.checkEdit(affectedShotlist, user);
 
         ShotDTO result = shotRepository.update(editDTO);
 
@@ -112,7 +122,7 @@ public class ShotResource {
             affectedShotlist.id,
             new ShotlistUpdateDTO(
                 ShotlistUpdateType.SHOT_UPDATED,
-                userRepository.findOrCreateByJWT(jwt).id,
+                user.id,
                 new ShotPayload(
                     result
                 )
@@ -131,28 +141,28 @@ public class ShotResource {
 
     @Query
     public List<ShotAttributeDefinitionBaseDTO> getShotAttributeDefinitions(UUID shotlistId){
-        userRepository.checkShotlistViewRights(shotlistId, jwt);
+        accessService.checkView(shotlistId, jwt);
 
         return shotAttributeDefinitionRepository.getAll(shotlistId);
     }
 
     @Mutation
     public ShotAttributeDefinitionBaseDTO createShotAttributeDefinition(ShotAttributeDefinitionCreateDTO createDTO){
-        userRepository.checkShotlistEditRights(createDTO.shotlistId(), jwt);
+        accessService.checkEdit(createDTO.shotlistId(), jwt);
 
         return shotAttributeDefinitionRepository.create(createDTO);
     }
 
     @Mutation
     public ShotAttributeDefinitionBaseDTO deleteShotAttributeDefinition(Long id){
-        userRepository.checkShotlistEditRights(shotAttributeDefinitionRepository.getShotlistByDefinitionId(id), jwt);
+        accessService.checkEdit(shotAttributeDefinitionRepository.getShotlistByDefinitionId(id), jwt);
 
         return shotAttributeDefinitionRepository.delete(id);
     }
 
     @Mutation
     public ShotAttributeDefinitionBaseDTO updateShotAttributeDefinition(ShotAttributeDefinitionEditDTO editDTO) {
-        userRepository.checkShotlistEditRights(shotAttributeDefinitionRepository.getShotlistByDefinitionId(editDTO.id()), jwt);
+        accessService.checkEdit(shotAttributeDefinitionRepository.getShotlistByDefinitionId(editDTO.id()), jwt);
 
         return shotAttributeDefinitionRepository.update(editDTO);
     }
@@ -168,8 +178,9 @@ public class ShotResource {
     public ShotAttributeBaseDTO updateShotAttribute(ShotAttributeEditDTO editDTO) {
         Shot shot = shotAttributeRepository.getShotByAttributeId(editDTO.id());
         Shotlist affectedShotlist = shot.scene.shotlist;
+        User user = userRepository.findOrCreateByJWT(jwt);
 
-        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
+        accessService.checkEdit(affectedShotlist, user);
 
         ShotAttributeBaseDTO result = shotAttributeRepository.update(editDTO);
 
@@ -177,7 +188,7 @@ public class ShotResource {
                 affectedShotlist.id,
                 new ShotlistUpdateDTO(
                         ShotlistUpdateType.SHOT_ATTRIBUTE_UPDATED,
-                        userRepository.findOrCreateByJWT(jwt).id,
+                        user.id,
                         new ShotAttributePayload(
                             result,
                             shot.id,
@@ -198,14 +209,18 @@ public class ShotResource {
 
     @Query
     public List<ShotSelectAttributeOptionDefinition> getShotSelectAttributeOptions(Long attributeDefinitionId) {
-        userRepository.checkShotlistViewRights(shotAttributeDefinitionRepository.getShotlistByDefinitionId(attributeDefinitionId), jwt);
+        Shotlist affectedShotlist = shotAttributeDefinitionRepository.getShotlistByDefinitionId(attributeDefinitionId);
+
+        accessService.checkView(affectedShotlist, jwt);
 
         return shotSelectAttributeOptionDefinitionRepository.list("shotAttributeDefinition.id = ?1 order by name", attributeDefinitionId);
     }
 
     @Query
     public List<ShotSelectAttributeOptionDefinition> searchShotSelectAttributeOptions(ShotSelectAttributeOptionSearchDTO searchDTO){
-        userRepository.checkShotlistViewRights(shotAttributeDefinitionRepository.getShotlistByDefinitionId(searchDTO.shotAttributeDefinitionId()), jwt);
+        Shotlist affectedShotlist = shotAttributeDefinitionRepository.getShotlistByDefinitionId(searchDTO.shotAttributeDefinitionId());
+
+        accessService.checkView(affectedShotlist, jwt);
 
         return shotSelectAttributeOptionDefinitionRepository.search(searchDTO);
     }
@@ -213,7 +228,9 @@ public class ShotResource {
     @Mutation
     public ShotSelectAttributeOptionDefinition createShotSelectAttributeOption(ShotSelectAttributeOptionCreateDTO createDTO) {
         Shotlist affectedShotlist = shotAttributeDefinitionRepository.getShotlistByDefinitionId(createDTO.attributeDefinitionId());
-        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
+        User user = userRepository.findOrCreateByJWT(jwt);
+
+        accessService.checkEdit(affectedShotlist, user);
 
         ShotSelectAttributeOptionDefinition result = shotSelectAttributeOptionDefinitionRepository.create(createDTO);
 
@@ -221,7 +238,7 @@ public class ShotResource {
             affectedShotlist.id,
             new ShotlistUpdateDTO(
                 ShotlistUpdateType.SHOT_SELECT_OPTION_CREATED,
-                userRepository.findOrCreateByJWT(jwt).id,
+                user.id,
                 new ShotSelectOptionPayload(
                     result
                 )
@@ -234,7 +251,8 @@ public class ShotResource {
     @Mutation
     public ShotSelectAttributeOptionDefinition deleteShotSelectAttributeOption(Long id){
         ShotAttributeDefinitionBase shotAttributeDefinitionBase = shotSelectAttributeOptionDefinitionRepository.findById(id).shotAttributeDefinition;
-        userRepository.checkShotlistEditRights(shotAttributeDefinitionRepository.getShotlistByDefinitionId(shotAttributeDefinitionBase.id), jwt);
+        Shotlist affectedShotlist = shotAttributeDefinitionRepository.getShotlistByDefinitionId(shotAttributeDefinitionBase.id);
+        accessService.checkEdit(affectedShotlist, jwt);
 
         return shotSelectAttributeOptionDefinitionRepository.delete(id);
     }
@@ -242,7 +260,8 @@ public class ShotResource {
     @Mutation
     public ShotSelectAttributeOptionDefinition updateShotSelectAttributeOption(ShotSelectAttributeOptionEditDTO editDTO) {
         ShotAttributeDefinitionBase shotAttributeDefinitionBase = shotSelectAttributeOptionDefinitionRepository.findById(editDTO.id()).shotAttributeDefinition;
-        userRepository.checkShotlistEditRights(shotAttributeDefinitionRepository.getShotlistByDefinitionId(shotAttributeDefinitionBase.id), jwt);
+        Shotlist affectedShotlist = shotAttributeDefinitionRepository.getShotlistByDefinitionId(shotAttributeDefinitionBase.id);
+        accessService.checkEdit(affectedShotlist, jwt);
 
         return shotSelectAttributeOptionDefinitionRepository.update(editDTO);
     }

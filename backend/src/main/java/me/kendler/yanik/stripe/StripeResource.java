@@ -1,4 +1,4 @@
-package me.kendler.yanik.endpoints;
+package me.kendler.yanik.stripe;
 
 import com.stripe.model.Event;
 import com.stripe.model.checkout.Session;
@@ -15,12 +15,11 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.rateLimiting.RateLimited;
-import me.kendler.yanik.stripe.StripeCheckoutRequest;
-import me.kendler.yanik.stripe.StripeService;
-import me.kendler.yanik.stripe.StripeSessionResponse;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.jwt.JsonWebToken;
+
+//TODO secure via auth header
 
 @Path("/stripe")
 @RateLimited("medium")
@@ -65,9 +64,9 @@ public class StripeResource {
     @Path("/webhook")
     @Consumes(MediaType.APPLICATION_JSON)
     @Retry(
-            retryOn = OptimisticLockException.class,
-            maxRetries = 3,
-            delay = 200
+        retryOn = OptimisticLockException.class,
+        maxRetries = 3,
+        delay = 200
     )
     public Response webhook(@Context HttpHeaders headers, String payload) {
         String signature = headers.getHeaderString("Stripe-Signature");

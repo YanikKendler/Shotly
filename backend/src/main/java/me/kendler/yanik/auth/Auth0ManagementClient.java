@@ -1,4 +1,4 @@
-package me.kendler.yanik.auth0;
+package me.kendler.yanik.auth;
 
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;

@@ -4,11 +4,14 @@ import io.quarkus.panache.common.Sort;
 import io.smallrye.graphql.api.Subscription;
 import io.smallrye.mutiny.Multi;
 import jakarta.inject.Inject;
+import me.kendler.yanik.auth.AdminAccessService;
+import me.kendler.yanik.auth.ShotlistAccessService;
 import me.kendler.yanik.dto.shotlist.*;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationCreateDTO;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationDTO;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationEditDTO;
 import me.kendler.yanik.model.Shotlist;
+import me.kendler.yanik.model.User;
 import me.kendler.yanik.rateLimiting.RateLimited;
 import me.kendler.yanik.repositories.CollaborationRepository;
 import me.kendler.yanik.repositories.ShotlistRepository;
@@ -44,6 +47,12 @@ public class ShotlistResource {
     @Inject
     ShotlistSyncService syncService;
 
+    @Inject
+    ShotlistAccessService accessService;
+
+    @Inject
+    AdminAccessService adminAccessService;
+
     @Query
     public ShotlistCollection getShotlists() {
         return shotlistRepository.findAllForUser(jwt, false);
@@ -56,14 +65,19 @@ public class ShotlistResource {
 
     @Query
     public List<ShotlistDTO> getAllShotlists() {
-        userRepository.checkAdmin(jwt);
+        adminAccessService.check(jwt);
 
-        return shotlistRepository.findAll(Sort.descending("name")).list().stream().map(Shotlist::toDTO).toList();
+        return shotlistRepository
+                .findAll(Sort.descending("name"))
+                .list()
+                .stream()
+                .map(Shotlist::toDTO)
+                .toList();
     }
 
     @Query
     public ShotlistDTO getShotlist(UUID id) {
-        userRepository.checkShotlistViewRights(shotlistRepository.findByIdValidated(id), jwt);
+        accessService.checkView(shotlistRepository.findByIdValidated(id), jwt);
 
         return shotlistRepository.findAsDTO(id);
     }
@@ -76,19 +90,21 @@ public class ShotlistResource {
     @Mutation
     public ShotlistDTO updateShotlist(ShotlistEditDTO editDTO) {
         Shotlist affectedShotlist = shotlistRepository.findByIdValidated(editDTO.id());
-        userRepository.checkShotlistEditRights(affectedShotlist, jwt);
+        User user = userRepository.findOrCreateByJWT(jwt);
+
+        accessService.checkEdit(affectedShotlist, user);
 
         ShotlistDTO result = shotlistRepository.update(editDTO);
 
         syncService.broadcast(
-                affectedShotlist.id,
-                new ShotlistUpdateDTO(
-                        ShotlistUpdateType.SHOTLIST_UPDATED,
-                        userRepository.findOrCreateByJWT(jwt).id,
-                        new ShotlistPayload(
-                                result.toMinimalDTO()
-                        )
+            affectedShotlist.id,
+            new ShotlistUpdateDTO(
+                ShotlistUpdateType.SHOTLIST_UPDATED,
+                user.id,
+                new ShotlistPayload(
+                    result.toMinimalDTO()
                 )
+            )
         );
 
         return result;
@@ -97,19 +113,21 @@ public class ShotlistResource {
     @Mutation
     public ShotlistDTO updateShotlistAsOwner(ShotlistEditAsOwnerDTO editDTO) {
         Shotlist affectedShotlist = shotlistRepository.findByIdValidated(editDTO.id());
-        userRepository.checkShotlistOwner(affectedShotlist, jwt);
+        User user = userRepository.findOrCreateByJWT(jwt);
+
+        accessService.checkOwner(affectedShotlist, user);
 
         ShotlistDTO result = shotlistRepository.updateAsOwner(editDTO);
 
         syncService.broadcast(
-                affectedShotlist.id,
-                new ShotlistUpdateDTO(
-                        ShotlistUpdateType.SHOTLIST_UPDATED,
-                        userRepository.findOrCreateByJWT(jwt).id,
-                        new ShotlistPayload(
-                                result.toMinimalDTO()
-                        )
+            affectedShotlist.id,
+            new ShotlistUpdateDTO(
+                ShotlistUpdateType.SHOTLIST_UPDATED,
+                user.id,
+                new ShotlistPayload(
+                    result.toMinimalDTO()
                 )
+            )
         );
 
         return result;
@@ -118,19 +136,21 @@ public class ShotlistResource {
     @Mutation
     public ShotlistDTO deleteShotlist(UUID id) {
         Shotlist affectedShotlist = shotlistRepository.findByIdValidated(id);
-        userRepository.checkShotlistOwner(affectedShotlist, jwt);
+        User user = userRepository.findOrCreateByJWT(jwt);
+
+        accessService.checkOwner(affectedShotlist, user);
 
         ShotlistDTO result = shotlistRepository.delete(id);
 
         syncService.broadcast(
-                affectedShotlist.id,
-                new ShotlistUpdateDTO(
-                        ShotlistUpdateType.SHOTLIST_DELETED,
-                        userRepository.findOrCreateByJWT(jwt).id,
-                        new ShotlistPayload(
-                                result.toMinimalDTO()
-                        )
+            affectedShotlist.id,
+            new ShotlistUpdateDTO(
+                ShotlistUpdateType.SHOTLIST_DELETED,
+                user.id,
+                new ShotlistPayload(
+                    result.toMinimalDTO()
                 )
+            )
         );
 
         return result;
@@ -156,7 +176,9 @@ public class ShotlistResource {
     @Mutation
     @RateLimited("medium")
     public List<CollaborationDTO> addCollaboration(CollaborationCreateDTO createDTO){
-        userRepository.checkShotlistOwner(shotlistRepository.findByIdValidated(createDTO.shotlistId()), jwt);
+        Shotlist affectedShotlist = shotlistRepository.findByIdValidated(createDTO.shotlistId());
+
+        accessService.checkOwner(affectedShotlist, jwt);
 
         return collaborationRepository.create(createDTO, jwt);
     }
@@ -164,20 +186,22 @@ public class ShotlistResource {
     @Mutation
     public CollaborationDTO editCollaboration(CollaborationEditDTO editDTO) {
         Shotlist affectedShotlist = collaborationRepository.findById(editDTO.id()).shotlist;
-        userRepository.checkShotlistOwner(affectedShotlist, jwt);
+        User user = userRepository.findOrCreateByJWT(jwt);
+
+        accessService.checkOwner(affectedShotlist, user);
 
         CollaborationDTO result = collaborationRepository.update(editDTO);
 
         syncService.broadcast(
-                affectedShotlist.id,
-                new ShotlistUpdateDTO(
-                        ShotlistUpdateType.COLLABORATION_TYPE_UPDATED,
-                        userRepository.findOrCreateByJWT(jwt).id,
-                        new CollaborationPayload(
-                            result.user().id(),
-                            result.collaborationType()
-                        )
+            affectedShotlist.id,
+            new ShotlistUpdateDTO(
+                ShotlistUpdateType.COLLABORATION_TYPE_UPDATED,
+                user.id,
+                new CollaborationPayload(
+                    result.user().id(),
+                    result.collaborationType()
                 )
+            )
         );
 
         return result;
@@ -186,7 +210,7 @@ public class ShotlistResource {
     @Mutation
     public CollaborationDTO deleteCollaboration(UUID id){
         Shotlist affectedShotlist = collaborationRepository.findById(id).shotlist;
-        userRepository.checkShotlistOwner(affectedShotlist, jwt);
+        accessService.checkOwner(affectedShotlist, jwt);
 
         CollaborationDTO result = collaborationRepository.delete(id);
 
@@ -228,7 +252,7 @@ public class ShotlistResource {
 
     @Mutation
     public CollaborationDTO refreshCollaboration(UUID id){
-        userRepository.checkShotlistOwner(collaborationRepository.findById(id).shotlist, jwt);
+        accessService.checkOwner(collaborationRepository.findById(id).shotlist, jwt);
 
         return collaborationRepository.refresh(id);
     }

@@ -2,6 +2,7 @@ package me.kendler.yanik.endpoints;
 
 import io.quarkus.panache.common.Sort;
 import jakarta.inject.Inject;
+import me.kendler.yanik.auth.AdminAccessService;
 import me.kendler.yanik.dto.StatCounts;
 import me.kendler.yanik.dto.user.UserAdminUpdateDTO;
 import me.kendler.yanik.dto.user.UserDTO;
@@ -28,9 +29,12 @@ public class AdminResource {
     @Inject
     ShotlistRepository shotlistRepository;
 
+    @Inject
+    AdminAccessService accessService;
+
     @Query
     public List<UserDTO> getUsers(){
-        userRepository.checkAdmin(jwt);
+        accessService.check(jwt);
 
         List<User> users = userRepository.findAll(Sort.descending("name")).stream().toList();
 
@@ -39,28 +43,28 @@ public class AdminResource {
 
     @Mutation
     public UserDTO adminUpdateUser(UserAdminUpdateDTO updateDTO){
-        userRepository.checkAdmin(jwt);
+        accessService.check(jwt);
 
         return userRepository.adminUserUpdate(updateDTO);
     }
 
     @Query
     public StatCounts getRecentActiveUserStats(){
-        userRepository.checkAdmin(jwt);
+        accessService.check(jwt);
 
         return userRepository.calculateRecentActiveUserStats();
     }
 
     @Query
     public StatCounts getRecentCreatedUserStats(){
-        userRepository.checkAdmin(jwt);
+        accessService.check(jwt);
 
         return userRepository.calculateRecentCreatedUserStats();
     }
 
     @Query
     public StatCounts getRecentCreatedShotlistStats(){
-        userRepository.checkAdmin(jwt);
+        accessService.check(jwt);
 
         return shotlistRepository.calculateRecentCreatedShotlistStats();
     }

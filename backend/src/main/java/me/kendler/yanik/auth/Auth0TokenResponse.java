@@ -1,4 +1,4 @@
-package me.kendler.yanik.auth0;
+package me.kendler.yanik.auth;
 
 public record Auth0TokenResponse(
     String access_token,

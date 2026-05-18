@@ -2,6 +2,8 @@ package me.kendler.yanik.endpoints;
 
 import io.quarkus.panache.common.Sort;
 import jakarta.inject.Inject;
+import me.kendler.yanik.auth.AdminAccessService;
+import me.kendler.yanik.auth.TemplateAccessService;
 import me.kendler.yanik.dto.template.TemplateCreateDTO;
 import me.kendler.yanik.dto.template.TemplateDTO;
 import me.kendler.yanik.dto.template.TemplateEditDTO;
@@ -36,6 +38,12 @@ public class TemplateResource {
     @Inject
     UserRepository userRepository;
 
+    @Inject
+    AdminAccessService adminAccessService;
+
+    @Inject
+    TemplateAccessService accessService;
+
     @Query
     public List<TemplateDTO> getTemplates() {
         return templateRepository.findAllForUser(jwt);
@@ -43,14 +51,19 @@ public class TemplateResource {
 
     @Query
     public List<TemplateDTO> getAllTemplates() {
-        userRepository.checkAdmin(jwt);
+        adminAccessService.check(jwt);
 
-        return templateRepository.findAll(Sort.descending("name")).list().stream().map(Template::toDTO).toList();
+        return templateRepository
+                .findAll(Sort.descending("name"))
+                .list()
+                .stream()
+                .map(Template::toDTO)
+                .toList();
     }
 
     @Query
     public TemplateDTO getTemplate(UUID id) {
-        userRepository.checkTemplateEditRights(templateRepository.findById(id), jwt);
+        accessService.checkEdit(templateRepository.findById(id), jwt);
 
         return templateRepository.findAsDTO(id);
     }
@@ -62,13 +75,13 @@ public class TemplateResource {
 
     @Mutation
     public TemplateDTO updateTemplate(TemplateEditDTO editDTO) {
-        userRepository.checkTemplateEditRights(templateRepository.findById(editDTO.id()), jwt);
+        accessService.checkEdit(templateRepository.findById(editDTO.id()), jwt);
         return templateRepository.update(editDTO);
     }
 
     @Mutation
     public TemplateDTO deleteTemplate(UUID id) {
-        userRepository.checkTemplateEditRights(templateRepository.findById(id), jwt);
+        accessService.checkEdit(templateRepository.findById(id), jwt);
         return templateRepository.delete(id);
     }
 
@@ -81,19 +94,19 @@ public class TemplateResource {
 
     @Mutation
     public ShotAttributeTemplateBaseDTO createShotAttributeTemplate(ShotAttributeTemplateCreateDTO createDTO) {
-        userRepository.checkTemplateEditRights(templateRepository.findById(createDTO.templateId()), jwt);
+        accessService.checkEdit(templateRepository.findById(createDTO.templateId()), jwt);
         return shotAttributeTemplateRepository.create(createDTO);
     }
 
     @Mutation
     public ShotAttributeTemplateBaseDTO updateShotAttributeTemplate(ShotAttributeTemplateEditDTO editDTO) {
-        userRepository.checkTemplateEditRights(shotAttributeTemplateRepository.findById(editDTO.id()).template, jwt);
+        accessService.checkEdit(shotAttributeTemplateRepository.findById(editDTO.id()).template, jwt);
         return shotAttributeTemplateRepository.update(editDTO);
     }
 
     @Mutation
     public ShotAttributeTemplateBaseDTO deleteShotAttributeTemplate(Long id) {
-        userRepository.checkTemplateEditRights(shotAttributeTemplateRepository.findById(id).template, jwt);
+        accessService.checkEdit(shotAttributeTemplateRepository.findById(id).template, jwt);
         return shotAttributeTemplateRepository.delete(id);
     }
 
@@ -106,19 +119,19 @@ public class TemplateResource {
 
     @Mutation
     public SceneAttributeTemplateBaseDTO createSceneAttributeTemplate(SceneAttributeTemplateCreateDTO createDTO) {
-        userRepository.checkTemplateEditRights(templateRepository.findById(createDTO.templateId()), jwt);
+        accessService.checkEdit(templateRepository.findById(createDTO.templateId()), jwt);
         return sceneAttributeTemplateRepository.create(createDTO);
     }
 
     @Mutation
     public SceneAttributeTemplateBaseDTO updateSceneAttributeTemplate(SceneAttributeTemplateEditDTO editDTO) {
-        userRepository.checkTemplateEditRights(sceneAttributeTemplateRepository.findById(editDTO.id()).template, jwt);
+        accessService.checkEdit(sceneAttributeTemplateRepository.findById(editDTO.id()).template, jwt);
         return sceneAttributeTemplateRepository.update(editDTO);
     }
 
     @Mutation
     public SceneAttributeTemplateBaseDTO deleteSceneAttributeTemplate(Long id) {
-        userRepository.checkTemplateEditRights(sceneAttributeTemplateRepository.findById(id).template, jwt);
+        accessService.checkEdit(sceneAttributeTemplateRepository.findById(id).template, jwt);
         return sceneAttributeTemplateRepository.delete(id);
     }
 
@@ -131,21 +144,21 @@ public class TemplateResource {
 
     @Mutation
     public ShotSelectAttributeOptionTemplate createShotSelectAttributeOptionTemplate(Long attributeTemplateId){
-        userRepository.checkTemplateEditRights(shotAttributeTemplateRepository.findById(attributeTemplateId).template, jwt);
+        accessService.checkEdit(shotAttributeTemplateRepository.findById(attributeTemplateId).template, jwt);
 
         return shotSelectAttributeOptionTemplateRepository.create(attributeTemplateId);
     }
 
     @Mutation
     public ShotSelectAttributeOptionTemplate deleteShotSelectAttributeOptionTemplate(Long id){
-        userRepository.checkTemplateEditRights(shotSelectAttributeOptionTemplateRepository.findById(id).shotAttributeTemplate.template, jwt);
+        accessService.checkEdit(shotSelectAttributeOptionTemplateRepository.findById(id).shotAttributeTemplate.template, jwt);
 
         return shotSelectAttributeOptionTemplateRepository.delete(id);
     }
 
     @Mutation
     public ShotSelectAttributeOptionTemplate updateShotSelectAttributeOptionTemplate(ShotSelectAttributeOptionTemplateEditDTO editDTO) {
-        userRepository.checkTemplateEditRights(shotSelectAttributeOptionTemplateRepository.findById(editDTO.id()).shotAttributeTemplate.template, jwt);
+        accessService.checkEdit(shotSelectAttributeOptionTemplateRepository.findById(editDTO.id()).shotAttributeTemplate.template, jwt);
 
         return shotSelectAttributeOptionTemplateRepository.update(editDTO);
     }
@@ -159,21 +172,21 @@ public class TemplateResource {
 
     @Mutation
     public SceneSelectAttributeOptionTemplate createSceneSelectAttributeOptionTemplate(Long attributeTemplateId){
-        userRepository.checkTemplateEditRights(sceneAttributeTemplateRepository.findById(attributeTemplateId).template, jwt);
+        accessService.checkEdit(sceneAttributeTemplateRepository.findById(attributeTemplateId).template, jwt);
 
         return sceneSelectAttributeOptionTemplateRepository.create(attributeTemplateId);
     }
 
     @Mutation
     public SceneSelectAttributeOptionTemplate deleteSceneSelectAttributeOptionTemplate(Long id){
-        userRepository.checkTemplateEditRights(sceneSelectAttributeOptionTemplateRepository.findById(id).sceneAttributeTemplate.template, jwt);
+        accessService.checkEdit(sceneSelectAttributeOptionTemplateRepository.findById(id).sceneAttributeTemplate.template, jwt);
 
         return sceneSelectAttributeOptionTemplateRepository.delete(id);
     }
 
     @Mutation
     public SceneSelectAttributeOptionTemplate updateSceneSelectAttributeOptionTemplate(SceneSelectAttributeOptionTemplateEditDTO editDTO) {
-        userRepository.checkTemplateEditRights(sceneSelectAttributeOptionTemplateRepository.findById(editDTO.id()).sceneAttributeTemplate.template, jwt);
+        accessService.checkEdit(sceneSelectAttributeOptionTemplateRepository.findById(editDTO.id()).sceneAttributeTemplate.template, jwt);
 
         return sceneSelectAttributeOptionTemplateRepository.update(editDTO);
     }
