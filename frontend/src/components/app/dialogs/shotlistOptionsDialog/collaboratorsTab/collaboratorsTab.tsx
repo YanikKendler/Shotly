@@ -85,7 +85,8 @@ export default function CollaboratorsTab(
                 if(result.errors[0]?.extensions?.code as ShotlyErrorCode != ShotlyErrorCode.TOO_MANY_REQUESTS) {
                     errorNotification({
                         title: "Could not add this email as a collaborator",
-                        sub: "Please try a different email"
+                        sub: "Please try a different email",
+                        autoClose: 5000
                     })
                     setEmailInvalid(true)
                 }

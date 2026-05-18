@@ -104,22 +104,6 @@ export function makeClient() {
             mutate: { errorPolicy: "all" },
         },
     })
-
-    /*return new ApolloClient({
-        link: from([authLink, errorLink, httpLink]),
-        cache: new InMemoryCache(),
-        defaultOptions: {
-            watchQuery: {
-                errorPolicy: "all",
-            },
-            query: {
-                errorPolicy: "all",
-            },
-            mutate: {
-                errorPolicy: "all",
-            },
-        },
-    })*/
 }
 
 function redirectToServerError() {
