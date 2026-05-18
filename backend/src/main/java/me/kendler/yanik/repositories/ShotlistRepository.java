@@ -5,14 +5,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
+import me.kendler.yanik.auth.ShotlistAccessService;
 import me.kendler.yanik.dto.StatCounts;
 import me.kendler.yanik.dto.shotlist.*;
 import me.kendler.yanik.error.ShotlyErrorCode;
 import me.kendler.yanik.error.ShotlyException;
-import me.kendler.yanik.model.Collaboration;
-import me.kendler.yanik.model.User;
-import me.kendler.yanik.model.Shotlist;
-import me.kendler.yanik.model.UserTier;
+import me.kendler.yanik.model.*;
 import me.kendler.yanik.model.scene.Scene;
 import me.kendler.yanik.model.scene.attributeDefinitions.SceneAttributeDefinitionBase;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotAttributeDefinitionBase;
@@ -27,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -51,6 +50,9 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
     @Inject
     SceneAttributeDefinitionRepository sceneAttributeDefinitionRepository;
 
+    @Inject
+    ShotlistAccessService accessService;
+
     private static final Logger LOGGER = Logger.getLogger(ShotlistRepository.class);
 
     public Shotlist findByIdValidated(UUID id){
@@ -74,6 +76,17 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
             throw new ShotlyException("This Shotlist does not exist", ShotlyErrorCode.NOT_FOUND);
         }
         return shotlist.toDTO();
+    }
+
+    public Optional<Shotlist> findByIdWithCollaborations(UUID id) {
+        return find("""
+            FROM Shotlist s
+            LEFT JOIN FETCH s.collaborations c
+            LEFT JOIN FETCH c.user
+            WHERE s.id = ?1
+        """, id)
+        .stream()
+        .findFirst();
     }
 
     public ShotlistCollection findAllForUser(JsonWebToken jwt, boolean areArchived) {
@@ -177,6 +190,34 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
         }
         return null;
     }
+
+    /**
+     * Finds out what access rights (what type of collaboration) the user has for a given shotlist
+     * @return the collab type or null if the user is not a member of a given shotlist
+     */
+    public CollaborationType getCollaborationType(UUID id, JsonWebToken jwt){
+        Shotlist shotlist = findByIdValidated(id);
+        User user = userRepository.findOrCreateByJWT(jwt);
+
+        //not a member of the shotlist
+        if(
+            shotlist.collaborations.stream().noneMatch(c -> c.user.equals(user)) &&
+            !shotlist.owner.equals(user)
+        ) return null;
+
+        if(!accessService.shotlistIsEditable(shotlist)) return CollaborationType.VIEW;
+
+        if(shotlist.owner.equals(user)) return CollaborationType.OWNER;
+
+        return shotlist.collaborations
+                .stream()
+                .filter(c -> c.user.equals(user))
+                .findFirst()
+                .map(c -> c.collaborationType)
+                .orElse(null);
+    }
+
+    //Statistics
 
     public StatCounts calculateRecentCreatedShotlistStats() {
         ZonedDateTime now = ZonedDateTime.now();

@@ -6,8 +6,6 @@ import io.vertx.core.http.HttpServerRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
-import jakarta.json.JsonArray;
-import jakarta.json.JsonString;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.auth.Auth0Service;
@@ -272,7 +270,7 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         return currentUser.toDTO();
     }
 
-    //ADMIN
+    //OWNER
 
     @Transactional
     public UserDTO adminUserUpdate(UserAdminUpdateDTO updateDTO) {

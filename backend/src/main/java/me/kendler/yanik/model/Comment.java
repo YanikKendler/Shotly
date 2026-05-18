@@ -17,7 +17,7 @@ public class Comment extends PanacheEntityBase {
     @ManyToOne
     public Shot shot;
     @ManyToOne
-    public User user;
+    public User owner;
     @Column(length = 1000)
     public String text;
     public boolean isArchived = false;
@@ -30,11 +30,11 @@ public class Comment extends PanacheEntityBase {
         this.editedAt = ZonedDateTime.now(ZoneOffset.UTC);
     }
 
-    public Comment(UUID id, Shot shot, User user, String text) {
+    public Comment(UUID id, Shot shot, User owner, String text) {
         this();
         this.id = id;
         this.shot = shot;
-        this.user = user;
+        this.owner = owner;
         this.text = text;
     }
 
@@ -43,7 +43,7 @@ public class Comment extends PanacheEntityBase {
             this.id,
             this.shot.id,
             this.shot.scene.id,
-            this.user.toMinimalDTO(),
+            this.owner.toMinimalDTO(),
             this.text,
             this.isArchived,
             this.isEdited,

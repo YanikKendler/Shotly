@@ -1,8 +1,6 @@
 package me.kendler.yanik.endpoints;
 
 import io.quarkus.panache.common.Sort;
-import io.smallrye.graphql.api.Subscription;
-import io.smallrye.mutiny.Multi;
 import jakarta.inject.Inject;
 import me.kendler.yanik.auth.AdminAccessService;
 import me.kendler.yanik.auth.ShotlistAccessService;
@@ -10,6 +8,7 @@ import me.kendler.yanik.dto.shotlist.*;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationCreateDTO;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationDTO;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationEditDTO;
+import me.kendler.yanik.model.CollaborationType;
 import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.User;
 import me.kendler.yanik.rateLimiting.RateLimited;
@@ -255,5 +254,10 @@ public class ShotlistResource {
         accessService.checkOwner(collaborationRepository.findById(id).shotlist, jwt);
 
         return collaborationRepository.refresh(id);
+    }
+
+    @Query
+    public CollaborationType getShotlistCollaborationType(UUID shotlistId){
+        return shotlistRepository.getCollaborationType(shotlistId, jwt);
     }
 }

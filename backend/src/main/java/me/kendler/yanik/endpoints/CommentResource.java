@@ -79,7 +79,7 @@ public class CommentResource {
         Shotlist affectedShotlist = shotRepository.findByIdValidated(createDTO.shotId()).scene.shotlist;
         User user = userRepository.findOrCreateByJWT(jwt);
 
-        accessService.checkEdit(affectedShotlist, user);
+        accessService.checkComment(affectedShotlist, user);
 
         CommentDTO result = commentRepository.create(createDTO, jwt);
 
@@ -100,7 +100,11 @@ public class CommentResource {
         Shotlist affectedShotlist = affectedComment.shot.scene.shotlist;
         User user = userRepository.findOrCreateByJWT(jwt);
 
-        accessService.checkEdit(affectedShotlist, user);
+        //collaborators with the "comment" role are only allowed to update their own comments
+        if(affectedComment.owner.equals(user))
+            accessService.checkComment(affectedShotlist, user);
+        else
+            accessService.checkEdit(affectedShotlist, user);
 
         CommentDTO result = commentRepository.update(updateDTO);
 

@@ -8,7 +8,7 @@ public record CommentDTO(
     UUID id,
     UUID shotId,
     UUID sceneId,
-    UserMinimalDTO user,
+    UserMinimalDTO owner,
     String text,
     Boolean isArchived,
     Boolean isEdited,

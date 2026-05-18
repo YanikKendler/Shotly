@@ -5,6 +5,7 @@ import me.kendler.yanik.dto.scene.SceneDTO;
 import me.kendler.yanik.dto.scene.attributeDefinitions.SceneAttributeDefinitionBaseDTO;
 import me.kendler.yanik.dto.shot.attributeDefinitions.ShotAttributeDefinitionBaseDTO;
 import me.kendler.yanik.dto.user.UserDTO;
+import me.kendler.yanik.model.CollaborationType;
 import me.kendler.yanik.model.template.Template;
 
 import java.time.ZonedDateTime;

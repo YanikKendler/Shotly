@@ -10,6 +10,7 @@ import me.kendler.yanik.repositories.ShotlistRepository;
 import me.kendler.yanik.repositories.UserRepository;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -25,7 +26,7 @@ public class ShotlistAccessService {
      * @param shotlist to be checked
      * @return true or false
      */
-    private boolean shotlistIsEditable(Shotlist shotlist) {
+    public boolean shotlistIsEditable(Shotlist shotlist) {
         //refetch owner to prevent lazy loading issues
         User owner;
         try{
@@ -48,14 +49,14 @@ public class ShotlistAccessService {
             return false;
         }
         //required because lazy loading :3
-        Shotlist managed = shotlistRepository.findByIdValidated(shotlist.id);
-        if (managed == null) {
+        Optional<Shotlist> managed = shotlistRepository.findByIdWithCollaborations(shotlist.id);
+        if (managed.isEmpty()) {
             return false;
         }
 
         if (
-            user.equals(managed.owner) ||
-            managed.collaborations
+            user.equals(managed.get().owner) ||
+            managed.get().collaborations
                 .stream()
                 .anyMatch(c ->
                     c.user.id.equals(user.id) &&
@@ -102,6 +103,64 @@ public class ShotlistAccessService {
         );
     }
 
+    // commenter
+
+    private boolean canComment(Shotlist shotlist, User user) {
+        if (shotlist == null){
+            return false;
+        }
+        //required because lazy loading :3
+        Optional<Shotlist> managed = shotlistRepository.findByIdWithCollaborations(shotlist.id);
+        if (managed.isEmpty()) {
+            return false;
+        }
+
+        if (
+            user.equals(managed.get().owner) ||
+            managed.get().collaborations
+                .stream()
+                .anyMatch(c ->
+                    c.user.id.equals(user.id) &&
+                    c.collaborationState.equals(CollaborationState.ACCEPTED) &&
+                    (
+                        c.collaborationType.equals(CollaborationType.EDIT) ||
+                        c.collaborationType.equals(CollaborationType.COMMENT)
+                    )
+                )
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public void checkComment(Shotlist shotlist, User user) {
+        if (!canView(shotlist, user)) {
+            throw new ShotlyException("You are not allowed to comment on this shotlist", ShotlyErrorCode.WRITE_NOT_ALLOWED);
+        }
+    }
+
+    public void checkComment(Shotlist shotlist, JsonWebToken jwt) {
+        checkComment(
+                shotlist,
+                userRepository.findOrCreateByJWT(jwt)
+        );
+    }
+
+    public void checkComment(UUID shotlistId, JsonWebToken jwt) {
+        checkComment(
+                shotlistRepository.findByIdValidated(shotlistId),
+                userRepository.findOrCreateByJWT(jwt)
+        );
+    }
+
+    public void checkComment(UUID shotlistId, User user) {
+        checkComment(
+                shotlistRepository.findByIdValidated(shotlistId),
+                user
+        );
+    }
+
     // viewer
 
     private boolean canView(Shotlist shotlist, User user) {
@@ -109,14 +168,14 @@ public class ShotlistAccessService {
             return false;
         }
         //required because lazy loading :3
-        Shotlist managed = shotlistRepository.findByIdValidated(shotlist.id);
-        if (managed == null) {
+        Optional<Shotlist> managed = shotlistRepository.findByIdWithCollaborations(shotlist.id);
+        if (managed.isEmpty()) {
             return false;
         }
 
         if (
-            user.equals(managed.owner) ||
-            managed.collaborations
+            user.equals(managed.get().owner) ||
+            managed.get().collaborations
                 .stream()
                 .anyMatch(c ->
                     c.user.id.equals(user.id) &&

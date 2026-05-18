@@ -4,7 +4,7 @@ CREATE TABLE comment (
 
     -- Relationships
     shot_id     UUID NOT NULL,
-    user_id     UUID NOT NULL,
+    owner_id     UUID NOT NULL,
 
     -- Content
     text        VARCHAR(1000) NOT NULL,
@@ -24,11 +24,11 @@ CREATE TABLE comment (
         ON DELETE CASCADE,
 
     CONSTRAINT fk_comment_user
-        FOREIGN KEY (user_id)
+        FOREIGN KEY (owner_id)
         REFERENCES app_user (id)
         ON DELETE CASCADE
 );
 
 -- Indexes for optimized querying of comments by shot or user
 CREATE INDEX idx_comment_shot_id ON comment(shot_id);
-CREATE INDEX idx_comment_user_id ON comment(user_id);
+CREATE INDEX idx_comment_owner_id ON comment(owner_id);
