@@ -1,6 +1,6 @@
 {
   "name": "shotly-frontend",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "private": true,
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
@@ -20,12 +20,12 @@
     "@stripe/stripe-js": "^7.3.1",
     "@telemetrydeck/sdk": "^2.0.4",
     "@yanikkendler/web-utils": "^1.4.3",
-    "auth0-js": "^9.28.0",
+    "auth0-js": "^10.0.0",
     "driver.js": "^1.3.6",
     "graphql": "^16.10.0",
     "lucide-react": "^0.502.0",
     "marked": "^18.0.0",
-    "next": "^15.5.13",
+    "next": "^15.5.18",
     "radix-ui": "^1.3.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
