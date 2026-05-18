@@ -216,7 +216,7 @@ const SHOTLIST_UPDATES_SUBSCRIPTION = gql`
                 ... on CommentPayload {
                     comment {
                         id,
-                        user {
+                        owner {
                             id,
                             name
                         },

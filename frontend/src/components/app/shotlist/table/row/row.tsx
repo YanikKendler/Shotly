@@ -275,7 +275,6 @@ const RowBase = forwardRef<RowRef, RowProps>(({
         </CellBase>
         {children}
         {
-            !isReadOnly &&
             <CommentPopover
                 ref={commentPopoverRef}
                 isOpen={commentPopoverOpen}

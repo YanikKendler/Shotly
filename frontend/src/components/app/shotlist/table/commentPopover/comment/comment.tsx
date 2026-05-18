@@ -152,12 +152,12 @@ const Comment = forwardRef<CommentRef, CommentProps>(({
         <div className={`comment ${isBeingEdited && "isBeingEdited"}`} key={comment?.id ?? ""}>
             <div className="top">
                 <p>
-                    {comment?.user?.name ?? "Unknown"}
+                    {comment?.owner?.name ?? "Unknown"}
                     { comment?.edited && <span className="edited"> (edited)</span> }
                 </p>
                 <div className="buttons">
                     {
-                        comment.user?.id == shotlistContext.currentUser?.id &&
+                        comment.owner?.id == shotlistContext.currentUser?.id &&
                         <SimpleTooltip text={`${isBeingEdited ? "Cancel" : "Edit"}`} delay={100} fontSize={0.75}>
                             <button onClick={toggleEditor}>
                                 <Pencil size={14}/>

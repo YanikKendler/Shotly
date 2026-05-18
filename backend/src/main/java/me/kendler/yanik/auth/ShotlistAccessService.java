@@ -27,6 +27,8 @@ public class ShotlistAccessService {
      * @return true or false
      */
     public boolean shotlistIsEditable(Shotlist shotlist) {
+        if(shotlist.isArchived) return false;
+
         //refetch owner to prevent lazy loading issues
         User owner;
         try{

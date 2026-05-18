@@ -6,7 +6,7 @@ import {
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {GenericError, RowColumn, SelectOption} from "@/utility/Types"
 import {PresentCollaborator, SaveState} from "@/app/shotlist/[id]/page"
-import {UserDto} from "../../lib/graphql/generated"
+import {CollaborationType, UserDto} from "../../lib/graphql/generated"
 
 export interface ShotlistContextProps {
     openShotlistOptionsDialog: (pages?: ShotlistOptionsDialogPages) => void
@@ -36,6 +36,7 @@ export interface ShotlistContextProps {
     presentCollaborators: Map<string, PresentCollaborator>
 
     currentUser: UserDto | null
+    currentCollaborationType: CollaborationType | null
 
     blockKeyBinds: RefObject<Map<string, boolean>>
 }
@@ -73,5 +74,7 @@ export const ShotlistContext = createContext<ShotlistContextProps>({
     //general use
     currentUser: null,
     //prevent stuff like creating a new shot while in the account dialog
-    blockKeyBinds: {current: new Map()}
+    blockKeyBinds: {current: new Map()},
+    //for optionally displaying stuff based on type
+    currentCollaborationType: null
 })

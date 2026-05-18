@@ -217,7 +217,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                         }
                         activeComments {
                             id,
-                            user {
+                            owner {
                                 id,
                                 name
                             },

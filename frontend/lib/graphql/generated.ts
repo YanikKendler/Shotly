@@ -63,7 +63,9 @@ export enum CollaborationState {
 }
 
 export enum CollaborationType {
+  Comment = 'COMMENT',
   Edit = 'EDIT',
+  Owner = 'OWNER',
   View = 'VIEW'
 }
 
@@ -76,9 +78,9 @@ export type Comment = {
   id?: Maybe<Scalars['String']['output']>;
   isArchived: Scalars['Boolean']['output'];
   isEdited: Scalars['Boolean']['output'];
+  owner?: Maybe<User>;
   shot?: Maybe<Shot>;
   text?: Maybe<Scalars['String']['output']>;
-  user?: Maybe<User>;
 };
 
 export type CommentCreateDtoInput = {
@@ -96,10 +98,10 @@ export type CommentDto = {
   /** ISO-8601 */
   editedAt?: Maybe<Scalars['DateTime']['output']>;
   id?: Maybe<Scalars['String']['output']>;
+  owner?: Maybe<UserMinimalDto>;
   sceneId?: Maybe<Scalars['String']['output']>;
   shotId?: Maybe<Scalars['String']['output']>;
   text?: Maybe<Scalars['String']['output']>;
-  user?: Maybe<UserMinimalDto>;
 };
 
 export type CommentEditDtoInput = {
@@ -531,6 +533,7 @@ export type Query = {
   shotAttributeDefinitions?: Maybe<Array<Maybe<ShotAttributeDefinitionBaseDto>>>;
   shotSelectAttributeOptions?: Maybe<Array<Maybe<ShotSelectAttributeOptionDefinition>>>;
   shotlist?: Maybe<ShotlistDto>;
+  shotlistCollaborationType?: Maybe<CollaborationType>;
   shotlists?: Maybe<ShotlistCollection>;
   shots?: Maybe<Array<Maybe<ShotDto>>>;
   template?: Maybe<TemplateDto>;
@@ -596,6 +599,12 @@ export type QueryShotSelectAttributeOptionsArgs = {
 /** Query root */
 export type QueryShotlistArgs = {
   id?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** Query root */
+export type QueryShotlistCollaborationTypeArgs = {
+  shotlistId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1436,7 +1445,7 @@ export type ShotlistQueryVariables = Exact<{
 }>;
 
 
-export type ShotlistQuery = { __typename?: 'Query', shotlist?: { __typename?: 'ShotlistDTO', id?: string | null, name?: string | null, archived?: boolean | null, scenes?: Array<{ __typename?: 'SceneDTO', id?: string | null, position: number, shotCount: number, attributes?: Array<
+export type ShotlistQuery = { __typename?: 'Query', shotlistCollaborationType?: CollaborationType | null, shotlist?: { __typename?: 'ShotlistDTO', id?: string | null, name?: string | null, archived?: boolean | null, scenes?: Array<{ __typename?: 'SceneDTO', id?: string | null, position: number, shotCount: number, attributes?: Array<
         | { __typename?: 'SceneMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
             | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
             | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
@@ -1958,7 +1967,7 @@ export type ShotsQuery = { __typename?: 'Query', shots?: Array<{ __typename?: 'S
           | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
           | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
          | null }
-     | null> | null, activeComments?: Array<{ __typename?: 'CommentDTO', id?: string | null, text?: string | null, edited?: boolean | null, shotId?: string | null, user?: { __typename?: 'UserMinimalDTO', id?: string | null, name?: string | null } | null } | null> | null } | null> | null };
+     | null> | null, activeComments?: Array<{ __typename?: 'CommentDTO', id?: string | null, text?: string | null, edited?: boolean | null, shotId?: string | null, owner?: { __typename?: 'UserMinimalDTO', id?: string | null, name?: string | null } | null } | null> | null } | null> | null };
 
 export type CreateShotMutationVariables = Exact<{
   sceneId: Scalars['String']['input'];
@@ -2104,6 +2113,116 @@ export type UpdateShotSelectAttributeOptionTemplateMutationVariables = Exact<{
 
 
 export type UpdateShotSelectAttributeOptionTemplateMutation = { __typename?: 'Mutation', updateShotSelectAttributeOptionTemplate?: { __typename?: 'ShotSelectAttributeOptionTemplate', id?: any | null } | null };
+
+export type OnShotlistUpdateSubscriptionVariables = Exact<{
+  shotlistId: Scalars['String']['input'];
+  userId: Scalars['String']['input'];
+}>;
+
+
+export type OnShotlistUpdateSubscription = { __typename?: 'Subscription', shotlistUpdates?: { __typename?: 'ShotlistUpdateDTO', type?: ShotlistUpdateType | null, userId?: string | null, timestamp?: any | null, payload?:
+      | { __typename?: 'CollaborationPayload', userId?: string | null, type?: CollaborationType | null }
+      | { __typename?: 'CommentPayload', comment?: { __typename?: 'CommentDTO', id?: string | null, text?: string | null, edited?: boolean | null, shotId?: string | null, sceneId?: string | null, archived?: boolean | null, owner?: { __typename?: 'UserMinimalDTO', id?: string | null, name?: string | null } | null } | null }
+      | { __typename?: 'EmptyPayload', success: boolean }
+      | { __typename?: 'PresentCollaboratorsPayload', collaborators?: Array<{ __typename?: 'UserMinimalDTO', id?: string | null, name?: string | null } | null> | null }
+      | { __typename?: 'SceneAttributePayload', attribute?:
+          | { __typename?: 'SceneMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
+              | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+             | null }
+          | { __typename?: 'SceneSingleSelectAttributeDTO', id?: any | null, type?: string | null, singleSelectValue?: { __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
+              | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+             | null }
+          | { __typename?: 'SceneTextAttributeDTO', textValue?: string | null, id?: any | null, type?: string | null, definition?:
+              | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+             | null }
+         | null }
+      | { __typename?: 'ScenePayload', scene?: { __typename?: 'SceneDTO', id?: string | null, position: number, shotCount: number, attributes?: Array<
+            | { __typename?: 'SceneMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
+                | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+               | null }
+            | { __typename?: 'SceneSingleSelectAttributeDTO', id?: any | null, type?: string | null, singleSelectValue?: { __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
+                | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+               | null }
+            | { __typename?: 'SceneTextAttributeDTO', textValue?: string | null, id?: any | null, type?: string | null, definition?:
+                | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+               | null }
+           | null> | null } | null }
+      | { __typename?: 'SceneSelectOptionPayload', optionDefinition?: { __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null, sceneAttributeDefinition?: { __typename?: 'SceneAttributeDefinitionBase', id?: any | null } | null } | null }
+      | { __typename?: 'SelectedCellPayload', row: number, column: number, sceneId?: string | null }
+      | { __typename?: 'SelectedSceneAttributePayload', attributeId?: any | null, sceneId?: string | null }
+      | { __typename?: 'ShotAttributePayload', shotId?: string | null, sceneId?: string | null, attribute?:
+          | { __typename?: 'ShotMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
+              | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+             | null }
+          | { __typename?: 'ShotSingleSelectAttributeDTO', id?: any | null, type?: string | null, singleSelectValue?: { __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
+              | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+             | null }
+          | { __typename?: 'ShotTextAttributeDTO', textValue?: string | null, id?: any | null, type?: string | null, definition?:
+              | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+              | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+             | null }
+         | null }
+      | { __typename?: 'ShotPayload', shot?: { __typename?: 'ShotDTO', id?: string | null, position: number, sceneId?: string | null, subshot: boolean, attributes?: Array<
+            | { __typename?: 'ShotMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
+                | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+               | null }
+            | { __typename?: 'ShotSingleSelectAttributeDTO', id?: any | null, type?: string | null, singleSelectValue?: { __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
+                | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+               | null }
+            | { __typename?: 'ShotTextAttributeDTO', textValue?: string | null, id?: any | null, type?: string | null, definition?:
+                | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+                | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+               | null }
+           | null> | null } | null }
+      | { __typename?: 'ShotSelectOptionPayload', optionDefinition?: { __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null, shotAttributeDefinition?: { __typename?: 'ShotAttributeDefinitionBase', id?: any | null } | null } | null }
+      | { __typename?: 'ShotlistPayload', shotlist?: { __typename?: 'ShotlistMinimalDTO', name?: string | null, archived?: boolean | null } | null }
+      | { __typename?: 'UserPayload', user?: { __typename?: 'UserMinimalDTO', id?: string | null, name?: string | null } | null }
+     | null } | null };
+
+export type SyncShotlistOptionsUpdatedMutationVariables = Exact<{
+  shotlistId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type SyncShotlistOptionsUpdatedMutation = { __typename?: 'Mutation', syncShotlistOptionsUpdated: boolean };
+
+export type SyncShotlistCellSelectedMutationVariables = Exact<{
+  shotlistId?: InputMaybe<Scalars['String']['input']>;
+  payload?: InputMaybe<SelectedCellPayloadInput>;
+}>;
+
+
+export type SyncShotlistCellSelectedMutation = { __typename?: 'Mutation', syncShotlistCellSelected: boolean };
+
+export type SyncShotlistSceneAttributeSelectedMutationVariables = Exact<{
+  shotlistId?: InputMaybe<Scalars['String']['input']>;
+  payload?: InputMaybe<SelectedSceneAttributePayloadInput>;
+}>;
+
+
+export type SyncShotlistSceneAttributeSelectedMutation = { __typename?: 'Mutation', syncShotlistSceneAttributeSelected: boolean };
 
 
 export const ArchiveDocument = gql`
@@ -2574,6 +2693,7 @@ export const ShotlistDocument = gql`
       collaborationType
     }
   }
+  shotlistCollaborationType(shotlistId: $id)
   currentUser {
     id
     name
@@ -4647,7 +4767,7 @@ export const ShotsDocument = gql`
     }
     activeComments {
       id
-      user {
+      owner {
         id
         name
       }
@@ -5203,3 +5323,320 @@ export function useUpdateShotSelectAttributeOptionTemplateMutation(baseOptions?:
 export type UpdateShotSelectAttributeOptionTemplateMutationHookResult = ReturnType<typeof useUpdateShotSelectAttributeOptionTemplateMutation>;
 export type UpdateShotSelectAttributeOptionTemplateMutationResult = Apollo.MutationResult<UpdateShotSelectAttributeOptionTemplateMutation>;
 export type UpdateShotSelectAttributeOptionTemplateMutationOptions = Apollo.BaseMutationOptions<UpdateShotSelectAttributeOptionTemplateMutation, UpdateShotSelectAttributeOptionTemplateMutationVariables>;
+export const OnShotlistUpdateDocument = gql`
+    subscription OnShotlistUpdate($shotlistId: String!, $userId: String!) {
+  shotlistUpdates(shotlistId: $shotlistId, userId: $userId) {
+    type
+    userId
+    timestamp
+    payload {
+      ... on PresentCollaboratorsPayload {
+        collaborators {
+          id
+          name
+        }
+      }
+      ... on UserPayload {
+        user {
+          id
+          name
+        }
+      }
+      ... on CollaborationPayload {
+        userId
+        type
+      }
+      ... on ShotAttributePayload {
+        shotId
+        sceneId
+        attribute {
+          id
+          type
+          definition {
+            id
+            name
+            position
+            type
+          }
+          ... on ShotSingleSelectAttributeDTO {
+            singleSelectValue {
+              id
+              name
+            }
+          }
+          ... on ShotMultiSelectAttributeDTO {
+            multiSelectValue {
+              id
+              name
+            }
+          }
+          ... on ShotTextAttributeDTO {
+            textValue
+          }
+        }
+      }
+      ... on ShotPayload {
+        shot {
+          id
+          position
+          sceneId
+          subshot
+          attributes {
+            id
+            type
+            definition {
+              id
+              name
+              position
+              type
+            }
+            ... on ShotSingleSelectAttributeDTO {
+              singleSelectValue {
+                id
+                name
+              }
+            }
+            ... on ShotMultiSelectAttributeDTO {
+              multiSelectValue {
+                id
+                name
+              }
+            }
+            ... on ShotTextAttributeDTO {
+              textValue
+            }
+          }
+        }
+      }
+      ... on SceneAttributePayload {
+        attribute {
+          id
+          type
+          definition {
+            id
+            name
+            position
+            type
+          }
+          ... on SceneSingleSelectAttributeDTO {
+            singleSelectValue {
+              id
+              name
+            }
+          }
+          ... on SceneMultiSelectAttributeDTO {
+            multiSelectValue {
+              id
+              name
+            }
+          }
+          ... on SceneTextAttributeDTO {
+            textValue
+          }
+        }
+      }
+      ... on ScenePayload {
+        scene {
+          id
+          position
+          shotCount
+          attributes {
+            id
+            type
+            definition {
+              id
+              name
+              position
+              type
+            }
+            ... on SceneSingleSelectAttributeDTO {
+              singleSelectValue {
+                id
+                name
+              }
+            }
+            ... on SceneMultiSelectAttributeDTO {
+              multiSelectValue {
+                id
+                name
+              }
+            }
+            ... on SceneTextAttributeDTO {
+              textValue
+            }
+          }
+        }
+      }
+      ... on SceneSelectOptionPayload {
+        optionDefinition {
+          id
+          name
+          sceneAttributeDefinition {
+            id
+          }
+        }
+      }
+      ... on ShotSelectOptionPayload {
+        optionDefinition {
+          id
+          name
+          shotAttributeDefinition {
+            id
+          }
+        }
+      }
+      ... on SelectedCellPayload {
+        row
+        column
+        sceneId
+      }
+      ... on SelectedSceneAttributePayload {
+        attributeId
+        sceneId
+      }
+      ... on ShotlistPayload {
+        shotlist {
+          name
+          archived
+        }
+      }
+      ... on CommentPayload {
+        comment {
+          id
+          owner {
+            id
+            name
+          }
+          text
+          edited
+          shotId
+          sceneId
+          archived
+        }
+      }
+      ... on EmptyPayload {
+        success
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useOnShotlistUpdateSubscription__
+ *
+ * To run a query within a React component, call `useOnShotlistUpdateSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useOnShotlistUpdateSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useOnShotlistUpdateSubscription({
+ *   variables: {
+ *      shotlistId: // value for 'shotlistId'
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useOnShotlistUpdateSubscription(baseOptions: Apollo.SubscriptionHookOptions<OnShotlistUpdateSubscription, OnShotlistUpdateSubscriptionVariables> & ({ variables: OnShotlistUpdateSubscriptionVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<OnShotlistUpdateSubscription, OnShotlistUpdateSubscriptionVariables>(OnShotlistUpdateDocument, options);
+      }
+export type OnShotlistUpdateSubscriptionHookResult = ReturnType<typeof useOnShotlistUpdateSubscription>;
+export type OnShotlistUpdateSubscriptionResult = Apollo.SubscriptionResult<OnShotlistUpdateSubscription>;
+export const SyncShotlistOptionsUpdatedDocument = gql`
+    mutation syncShotlistOptionsUpdated($shotlistId: String) {
+  syncShotlistOptionsUpdated(shotlistId: $shotlistId)
+}
+    `;
+export type SyncShotlistOptionsUpdatedMutationFn = Apollo.MutationFunction<SyncShotlistOptionsUpdatedMutation, SyncShotlistOptionsUpdatedMutationVariables>;
+
+/**
+ * __useSyncShotlistOptionsUpdatedMutation__
+ *
+ * To run a mutation, you first call `useSyncShotlistOptionsUpdatedMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSyncShotlistOptionsUpdatedMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [syncShotlistOptionsUpdatedMutation, { data, loading, error }] = useSyncShotlistOptionsUpdatedMutation({
+ *   variables: {
+ *      shotlistId: // value for 'shotlistId'
+ *   },
+ * });
+ */
+export function useSyncShotlistOptionsUpdatedMutation(baseOptions?: Apollo.MutationHookOptions<SyncShotlistOptionsUpdatedMutation, SyncShotlistOptionsUpdatedMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SyncShotlistOptionsUpdatedMutation, SyncShotlistOptionsUpdatedMutationVariables>(SyncShotlistOptionsUpdatedDocument, options);
+      }
+export type SyncShotlistOptionsUpdatedMutationHookResult = ReturnType<typeof useSyncShotlistOptionsUpdatedMutation>;
+export type SyncShotlistOptionsUpdatedMutationResult = Apollo.MutationResult<SyncShotlistOptionsUpdatedMutation>;
+export type SyncShotlistOptionsUpdatedMutationOptions = Apollo.BaseMutationOptions<SyncShotlistOptionsUpdatedMutation, SyncShotlistOptionsUpdatedMutationVariables>;
+export const SyncShotlistCellSelectedDocument = gql`
+    mutation syncShotlistCellSelected($shotlistId: String, $payload: SelectedCellPayloadInput) {
+  syncShotlistCellSelected(shotlistId: $shotlistId, payload: $payload)
+}
+    `;
+export type SyncShotlistCellSelectedMutationFn = Apollo.MutationFunction<SyncShotlistCellSelectedMutation, SyncShotlistCellSelectedMutationVariables>;
+
+/**
+ * __useSyncShotlistCellSelectedMutation__
+ *
+ * To run a mutation, you first call `useSyncShotlistCellSelectedMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSyncShotlistCellSelectedMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [syncShotlistCellSelectedMutation, { data, loading, error }] = useSyncShotlistCellSelectedMutation({
+ *   variables: {
+ *      shotlistId: // value for 'shotlistId'
+ *      payload: // value for 'payload'
+ *   },
+ * });
+ */
+export function useSyncShotlistCellSelectedMutation(baseOptions?: Apollo.MutationHookOptions<SyncShotlistCellSelectedMutation, SyncShotlistCellSelectedMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SyncShotlistCellSelectedMutation, SyncShotlistCellSelectedMutationVariables>(SyncShotlistCellSelectedDocument, options);
+      }
+export type SyncShotlistCellSelectedMutationHookResult = ReturnType<typeof useSyncShotlistCellSelectedMutation>;
+export type SyncShotlistCellSelectedMutationResult = Apollo.MutationResult<SyncShotlistCellSelectedMutation>;
+export type SyncShotlistCellSelectedMutationOptions = Apollo.BaseMutationOptions<SyncShotlistCellSelectedMutation, SyncShotlistCellSelectedMutationVariables>;
+export const SyncShotlistSceneAttributeSelectedDocument = gql`
+    mutation syncShotlistSceneAttributeSelected($shotlistId: String, $payload: SelectedSceneAttributePayloadInput) {
+  syncShotlistSceneAttributeSelected(shotlistId: $shotlistId, payload: $payload)
+}
+    `;
+export type SyncShotlistSceneAttributeSelectedMutationFn = Apollo.MutationFunction<SyncShotlistSceneAttributeSelectedMutation, SyncShotlistSceneAttributeSelectedMutationVariables>;
+
+/**
+ * __useSyncShotlistSceneAttributeSelectedMutation__
+ *
+ * To run a mutation, you first call `useSyncShotlistSceneAttributeSelectedMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSyncShotlistSceneAttributeSelectedMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [syncShotlistSceneAttributeSelectedMutation, { data, loading, error }] = useSyncShotlistSceneAttributeSelectedMutation({
+ *   variables: {
+ *      shotlistId: // value for 'shotlistId'
+ *      payload: // value for 'payload'
+ *   },
+ * });
+ */
+export function useSyncShotlistSceneAttributeSelectedMutation(baseOptions?: Apollo.MutationHookOptions<SyncShotlistSceneAttributeSelectedMutation, SyncShotlistSceneAttributeSelectedMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SyncShotlistSceneAttributeSelectedMutation, SyncShotlistSceneAttributeSelectedMutationVariables>(SyncShotlistSceneAttributeSelectedDocument, options);
+      }
+export type SyncShotlistSceneAttributeSelectedMutationHookResult = ReturnType<typeof useSyncShotlistSceneAttributeSelectedMutation>;
+export type SyncShotlistSceneAttributeSelectedMutationResult = Apollo.MutationResult<SyncShotlistSceneAttributeSelectedMutation>;
+export type SyncShotlistSceneAttributeSelectedMutationOptions = Apollo.BaseMutationOptions<SyncShotlistSceneAttributeSelectedMutation, SyncShotlistSceneAttributeSelectedMutationVariables>;

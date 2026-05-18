@@ -77,6 +77,7 @@ export default function Shotlist() {
     const [reloadInProgress, setReloadInProgress] = useState(false)
 
     const [readOnlyState, setReadOnlyState] = useState<ReadOnlyState>({isReadOnly: false})
+    const [currentCollaborationType, setCurrentCollaborationType] = useState<CollaborationType | null>(null)
     const [isArchived, setIsArchived] = useState(false)
 
     const [shotCount, setShotCount] = useState(0)
@@ -240,6 +241,7 @@ export default function Shotlist() {
                             collaborationType
                         }
                     }
+                    shotlistCollaborationType(shotlistId: $id)
                     currentUser {
                         id,
                         name,
@@ -263,6 +265,8 @@ export default function Shotlist() {
         setSceneCount(result.data.shotlist?.scenes?.length || 0)
 
         setIsArchived(result.data.shotlist.archived == true)
+
+        setCurrentCollaborationType(result.data.shotlistCollaborationType)
 
         setQuery(result)
 
@@ -437,6 +441,10 @@ export default function Shotlist() {
         return result
     }
 
+    //TODO update readOnly state system to work of central collabType in shotlistContext
+    // components read from context, use sepearate state for readOnly reason
+    // replace readonly check with type check for component props
+
     const calculateReadOnlyState = () => {
         let newState: ReadOnlyState = {isReadOnly: false}
 
@@ -581,7 +589,9 @@ export default function Shotlist() {
 
             currentUser: query.data.currentUser ?? null,
 
-            blockKeyBinds: blockKeyBindsMap
+            blockKeyBinds: blockKeyBindsMap,
+
+            currentCollaborationType: currentCollaborationType
         }}>
             <ReadOnlyBanner readOnlyState={readOnlyState}/>
 
