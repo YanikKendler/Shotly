@@ -4,8 +4,7 @@ import gql from "graphql-tag"
 import React, {useEffect, useRef, useState} from "react"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {
-    CollaborationDto,
-    CollaborationType, CollaborationTypeWithOwner,
+    CollaborationType,
     Query,
     SceneDto,
     ShotAttributeDefinitionBase,
@@ -74,7 +73,7 @@ export default function Shotlist() {
     const [reloadKey, setReloadKey] = useState(0)
     const [reloadInProgress, setReloadInProgress] = useState(false)
 
-    const [currentCollaborationType, setCurrentCollaborationType] = useState<CollaborationTypeWithOwner | null>(null)
+    const [currentCollaborationType, setCurrentCollaborationType] = useState<CollaborationType | null>(null)
     const [readOnlyReason, setReadOnlyReason] = useState<ReadOnlyReason>(null)
     const [isArchived, setIsArchived] = useState(false)
 
@@ -436,16 +435,12 @@ export default function Shotlist() {
         return result
     }
 
-    //TODO update readOnly state system to work of central collabType in shotlistContext
-    // components read from context, use sepearate state for readOnly reason
-    // replace readonly check with type check for component props
-
     const calculateAccessRights = () => {
         if(!query.data.shotlistCollaborationType) return
 
         //shotlist is archived
         if(isArchived) {
-            setCurrentCollaborationType(CollaborationTypeWithOwner.View)
+            setCurrentCollaborationType(CollaborationType.View)
             setReadOnlyReason("archived")
             return
         }
@@ -460,20 +455,20 @@ export default function Shotlist() {
                 query.data.shotlist.owner.shotlistCount > 1
             )
         ) {
-            setCurrentCollaborationType(CollaborationTypeWithOwner.View)
+            setCurrentCollaborationType(CollaborationType.View)
             setReadOnlyReason("tooManyShotlists")
             return
         }
 
-        if(query.data.shotlistCollaborationType == CollaborationTypeWithOwner.View) {
+        if(query.data.shotlistCollaborationType == CollaborationType.View) {
             setReadOnlyReason("collaborationViewOnly")
         }
 
-        if(query.data.shotlistCollaborationType == CollaborationTypeWithOwner.Comment) {
+        if(query.data.shotlistCollaborationType == CollaborationType.Comment) {
             setReadOnlyReason("collaborationCommentOnly")
         }
 
-        setCurrentCollaborationType(query.data.shotlistCollaborationType || CollaborationTypeWithOwner.View)
+        setCurrentCollaborationType(query.data.shotlistCollaborationType || CollaborationType.View)
     }
 
     const openShotlistOptionsDialog = (pages?: ShotlistOptionsDialogPages) => {
@@ -533,8 +528,8 @@ export default function Shotlist() {
     }
 
     const isViewOrCommentOnly =
-        currentCollaborationType == CollaborationTypeWithOwner.View ||
-        currentCollaborationType == CollaborationTypeWithOwner.Comment
+        currentCollaborationType == CollaborationType.View ||
+        currentCollaborationType == CollaborationType.Comment
 
     return (
         <ShotlistContext.Provider value={{

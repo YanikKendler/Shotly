@@ -48,6 +48,7 @@
         border: none;
         background-color: var(--collaborators-bg);
         padding: .3rem;
+        backdrop-filter: blur(5px);
 
         &:hover, &[data-state=open]{
           background-color: var(--collaborators-hover-bg);

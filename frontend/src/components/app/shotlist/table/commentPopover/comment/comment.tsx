@@ -1,6 +1,6 @@
-import {CommentDto} from "../../../../../../../lib/graphql/generated"
+import {CollaborationType, CommentDto} from "../../../../../../../lib/graphql/generated"
 import {Check, CircleCheckBig, Pencil, X} from "lucide-react"
-import {forwardRef, RefObject, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
+import {forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
 import "./comment.scss"
 import {marked} from "marked"
 import Utils from "@/utility/Utils"
@@ -148,28 +148,41 @@ const Comment = forwardRef<CommentRef, CommentProps>(({
 
     if(!comment || comment.archived) return null
 
+    const commentOwnedByCurrentUser = comment.owner?.id == shotlistContext.currentUser?.id
+
     return (
-        <div className={`comment ${isBeingEdited && "isBeingEdited"}`} key={comment?.id ?? ""}>
+        <div className={`comment ${isBeingEdited && "isBeingEdited"}`}>
             <div className="top">
                 <p>
-                    {comment?.owner?.name ?? "Unknown"}
+                    { comment?.owner?.name ?? "Unknown" }
                     { comment?.edited && <span className="edited"> (edited)</span> }
                 </p>
-                <div className="buttons">
-                    {
-                        comment.owner?.id == shotlistContext.currentUser?.id &&
-                        <SimpleTooltip text={`${isBeingEdited ? "Cancel" : "Edit"}`} delay={100} fontSize={0.75}>
-                            <button onClick={toggleEditor}>
-                                <Pencil size={14}/>
-                            </button>
-                        </SimpleTooltip>
-                    }
-                    <SimpleTooltip text={"Completed"} delay={100} fontSize={0.75}>
-                        <button onClick={archiveComment}>
-                            <CircleCheckBig size={16}/>
-                        </button>
-                    </SimpleTooltip>
-                </div>
+                {
+                    shotlistContext.currentCollaborationType != CollaborationType.View &&
+                    <div className="buttons">
+                        {
+                            commentOwnedByCurrentUser &&
+                            <SimpleTooltip text={`${isBeingEdited ? "Cancel" : "Edit"}`} delay={100} fontSize={0.75}>
+                                <button onClick={toggleEditor}>
+                                    <Pencil size={14}/>
+                                </button>
+                            </SimpleTooltip>
+                        }
+                        {
+                            (
+                                shotlistContext.currentCollaborationType == CollaborationType.Edit
+                                ||
+                                shotlistContext.currentCollaborationType == CollaborationType.Comment &&
+                                commentOwnedByCurrentUser
+                            ) &&
+                            <SimpleTooltip text={"Completed"} delay={100} fontSize={0.75}>
+                                <button onClick={archiveComment}>
+                                    <CircleCheckBig size={16}/>
+                                </button>
+                            </SimpleTooltip>
+                        }
+                    </div>
+                }
             </div>
             {
                 isBeingEdited ?

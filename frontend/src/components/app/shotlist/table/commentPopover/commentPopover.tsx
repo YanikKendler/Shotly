@@ -1,10 +1,10 @@
-import { Popover } from "radix-ui"
+import {Popover} from "radix-ui"
 import "./commentPopover.scss"
-import {MessageSquareText, Pencil, Send} from "lucide-react"
+import {MessageSquareText, Send} from "lucide-react"
 import {forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
-import {CommentDto, Maybe, ShotDto} from "../../../../../../lib/graphql/generated"
+import {CollaborationType, CommentDto, Maybe, ShotDto} from "../../../../../../lib/graphql/generated"
 import Utils from "@/utility/Utils"
-import {wuConstants, wuText} from "@yanikkendler/web-utils/dist"
+import {wuConstants} from "@yanikkendler/web-utils/dist"
 import {useApolloClient} from "@apollo/client"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import gql from "graphql-tag"
@@ -27,7 +27,6 @@ export interface CommentPopoverProps {
     showOnHover: boolean
 }
 
-//TODO readOnly support
 //TODO docs
 const CommentPopover = forwardRef<CommentPopoverRef, CommentPopoverProps>(({
     isOpen,
@@ -72,11 +71,11 @@ const CommentPopover = forwardRef<CommentPopoverRef, CommentPopoverProps>(({
 
         const commentId = crypto.randomUUID()
 
-        const newComment = {
+        const newComment: CommentDto = {
             id: commentId,
             shotId: shot.id,
             sceneId: shot.sceneId,
-            user: {
+            owner: {
                 id: shotlistContext.currentUser?.id,
                 name: shotlistContext.currentUser?.name ?? "Unknown"
             },
@@ -145,9 +144,13 @@ const CommentPopover = forwardRef<CommentPopoverRef, CommentPopoverProps>(({
             open={isOpen}
             onOpenChange={onOpenChange}
         >
-            { (isOpen || showOnHover) &&
+            { (
+                buttonIsVisible
+                ||
+                showOnHover && shotlistContext.currentCollaborationType != CollaborationType.View
+                ) &&
                 <div className={`commentTriggerWrapper`}>
-                    <Popover.Trigger className={`comments ${buttonIsVisible && "visible"} ${showOnHover && "showOnHover"}`}>
+                    <Popover.Trigger className={`comments ${buttonIsVisible && "visible"} ${showOnHover && "showOnHover"} ${shotlistContext.currentCollaborationType == CollaborationType.Comment && "commenterMode"}`}>
                         <MessageSquareText size={16}/>
                     </Popover.Trigger>
                 </div>
@@ -202,22 +205,28 @@ const CommentPopover = forwardRef<CommentPopoverRef, CommentPopoverProps>(({
                         }
                     </div>
                     <div className="bottom">
-                        <MarkdownEditor
-                            ref={editorRef}
-                            placeholder={"Add a comment..."}
-                            value={commentText}
-                            onValueChange={setCommentText}
-                            actions={[{
-                                name: "sendComment",
-                                icon: <Send size={16}/>,
-                                label: "Send the comment",
-                                disabled: wuConstants.Regex.empty.test(commentText || ""),
-                                onClick: sendComment,
-                                humanReadableShortcut: ["Ctrl", "Enter"]
-                            }]}
-                            delayClose={true}
-                            onCtrlEnter={sendComment}
-                        />
+                        {
+                            shotlistContext.currentCollaborationType == CollaborationType.View
+                            ?
+                            <p className={"empty"}>You don't have permission to add a comment.</p>
+                            :
+                            <MarkdownEditor
+                                ref={editorRef}
+                                placeholder={"Add a comment..."}
+                                value={commentText}
+                                onValueChange={setCommentText}
+                                actions={[{
+                                    name: "sendComment",
+                                    icon: <Send size={16}/>,
+                                    label: "Send the comment",
+                                    disabled: wuConstants.Regex.empty.test(commentText || ""),
+                                    onClick: sendComment,
+                                    humanReadableShortcut: ["Ctrl", "Enter"]
+                                }]}
+                                delayClose={true}
+                                onCtrlEnter={sendComment}
+                            />
+                        }
                     </div>
                 </Popover.Content>
             </Popover.Portal>

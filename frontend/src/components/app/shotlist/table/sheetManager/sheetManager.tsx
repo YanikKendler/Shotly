@@ -15,10 +15,12 @@ import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import ErrorDisplay from "@/components/app/feedback/errorDisplay/errorDisplay"
 import "./sheetManager.scss"
 import {
+    CollaborationType,
     CommentDto,
     Query,
     ShotAttributeDefinitionBase,
-    ShotDto, ShotMultiSelectAttributeDto,
+    ShotDto,
+    ShotMultiSelectAttributeDto,
     ShotSingleSelectAttributeDto,
     ShotTextAttributeDto
 } from "../../../../../../lib/graphql/generated"
@@ -27,7 +29,7 @@ import Utils from "@/utility/Utils"
 import {wuText} from "@yanikkendler/web-utils"
 import Skeleton from "react-loading-skeleton"
 import Sortable from 'sortablejs';
-import {ValueCell, CellRef} from "@/components/app/shotlist/table/cell/valueCell"
+import {CellRef, ValueCell} from "@/components/app/shotlist/table/cell/valueCell"
 import {Row, RowRef} from "../row/row";
 import {SelectedScene} from "@/app/shotlist/[id]/page"
 import {
@@ -182,10 +184,13 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
             attributePositionToSelect.current = -1
         }
+    }, [query.data.shots])
 
+
+    useEffect(() => {
         forceAdditionalPadding.current = false
         checkIfCommentIsPresent()
-    }, [query.data.shots])
+    }, [query.data.shots, shotlistContext.currentCollaborationType]);
 
     const loadShots = async () => {
         const result = await client.query({
@@ -263,7 +268,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
         if(override){
             setAdditionalPadding(true)
         }
-        else if(anyShotHasComments){
+        else if(anyShotHasComments || shotlistContext.currentCollaborationType == CollaborationType.Comment){
             setAdditionalPadding(true)
             setCommentPresentInScene(true)
         }

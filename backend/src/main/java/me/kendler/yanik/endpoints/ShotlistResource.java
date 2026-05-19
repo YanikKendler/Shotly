@@ -9,7 +9,6 @@ import me.kendler.yanik.dto.shotlist.collaboration.CollaborationCreateDTO;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationDTO;
 import me.kendler.yanik.dto.shotlist.collaboration.CollaborationEditDTO;
 import me.kendler.yanik.model.CollaborationType;
-import me.kendler.yanik.model.CollaborationTypeWithOwner;
 import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.User;
 import me.kendler.yanik.rateLimiting.RateLimited;
@@ -258,7 +257,7 @@ public class ShotlistResource {
     }
 
     @Query
-    public CollaborationTypeWithOwner getShotlistCollaborationType(UUID shotlistId){
+    public CollaborationType getShotlistCollaborationType(UUID shotlistId){
         return shotlistRepository.getCollaborationType(shotlistId, jwt);
     }
 }

@@ -2,7 +2,9 @@ import {Dispatch, RefObject, SetStateAction, useContext, useEffect, useRef} from
 import {useLatestCallback} from "@/utility/useLatestCallback"
 import {SelectOption, ShotlyErrorCode} from "@/utility/Types"
 import {
-    CollaborationPayload, CollaborationType, CollaborationTypeWithOwner, CommentPayload,
+    CollaborationPayload,
+    CollaborationType,
+    CommentPayload,
     Query,
     SceneAttributePayload,
     ScenePayload,
@@ -609,8 +611,6 @@ export function useShotlistSync({
 
         console.log("updating collaborator type to", payload.type)
 
-        const newType = payload.type as CollaborationTypeWithOwner | null
-
         //causes reload of access perm calculation
         setQuery(prev => {
             if (!prev.data?.shotlist) return prev
@@ -619,7 +619,7 @@ export function useShotlistSync({
                 ...prev,
                 data: {
                     ...prev.data,
-                    shotlistCollaborationType: newType
+                    shotlistCollaborationType: payload.type
                 }
             }
         })

@@ -21,23 +21,36 @@
   border: 1px solid var(--default-interactable-border);
   opacity: 0;
 
-  &:not(.visible).showOnHover{
-    border: none;
-    color: var(--text-50);
+  &.visible {
+    opacity: 1;
 
     &:hover{
-      opacity: 1;
-      background-color: var(--comment-button-bg);
+      background-color: var(--comment-button-hover-bg);
+      color: var(--accent-60);
     }
   }
 
-  &.visible {
-    opacity: 1;
-  }
+  &:not(.visible) {
+    &:not(.commenterMode).showOnHover {
+      border: none;
+      color: var(--text-50);
 
-  &:hover{
-    background-color: var(--comment-button-hover-bg);
-    color: var(--accent-60);
+      &:hover {
+        opacity: 1;
+        background-color: var(--comment-button-bg);
+      }
+    }
+
+    &.commenterMode {
+      border: none;
+      color: var(--text-50);
+      opacity: 1;
+
+      &:hover {
+        background-color: var(--comment-button-hover-bg);
+        color: var(--text);
+      }
+    }
   }
 
   // increase target size
@@ -95,6 +108,14 @@
 
     .markdownEditor{
       width: 100%;
+    }
+
+    .empty{
+      font-size: .75rem;
+      text-align: center;
+      width: 100%;
+      padding: .3rem;
+      color: var(--text-40);
     }
   }
 }

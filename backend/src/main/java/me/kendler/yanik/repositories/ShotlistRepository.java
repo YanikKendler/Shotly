@@ -13,7 +13,6 @@ import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.*;
 import me.kendler.yanik.model.scene.Scene;
 import me.kendler.yanik.model.scene.attributeDefinitions.SceneAttributeDefinitionBase;
-import me.kendler.yanik.model.shot.Shot;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotAttributeDefinitionBase;
 import me.kendler.yanik.model.template.Template;
 import me.kendler.yanik.repositories.scene.SceneAttributeDefinitionRepository;
@@ -197,24 +196,24 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
      * Does not account for shotlist archival or tier limits (result of ShotlistAccessService.shotlistIsEditable)
      * @return the collab type or null if the user is not a member of a given shotlist
      */
-    public CollaborationTypeWithOwner getCollaborationType(User user, Shotlist shotlist){
+    public CollaborationType getCollaborationType(User user, Shotlist shotlist){
         //not a member of the shotlist
         if(
             shotlist.collaborations.stream().noneMatch(c -> c.user.equals(user)) &&
             !shotlist.owner.equals(user)
         ) return null;
 
-        if(shotlist.owner.equals(user)) return CollaborationTypeWithOwner.OWNER;
+        if(shotlist.owner.equals(user)) return CollaborationType.EDIT;
 
         return shotlist.collaborations
                 .stream()
                 .filter(c -> c.user.equals(user))
                 .findFirst()
-                .map(c -> CollaborationTypeWithOwner.valueOf(c.collaborationType.name()))
+                .map(c -> c.collaborationType)
                 .orElse(null);
     }
 
-    public CollaborationTypeWithOwner getCollaborationType(UUID id, JsonWebToken jwt) {
+    public CollaborationType getCollaborationType(UUID id, JsonWebToken jwt) {
         Shotlist shotlist = findByIdValidated(id);
         User user = userRepository.findOrCreateByJWT(jwt);
 
