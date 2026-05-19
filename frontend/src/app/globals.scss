@@ -233,6 +233,7 @@ body {
   font: inherit;
   scroll-behavior: smooth;
   color: inherit;
+  color-scheme: inherit;
 
   &:where(:focus-visible) {
     outline: .15rem solid var(--accent);

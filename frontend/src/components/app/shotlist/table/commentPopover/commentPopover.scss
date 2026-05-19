@@ -7,8 +7,8 @@
 }
 
 .shotlist button.comments{
-  --comment-button-bg: light-dark(red, hsl(0, 0%, 15%));
-  --comment-button-hover-bg: light-dark(red, hsl(0, 0%, 25%));
+  --comment-button-bg: light-dark(hsl(0 0% 95%), hsl(0, 0%, 15%));
+  --comment-button-hover-bg: light-dark(hsl(0 0% 88%), hsl(0, 0%, 25%));
 
   padding: 0;
   width: 1.5rem;
@@ -63,7 +63,7 @@
 }
 
 .popoverContent.commentPopover{
-  --commentPopover-secondary-bg: light-dark(red, hsl(0, 0%, 15%));
+  --commentPopover-secondary-bg: light-dark(hsl(0 0% 95%), hsl(0, 0%, 15%));
 
   overflow: hidden;
   min-width: min(95vw, 40ch);

@@ -8,9 +8,12 @@
   --color-prettylights-syntax-markup-deleted-text: var(--text-20);
   --color-prettylights-syntax-comment: var(--text-50);
 
+  --md-editor-toolbar-color: light-dark(var(--transparent-gray-10), var(--transparent-contrast-10));
+
   height: fit-content !important;
   max-height: 10rem;
   border-radius: 0;
+  color-scheme: inherit;
 
   .w-md-editor-area{
     scrollbar-width: thin;
@@ -41,12 +44,12 @@
     transition: max-height 200ms;
     overflow: hidden;
     flex-shrink: 0;
-    background-color: var(--transparent-contrast-10);
+    background-color: var(--md-editor-toolbar-color);
     border-radius: .3rem;
     border: none;
     padding: 0;
     align-items: center;
-    max-height: 0;
+    /*max-height: 0;*/
 
     ul{
       display: flex;
@@ -63,6 +66,7 @@
       height: auto;
       margin: 0;
       padding: .3rem;
+      color: var(--text-40);
 
       &:hover{
         background-color: var(--transparent-accent-10);

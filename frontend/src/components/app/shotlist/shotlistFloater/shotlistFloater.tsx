@@ -48,7 +48,7 @@ const ShotlistFloater = forwardRef<ShotlistFloaterRef, ShotlistFloaterProps>(({
             wuAnimate.spin(refreshButtonRef.current, 300, 360)
 
         refreshShotlist().then(() => {
-            successNotification({title: "Shotlist reloaded.", message: "All data is up to date.", sub: "Sync service was reconnected."})
+            successNotification({title: "Shotlist reloaded.", message: "All data is up to date. Sync service was reconnected."})
         })
 
         restartSync()
