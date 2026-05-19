@@ -310,6 +310,7 @@ export default function CollaboratorsTab(
                                         value={collab.collaborationType as CollaborationType}
                                         options={[
                                             {label: "Viewer", value: CollaborationType.View},
+                                            {label: "Commenter", value: CollaborationType.Comment},
                                             {label: "Editor", value: CollaborationType.Edit},
                                         ]}
                                         fontSize={".95rem"}

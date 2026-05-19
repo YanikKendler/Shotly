@@ -1,39 +1,44 @@
-import {ReadOnlyState} from "@/app/shotlist/[id]/page"
+import {ReadOnlyReason} from "@/app/shotlist/[id]/page"
 import {useState} from "react"
 import {X} from "lucide-react"
 import "./readOnlyBanner.scss"
 
 export default function ReadOnlyBanner({
-    readOnlyState
+    isReadOnly,
+    readOnlyReason
 } : {
-    readOnlyState: ReadOnlyState;
+    isReadOnly: boolean,
+    readOnlyReason: ReadOnlyReason
 }) {
-    const [bannerVisible, setBannerVisible] = useState(true)
+    const [bannerHidden, setBannerHidden] = useState(false)
 
-    if(!readOnlyState.isReadOnly || !bannerVisible) return null
+    if(!isReadOnly || bannerHidden) return null
 
-    let readOnlyReason = "[unknown reason]"
+    let humanReadableReason = "[unknown reason]"
 
-    switch (readOnlyState.reason) {
+    switch (readOnlyReason) {
         case "tooManyShotlists":
-            readOnlyReason = 'the shotlists owner has exceeded the maximum number of Shotlist available with the basic tier'
+            humanReadableReason = 'its owner has exceeded the maximum number of Shotlist available with the basic tier'
             break
         case "collaborationViewOnly":
-            readOnlyReason = 'the shotlists owner set your collaboration type to "viewer"'
+            humanReadableReason = 'its owner set your collaboration type to "viewer"'
+            break
+        case "collaborationCommentOnly":
+            humanReadableReason = 'its owner set your collaboration type to "commenter"'
             break
         case "archived":
-            readOnlyReason = 'it has been marked as archived'
+            humanReadableReason = 'it has been marked as archived'
             break
     }
 
     return (
         <div className="readOnlyBanner">
             <p>
-                This Shotlist is in <span className={"bold"}>read-only</span> mode because {readOnlyReason}.
+                You can not edit this Shotlist because {humanReadableReason}.
             </p>
             <button
                 className={"round"}
-                onClick={() => setBannerVisible(false)}
+                onClick={() => setBannerHidden(true)}
             >
                 <X size={16}/>
             </button>

@@ -5,10 +5,11 @@ import React, {useEffect, useRef, useState} from "react"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {
     CollaborationDto,
-    CollaborationType,
+    CollaborationType, CollaborationTypeWithOwner,
     Query,
     SceneDto,
-    ShotAttributeDefinitionBase, ShotlistUpdateDto, ShotlistUpdateType, UserMinimalDto,
+    ShotAttributeDefinitionBase,
+    UserMinimalDto,
     UserTier
 } from "../../../../lib/graphql/generated"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
@@ -16,12 +17,12 @@ import './shotlist.scss'
 import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import ShotlistOptionsDialog, {
-    ShotlistOptionsDialogPages, ShotlistOptionsDialogRef,
+    ShotlistOptionsDialogPages,
+    ShotlistOptionsDialogRef,
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import LoadingPage from "@/components/app/feedback/loadingPage/loadingPage"
 import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
 import auth from "@/Auth"
-import {driver} from "driver.js"
 import Utils, {uuidRegex} from "@/utility/Utils"
 import Config from "@/Config"
 import {GenericError, RowColumn, SelectOption, ShotlyErrorCode} from "@/utility/Types"
@@ -40,10 +41,7 @@ export interface SelectedScene {
     position: number | null
 }
 
-export interface ReadOnlyState {
-    isReadOnly: boolean
-    reason?: "tooManyShotlists" | "collaborationViewOnly" | "archived"
-}
+export type ReadOnlyReason = "tooManyShotlists" | "collaborationViewOnly" | "collaborationCommentOnly" | "archived" | null
 
 export interface PresentCollaborator {
     updatedAt: Date
@@ -76,8 +74,8 @@ export default function Shotlist() {
     const [reloadKey, setReloadKey] = useState(0)
     const [reloadInProgress, setReloadInProgress] = useState(false)
 
-    const [readOnlyState, setReadOnlyState] = useState<ReadOnlyState>({isReadOnly: false})
-    const [currentCollaborationType, setCurrentCollaborationType] = useState<CollaborationType | null>(null)
+    const [currentCollaborationType, setCurrentCollaborationType] = useState<CollaborationTypeWithOwner | null>(null)
+    const [readOnlyReason, setReadOnlyReason] = useState<ReadOnlyReason>(null)
     const [isArchived, setIsArchived] = useState(false)
 
     const [shotCount, setShotCount] = useState(0)
@@ -171,9 +169,8 @@ export default function Shotlist() {
     }, [query.data.shotlist?.name]);
 
     useEffect(() => {
-        //read only state
-        calculateReadOnlyState()
-    }, [isArchived, query]);
+        calculateAccessRights()
+    }, [isArchived, query.data.shotlistCollaborationType]);
 
     useEffect(() => {
         sheetManagerRef.current?.showLoader()
@@ -265,8 +262,6 @@ export default function Shotlist() {
         setSceneCount(result.data.shotlist?.scenes?.length || 0)
 
         setIsArchived(result.data.shotlist.archived == true)
-
-        setCurrentCollaborationType(result.data.shotlistCollaborationType)
 
         setQuery(result)
 
@@ -445,8 +440,15 @@ export default function Shotlist() {
     // components read from context, use sepearate state for readOnly reason
     // replace readonly check with type check for component props
 
-    const calculateReadOnlyState = () => {
-        let newState: ReadOnlyState = {isReadOnly: false}
+    const calculateAccessRights = () => {
+        if(!query.data.shotlistCollaborationType) return
+
+        //shotlist is archived
+        if(isArchived) {
+            setCurrentCollaborationType(CollaborationTypeWithOwner.View)
+            setReadOnlyReason("archived")
+            return
+        }
 
         //users in basic mode are only allowed to have one single shotlist
         if (
@@ -458,32 +460,20 @@ export default function Shotlist() {
                 query.data.shotlist.owner.shotlistCount > 1
             )
         ) {
-            newState = {
-                isReadOnly: true,
-                reason: "tooManyShotlists"
-            }
+            setCurrentCollaborationType(CollaborationTypeWithOwner.View)
+            setReadOnlyReason("tooManyShotlists")
+            return
         }
 
-        //the current user only has view access to the shotlist
-        (query.data.shotlist?.collaborations as CollaborationDto[])?.forEach((collab: CollaborationDto) => {
-            if(collab?.user?.id == query.data.currentUser?.id && collab.collaborationType == CollaborationType.View) {
-                newState = {
-                    isReadOnly: true,
-                    reason: "collaborationViewOnly"
-                }
-            }
-        })
-
-        if(isArchived) {
-            newState = {
-                isReadOnly: true,
-                reason: "archived"
-            }
+        if(query.data.shotlistCollaborationType == CollaborationTypeWithOwner.View) {
+            setReadOnlyReason("collaborationViewOnly")
         }
 
-        if(newState.isReadOnly != readOnlyState.isReadOnly) {
-            setReadOnlyState(newState)
+        if(query.data.shotlistCollaborationType == CollaborationTypeWithOwner.Comment) {
+            setReadOnlyReason("collaborationCommentOnly")
         }
+
+        setCurrentCollaborationType(query.data.shotlistCollaborationType || CollaborationTypeWithOwner.View)
     }
 
     const openShotlistOptionsDialog = (pages?: ShotlistOptionsDialogPages) => {
@@ -542,6 +532,10 @@ export default function Shotlist() {
         }
     }
 
+    const isViewOrCommentOnly =
+        currentCollaborationType == CollaborationTypeWithOwner.View ||
+        currentCollaborationType == CollaborationTypeWithOwner.Comment
+
     return (
         <ShotlistContext.Provider value={{
             openShotlistOptionsDialog: openShotlistOptionsDialog,
@@ -593,7 +587,7 @@ export default function Shotlist() {
 
             currentCollaborationType: currentCollaborationType
         }}>
-            <ReadOnlyBanner readOnlyState={readOnlyState}/>
+            <ReadOnlyBanner isReadOnly={isViewOrCommentOnly} readOnlyReason={readOnlyReason}/>
 
             <main className={`shotlist`} key={reloadKey} ref={shotlistElementRef}>
                 <PanelGroup
@@ -615,7 +609,7 @@ export default function Shotlist() {
                             selectedScene={selectedScene}
                             setSelectedScene={setSelectedScene}
 
-                            isReadOnly={readOnlyState.isReadOnly}
+                            isReadOnly={isViewOrCommentOnly}
                             setSidebarOpen={setSidebarOpen}
                             reloadInProgress={reloadInProgress}
 
@@ -643,7 +637,7 @@ export default function Shotlist() {
                             selectedScene={selectedScene}
                             queryIsLoading={query.loading}
                             shotAttributeDefinitions={query.data.shotlist?.shotAttributeDefinitions as ShotAttributeDefinitionBase[] || null}
-                            isReadOnly={readOnlyState.isReadOnly}
+                            isReadOnly={isViewOrCommentOnly}
                             shotlistHeaderRef={headerRef}
                             setAdditionalPadding={(needsPadding) => {
                                 shotlistElementRef?.current?.style
@@ -671,7 +665,7 @@ export default function Shotlist() {
                 }}
                 isArchived={isArchived}
                 setIsArchived={setIsArchived}
-                isReadOnly={readOnlyState.isReadOnly}
+                isReadOnly={isViewOrCommentOnly}
             ></ShotlistOptionsDialog>
         </ShotlistContext.Provider>
     )

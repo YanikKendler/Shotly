@@ -13,6 +13,7 @@ import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.model.*;
 import me.kendler.yanik.model.scene.Scene;
 import me.kendler.yanik.model.scene.attributeDefinitions.SceneAttributeDefinitionBase;
+import me.kendler.yanik.model.shot.Shot;
 import me.kendler.yanik.model.shot.attributeDefinitions.ShotAttributeDefinitionBase;
 import me.kendler.yanik.model.template.Template;
 import me.kendler.yanik.repositories.scene.SceneAttributeDefinitionRepository;
@@ -192,29 +193,32 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
     }
 
     /**
-     * Finds out what access rights (what type of collaboration) the user has for a given shotlist
+     * Finds out what access rights (what type of collaboration) the user has for a given shotlist.
+     * Does not account for shotlist archival or tier limits (result of ShotlistAccessService.shotlistIsEditable)
      * @return the collab type or null if the user is not a member of a given shotlist
      */
-    public CollaborationType getCollaborationType(UUID id, JsonWebToken jwt){
-        Shotlist shotlist = findByIdValidated(id);
-        User user = userRepository.findOrCreateByJWT(jwt);
-
+    public CollaborationTypeWithOwner getCollaborationType(User user, Shotlist shotlist){
         //not a member of the shotlist
         if(
             shotlist.collaborations.stream().noneMatch(c -> c.user.equals(user)) &&
             !shotlist.owner.equals(user)
         ) return null;
 
-        if(!accessService.shotlistIsEditable(shotlist)) return CollaborationType.VIEW;
-
-        if(shotlist.owner.equals(user)) return CollaborationType.OWNER;
+        if(shotlist.owner.equals(user)) return CollaborationTypeWithOwner.OWNER;
 
         return shotlist.collaborations
                 .stream()
                 .filter(c -> c.user.equals(user))
                 .findFirst()
-                .map(c -> c.collaborationType)
+                .map(c -> CollaborationTypeWithOwner.valueOf(c.collaborationType.name()))
                 .orElse(null);
+    }
+
+    public CollaborationTypeWithOwner getCollaborationType(UUID id, JsonWebToken jwt) {
+        Shotlist shotlist = findByIdValidated(id);
+        User user = userRepository.findOrCreateByJWT(jwt);
+
+        return getCollaborationType(user, shotlist);
     }
 
     //Statistics

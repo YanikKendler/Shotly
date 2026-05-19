@@ -2,7 +2,7 @@ import {Dispatch, RefObject, SetStateAction, useContext, useEffect, useRef} from
 import {useLatestCallback} from "@/utility/useLatestCallback"
 import {SelectOption, ShotlyErrorCode} from "@/utility/Types"
 import {
-    CollaborationPayload, CommentPayload,
+    CollaborationPayload, CollaborationType, CollaborationTypeWithOwner, CommentPayload,
     Query,
     SceneAttributePayload,
     ScenePayload,
@@ -272,7 +272,6 @@ export function useShotlistSync({
 }) {
     const client = useApolloClient()
     const router = useRouter()
-    const shotlistContext = useContext(ShotlistContext)
 
     const collaboratorSelectedCell = useRef<Map<string, SelectedCellPayload>>(new Map())
     const collaboratorSelectedSceneAttribute = useRef<Map<string, SelectedSceneAttributePayload>>(new Map())
@@ -369,7 +368,6 @@ export function useShotlistSync({
             case "CollaborationPayload":
                 switch (updateDTO.type){
                     case ShotlistUpdateType.CollaborationTypeUpdated:
-                        //a collaboration type changed (we are only interested in possible changes to our own collaboration types)
                         collaboratorTypeChanged(
                             updateDTO.payload as CollaborationPayload
                         )
@@ -606,24 +604,22 @@ export function useShotlistSync({
     }
 
     const collaboratorTypeChanged = (payload: CollaborationPayload)=> {
+        //we are only interested if our own permissions changed
+        if(currentUserId != payload.userId && payload.type) return
+
+        console.log("updating collaborator type to", payload.type)
+
+        const newType = payload.type as CollaborationTypeWithOwner | null
+
+        //causes reload of access perm calculation
         setQuery(prev => {
             if (!prev.data?.shotlist) return prev
 
-            //possible change to the current users collaboration type - causes reload of read only state
             return {
                 ...prev,
                 data: {
                     ...prev.data,
-                    shotlist: {
-                        ...prev.data.shotlist,
-                        collaborations: prev.data.shotlist.collaborations?.map(collab => {
-                                if(collab?.user?.id === payload.userId)
-                                    return {...collab, collaborationType: payload.type}
-                                else
-                                    return collab
-                            }
-                        )
-                    }
+                    shotlistCollaborationType: newType
                 }
             }
         })

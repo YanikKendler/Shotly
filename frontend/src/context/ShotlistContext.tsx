@@ -6,7 +6,7 @@ import {
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {GenericError, RowColumn, SelectOption} from "@/utility/Types"
 import {PresentCollaborator, SaveState} from "@/app/shotlist/[id]/page"
-import {CollaborationType, UserDto} from "../../lib/graphql/generated"
+import {CollaborationType, CollaborationTypeWithOwner, UserDto} from "../../lib/graphql/generated"
 
 export interface ShotlistContextProps {
     openShotlistOptionsDialog: (pages?: ShotlistOptionsDialogPages) => void
@@ -36,9 +36,10 @@ export interface ShotlistContextProps {
     presentCollaborators: Map<string, PresentCollaborator>
 
     currentUser: UserDto | null
-    currentCollaborationType: CollaborationType | null
 
     blockKeyBinds: RefObject<Map<string, boolean>>
+
+    currentCollaborationType: CollaborationTypeWithOwner | null
 }
 
 export const ShotlistContext = createContext<ShotlistContextProps>({

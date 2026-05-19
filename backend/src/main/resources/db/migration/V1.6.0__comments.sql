@@ -32,3 +32,11 @@ CREATE TABLE comment (
 -- Indexes for optimized querying of comments by shot or user
 CREATE INDEX idx_comment_shot_id ON comment(shot_id);
 CREATE INDEX idx_comment_owner_id ON comment(owner_id);
+
+-- Add collab type comment
+ALTER TABLE collaboration
+DROP CONSTRAINT collaboration_collaborationtype_check;
+
+ALTER TABLE collaboration
+ADD CONSTRAINT collaboration_collaborationtype_check
+CHECK (collaborationtype IN ('EDIT', 'COMMENT', 'VIEW'));

@@ -65,6 +65,12 @@ export enum CollaborationState {
 export enum CollaborationType {
   Comment = 'COMMENT',
   Edit = 'EDIT',
+  View = 'VIEW'
+}
+
+export enum CollaborationTypeWithOwner {
+  Comment = 'COMMENT',
+  Edit = 'EDIT',
   Owner = 'OWNER',
   View = 'VIEW'
 }
@@ -533,7 +539,7 @@ export type Query = {
   shotAttributeDefinitions?: Maybe<Array<Maybe<ShotAttributeDefinitionBaseDto>>>;
   shotSelectAttributeOptions?: Maybe<Array<Maybe<ShotSelectAttributeOptionDefinition>>>;
   shotlist?: Maybe<ShotlistDto>;
-  shotlistCollaborationType?: Maybe<CollaborationType>;
+  shotlistCollaborationType?: Maybe<CollaborationTypeWithOwner>;
   shotlists?: Maybe<ShotlistCollection>;
   shots?: Maybe<Array<Maybe<ShotDto>>>;
   template?: Maybe<TemplateDto>;
@@ -1445,7 +1451,7 @@ export type ShotlistQueryVariables = Exact<{
 }>;
 
 
-export type ShotlistQuery = { __typename?: 'Query', shotlistCollaborationType?: CollaborationType | null, shotlist?: { __typename?: 'ShotlistDTO', id?: string | null, name?: string | null, archived?: boolean | null, scenes?: Array<{ __typename?: 'SceneDTO', id?: string | null, position: number, shotCount: number, attributes?: Array<
+export type ShotlistQuery = { __typename?: 'Query', shotlistCollaborationType?: CollaborationTypeWithOwner | null, shotlist?: { __typename?: 'ShotlistDTO', id?: string | null, name?: string | null, archived?: boolean | null, scenes?: Array<{ __typename?: 'SceneDTO', id?: string | null, position: number, shotCount: number, attributes?: Array<
         | { __typename?: 'SceneMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
             | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
             | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
