@@ -267,7 +267,11 @@ const RowBase = forwardRef<RowRef, RowProps>(({
                                 </button>
                             </Popover.Close>
                             <Separator/>
-                            <p className={"instructions"}><span className="bold">Click</span> to edit, <span className="bold">Drag</span> to reorder</p>
+                            <p className={"instructions"}>
+                                <span className="bold">Click</span> or <span className="key">Alt</span> + <span className="key">.</span> to edit</p>
+                            <p className="instructions">
+                                <span className="bold">Drag</span> to reorder
+                            </p>
                         </Popover.Content>
                     </Popover.Portal>
                 </Popover.Root>

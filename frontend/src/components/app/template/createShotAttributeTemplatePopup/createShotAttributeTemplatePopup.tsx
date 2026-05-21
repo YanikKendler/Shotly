@@ -67,7 +67,6 @@ export default function CreateShotAttributeTemplatePopup({
             ref={popoverRef}
             className={"add"}
             contentClassName={"addAttributeTemplatePopup"}
-            showArrow={false}
             side={"bottom"}
             align={"start"}
             content={<>

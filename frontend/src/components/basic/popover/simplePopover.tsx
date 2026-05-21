@@ -19,7 +19,6 @@ export interface SimplePopoverProps {
     className?: string
     contentClassName?: string
     onOpen?: () => void
-    showArrow?: boolean
     align?: "start" | "center" | "end"
 }
 
@@ -34,7 +33,6 @@ const SimplePopover = forwardRef<SimplePopoverRef, SimplePopoverProps>(({
     className = "",
     contentClassName = "",
     onOpen = () => {},
-    showArrow = true,
     align = "center"
 }, ref) => {
     const [isOpen, setIsOpen] = useState(false)
@@ -64,7 +62,7 @@ const SimplePopover = forwardRef<SimplePopoverRef, SimplePopoverProps>(({
                     style={{fontSize: fontSize + "rem"}}
                     collisionPadding={10}
                 >
-                    {showArrow && <Popover.Arrow className="popoverArrow"/>}
+                    {/*<Popover.Arrow className="arrow"/>*/}
                     <div className="scrollArea">
                         {text ?? text}
                         {content ?? content}

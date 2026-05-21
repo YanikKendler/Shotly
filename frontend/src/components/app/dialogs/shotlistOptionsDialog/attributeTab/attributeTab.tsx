@@ -337,7 +337,6 @@ export default function AttributeTab(
                                     <button onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneSingleSelectAttribute)}><ChevronDown size={16}/>Single select</button>
                                     <button onClick={() => createSceneAttributeDefinition(SceneAttributeType.SceneMultiSelectAttribute)}><List size={16}/>Multi select</button>
                                 </>}
-                                showArrow={false}
                                 side={"bottom"}
                             >
                                 New attribute <Plus size={20}/>
@@ -401,7 +400,6 @@ export default function AttributeTab(
                                     <button onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotSingleSelectAttribute)}><ChevronDown size={16}/>Single select</button>
                                     <button onClick={() => createShotAttributeDefinition(ShotAttributeType.ShotMultiSelectAttribute)}><List size={16}/>Multi select</button>
                                 </>}
-                                showArrow={false}
                                 side={"bottom"}
                             >
                                 New attribute <Plus size={20}/>

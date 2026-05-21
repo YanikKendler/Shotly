@@ -46,7 +46,6 @@ export default function AddExportFilterPopover({
             ref={popoverRef}
             className={"add"}
             contentClassName={"exportAddPopover"}
-            showArrow={false}
             content={<>
                 <h3>Scene</h3>
                 {

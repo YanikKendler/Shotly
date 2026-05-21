@@ -7,7 +7,7 @@ export default function SimpleTooltip({
     children,
     text,
     content,
-    fontSize = 0.9,
+    fontSize = 0.85,
     offset = 2,
     hoverAreaExpansion,
     showHoverArea = true,
@@ -55,7 +55,7 @@ export default function SimpleTooltip({
                             {text ?? text}
                             {content ?? content}
                         </div>
-                        <Tooltip.Arrow className="tooltipArrow"/>
+                        {/*<Tooltip.Arrow className="arrow"/>*/}
                     </Tooltip.Content>
                 }
             </Tooltip.Portal>

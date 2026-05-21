@@ -63,7 +63,6 @@ export default function CreateSceneAttributeTemplatePopup({
             ref={popoverRef}
             className={"add"}
             contentClassName={"addAttributeTemplatePopup"}
-            showArrow={false}
             side={"bottom"}
             align={"start"}
             content={<>
