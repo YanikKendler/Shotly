@@ -41,7 +41,7 @@ export default function useShotlistKeybinds({
                 if(!currentKeyBindInUse) {
                     infoNotification({
                         title: "This keybind is paused",
-                        message: "Close the current dialog/popover to use it again [Esc]"
+                        message: "Close the current dialog/popover to use it [Esc]"
                     })
                 }
             }
@@ -49,7 +49,6 @@ export default function useShotlistKeybinds({
         }
 
         let unsubscribe = tinykeys(window, {
-
             "ArrowLeft": event => {
                 if(isBlocked()) return
 
@@ -90,6 +89,8 @@ export default function useShotlistKeybinds({
             },
             "Alt+([1-9])": event => {
                 if(isBlocked("")) return
+
+                //TODO always causes scene reload
 
                 event.preventDefault()
 

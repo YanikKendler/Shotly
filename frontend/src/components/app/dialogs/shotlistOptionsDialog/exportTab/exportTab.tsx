@@ -55,8 +55,9 @@ import AddExportSortPopover
     from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/addPopover/addExportSortPopover"
 import ExportSort from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/exportSort/exportSort"
 import Sortable from "sortablejs"
+import useJsonExport from "@/service/export/useJsonExport"
 
-type SelectedFileTypes = "PDF" | "CSV" | "XLSX"
+type ExportFileTypes = "PDF" | "CSV" | "XLSX" | "JSON"
 
 export type ExportFilterMethod = "exclude" | "include" | "includeOnly"
 
@@ -74,7 +75,7 @@ export interface ExportSortSetting {
 }
 
 interface ExportSettingsLocalStorage {
-    selectedFileType?: SelectedFileTypes
+    selectedFileType?: ExportFileTypes
     hideSceneHeadings?: boolean
     pdfExportOptions?: PdfExportOptions
     selectedScenes?: MultiValue<SelectOption>
@@ -103,7 +104,7 @@ export default function ExportTab(
 
     const [scenesAsOptions, setScenesAsOptions] = useState<SelectOption[]>([{label: "this is bad", value: "-1"}])
 
-    const [selectedFileType, setSelectedFileType] = useState<SelectedFileTypes>("PDF")
+    const [selectedFileType, setSelectedFileType] = useState<ExportFileTypes>("PDF")
     const [hideSceneHeadings, setHideSceneHeadings] = useState(false)
     const [pdfExportOptions, setPdfExportOptions] = useState<PdfExportOptions>({
         showCheckboxes: false,
@@ -178,10 +179,6 @@ export default function ExportTab(
     const generateFileName = () => {
         return `shotly_${shotlist?.name?.replace(/\s/g, "-") || "unnamed-shotlist"}_${wuTime.toDateTimeString(Date.now(), {timeSeparator: "-", dateSeparator: "-", dateTimeSeparator: "_"})}`
     }
-
-    const {exportPdf} = usePdfExport({generateFileName, pdfExportOptions, hideSceneHeadings, scenePositionLUT})
-    const {exportCsv} = useCsvExport({generateFileName, hideSceneHeadings, scenePositionLUT})
-    const {exportXLSX} = useXlsxExport({generateFileName, hideSceneHeadings, scenePositionLUT})
 
     const loadSettingsFromLocalStorage = (shotlistId: string) => {
         const settingsString = localStorage.getItem(Config.localStorageKey.exportSettings(shotlistId))
@@ -275,7 +272,7 @@ export default function ExportTab(
                                 position
                                 attributes{
                                     id
-                                    definition{id, name, position}
+                                    definition{id, position}
 
                                     ... on SceneSingleSelectAttributeDTO{
                                         singleSelectValue{id,name}
@@ -293,7 +290,7 @@ export default function ExportTab(
                                     position
                                     attributes{
                                         id
-                                        definition{id, name, position}
+                                        definition{id, position}
 
                                         ... on ShotSingleSelectAttributeDTO{
                                             singleSelectValue{id,name}
@@ -583,18 +580,24 @@ export default function ExportTab(
     }
 
     async function exportShotlist() {
-        setExportRunning(true)
-
         infoNotification({
             title: "Generating your export!",
         })
+
+        if(selectedFileType == "JSON") {
+            exportJson()
+            return
+        }
+
+        setExportRunning(true)
 
         const data: ShotlistDto | null = await loadFilteredData()
 
         if (!data) {
             errorNotification({
                 title: "Export failed",
-                message: "Could not load data for export."
+                message: "Could not load data for export.",
+                tryAgainLater: true
             })
             setExportRunning(false)
             return
@@ -616,7 +619,7 @@ export default function ExportTab(
                 exportPdf(data)
                 break
             case "XLSX":
-                exportXLSX(data)
+                exportXlsx(data)
                 break
         }
         
@@ -823,6 +826,10 @@ export default function ExportTab(
         }
     }, [])
 
+    const {exportPdf} = usePdfExport({generateFileName, pdfExportOptions, hideSceneHeadings, scenePositionLUT})
+    const {exportCsv} = useCsvExport({generateFileName, hideSceneHeadings, scenePositionLUT})
+    const {exportXlsx} = useXlsxExport({generateFileName, hideSceneHeadings, scenePositionLUT})
+    const {exportJson} = useJsonExport({generateFileName, shotlistId: shotlist?.id || null, filterData, setExportRunning})
 
     if(!shotlist) return <div className={"shotlistOptionsDialogExportTab shotlistOptionsDialogPage"}>
         <div className="top">
@@ -865,11 +872,12 @@ export default function ExportTab(
 
                     <SimpleSelect
                         name="File Type"
-                        onChange={newValue => setSelectedFileType(newValue as SelectedFileTypes)}
+                        onChange={newValue => setSelectedFileType(newValue as ExportFileTypes)}
                         options={[
                             {value: "PDF", label: "PDF"},
                             {value: "XLSX", label: "XLSX"},
                             {value: "CSV", label: "CSV"},
+                            {value: "JSON", label: "JSON"},
                         ]}
                         value={selectedFileType}
                         fontSize={".9rem"}

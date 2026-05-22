@@ -350,8 +350,8 @@ export function useShotlistSync({
                     setPresentCollaborators(prev => {
                         const newMap = new Map(prev)
                         newMap.forEach(collab => {
-                            if(collab.user.id == userId)
-                                newMap.delete(collab.user.id)
+                            if(collab.owner.id == userId)
+                                newMap.delete(collab.owner.id)
                         })
                         return newMap
                     })

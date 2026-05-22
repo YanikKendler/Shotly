@@ -15,7 +15,7 @@ export default function useXlsxExport({
 }){
 
     //AI
-    const exportXLSX = (data: ShotlistDto) => {
+    const exportXlsx = (data: ShotlistDto) => {
         const rows: any[][] = [];
 
         const sceneValueRowIndices: number[] = [];
@@ -153,5 +153,5 @@ export default function useXlsxExport({
         XLSX.writeFile(workbook, `${generateFileName()}.xlsx`);
     }
 
-    return {exportXLSX}
+    return {exportXlsx}
 }

@@ -154,7 +154,7 @@ export default function CollaboratorsTab(
     const deleteCollaboration = async (collaborationId: string) => {
         let decision = await confirm({
             title: 'Remove collaborator?',
-            message: `This will revoke all access to this shotlist for "${collaborations?.find(collab => collab.id === collaborationId)?.user?.name}".`,
+            message: `This will revoke all access to this shotlist for "${collaborations?.find(collab => collab.id === collaborationId)?.owner?.name}".`,
             buttons: {
                 confirm: {
                     text: 'Remove Collaborator',
