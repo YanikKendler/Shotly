@@ -73,9 +73,7 @@ const ValueCellBase = forwardRef<CellRef, CellProps>(({
         id: attribute?.id ?? -1,
         row,
         column,
-        setFocus() {
-            inputRef.current?.setFocus()
-        },
+        setFocus: setFocus,
         openMenu() {
             inputRef.current?.openMenu()
         },
@@ -100,6 +98,10 @@ const ValueCellBase = forwardRef<CellRef, CellProps>(({
             setIsBlockedByCollaborator(null)
         }
     }))
+
+    const setFocus = () => {
+        inputRef.current?.setFocus()
+    }
 
     const updateAttribute = async (attributeId: number, value: ShotAttributeValueCollection) => {
         shotlistContext.setSaveState("updateShotAttribute", "saving")
@@ -162,6 +164,7 @@ const ValueCellBase = forwardRef<CellRef, CellProps>(({
             className={`default ${isReadOnly && "readOnly"} ${isBlockedByCollaborator && "readOnly collaboratorHighlight"}`}
             onFocus={() => {
                 shotlistContext.setFocusedCell(row, column)
+                setFocus()
             }}
             onBlur={() => {
                 setTimeout(() => {

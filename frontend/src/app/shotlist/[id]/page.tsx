@@ -312,7 +312,7 @@ export default function Shotlist() {
         sync.syncShotlistCellSelected({
             row: row,
             column: column,
-            sceneId: selectedScene.id || "unknown"
+            sceneId: selectedScene.id
         })
     }
 
@@ -320,7 +320,7 @@ export default function Shotlist() {
         focusedSceneAttributeId.current = attributeId
 
         sync.syncShotlistSceneAttributeSelected({
-            sceneId: selectedScene.id || "unknown",
+            sceneId: selectedScene.id,
             attributeId: attributeId
         })
     }
