@@ -31,18 +31,33 @@ public class ShotSelectAttributeOptionDefinitionRepository implements PanacheRep
     public ShotSelectAttributeOptionDefinition create(ShotSelectAttributeOptionCreateDTO createDTO){
         ShotAttributeDefinitionBase shotAttributeDefinition = shotAttributeDefinitionRepository.findById(createDTO.attributeDefinitionId());
 
-        ShotSelectAttributeOptionDefinition shotSelectAttributeOptionDefinition;
+        if (shotAttributeDefinition == null) {
+            throw new ShotlyException("Attribute definition not found", ShotlyErrorCode.NOT_FOUND);
+        }
 
-        shotSelectAttributeOptionDefinition = new ShotSelectAttributeOptionDefinition(createDTO.name(), shotAttributeDefinition);
+        ShotSelectAttributeOptionDefinition newOption;
 
-        persist(shotSelectAttributeOptionDefinition);
+        newOption = new ShotSelectAttributeOptionDefinition(createDTO.name(), shotAttributeDefinition);
+
+        if (shotAttributeDefinition instanceof ShotSingleSelectAttributeDefinition singleDef) {
+            singleDef.options.add(newOption);
+
+        }
+        else if(shotAttributeDefinition instanceof ShotMultiSelectAttributeDefinition multiDef) {
+            multiDef.options.add(newOption);
+        }
+        else {
+            throw new ShotlyException("Attribute definition is not a single or multi select.", ShotlyErrorCode.INVALID_INPUT);
+        }
+
+        persist(newOption);
 
         getEntityManager().createQuery("select s from Shotlist s join s.shotAttributeDefinitions sad where sad = :definition", Shotlist.class)
                 .setParameter("definition", shotAttributeDefinition)
                 .getSingleResult()
                 .registerEdit();
 
-        return shotSelectAttributeOptionDefinition;
+        return newOption;
     }
 
     public List<ShotSelectAttributeOptionDefinition> search(ShotSelectAttributeOptionSearchDTO searchDTO){
@@ -92,12 +107,16 @@ public class ShotSelectAttributeOptionDefinitionRepository implements PanacheRep
                 for (ShotMultiSelectAttribute relevantAttribute : relevantAttributes) {
                     relevantAttribute.value.remove(shotSelectAttributeOptionDefinition);
                 }
+
+                attributeDefinition.options.remove(shotSelectAttributeOptionDefinition);
                 break;
             }
             case ShotSingleSelectAttributeDefinition attributeDefinition: {
                 getEntityManager().createQuery("update ShotSingleSelectAttribute sa set sa.value = null where sa.value = :option")
                         .setParameter("option", shotSelectAttributeOptionDefinition)
                         .executeUpdate();
+
+                attributeDefinition.options.remove(shotSelectAttributeOptionDefinition);
                 break;
             }
             default:

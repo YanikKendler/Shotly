@@ -11,10 +11,14 @@ import me.kendler.yanik.model.scene.Scene;
 import me.kendler.yanik.model.scene.SceneAttributeType;
 import me.kendler.yanik.model.scene.attributes.SceneAttributeBase;
 import me.kendler.yanik.model.scene.attributes.SceneSingleSelectAttribute;
+import me.kendler.yanik.model.shot.attributeDefinitions.ShotSelectAttributeOptionDefinition;
 
 @Entity
 @DiscriminatorValue("SceneSingleSelect")
 public class SceneSingleSelectAttributeDefinition extends SceneAttributeDefinitionBase {
+    @OneToMany(mappedBy = "sceneAttributeDefinition", fetch = FetchType.LAZY)
+    public List<SceneSelectAttributeOptionDefinition> options = new ArrayList<>();
+
     public SceneSingleSelectAttributeDefinition() { super(); }
 
     public SceneSingleSelectAttributeDefinition(Shotlist shotlist) {
@@ -36,7 +40,7 @@ public class SceneSingleSelectAttributeDefinition extends SceneAttributeDefiniti
             id,
             name,
             position,
-            new LinkedList<>(List.of(new SceneSelectAttributeOptionDefinition("Sorry, I'm lazy - this does not actually list the options, please use the specific shotAttributeDefinitions query", null)))
+            new LinkedList<>(options)
         );
     }
 }

@@ -5,16 +5,17 @@ import java.util.*;
 import jakarta.persistence.*;
 import me.kendler.yanik.dto.shot.attributeDefinitions.ShotAttributeDefinitionBaseDTO;
 import me.kendler.yanik.dto.shot.attributeDefinitions.ShotSingleSelectAttributeDefinitionDTO;
-import me.kendler.yanik.dto.shot.attributeDefinitions.ShotTextAttributeDefinitionDTO;
 import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.shot.Shot;
-import me.kendler.yanik.model.shot.ShotAttributeType;
 import me.kendler.yanik.model.shot.attributes.ShotAttributeBase;
 import me.kendler.yanik.model.shot.attributes.ShotSingleSelectAttribute;
 
 @Entity
 @DiscriminatorValue("ShotSingleSelect")
 public class ShotSingleSelectAttributeDefinition extends ShotAttributeDefinitionBase {
+    @OneToMany(mappedBy = "shotAttributeDefinition", fetch = FetchType.LAZY)
+    public List<ShotSelectAttributeOptionDefinition> options = new ArrayList<>();
+
     public ShotSingleSelectAttributeDefinition() { super(); }
 
     public ShotSingleSelectAttributeDefinition(Shotlist shotlist) {
@@ -36,7 +37,7 @@ public class ShotSingleSelectAttributeDefinition extends ShotAttributeDefinition
             id,
             name,
             position,
-            new LinkedList<>(List.of(new ShotSelectAttributeOptionDefinition("Sorry, I'm lazy - this does not actually list the options, please use the specific shotAttributeDefinitions query", null)))
+            new LinkedList<>(options)
         );
     }
 }

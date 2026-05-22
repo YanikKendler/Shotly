@@ -15,6 +15,9 @@ import me.kendler.yanik.model.shot.attributes.ShotMultiSelectAttribute;
 @Entity
 @DiscriminatorValue("ShotMultiSelect")
 public class ShotMultiSelectAttributeDefinition extends ShotAttributeDefinitionBase {
+    @OneToMany(mappedBy = "shotAttributeDefinition", fetch = FetchType.LAZY)
+    public List<ShotSelectAttributeOptionDefinition> options = new ArrayList<>();
+
     public ShotMultiSelectAttributeDefinition() { super(); }
 
     public ShotMultiSelectAttributeDefinition(Shotlist shotlist) {
@@ -36,7 +39,7 @@ public class ShotMultiSelectAttributeDefinition extends ShotAttributeDefinitionB
             id,
             name,
             position,
-            new LinkedList<>(List.of(new ShotSelectAttributeOptionDefinition("Sorry, I'm lazy - this does not actually list the options, please use the specific shotAttributeDefinitions query", null)))
+            new LinkedList<>(options)
         );
     }
 }

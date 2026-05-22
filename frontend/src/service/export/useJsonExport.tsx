@@ -1,7 +1,13 @@
-import {CollaborationDto, Query, ShotlistDto, UserMinimalDto} from "../../../lib/graphql/generated"
+import {
+    Query,
+    Scene,
+    SceneAttributeDefinitionBase,
+    SceneDto,
+    ShotAttributeDefinitionBase,
+    ShotDto,
+    ShotlistDto
+} from "../../../lib/graphql/generated"
 import {BUILD_INFO} from "../../../buildinfo"
-import {useContext} from "react"
-import {ShotlistContext} from "@/context/ShotlistContext"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import {errorNotification} from "@/service/NotificationService"
@@ -9,7 +15,7 @@ import {errorNotification} from "@/service/NotificationService"
 export interface JsonExport {
     version: string
     shotlyVersion: string
-    timestamp: number
+    date: string
     shotlist: ShotlistDto
 }
 
@@ -47,7 +53,7 @@ export default function useJsonExport({
                             position
                             attributes{
                                 id
-                                definition{id}
+                                definition{id,name}
 
                                 ... on SceneSingleSelectAttributeDTO{
                                     singleSelectValue{id,name}
@@ -65,7 +71,7 @@ export default function useJsonExport({
                                 position
                                 attributes{
                                     id
-                                    definition{id}
+                                    definition{id,name}
 
                                     ... on ShotSingleSelectAttributeDTO{
                                         singleSelectValue{id,name}
@@ -136,7 +142,10 @@ export default function useJsonExport({
                     }
                 }`,
             variables: {id: shotlistId},
-            fetchPolicy: "no-cache"
+            fetchPolicy: "no-cache",
+            context: {
+                addTypename: false
+            }
         })
 
         if(result.errors || result.error){
@@ -149,14 +158,41 @@ export default function useJsonExport({
             return
         }
 
+        let shotlistData = filterData(result) as ShotlistDto
+
+        shotlistData.scenes = (shotlistData.scenes as Scene[]).map(scene => ({
+            ...scene,
+            attributes: scene.attributes?.map(attribute => ({
+                ...attribute,
+                type: attribute!.__typename
+            })),
+            shots: scene.shots?.map(shot => ({
+                ...shot,
+                type: shot!.__typename
+            }))
+        })) as SceneDto[]
+
+        shotlistData = {
+            ...shotlistData,
+            shotAttributeDefinitions: (shotlistData.shotAttributeDefinitions as ShotAttributeDefinitionBase[]).map(definition => ({
+                ...definition,
+                type: definition!.__typename
+            })),
+            sceneAttributeDefinitions: (shotlistData.sceneAttributeDefinitions as SceneAttributeDefinitionBase[]).map(definition => ({
+                ...definition,
+                type: definition!.__typename
+            }))
+        }
+
         const json: JsonExport = {
             version: "1.0.0",
             shotlyVersion: BUILD_INFO.version,
-            timestamp: Date.now(),
-            shotlist: filterData(result) as ShotlistDto
+            date: new Date().toISOString(),
+            shotlist: shotlistData
         }
 
-        const jsonString = JSON.stringify(json, null, 4)
+        const omitTypename = (key: string, value: string) => (key === '__typename' ? undefined : value)
+        const jsonString = JSON.stringify(json, omitTypename, 4)
 
         const blob = new Blob([jsonString], { type: "application/json" })
         const jsonObjectUrl = URL.createObjectURL(blob)

@@ -5,16 +5,19 @@ import me.kendler.yanik.dto.scene.attributeDefinitions.SceneAttributeDefinitionB
 import me.kendler.yanik.dto.scene.attributeDefinitions.SceneMultiSelectAttributeDefinitionDTO;
 import me.kendler.yanik.model.Shotlist;
 import me.kendler.yanik.model.scene.Scene;
-import me.kendler.yanik.model.scene.SceneAttributeType;
 import me.kendler.yanik.model.scene.attributes.SceneAttributeBase;
 import me.kendler.yanik.model.scene.attributes.SceneMultiSelectAttribute;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 @Entity
 @DiscriminatorValue("SceneMultiSelect")
 public class SceneMultiSelectAttributeDefinition extends SceneAttributeDefinitionBase {
+    @OneToMany(mappedBy = "sceneAttributeDefinition", fetch = FetchType.LAZY)
+    public List<SceneSelectAttributeOptionDefinition> options = new ArrayList<>();
+
     public SceneMultiSelectAttributeDefinition() { super(); }
 
     public SceneMultiSelectAttributeDefinition(Shotlist shotlist) {
@@ -36,7 +39,7 @@ public class SceneMultiSelectAttributeDefinition extends SceneAttributeDefinitio
             id,
             name,
             position,
-            new LinkedList<>(List.of(new SceneSelectAttributeOptionDefinition("Sorry, I'm lazy - this does not actually list the options, please use the specific shotAttributeDefinitions query", null)))
+            new LinkedList<>(options)
         );
     }
 }

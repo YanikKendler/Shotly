@@ -15,6 +15,8 @@ import me.kendler.yanik.model.scene.attributeDefinitions.SceneMultiSelectAttribu
 import me.kendler.yanik.model.scene.attributeDefinitions.SceneSelectAttributeOptionDefinition;
 import me.kendler.yanik.model.scene.attributeDefinitions.SceneSingleSelectAttributeDefinition;
 import me.kendler.yanik.model.scene.attributes.SceneMultiSelectAttribute;
+import me.kendler.yanik.model.shot.attributeDefinitions.ShotMultiSelectAttributeDefinition;
+import me.kendler.yanik.model.shot.attributeDefinitions.ShotSingleSelectAttributeDefinition;
 
 import java.util.List;
 
@@ -26,8 +28,25 @@ public class SceneSelectAttributeOptionDefinitionRepository implements PanacheRe
 
     public SceneSelectAttributeOptionDefinition create(SceneSelectAttributeOptionCreateDTO createDTO){
         SceneAttributeDefinitionBase sceneAttributeDefinition = sceneAttributeDefinitionRepository.findById(createDTO.attributeDefinitionId());
-        SceneSelectAttributeOptionDefinition sceneSelectAttributeOptionDefinition = new SceneSelectAttributeOptionDefinition(createDTO.name(), sceneAttributeDefinition);
-        persist(sceneSelectAttributeOptionDefinition);
+
+        if (sceneAttributeDefinition == null) {
+            throw new ShotlyException("Attribute definition not found", ShotlyErrorCode.NOT_FOUND);
+        }
+
+        SceneSelectAttributeOptionDefinition newOption = new SceneSelectAttributeOptionDefinition(createDTO.name(), sceneAttributeDefinition);
+
+        if (sceneAttributeDefinition instanceof SceneSingleSelectAttributeDefinition singleDef) {
+            singleDef.options.add(newOption);
+
+        }
+        else if(sceneAttributeDefinition instanceof SceneMultiSelectAttributeDefinition multiDef) {
+            multiDef.options.add(newOption);
+        }
+        else {
+            throw new ShotlyException("Attribute definition is not a single or multi select.", ShotlyErrorCode.INVALID_INPUT);
+        }
+
+        persist(newOption);
 
         getEntityManager().createQuery("select s from Shotlist s join s.sceneAttributeDefinitions sad where sad = :definition"
                 , Shotlist.class)
@@ -35,7 +54,7 @@ public class SceneSelectAttributeOptionDefinitionRepository implements PanacheRe
                 .getSingleResult()
         .registerEdit();
 
-        return sceneSelectAttributeOptionDefinition;
+        return newOption;
     }
 
     public List<SceneSelectAttributeOptionDefinition> search(SceneSelectAttributeOptionSearchDTO searchDTO){
@@ -82,12 +101,16 @@ public class SceneSelectAttributeOptionDefinitionRepository implements PanacheRe
                     relevantAttribute.value.remove(sceneSelectAttributeOptionDefinition);
                 }
 
+                attributeDefinition.options.remove(sceneSelectAttributeOptionDefinition);
                 break;
             }
             case SceneSingleSelectAttributeDefinition attributeDefinition: {
                 getEntityManager().createQuery("update SceneSingleSelectAttribute sa set sa.value = null where sa.value = :option")
                         .setParameter("option", sceneSelectAttributeOptionDefinition)
                         .executeUpdate();
+
+                attributeDefinition.options.remove(sceneSelectAttributeOptionDefinition);
+
                 break;
             }
             default:
