@@ -259,7 +259,7 @@ export default function ShotAttributeDefinition({attributeDefinition, onDelete, 
                 placeholder={"Attribute name"}
                 onInput={(e) => debouncedUpdateDefinition(e.currentTarget.value)}
             />
-            {(definition.type == "ShotMultiSelectAttributeDefinitionDTO" || definition.type == "ShotSingleSelectAttributeDefinitionDTO") && (
+            {(definition.__typename == "ShotMultiSelectAttributeDefinitionDTO" || definition.__typename == "ShotSingleSelectAttributeDefinitionDTO") && (
                 <Popover.Root modal={true}>
                     <Popover.Trigger>
                         <ListCollapse size={18}/>

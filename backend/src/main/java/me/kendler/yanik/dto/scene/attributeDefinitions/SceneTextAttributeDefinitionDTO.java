@@ -19,9 +19,4 @@ public record SceneTextAttributeDefinitionDTO(
     public int getPosition() {
         return position;
     }
-
-    @Override
-    public String getType() {
-        return "SceneTextAttributeDefinitionDTO";
-    }
 }

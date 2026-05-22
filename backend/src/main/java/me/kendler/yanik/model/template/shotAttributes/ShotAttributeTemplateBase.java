@@ -26,8 +26,6 @@ public abstract class ShotAttributeTemplateBase extends PanacheEntity {
         template.shotAttributes.add(this);
     }
 
-    abstract public String getType();
-
     abstract public ShotAttributeDefinitionBase createDefinition(Shotlist shotlist);
 
     public abstract ShotAttributeTemplateBaseDTO toDTO();

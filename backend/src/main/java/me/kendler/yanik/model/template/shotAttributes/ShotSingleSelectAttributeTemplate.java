@@ -26,11 +26,6 @@ public class ShotSingleSelectAttributeTemplate extends ShotAttributeTemplateBase
     }
 
     @Override
-    public String getType() {
-        return "ShotSingleSelect";
-    }
-
-    @Override
     public ShotAttributeDefinitionBase createDefinition(Shotlist shotlist) {
         ShotSingleSelectAttributeDefinition attributeDefinition = new ShotSingleSelectAttributeDefinition(shotlist, this.name, this.position);
 

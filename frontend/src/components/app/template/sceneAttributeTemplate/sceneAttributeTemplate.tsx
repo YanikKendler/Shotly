@@ -231,7 +231,7 @@ export default function SceneAttributeTemplate({attributeTemplate, onDelete}: { 
                 placeholder={"Attribute name"}
                 inputClass={"nameInput"}
             />
-            {(attribute.type == "SceneMultiSelectAttributeTemplateDTO" || attribute.type == "SceneSingleSelectAttributeTemplateDTO") && (
+            {(attribute.__typename == "SceneMultiSelectAttributeTemplateDTO" || attribute.__typename == "SceneSingleSelectAttributeTemplateDTO") && (
                 <Popover.Root>
                     <Popover.Trigger className={"editOptions"}>Edit options <Pencil size={16}/></Popover.Trigger>
                     <Popover.Portal>

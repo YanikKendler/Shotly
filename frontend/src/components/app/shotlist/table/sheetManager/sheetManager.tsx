@@ -205,9 +205,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                                 id, 
                                 name, 
                                 position
-                                type
                             }
-                            type
 
                             ... on ShotSingleSelectAttributeDTO{
                                 singleSelectValue{id,name}
@@ -395,9 +393,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                                 id, 
                                 name, 
                                 position,
-                                type
                             }
-                            type
 
                             ... on ShotSingleSelectAttributeDTO{
                                 singleSelectValue{id,name}
@@ -576,7 +572,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                 if(a.id != attributeId)
                     return a
 
-                switch (a.type) {
+                switch (a.__typename) {
                     case "ShotTextAttributeDTO":
                         const textAttribute = a as ShotTextAttributeDto
                         textAttribute.textValue = inputValue.textValue

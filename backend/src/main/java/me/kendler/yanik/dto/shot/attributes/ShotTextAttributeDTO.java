@@ -20,9 +20,4 @@ public record ShotTextAttributeDTO(
     public ShotAttributeDefinitionBaseDTO getDefinition() {
         return definition;
     }
-
-    @Override
-    public String getType() {
-        return "ShotTextAttributeDTO";
-    }
 }

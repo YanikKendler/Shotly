@@ -19,9 +19,4 @@ public record ShotTextAttributeTemplateDTO(
     public int getPosition() {
         return position;
     }
-
-    @Override
-    public String getType() {
-        return "ShotTextAttributeTemplateDTO";
-    }
 }

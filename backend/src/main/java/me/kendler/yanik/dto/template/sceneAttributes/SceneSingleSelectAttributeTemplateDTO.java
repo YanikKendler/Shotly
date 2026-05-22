@@ -25,9 +25,4 @@ public record SceneSingleSelectAttributeTemplateDTO(
     public int getPosition() {
         return position;
     }
-
-    @Override
-    public String getType() {
-        return "SceneSingleSelectAttributeTemplateDTO";
-    }
 }

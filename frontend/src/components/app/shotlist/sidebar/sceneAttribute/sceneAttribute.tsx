@@ -61,7 +61,7 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
     useImperativeHandle(ref, () => ({
         //instead of multiype, i should really pass a AnySceneAttribute and then use the setValueFromAttribute
         setValue: (value: SceneAttributeValueMultiType) => {
-            switch (attribute.type) {
+            switch (attribute.__typename) {
                 case "SceneTextAttributeDTO":
                     setTextValue(value as string)
                     break
@@ -132,7 +132,7 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
     }, [multiSelectValue])
 
     const setValueFromAttribute = (attribute: AnySceneAttribute) => {
-        switch (attribute.type) {
+        switch (attribute.__typename) {
             case "SceneSingleSelectAttributeDTO":
                 const single = attribute as SceneSingleSelectAttributeDto
                 if(single.singleSelectValue === null) return
@@ -203,9 +203,9 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
             value: result.data.createSceneSelectAttributeOption.id
         }
 
-        if (attribute.type == "SceneSingleSelectAttributeDTO")
+        if (attribute.__typename == "SceneSingleSelectAttributeDTO")
             updateSingleSelectValue(newOption)
-        if (attribute.type == "SceneMultiSelectAttributeDTO")
+        if (attribute.__typename == "SceneMultiSelectAttributeDTO")
             updateMultiSelectValue([
                 ...multiSelectValue || [],
                 newOption
@@ -304,7 +304,7 @@ const SceneAttribute = forwardRef<SceneAttributeRef, SceneAttributeProps>(({
     }
     else
     {
-        switch (attribute.type) {
+        switch (attribute.__typename) {
             case "SceneSingleSelectAttributeDTO":
                 content = (
                     <>

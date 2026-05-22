@@ -17,11 +17,6 @@ public class SceneTextAttributeTemplate extends SceneAttributeTemplateBase {
     }
 
     @Override
-    public String getType() {
-        return "SceneText";
-    }
-
-    @Override
     public SceneAttributeDefinitionBase createDefinition(Shotlist shotlist) {
         return new SceneTextAttributeDefinition(shotlist, name, this.position);
     }

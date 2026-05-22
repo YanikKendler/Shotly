@@ -25,9 +25,4 @@ public record ShotSingleSelectAttributeTemplateDTO(
     public int getPosition() {
         return position;
     }
-
-    @Override
-    public String getType() {
-        return "ShotSingleSelectAttributeTemplateDTO";
-    }
 }

@@ -1,8 +1,6 @@
 package me.kendler.yanik.dto.scene.attributeDefinitions;
 
-import me.kendler.yanik.dto.TypeName;
-
-public interface SceneAttributeDefinitionBaseDTO extends TypeName {
+public interface SceneAttributeDefinitionBaseDTO {
     Long getId();
     String getName();
     int getPosition();

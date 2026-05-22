@@ -154,8 +154,6 @@ const ShotlistOptionsDialog = forwardRef<ShotlistOptionsDialogRef, ShotlistOptio
                         }
                         scenes {
                             attributes {
-                                type
-                                
                                 ... on SceneSingleSelectAttributeDTO{
                                     singleSelectValue{id,name}
                                 }
@@ -173,7 +171,6 @@ const ShotlistOptionsDialog = forwardRef<ShotlistOptionsDialogRef, ShotlistOptio
                         id
                         name
                         position
-                        type
 
                         ... on ShotSingleSelectAttributeDefinitionDTO{
                             options{
@@ -193,7 +190,6 @@ const ShotlistOptionsDialog = forwardRef<ShotlistOptionsDialogRef, ShotlistOptio
                         id
                         name
                         position
-                        type
 
                         ... on SceneSingleSelectAttributeDefinitionDTO{
                             options{

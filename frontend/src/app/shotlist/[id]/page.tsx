@@ -196,9 +196,7 @@ export default function Shotlist() {
                                     id,
                                     name,
                                     position,
-                                    type
                                 }
-                                type
 
                                 ... on SceneSingleSelectAttributeDTO{
                                     singleSelectValue{id,name}
@@ -217,13 +215,11 @@ export default function Shotlist() {
                             id
                             name
                             position
-                            type
                         }
                         shotAttributeDefinitions{
                             id
                             name
                             position
-                            type
                         }
                         owner {
                             id

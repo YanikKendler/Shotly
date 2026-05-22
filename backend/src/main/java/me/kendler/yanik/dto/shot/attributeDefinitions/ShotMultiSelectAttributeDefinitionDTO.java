@@ -26,9 +26,4 @@ public record ShotMultiSelectAttributeDefinitionDTO(
     public int getPosition() {
         return position;
     }
-
-    @Override
-    public String getType() {
-        return "ShotMultiSelectAttributeDefinitionDTO";
-    }
 }

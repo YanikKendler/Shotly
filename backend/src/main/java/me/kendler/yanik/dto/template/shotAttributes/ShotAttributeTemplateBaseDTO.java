@@ -1,8 +1,8 @@
 package me.kendler.yanik.dto.template.shotAttributes;
 
-import me.kendler.yanik.dto.TypeName;
 
-public interface ShotAttributeTemplateBaseDTO extends TypeName {
+
+public interface ShotAttributeTemplateBaseDTO {
     Long getId();
     String getName();
     int getPosition();

@@ -2,7 +2,7 @@ import {
     AnySceneAttribute,
     AnySceneAttributeDefinition, AnySceneAttributeTemplate,
     AnyShotAttribute,
-    AnyShotAttributeDefinition, AnyShotAttributeTemplate, SelectOption,
+    AnyShotAttributeDefinition, AnyShotAttributeTemplate, SceneAttributeValueMultiType, SelectOption,
     ShotAttributeValueCollection, ShotAttributeValueMultiType
 } from "@/utility/Types"
 import {ChevronDown, List, Type, Loader} from "lucide-react"
@@ -19,7 +19,7 @@ import {
 export abstract class SceneAttributeParser {
     static toValueString(attribute: AnySceneAttribute, truncate = true): string{
         let result = ""
-        switch (attribute.type) {
+        switch (attribute.__typename) {
             case "SceneTextAttributeDTO":
                 result = (attribute as SceneTextAttributeDto)?.textValue || ""
                 break
@@ -33,8 +33,8 @@ export abstract class SceneAttributeParser {
         return truncate ? wuText.truncate(result, 15, "..") : result
     }
 
-    static toMultiTypeValue(attribute: AnyShotAttribute): ShotAttributeValueMultiType {
-        switch (attribute.type) {
+    static toMultiTypeValue(attribute: AnySceneAttribute): SceneAttributeValueMultiType {
+        switch (attribute.__typename) {
             case "SceneTextAttributeDTO":
                 const textAttribute = attribute as SceneTextAttributeDto
                 return textAttribute.textValue || null
@@ -61,7 +61,7 @@ export abstract class SceneAttributeParser {
     static isEmpty(attribute: AnySceneAttribute): boolean{
         if(!attribute) return true
 
-        switch (attribute.type) {
+        switch (attribute.__typename) {
             case "SceneTextAttributeDTO":
                 return wuConstants.Regex.empty.test((attribute as SceneTextAttributeDto).textValue || "")
             case "SceneSingleSelectAttributeDTO":
@@ -77,7 +77,7 @@ export abstract class SceneAttributeParser {
 export abstract class ShotAttributeParser {
     static toValueString(attribute: AnyShotAttribute, truncate = true): string{
         let result = ""
-        switch (attribute.type) {
+        switch (attribute.__typename) {
             case "ShotTextAttributeDTO":
                 result = (attribute as ShotTextAttributeDto).textValue || ""
                 break
@@ -92,7 +92,7 @@ export abstract class ShotAttributeParser {
     }
 
     static toMultiTypeValue(attribute: AnyShotAttribute): ShotAttributeValueMultiType {
-        switch (attribute.type) {
+        switch (attribute.__typename) {
             case "ShotTextAttributeDTO":
                 const textAttribute = attribute as ShotTextAttributeDto
                 return textAttribute.textValue || null
@@ -117,7 +117,7 @@ export abstract class ShotAttributeParser {
     }
 
     static toValueCollection(attribute: AnyShotAttribute): ShotAttributeValueCollection {
-        switch (attribute.type) {
+        switch (attribute.__typename) {
             case "ShotTextAttributeDTO":
                 const textAttribute = attribute as ShotTextAttributeDto
                 return {
@@ -156,7 +156,7 @@ export abstract class ShotAttributeParser {
 export abstract class ShotAttributeDefinitionParser {
     static toIcon(attribute: AnyShotAttributeDefinition){
         if(!attribute) return Loader
-        switch (attribute.type) {
+        switch (attribute.__typename) {
             case "ShotTextAttributeDefinitionDTO":
                 return Type
             case "ShotSingleSelectAttributeDefinitionDTO":
@@ -169,14 +169,14 @@ export abstract class ShotAttributeDefinitionParser {
     }
 
     static isMulti(definition: AnyShotAttributeDefinition) {
-        return definition.type === "ShotMultiSelectAttributeDefinitionDTO"
+        return definition.__typename === "ShotMultiSelectAttributeDefinitionDTO"
     }
 }
 
 export abstract class SceneAttributeDefinitionParser {
     static toIcon(attribute: AnySceneAttributeDefinition){
         if(!attribute) return Loader
-        switch (attribute.type) {
+        switch (attribute.__typename) {
             case "SceneTextAttributeDefinitionDTO":
                 return Type
             case "SceneSingleSelectAttributeDefinitionDTO":
@@ -189,14 +189,14 @@ export abstract class SceneAttributeDefinitionParser {
     }
 
     static isMulti(definition: AnySceneAttributeDefinition) {
-        return definition.type === "SceneMultiSelectAttributeDefinitionDTO"
+        return definition.__typename === "SceneMultiSelectAttributeDefinitionDTO"
     }
 }
 
 export abstract class SceneAttributeTemplateParser {
     static toIcon(attribute: AnySceneAttributeTemplate){
         if(!attribute) return Loader
-        switch (attribute.type) {
+        switch (attribute.__typename) {
             case "SceneTextAttributeTemplateDTO":
                 return Type
             case "SceneSingleSelectAttributeTemplateDTO":
@@ -212,7 +212,7 @@ export abstract class SceneAttributeTemplateParser {
 export abstract class ShotAttributeTemplateParser {
     static toIcon(attribute: AnyShotAttributeTemplate){
         if(!attribute) return Loader
-        switch (attribute.type) {
+        switch (attribute.__typename) {
             case "ShotTextAttributeTemplateDTO":
                 return Type
             case "ShotSingleSelectAttributeTemplateDTO":

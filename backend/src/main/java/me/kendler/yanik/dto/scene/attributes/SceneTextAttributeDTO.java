@@ -18,9 +18,4 @@ public record SceneTextAttributeDTO(
     public SceneAttributeDefinitionBaseDTO getDefinition() {
         return definition;
     }
-
-    @Override
-    public String getType() {
-        return "SceneTextAttributeDTO";
-    }
 }

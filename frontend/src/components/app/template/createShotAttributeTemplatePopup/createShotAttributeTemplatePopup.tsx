@@ -30,7 +30,6 @@ export default function CreateShotAttributeTemplatePopup({
                         id
                         name
                         position
-                        type
                     }
                 }
             `,

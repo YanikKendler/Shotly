@@ -29,11 +29,6 @@ public class ShotMultiSelectAttributeTemplate extends ShotAttributeTemplateBase 
     }
 
     @Override
-    public String getType() {
-        return "ShotMultiSelect";
-    }
-
-    @Override
     public ShotAttributeDefinitionBase createDefinition(Shotlist shotlist) {
         ShotMultiSelectAttributeDefinition attributeDefinition = new ShotMultiSelectAttributeDefinition(shotlist, this.name, this.position);
 

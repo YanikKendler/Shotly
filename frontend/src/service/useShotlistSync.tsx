@@ -64,12 +64,10 @@ const SHOTLIST_UPDATES_SUBSCRIPTION = gql`
                     sceneId
                     attribute {
                         id
-                        type
                         definition {
                             id
                             name
                             position
-                            type
                         }
                         ... on ShotSingleSelectAttributeDTO {
                             singleSelectValue {
@@ -96,12 +94,10 @@ const SHOTLIST_UPDATES_SUBSCRIPTION = gql`
                         subshot
                         attributes {
                             id
-                            type
                             definition {
                                 id
                                 name
                                 position
-                                type
                             }
                             ... on ShotSingleSelectAttributeDTO {
                                 singleSelectValue {
@@ -124,12 +120,10 @@ const SHOTLIST_UPDATES_SUBSCRIPTION = gql`
                 ... on SceneAttributePayload {
                     attribute {
                         id
-                        type
                         definition {
                             id
                             name
                             position
-                            type
                         }
                         ... on SceneSingleSelectAttributeDTO {
                             singleSelectValue {
@@ -155,12 +149,10 @@ const SHOTLIST_UPDATES_SUBSCRIPTION = gql`
                         shotCount
                         attributes {
                             id
-                            type
                             definition {
                                 id
                                 name
                                 position
-                                type
                             }
                             ... on SceneSingleSelectAttributeDTO {
                                 singleSelectValue {

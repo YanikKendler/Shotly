@@ -25,9 +25,4 @@ public record SceneMultiSelectAttributeDefinitionDTO(
     public int getPosition() {
         return position;
     }
-
-    @Override
-    public String getType() {
-        return "SceneMultiSelectAttributeDefinitionDTO";
-    }
 }

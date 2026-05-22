@@ -25,9 +25,4 @@ public record ShotMultiSelectAttributeTemplateDTO(
     public int getPosition() {
         return position;
     }
-
-    @Override
-    public String getType() {
-        return "ShotMultiSelectAttributeTemplateDTO";
-    }
 }

@@ -25,11 +25,6 @@ public class SceneMultiSelectAttributeTemplate extends SceneAttributeTemplateBas
     }
 
     @Override
-    public String getType() {
-        return "SceneMultiSelect";
-    }
-
-    @Override
     public SceneAttributeDefinitionBase createDefinition(Shotlist shotlist) {
         SceneMultiSelectAttributeDefinition attributeDefinition = new SceneMultiSelectAttributeDefinition(shotlist, this.name, this.position);
 

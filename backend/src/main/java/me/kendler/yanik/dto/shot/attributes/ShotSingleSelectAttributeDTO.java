@@ -18,9 +18,4 @@ public record ShotSingleSelectAttributeDTO(
     public ShotAttributeDefinitionBaseDTO getDefinition() {
         return definition;
     }
-
-    @Override
-    public String getType() {
-        return "ShotSingleSelectAttributeDTO";
-    }
 }

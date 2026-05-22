@@ -297,7 +297,6 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                         attributes{
                             id
                             definition{id, name, position}
-                            type
 
                             ... on SceneSingleSelectAttributeDTO{
                                 singleSelectValue{id,name}

@@ -21,9 +21,4 @@ public record ShotTextAttributeDefinitionDTO(
     public int getPosition() {
         return position;
     }
-
-    @Override
-    public String getType() {
-        return "ShotTextAttributeDefinitionDTO";
-    }
 }

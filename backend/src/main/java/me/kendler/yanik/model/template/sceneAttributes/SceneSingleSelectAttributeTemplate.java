@@ -26,11 +26,6 @@ public class SceneSingleSelectAttributeTemplate extends SceneAttributeTemplateBa
     }
 
     @Override
-    public String getType() {
-        return "SceneSingleSelect";
-    }
-
-    @Override
     public SceneAttributeDefinitionBase createDefinition(Shotlist shotlist) {
         SceneSingleSelectAttributeDefinition attributeDefinition = new SceneSingleSelectAttributeDefinition(shotlist, this.name, this.position);
 

@@ -145,7 +145,7 @@ const ValueCellBase = forwardRef<CellRef, CellProps>(({
     const renderInput = () => {
         if(!attribute) return
 
-        switch (attribute.type) {
+        switch (attribute.__typename) {
             case "ShotTextAttributeDTO":
                 return <CellTextInput attribute={attribute as ShotTextAttributeDto} updateAttribute={debouncedUpdateAttribute} ref={inputRef} />
             case "ShotSingleSelectAttributeDTO":

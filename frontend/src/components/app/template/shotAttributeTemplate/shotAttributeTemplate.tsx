@@ -231,7 +231,7 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
                 placeholder={"Attribute name"}
                 inputClass={"nameInput"}
             />
-            {(attribute.type == "ShotMultiSelectAttributeTemplateDTO" || attribute.type == "ShotSingleSelectAttributeTemplateDTO") && (
+            {(attribute.__typename == "ShotMultiSelectAttributeTemplateDTO" || attribute.__typename == "ShotSingleSelectAttributeTemplateDTO") && (
                 <Popover.Root>
                     <Popover.Trigger className={"editOptions"}>Edit options <Pencil size={16}/></Popover.Trigger>
                     <Popover.Portal>

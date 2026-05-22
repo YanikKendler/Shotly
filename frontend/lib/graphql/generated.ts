@@ -637,7 +637,6 @@ export type SceneAttributeBase = {
 export type SceneAttributeBaseDto = {
   definition?: Maybe<SceneAttributeDefinitionBaseDto>;
   id?: Maybe<Scalars['BigInteger']['output']>;
-  type?: Maybe<Scalars['String']['output']>;
 };
 
 export type SceneAttributeDefinitionBase = {
@@ -651,7 +650,6 @@ export type SceneAttributeDefinitionBaseDto = {
   id?: Maybe<Scalars['BigInteger']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   position: Scalars['Int']['output'];
-  type?: Maybe<Scalars['String']['output']>;
 };
 
 export type SceneAttributeDefinitionCreateDtoInput = {
@@ -683,14 +681,12 @@ export type SceneAttributeTemplateBase = {
   name?: Maybe<Scalars['String']['output']>;
   position: Scalars['Int']['output'];
   template?: Maybe<Template>;
-  type?: Maybe<Scalars['String']['output']>;
 };
 
 export type SceneAttributeTemplateBaseDto = {
   id?: Maybe<Scalars['BigInteger']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   position: Scalars['Int']['output'];
-  type?: Maybe<Scalars['String']['output']>;
 };
 
 export type SceneAttributeTemplateCreateDtoInput = {
@@ -726,30 +722,27 @@ export type SceneEditDtoInput = {
   position: Scalars['Int']['input'];
 };
 
-export type SceneMultiSelectAttributeDto = SceneAttributeBaseDto & TypeName & {
+export type SceneMultiSelectAttributeDto = SceneAttributeBaseDto & {
   __typename?: 'SceneMultiSelectAttributeDTO';
   definition?: Maybe<SceneAttributeDefinitionBaseDto>;
   id?: Maybe<Scalars['BigInteger']['output']>;
   multiSelectValue?: Maybe<Array<Maybe<SceneSelectAttributeOptionDefinition>>>;
-  type?: Maybe<Scalars['String']['output']>;
 };
 
-export type SceneMultiSelectAttributeDefinitionDto = SceneAttributeDefinitionBaseDto & TypeName & {
+export type SceneMultiSelectAttributeDefinitionDto = SceneAttributeDefinitionBaseDto & {
   __typename?: 'SceneMultiSelectAttributeDefinitionDTO';
   id?: Maybe<Scalars['BigInteger']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   options?: Maybe<Array<Maybe<SceneSelectAttributeOptionDefinition>>>;
   position: Scalars['Int']['output'];
-  type?: Maybe<Scalars['String']['output']>;
 };
 
-export type SceneMultiSelectAttributeTemplateDto = SceneAttributeTemplateBaseDto & TypeName & {
+export type SceneMultiSelectAttributeTemplateDto = SceneAttributeTemplateBaseDto & {
   __typename?: 'SceneMultiSelectAttributeTemplateDTO';
   id?: Maybe<Scalars['BigInteger']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   options?: Maybe<Array<Maybe<SceneSelectAttributeOptionTemplate>>>;
   position: Scalars['Int']['output'];
-  type?: Maybe<Scalars['String']['output']>;
 };
 
 export type ScenePayload = {
@@ -796,54 +789,48 @@ export type SceneSelectOptionPayload = {
   optionDefinition?: Maybe<SceneSelectAttributeOptionDefinition>;
 };
 
-export type SceneSingleSelectAttributeDto = SceneAttributeBaseDto & TypeName & {
+export type SceneSingleSelectAttributeDto = SceneAttributeBaseDto & {
   __typename?: 'SceneSingleSelectAttributeDTO';
   definition?: Maybe<SceneAttributeDefinitionBaseDto>;
   id?: Maybe<Scalars['BigInteger']['output']>;
   singleSelectValue?: Maybe<SceneSelectAttributeOptionDefinition>;
-  type?: Maybe<Scalars['String']['output']>;
 };
 
-export type SceneSingleSelectAttributeDefinitionDto = SceneAttributeDefinitionBaseDto & TypeName & {
+export type SceneSingleSelectAttributeDefinitionDto = SceneAttributeDefinitionBaseDto & {
   __typename?: 'SceneSingleSelectAttributeDefinitionDTO';
   id?: Maybe<Scalars['BigInteger']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   options?: Maybe<Array<Maybe<SceneSelectAttributeOptionDefinition>>>;
   position: Scalars['Int']['output'];
-  type?: Maybe<Scalars['String']['output']>;
 };
 
-export type SceneSingleSelectAttributeTemplateDto = SceneAttributeTemplateBaseDto & TypeName & {
+export type SceneSingleSelectAttributeTemplateDto = SceneAttributeTemplateBaseDto & {
   __typename?: 'SceneSingleSelectAttributeTemplateDTO';
   id?: Maybe<Scalars['BigInteger']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   options?: Maybe<Array<Maybe<SceneSelectAttributeOptionTemplate>>>;
   position: Scalars['Int']['output'];
-  type?: Maybe<Scalars['String']['output']>;
 };
 
-export type SceneTextAttributeDto = SceneAttributeBaseDto & TypeName & {
+export type SceneTextAttributeDto = SceneAttributeBaseDto & {
   __typename?: 'SceneTextAttributeDTO';
   definition?: Maybe<SceneAttributeDefinitionBaseDto>;
   id?: Maybe<Scalars['BigInteger']['output']>;
   textValue?: Maybe<Scalars['String']['output']>;
-  type?: Maybe<Scalars['String']['output']>;
 };
 
-export type SceneTextAttributeDefinitionDto = SceneAttributeDefinitionBaseDto & TypeName & {
+export type SceneTextAttributeDefinitionDto = SceneAttributeDefinitionBaseDto & {
   __typename?: 'SceneTextAttributeDefinitionDTO';
   id?: Maybe<Scalars['BigInteger']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   position: Scalars['Int']['output'];
-  type?: Maybe<Scalars['String']['output']>;
 };
 
-export type SceneTextAttributeTemplateDto = SceneAttributeTemplateBaseDto & TypeName & {
+export type SceneTextAttributeTemplateDto = SceneAttributeTemplateBaseDto & {
   __typename?: 'SceneTextAttributeTemplateDTO';
   id?: Maybe<Scalars['BigInteger']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   position: Scalars['Int']['output'];
-  type?: Maybe<Scalars['String']['output']>;
 };
 
 export type SelectedCellPayload = {
@@ -890,7 +877,6 @@ export type ShotAttributeBase = {
 export type ShotAttributeBaseDto = {
   definition?: Maybe<ShotAttributeDefinitionBaseDto>;
   id?: Maybe<Scalars['BigInteger']['output']>;
-  type?: Maybe<Scalars['String']['output']>;
 };
 
 export type ShotAttributeDefinitionBase = {
@@ -904,7 +890,6 @@ export type ShotAttributeDefinitionBaseDto = {
   id?: Maybe<Scalars['BigInteger']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   position: Scalars['Int']['output'];
-  type?: Maybe<Scalars['String']['output']>;
 };
 
 export type ShotAttributeDefinitionCreateDtoInput = {
@@ -938,14 +923,12 @@ export type ShotAttributeTemplateBase = {
   name?: Maybe<Scalars['String']['output']>;
   position: Scalars['Int']['output'];
   template?: Maybe<Template>;
-  type?: Maybe<Scalars['String']['output']>;
 };
 
 export type ShotAttributeTemplateBaseDto = {
   id?: Maybe<Scalars['BigInteger']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   position: Scalars['Int']['output'];
-  type?: Maybe<Scalars['String']['output']>;
 };
 
 export type ShotAttributeTemplateCreateDtoInput = {
@@ -982,30 +965,27 @@ export type ShotEditDtoInput = {
   position: Scalars['Int']['input'];
 };
 
-export type ShotMultiSelectAttributeDto = ShotAttributeBaseDto & TypeName & {
+export type ShotMultiSelectAttributeDto = ShotAttributeBaseDto & {
   __typename?: 'ShotMultiSelectAttributeDTO';
   definition?: Maybe<ShotAttributeDefinitionBaseDto>;
   id?: Maybe<Scalars['BigInteger']['output']>;
   multiSelectValue?: Maybe<Array<Maybe<ShotSelectAttributeOptionDefinition>>>;
-  type?: Maybe<Scalars['String']['output']>;
 };
 
-export type ShotMultiSelectAttributeDefinitionDto = ShotAttributeDefinitionBaseDto & TypeName & {
+export type ShotMultiSelectAttributeDefinitionDto = ShotAttributeDefinitionBaseDto & {
   __typename?: 'ShotMultiSelectAttributeDefinitionDTO';
   id?: Maybe<Scalars['BigInteger']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   options?: Maybe<Array<Maybe<ShotSelectAttributeOptionDefinition>>>;
   position: Scalars['Int']['output'];
-  type?: Maybe<Scalars['String']['output']>;
 };
 
-export type ShotMultiSelectAttributeTemplateDto = ShotAttributeTemplateBaseDto & TypeName & {
+export type ShotMultiSelectAttributeTemplateDto = ShotAttributeTemplateBaseDto & {
   __typename?: 'ShotMultiSelectAttributeTemplateDTO';
   id?: Maybe<Scalars['BigInteger']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   options?: Maybe<Array<Maybe<ShotSelectAttributeOptionTemplate>>>;
   position: Scalars['Int']['output'];
-  type?: Maybe<Scalars['String']['output']>;
 };
 
 export type ShotPayload = {
@@ -1052,54 +1032,48 @@ export type ShotSelectOptionPayload = {
   optionDefinition?: Maybe<ShotSelectAttributeOptionDefinition>;
 };
 
-export type ShotSingleSelectAttributeDto = ShotAttributeBaseDto & TypeName & {
+export type ShotSingleSelectAttributeDto = ShotAttributeBaseDto & {
   __typename?: 'ShotSingleSelectAttributeDTO';
   definition?: Maybe<ShotAttributeDefinitionBaseDto>;
   id?: Maybe<Scalars['BigInteger']['output']>;
   singleSelectValue?: Maybe<ShotSelectAttributeOptionDefinition>;
-  type?: Maybe<Scalars['String']['output']>;
 };
 
-export type ShotSingleSelectAttributeDefinitionDto = ShotAttributeDefinitionBaseDto & TypeName & {
+export type ShotSingleSelectAttributeDefinitionDto = ShotAttributeDefinitionBaseDto & {
   __typename?: 'ShotSingleSelectAttributeDefinitionDTO';
   id?: Maybe<Scalars['BigInteger']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   options?: Maybe<Array<Maybe<ShotSelectAttributeOptionDefinition>>>;
   position: Scalars['Int']['output'];
-  type?: Maybe<Scalars['String']['output']>;
 };
 
-export type ShotSingleSelectAttributeTemplateDto = ShotAttributeTemplateBaseDto & TypeName & {
+export type ShotSingleSelectAttributeTemplateDto = ShotAttributeTemplateBaseDto & {
   __typename?: 'ShotSingleSelectAttributeTemplateDTO';
   id?: Maybe<Scalars['BigInteger']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   options?: Maybe<Array<Maybe<ShotSelectAttributeOptionTemplate>>>;
   position: Scalars['Int']['output'];
-  type?: Maybe<Scalars['String']['output']>;
 };
 
-export type ShotTextAttributeDto = ShotAttributeBaseDto & TypeName & {
+export type ShotTextAttributeDto = ShotAttributeBaseDto & {
   __typename?: 'ShotTextAttributeDTO';
   definition?: Maybe<ShotAttributeDefinitionBaseDto>;
   id?: Maybe<Scalars['BigInteger']['output']>;
   textValue?: Maybe<Scalars['String']['output']>;
-  type?: Maybe<Scalars['String']['output']>;
 };
 
-export type ShotTextAttributeDefinitionDto = ShotAttributeDefinitionBaseDto & TypeName & {
+export type ShotTextAttributeDefinitionDto = ShotAttributeDefinitionBaseDto & {
   __typename?: 'ShotTextAttributeDefinitionDTO';
   id?: Maybe<Scalars['BigInteger']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   position: Scalars['Int']['output'];
-  type?: Maybe<Scalars['String']['output']>;
 };
 
-export type ShotTextAttributeTemplateDto = ShotAttributeTemplateBaseDto & TypeName & {
+export type ShotTextAttributeTemplateDto = ShotAttributeTemplateBaseDto & {
   __typename?: 'ShotTextAttributeTemplateDTO';
   id?: Maybe<Scalars['BigInteger']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   position: Scalars['Int']['output'];
-  type?: Maybe<Scalars['String']['output']>;
 };
 
 export type Shotlist = {
@@ -1275,10 +1249,6 @@ export type TemplateEditDtoInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type TypeName = {
-  type?: Maybe<Scalars['String']['output']>;
-};
-
 export type User = {
   __typename?: 'User';
   auth0Sub?: Maybe<Scalars['String']['output']>;
@@ -1386,13 +1356,13 @@ export type TemplateQueryVariables = Exact<{
 
 
 export type TemplateQuery = { __typename?: 'Query', template?: { __typename?: 'TemplateDTO', id?: string | null, name?: string | null, shotAttributes?: Array<
-      | { __typename?: 'ShotMultiSelectAttributeTemplateDTO', id?: any | null, name?: string | null, position: number, type?: string | null, options?: Array<{ __typename?: 'ShotSelectAttributeOptionTemplate', id?: any | null, name?: string | null } | null> | null }
-      | { __typename?: 'ShotSingleSelectAttributeTemplateDTO', id?: any | null, name?: string | null, position: number, type?: string | null, options?: Array<{ __typename?: 'ShotSelectAttributeOptionTemplate', id?: any | null, name?: string | null } | null> | null }
-      | { __typename?: 'ShotTextAttributeTemplateDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+      | { __typename?: 'ShotMultiSelectAttributeTemplateDTO', id?: any | null, name?: string | null, position: number, options?: Array<{ __typename?: 'ShotSelectAttributeOptionTemplate', id?: any | null, name?: string | null } | null> | null }
+      | { __typename?: 'ShotSingleSelectAttributeTemplateDTO', id?: any | null, name?: string | null, position: number, options?: Array<{ __typename?: 'ShotSelectAttributeOptionTemplate', id?: any | null, name?: string | null } | null> | null }
+      | { __typename?: 'ShotTextAttributeTemplateDTO', id?: any | null, name?: string | null, position: number }
      | null> | null, sceneAttributes?: Array<
-      | { __typename?: 'SceneMultiSelectAttributeTemplateDTO', id?: any | null, name?: string | null, position: number, type?: string | null, options?: Array<{ __typename?: 'SceneSelectAttributeOptionTemplate', id?: any | null, name?: string | null } | null> | null }
-      | { __typename?: 'SceneSingleSelectAttributeTemplateDTO', id?: any | null, name?: string | null, position: number, type?: string | null, options?: Array<{ __typename?: 'SceneSelectAttributeOptionTemplate', id?: any | null, name?: string | null } | null> | null }
-      | { __typename?: 'SceneTextAttributeTemplateDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+      | { __typename?: 'SceneMultiSelectAttributeTemplateDTO', id?: any | null, name?: string | null, position: number, options?: Array<{ __typename?: 'SceneSelectAttributeOptionTemplate', id?: any | null, name?: string | null } | null> | null }
+      | { __typename?: 'SceneSingleSelectAttributeTemplateDTO', id?: any | null, name?: string | null, position: number, options?: Array<{ __typename?: 'SceneSelectAttributeOptionTemplate', id?: any | null, name?: string | null } | null> | null }
+      | { __typename?: 'SceneTextAttributeTemplateDTO', id?: any | null, name?: string | null, position: number }
      | null> | null } | null };
 
 export type UpdateTemplateMutationVariables = Exact<{
@@ -1445,29 +1415,29 @@ export type ShotlistQueryVariables = Exact<{
 
 
 export type ShotlistQuery = { __typename?: 'Query', shotlistCollaborationType?: CollaborationType | null, shotlist?: { __typename?: 'ShotlistDTO', id?: string | null, name?: string | null, archived?: boolean | null, scenes?: Array<{ __typename?: 'SceneDTO', id?: string | null, position: number, shotCount: number, attributes?: Array<
-        | { __typename?: 'SceneMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
-            | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-            | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-            | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+        | { __typename?: 'SceneMultiSelectAttributeDTO', id?: any | null, multiSelectValue?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
+            | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+            | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+            | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
            | null }
-        | { __typename?: 'SceneSingleSelectAttributeDTO', id?: any | null, type?: string | null, singleSelectValue?: { __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
-            | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-            | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-            | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+        | { __typename?: 'SceneSingleSelectAttributeDTO', id?: any | null, singleSelectValue?: { __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
+            | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+            | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+            | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
            | null }
-        | { __typename?: 'SceneTextAttributeDTO', textValue?: string | null, id?: any | null, type?: string | null, definition?:
-            | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-            | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-            | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+        | { __typename?: 'SceneTextAttributeDTO', textValue?: string | null, id?: any | null, definition?:
+            | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+            | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+            | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
            | null }
        | null> | null } | null> | null, sceneAttributeDefinitions?: Array<
-      | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-      | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-      | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+      | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+      | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+      | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
      | null> | null, shotAttributeDefinitions?: Array<
-      | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-      | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-      | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+      | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+      | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+      | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
      | null> | null, owner?: { __typename?: 'UserDTO', id?: string | null, tier?: UserTier | null, shotlistCount?: number | null } | null, collaborations?: Array<{ __typename?: 'CollaborationDTO', collaborationType?: CollaborationType | null, user?: { __typename?: 'UserDTO', id?: string | null } | null } | null> | null } | null, currentUser?: { __typename?: 'UserDTO', id?: string | null, name?: string | null, email?: string | null } | null };
 
 export type GetShotSelectAttributeOptionsQueryVariables = Exact<{
@@ -1567,9 +1537,9 @@ export type CreateShotAttributeDefinitionMutationVariables = Exact<{
 
 
 export type CreateShotAttributeDefinitionMutation = { __typename?: 'Mutation', createShotAttributeDefinition?:
-    | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-    | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-    | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+    | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+    | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+    | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
    | null };
 
 export type UpdateShotDefinitionMutationVariables = Exact<{
@@ -1591,9 +1561,9 @@ export type CreateSceneAttributeDefinitionMutationVariables = Exact<{
 
 
 export type CreateSceneAttributeDefinitionMutation = { __typename?: 'Mutation', createSceneAttributeDefinition?:
-    | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-    | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-    | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+    | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+    | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+    | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
    | null };
 
 export type UpdateSceneDefinitionMutationVariables = Exact<{
@@ -1741,33 +1711,33 @@ export type ShotlistForExportQueryVariables = Exact<{
 
 
 export type ShotlistForExportQuery = { __typename?: 'Query', shotlist?: { __typename?: 'ShotlistDTO', id?: string | null, name?: string | null, scenes?: Array<{ __typename?: 'SceneDTO', id?: string | null, position: number, attributes?: Array<
-        | { __typename?: 'SceneMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
+        | { __typename?: 'SceneMultiSelectAttributeDTO', id?: any | null, multiSelectValue?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
             | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
             | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
             | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
            | null }
-        | { __typename?: 'SceneSingleSelectAttributeDTO', id?: any | null, type?: string | null, singleSelectValue?: { __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
+        | { __typename?: 'SceneSingleSelectAttributeDTO', id?: any | null, singleSelectValue?: { __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
             | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
             | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
             | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
            | null }
-        | { __typename?: 'SceneTextAttributeDTO', textValue?: string | null, id?: any | null, type?: string | null, definition?:
+        | { __typename?: 'SceneTextAttributeDTO', textValue?: string | null, id?: any | null, definition?:
             | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
             | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
             | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
            | null }
        | null> | null, shots?: Array<{ __typename?: 'ShotDTO', id?: string | null, position: number, sceneId?: string | null, attributes?: Array<
-          | { __typename?: 'ShotMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
+          | { __typename?: 'ShotMultiSelectAttributeDTO', id?: any | null, multiSelectValue?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
               | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
               | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
               | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
              | null }
-          | { __typename?: 'ShotSingleSelectAttributeDTO', id?: any | null, type?: string | null, singleSelectValue?: { __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
+          | { __typename?: 'ShotSingleSelectAttributeDTO', id?: any | null, singleSelectValue?: { __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
               | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
               | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
               | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
              | null }
-          | { __typename?: 'ShotTextAttributeDTO', textValue?: string | null, id?: any | null, type?: string | null, definition?:
+          | { __typename?: 'ShotTextAttributeDTO', textValue?: string | null, id?: any | null, definition?:
               | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
               | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
               | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
@@ -1811,17 +1781,17 @@ export type DataQueryVariables = Exact<{
 
 
 export type DataQuery = { __typename?: 'Query', shotlist?: { __typename?: 'ShotlistDTO', id?: string | null, name?: string | null, sceneCount?: number | null, shotCount?: number | null, editedAt?: any | null, createdAt?: any | null, template?: { __typename?: 'Template', name?: string | null } | null, owner?: { __typename?: 'UserDTO', id?: string | null, name?: string | null, tier?: UserTier | null, shotlistCount?: number | null, email?: string | null } | null, collaborations?: Array<{ __typename?: 'CollaborationDTO', id?: string | null, collaborationState?: CollaborationState | null, collaborationType?: CollaborationType | null, user?: { __typename?: 'UserDTO', id?: string | null, email?: string | null, name?: string | null, auth0Sub?: string | null } | null } | null> | null, scenes?: Array<{ __typename?: 'SceneDTO', attributes?: Array<
-        | { __typename?: 'SceneMultiSelectAttributeDTO', type?: string | null, multiSelectValue?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null }
-        | { __typename?: 'SceneSingleSelectAttributeDTO', type?: string | null, singleSelectValue?: { __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null }
-        | { __typename?: 'SceneTextAttributeDTO', textValue?: string | null, type?: string | null }
+        | { __typename?: 'SceneMultiSelectAttributeDTO', multiSelectValue?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null }
+        | { __typename?: 'SceneSingleSelectAttributeDTO', singleSelectValue?: { __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null }
+        | { __typename?: 'SceneTextAttributeDTO', textValue?: string | null }
        | null> | null } | null> | null } | null, shotAttributeDefinitions?: Array<
-    | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null, options?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null }
-    | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null, options?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null }
-    | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+    | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, options?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null }
+    | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, options?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null }
+    | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
    | null> | null, sceneAttributeDefinitions?: Array<
-    | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null, options?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null }
-    | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null, options?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null }
-    | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+    | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, options?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null }
+    | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, options?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null }
+    | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
    | null> | null, currentUser?: { __typename?: 'UserDTO', id?: string | null } | null };
 
 export type CreateSceneOptionMutationVariables = Exact<{
@@ -1868,17 +1838,17 @@ export type CreateSceneMutationVariables = Exact<{
 
 
 export type CreateSceneMutation = { __typename?: 'Mutation', createScene?: { __typename?: 'SceneDTO', id?: string | null, position: number, attributes?: Array<
-      | { __typename?: 'SceneMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
+      | { __typename?: 'SceneMultiSelectAttributeDTO', id?: any | null, multiSelectValue?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
           | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
           | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
           | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
          | null }
-      | { __typename?: 'SceneSingleSelectAttributeDTO', id?: any | null, type?: string | null, singleSelectValue?: { __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
+      | { __typename?: 'SceneSingleSelectAttributeDTO', id?: any | null, singleSelectValue?: { __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
           | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
           | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
           | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
          | null }
-      | { __typename?: 'SceneTextAttributeDTO', textValue?: string | null, id?: any | null, type?: string | null, definition?:
+      | { __typename?: 'SceneTextAttributeDTO', textValue?: string | null, id?: any | null, definition?:
           | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
           | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
           | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
@@ -1951,20 +1921,20 @@ export type ShotsQueryVariables = Exact<{
 
 
 export type ShotsQuery = { __typename?: 'Query', shots?: Array<{ __typename?: 'ShotDTO', id?: string | null, position: number, sceneId?: string | null, attributes?: Array<
-      | { __typename?: 'ShotMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
-          | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-          | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-          | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+      | { __typename?: 'ShotMultiSelectAttributeDTO', id?: any | null, multiSelectValue?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
+          | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+          | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+          | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
          | null }
-      | { __typename?: 'ShotSingleSelectAttributeDTO', id?: any | null, type?: string | null, singleSelectValue?: { __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
-          | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-          | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-          | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+      | { __typename?: 'ShotSingleSelectAttributeDTO', id?: any | null, singleSelectValue?: { __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
+          | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+          | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+          | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
          | null }
-      | { __typename?: 'ShotTextAttributeDTO', textValue?: string | null, id?: any | null, type?: string | null, definition?:
-          | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-          | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-          | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+      | { __typename?: 'ShotTextAttributeDTO', textValue?: string | null, id?: any | null, definition?:
+          | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+          | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+          | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
          | null }
      | null> | null, activeComments?: Array<{ __typename?: 'CommentDTO', id?: string | null, text?: string | null, edited?: boolean | null, shotId?: string | null, owner?: { __typename?: 'UserMinimalDTO', id?: string | null, name?: string | null } | null } | null> | null } | null> | null };
 
@@ -1974,20 +1944,20 @@ export type CreateShotMutationVariables = Exact<{
 
 
 export type CreateShotMutation = { __typename?: 'Mutation', createShot?: { __typename?: 'ShotDTO', id?: string | null, position: number, attributes?: Array<
-      | { __typename?: 'ShotMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
-          | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-          | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-          | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+      | { __typename?: 'ShotMultiSelectAttributeDTO', id?: any | null, multiSelectValue?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
+          | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+          | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+          | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
          | null }
-      | { __typename?: 'ShotSingleSelectAttributeDTO', id?: any | null, type?: string | null, singleSelectValue?: { __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
-          | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-          | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-          | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+      | { __typename?: 'ShotSingleSelectAttributeDTO', id?: any | null, singleSelectValue?: { __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
+          | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+          | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+          | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
          | null }
-      | { __typename?: 'ShotTextAttributeDTO', textValue?: string | null, id?: any | null, type?: string | null, definition?:
-          | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-          | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-          | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+      | { __typename?: 'ShotTextAttributeDTO', textValue?: string | null, id?: any | null, definition?:
+          | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+          | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+          | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
          | null }
      | null> | null } | null };
 
@@ -2006,9 +1976,9 @@ export type CreateSceneAttributeTemplateMutationVariables = Exact<{
 
 
 export type CreateSceneAttributeTemplateMutation = { __typename?: 'Mutation', createSceneAttributeTemplate?:
-    | { __typename?: 'SceneMultiSelectAttributeTemplateDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-    | { __typename?: 'SceneSingleSelectAttributeTemplateDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-    | { __typename?: 'SceneTextAttributeTemplateDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+    | { __typename?: 'SceneMultiSelectAttributeTemplateDTO', id?: any | null, name?: string | null, position: number }
+    | { __typename?: 'SceneSingleSelectAttributeTemplateDTO', id?: any | null, name?: string | null, position: number }
+    | { __typename?: 'SceneTextAttributeTemplateDTO', id?: any | null, name?: string | null, position: number }
    | null };
 
 export type CreateShotAttributeTemplateMutationVariables = Exact<{
@@ -2018,9 +1988,9 @@ export type CreateShotAttributeTemplateMutationVariables = Exact<{
 
 
 export type CreateShotAttributeTemplateMutation = { __typename?: 'Mutation', createShotAttributeTemplate?:
-    | { __typename?: 'ShotMultiSelectAttributeTemplateDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-    | { __typename?: 'ShotSingleSelectAttributeTemplateDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-    | { __typename?: 'ShotTextAttributeTemplateDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+    | { __typename?: 'ShotMultiSelectAttributeTemplateDTO', id?: any | null, name?: string | null, position: number }
+    | { __typename?: 'ShotSingleSelectAttributeTemplateDTO', id?: any | null, name?: string | null, position: number }
+    | { __typename?: 'ShotTextAttributeTemplateDTO', id?: any | null, name?: string | null, position: number }
    | null };
 
 export type UpdateSceneAttributeTemplateNameMutationVariables = Exact<{
@@ -2125,74 +2095,74 @@ export type OnShotlistUpdateSubscription = { __typename?: 'Subscription', shotli
       | { __typename?: 'EmptyPayload', success: boolean }
       | { __typename?: 'PresentCollaboratorsPayload', collaborators?: Array<{ __typename?: 'UserMinimalDTO', id?: string | null, name?: string | null } | null> | null }
       | { __typename?: 'SceneAttributePayload', attribute?:
-          | { __typename?: 'SceneMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
-              | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-              | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-              | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+          | { __typename?: 'SceneMultiSelectAttributeDTO', id?: any | null, multiSelectValue?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
+              | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+              | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+              | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
              | null }
-          | { __typename?: 'SceneSingleSelectAttributeDTO', id?: any | null, type?: string | null, singleSelectValue?: { __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
-              | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-              | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-              | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+          | { __typename?: 'SceneSingleSelectAttributeDTO', id?: any | null, singleSelectValue?: { __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
+              | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+              | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+              | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
              | null }
-          | { __typename?: 'SceneTextAttributeDTO', textValue?: string | null, id?: any | null, type?: string | null, definition?:
-              | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-              | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-              | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+          | { __typename?: 'SceneTextAttributeDTO', textValue?: string | null, id?: any | null, definition?:
+              | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+              | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+              | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
              | null }
          | null }
       | { __typename?: 'ScenePayload', scene?: { __typename?: 'SceneDTO', id?: string | null, position: number, shotCount: number, attributes?: Array<
-            | { __typename?: 'SceneMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
-                | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-                | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-                | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+            | { __typename?: 'SceneMultiSelectAttributeDTO', id?: any | null, multiSelectValue?: Array<{ __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
+                | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+                | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+                | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
                | null }
-            | { __typename?: 'SceneSingleSelectAttributeDTO', id?: any | null, type?: string | null, singleSelectValue?: { __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
-                | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-                | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-                | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+            | { __typename?: 'SceneSingleSelectAttributeDTO', id?: any | null, singleSelectValue?: { __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
+                | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+                | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+                | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
                | null }
-            | { __typename?: 'SceneTextAttributeDTO', textValue?: string | null, id?: any | null, type?: string | null, definition?:
-                | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-                | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-                | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+            | { __typename?: 'SceneTextAttributeDTO', textValue?: string | null, id?: any | null, definition?:
+                | { __typename?: 'SceneMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+                | { __typename?: 'SceneSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+                | { __typename?: 'SceneTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
                | null }
            | null> | null } | null }
       | { __typename?: 'SceneSelectOptionPayload', optionDefinition?: { __typename?: 'SceneSelectAttributeOptionDefinition', id?: any | null, name?: string | null, sceneAttributeDefinition?: { __typename?: 'SceneAttributeDefinitionBase', id?: any | null } | null } | null }
       | { __typename?: 'SelectedCellPayload', row: number, column: number, sceneId?: string | null }
       | { __typename?: 'SelectedSceneAttributePayload', attributeId?: any | null, sceneId?: string | null }
       | { __typename?: 'ShotAttributePayload', shotId?: string | null, sceneId?: string | null, attribute?:
-          | { __typename?: 'ShotMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
-              | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-              | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-              | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+          | { __typename?: 'ShotMultiSelectAttributeDTO', id?: any | null, multiSelectValue?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
+              | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+              | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+              | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
              | null }
-          | { __typename?: 'ShotSingleSelectAttributeDTO', id?: any | null, type?: string | null, singleSelectValue?: { __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
-              | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-              | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-              | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+          | { __typename?: 'ShotSingleSelectAttributeDTO', id?: any | null, singleSelectValue?: { __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
+              | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+              | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+              | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
              | null }
-          | { __typename?: 'ShotTextAttributeDTO', textValue?: string | null, id?: any | null, type?: string | null, definition?:
-              | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-              | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-              | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+          | { __typename?: 'ShotTextAttributeDTO', textValue?: string | null, id?: any | null, definition?:
+              | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+              | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+              | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
              | null }
          | null }
       | { __typename?: 'ShotPayload', shot?: { __typename?: 'ShotDTO', id?: string | null, position: number, sceneId?: string | null, subshot: boolean, attributes?: Array<
-            | { __typename?: 'ShotMultiSelectAttributeDTO', id?: any | null, type?: string | null, multiSelectValue?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
-                | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-                | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-                | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+            | { __typename?: 'ShotMultiSelectAttributeDTO', id?: any | null, multiSelectValue?: Array<{ __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null> | null, definition?:
+                | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+                | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+                | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
                | null }
-            | { __typename?: 'ShotSingleSelectAttributeDTO', id?: any | null, type?: string | null, singleSelectValue?: { __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
-                | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-                | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-                | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+            | { __typename?: 'ShotSingleSelectAttributeDTO', id?: any | null, singleSelectValue?: { __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null } | null, definition?:
+                | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+                | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+                | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
                | null }
-            | { __typename?: 'ShotTextAttributeDTO', textValue?: string | null, id?: any | null, type?: string | null, definition?:
-                | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-                | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
-                | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number, type?: string | null }
+            | { __typename?: 'ShotTextAttributeDTO', textValue?: string | null, id?: any | null, definition?:
+                | { __typename?: 'ShotMultiSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+                | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
+                | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
                | null }
            | null> | null } | null }
       | { __typename?: 'ShotSelectOptionPayload', optionDefinition?: { __typename?: 'ShotSelectAttributeOptionDefinition', id?: any | null, name?: string | null, shotAttributeDefinition?: { __typename?: 'ShotAttributeDefinitionBase', id?: any | null } | null } | null }
@@ -2378,7 +2348,6 @@ export const TemplateDocument = gql`
       id
       name
       position
-      type
       ... on ShotSingleSelectAttributeTemplateDTO {
         options {
           id
@@ -2396,7 +2365,6 @@ export const TemplateDocument = gql`
       id
       name
       position
-      type
       ... on SceneSingleSelectAttributeTemplateDTO {
         options {
           id
@@ -2647,9 +2615,7 @@ export const ShotlistDocument = gql`
           id
           name
           position
-          type
         }
-        type
         ... on SceneSingleSelectAttributeDTO {
           singleSelectValue {
             id
@@ -2672,13 +2638,11 @@ export const ShotlistDocument = gql`
       id
       name
       position
-      type
     }
     shotAttributeDefinitions {
       id
       name
       position
-      type
     }
     owner {
       id
@@ -3291,7 +3255,6 @@ export const CreateShotAttributeDefinitionDocument = gql`
     id
     name
     position
-    type
   }
 }
     `;
@@ -3365,7 +3328,6 @@ export const CreateSceneAttributeDefinitionDocument = gql`
     id
     name
     position
-    type
   }
 }
     `;
@@ -3964,7 +3926,6 @@ export const ShotlistForExportDocument = gql`
           name
           position
         }
-        type
         ... on SceneSingleSelectAttributeDTO {
           singleSelectValue {
             id
@@ -3991,7 +3952,6 @@ export const ShotlistForExportDocument = gql`
             name
             position
           }
-          type
           ... on ShotSingleSelectAttributeDTO {
             singleSelectValue {
               id
@@ -4192,7 +4152,6 @@ export const DataDocument = gql`
     }
     scenes {
       attributes {
-        type
         ... on SceneSingleSelectAttributeDTO {
           singleSelectValue {
             id
@@ -4215,7 +4174,6 @@ export const DataDocument = gql`
     id
     name
     position
-    type
     ... on ShotSingleSelectAttributeDefinitionDTO {
       options {
         id
@@ -4233,7 +4191,6 @@ export const DataDocument = gql`
     id
     name
     position
-    type
     ... on SceneSingleSelectAttributeDefinitionDTO {
       options {
         id
@@ -4445,7 +4402,6 @@ export const CreateSceneDocument = gql`
         name
         position
       }
-      type
       ... on SceneSingleSelectAttributeDTO {
         singleSelectValue {
           id
@@ -4745,9 +4701,7 @@ export const ShotsDocument = gql`
         id
         name
         position
-        type
       }
-      type
       ... on ShotSingleSelectAttributeDTO {
         singleSelectValue {
           id
@@ -4825,9 +4779,7 @@ export const CreateShotDocument = gql`
         id
         name
         position
-        type
       }
-      type
       ... on ShotSingleSelectAttributeDTO {
         singleSelectValue {
           id
@@ -4916,7 +4868,6 @@ export const CreateSceneAttributeTemplateDocument = gql`
     id
     name
     position
-    type
   }
 }
     `;
@@ -4955,7 +4906,6 @@ export const CreateShotAttributeTemplateDocument = gql`
     id
     name
     position
-    type
   }
 }
     `;
@@ -5350,12 +5300,10 @@ export const OnShotlistUpdateDocument = gql`
         sceneId
         attribute {
           id
-          type
           definition {
             id
             name
             position
-            type
           }
           ... on ShotSingleSelectAttributeDTO {
             singleSelectValue {
@@ -5382,12 +5330,10 @@ export const OnShotlistUpdateDocument = gql`
           subshot
           attributes {
             id
-            type
             definition {
               id
               name
               position
-              type
             }
             ... on ShotSingleSelectAttributeDTO {
               singleSelectValue {
@@ -5410,12 +5356,10 @@ export const OnShotlistUpdateDocument = gql`
       ... on SceneAttributePayload {
         attribute {
           id
-          type
           definition {
             id
             name
             position
-            type
           }
           ... on SceneSingleSelectAttributeDTO {
             singleSelectValue {
@@ -5441,12 +5385,10 @@ export const OnShotlistUpdateDocument = gql`
           shotCount
           attributes {
             id
-            type
             definition {
               id
               name
               position
-              type
             }
             ... on SceneSingleSelectAttributeDTO {
               singleSelectValue {

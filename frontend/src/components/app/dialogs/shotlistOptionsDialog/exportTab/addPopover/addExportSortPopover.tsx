@@ -26,7 +26,7 @@ export default function AddExportSortPopover({
         ?.filter(attributeDefinition => {
             if(
                 customSceneSorts.some(s => s.definitionId == attributeDefinition?.id) ||
-                (attributeDefinition as AnySceneAttributeDefinition).type === "SceneTextAttributeDefinitionDTO"
+                (attributeDefinition as AnySceneAttributeDefinition).__typename === "SceneTextAttributeDefinitionDTO"
             ) return false
             return true
         })
@@ -35,7 +35,7 @@ export default function AddExportSortPopover({
         ?.filter(attributeDefinition => {
             if(
                 customShotSorts.some(s => s.definitionId == attributeDefinition?.id) ||
-                (attributeDefinition as AnyShotAttributeDefinition).type === "ShotTextAttributeDefinitionDTO"
+                (attributeDefinition as AnyShotAttributeDefinition).__typename === "ShotTextAttributeDefinitionDTO"
             ) return false
             return true
         })

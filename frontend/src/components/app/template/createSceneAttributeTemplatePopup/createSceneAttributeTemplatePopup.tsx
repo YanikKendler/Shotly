@@ -29,7 +29,6 @@ export default function CreateSceneAttributeTemplatePopup({
                         id
                         name
                         position
-                        type
                     }
                 }
             `,

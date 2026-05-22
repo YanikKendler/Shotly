@@ -276,7 +276,6 @@ export default function ExportTab(
                                 attributes{
                                     id
                                     definition{id, name, position}
-                                    type
 
                                     ... on SceneSingleSelectAttributeDTO{
                                         singleSelectValue{id,name}
@@ -295,7 +294,6 @@ export default function ExportTab(
                                     attributes{
                                         id
                                         definition{id, name, position}
-                                        type
 
                                         ... on ShotSingleSelectAttributeDTO{
                                             singleSelectValue{id,name}
@@ -401,7 +399,7 @@ export default function ExportTab(
                 let filterIncludesValue = false
                 let filterMatchesExactly = false
 
-                switch (attribute.type){
+                switch (attribute.__typename){
                     case "SceneSingleSelectAttributeDTO":
                         const singleValueId = (attribute as SceneSingleSelectAttributeDto).singleSelectValue?.id
                         filterIncludesValue = filter.value.some(v => v.value == singleValueId)
@@ -507,7 +505,7 @@ export default function ExportTab(
                     let filterIncludesValue = false
                     let filterMatchesExactly = false
 
-                    switch (attribute.type){
+                    switch (attribute.__typename){
                         case "ShotSingleSelectAttributeDTO":
                             const singleValueId = (attribute as ShotSingleSelectAttributeDto).singleSelectValue?.id
                             filterIncludesValue = filter.value.some(v => v.value == singleValueId)
