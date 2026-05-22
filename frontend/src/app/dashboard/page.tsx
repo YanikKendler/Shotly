@@ -23,8 +23,8 @@ export default function Overview() {
     const [shotlists, setShotlists] = useState<ShotlistDto[]>([])
     const [templates, setTemplates] = useState<TemplateDto[]>([])
 
-    const { openCreateShotlistDialog, CreateShotlistDialog } = useCreateShotlistDialog()
-    const { openCreateTemplateDialog, CreateTemplateDialog } = useCreateTemplateDialog()
+    const createShotlistDialog = useCreateShotlistDialog()
+    const createTemplateDialog = useCreateTemplateDialog()
 
     const intro = useIntro({
         steps: [
@@ -132,7 +132,7 @@ export default function Overview() {
                 ))}
                 <button className={"dashboardGridItem add shotlist"} onClick={() => {
                     intro.cancel()
-                    openCreateShotlistDialog()
+                    createShotlistDialog.open()
                 }}>
                     <span><Plus size={22}/>New Shotlist</span>
                 </button>
@@ -142,14 +142,14 @@ export default function Overview() {
                 {templates?.slice(0, 8)?.sort(Utils.orderShotlistsOrTemplatesByName)?.map((template: TemplateDto) => (
                     <DashboardGridTemplate template={template} key={template.id}/>
                 ))}
-                <button className={"dashboardGridItem add template"} onClick={openCreateTemplateDialog}>
+                <button className={"dashboardGridItem add template"} onClick={createTemplateDialog.open}>
                     <span><Plus size={22}/>New Template</span>
                 </button>
             </DashboardGrid>
             <Link href={"/dashboard/archive"} className={"archive default"}>Archive <ArrowRight size={16} strokeWidth={2}/></Link>
 
-            {CreateShotlistDialog}
-            {CreateTemplateDialog}
+            {createShotlistDialog.Element}
+            {createTemplateDialog.Element}
         </main>
     );
 }
