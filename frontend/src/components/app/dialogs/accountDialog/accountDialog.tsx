@@ -180,9 +180,13 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
         localStorage.setItem(Config.localStorageKey.userSettings, userSettingsString)
     }
 
-    function openAccountDialog() {
+    const open = () => {
         dialogElementRef.current?.open()
         getCurrentUser()
+    }
+
+    const close = () => {
+        dialogElementRef.current?.close()
     }
 
     async function resetPassword() {
@@ -542,7 +546,7 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
             </>
         )
 
-    const AccountDialog = (
+    const Element = (
         <Dialog
             contentClassName={"accountDialogContent"}
             ref={dialogElementRef}
@@ -555,7 +559,7 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
         >
             <div className="top sticky">
                 <h2 className={"title"}>Account</h2>
-                <button className={"close"} onClick={dialogElementRef.current?.close}>
+                <button className={"close"} onClick={close}>
                     <X size={18}/>
                 </button>
             </div>
@@ -566,6 +570,10 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
         </Dialog>
     )
 
-    return {openAccountDialog, AccountDialog};
+    return {
+        open,
+        close,
+        Element
+    };
 }
 

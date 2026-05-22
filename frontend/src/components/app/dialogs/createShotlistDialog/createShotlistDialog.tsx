@@ -19,7 +19,6 @@ import Config from "@/Config"
 export function useCreateShotlistDialog() {
     const dialogElementRef = useRef<DialogRef>(null);
 
-    const [promiseResolver, setPromiseResolver] = useState<(value: boolean) => void>();
     const [name, setName] = useState<string>("")
     const [isCreating, setIsCreating] = useState(false)
     const [templates, setTemplates] = useState<SelectOption[]>([{label: "No template", value: "null"}]);
@@ -76,13 +75,14 @@ export function useCreateShotlistDialog() {
             setSelectedTemplateId(options[1].value)
     }
 
-    function openCreateShotlistDialog(): Promise<boolean> {
+    function open() {
         dialogElementRef.current?.open()
         setIsCreating(false)
         loadData()
-        return new Promise((resolve) => {
-            setPromiseResolver(() => resolve)
-        })
+    }
+
+    function close() {
+        dialogElementRef.current?.close()
     }
 
     async function handleConfirm() {
@@ -116,12 +116,6 @@ export function useCreateShotlistDialog() {
         }
 
         router.push(`/shotlist/${data.createShotlist.id}`)
-        promiseResolver?.(true)
-    }
-
-    function handleCancel() {
-        dialogElementRef.current?.close()
-        promiseResolver?.(false)
     }
 
     let content: React.ReactElement
@@ -144,7 +138,7 @@ export function useCreateShotlistDialog() {
                 <button
                     onClick={e => {
                         e.stopPropagation();
-                        handleCancel();
+                        close();
                     }}
                 >
                     cancel
@@ -177,7 +171,7 @@ export function useCreateShotlistDialog() {
             <div className={"buttons"}>
                 <button onClick={e => {
                         e.stopPropagation();
-                        handleCancel();
+                        close();
                     }}
                 >
                     cancel
@@ -196,7 +190,7 @@ export function useCreateShotlistDialog() {
         </>
 
 
-    const CreateShotlistDialog = (
+    const Element = (
         <Dialog
             aria-describedby={"create shotlist dialog"}
             contentClassName={"createShotlistDialogContent"}
@@ -209,6 +203,10 @@ export function useCreateShotlistDialog() {
         </Dialog>
     );
 
-    return {openCreateShotlistDialog, CreateShotlistDialog};
+    return {
+        open,
+        close,
+        Element
+    };
 }
 

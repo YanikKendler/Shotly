@@ -15,6 +15,7 @@ import {useConfirmDialog} from "@/components/app/dialogs/confirmDialog/confirmDi
 
 export interface CollaborationRequestsPopupRef {
     toggleCollaborationRequests: () => void
+    setCollaborationRequestsOpen: (isOpen: boolean) => void
 }
 
 export interface CollaborationRequestsPopupProps {
@@ -42,7 +43,8 @@ const CollaborationRequestsPopup = forwardRef<
     }, [])
 
     useImperativeHandle(ref, () => ({
-        toggleCollaborationRequests: toggleCollaborationRequests
+        toggleCollaborationRequests: toggleCollaborationRequests,
+        setCollaborationRequestsOpen: setCollaborationRequestOpen
     }))
 
     const toggleCollaborationRequests = () => {

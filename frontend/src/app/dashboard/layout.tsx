@@ -39,9 +39,9 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const client = useApolloClient()
     const pathname = usePathname()
 
-    const { openCreateShotlistDialog, CreateShotlistDialog } = useCreateShotlistDialog()
-    const { openCreateTemplateDialog, CreateTemplateDialog } = useCreateTemplateDialog()
-    const { openAccountDialog, AccountDialog } = useAccountDialog()
+    const createShotlistDialog = useCreateShotlistDialog()
+    const createTemplateDialog = useCreateTemplateDialog()
+    const accountDialog = useAccountDialog()
 
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
@@ -58,10 +58,16 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     const [refreshSignal, setRefreshSignal] = useState(0)
 
     useDashboardKeybinds({
-        openCreateShotlistDialog: openCreateShotlistDialog,
-        openCreateTemplateDialog: openCreateTemplateDialog,
-        openAccountDialog: openAccountDialog,
-        toggleCollaborationRequests: () => sidebarRef.current?.toggleCollaborationRequests()
+        openCreateShotlistDialog: createShotlistDialog.open,
+        openCreateTemplateDialog: createTemplateDialog.open,
+        openAccountDialog: accountDialog.open,
+        toggleCollaborationRequests: () => sidebarRef.current?.toggleCollaborationRequests(),
+        closeAll: () => {
+            createShotlistDialog.close()
+            createTemplateDialog.close()
+            accountDialog.close()
+            sidebarRef.current?.setCollaborationRequestsOpen(false)
+        }
     })
 
     // load Data
@@ -245,9 +251,9 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                     <DashboardSidebar
                         ref={sidebarRef}
                         query={query}
-                        openCreateShotlistDialog={openCreateShotlistDialog}
-                        openCreateTemplateDialog={openCreateTemplateDialog}
-                        openAccountDialog={openAccountDialog}
+                        openCreateShotlistDialog={createShotlistDialog.open}
+                        openCreateTemplateDialog={createTemplateDialog.open}
+                        openAccountDialog={accountDialog.open}
                         setSidebarOpen={setSidebarOpen}
                         reloadShotlists={() => loadData({ loadShotlists: true, loadTemplates: false, loadUser: false })}
                     />
@@ -256,8 +262,8 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                 <Panel className={`headerContainer ${isTemplatePage && "template"}`}>
                     <DashboardHeader
                         query={query}
-                        openCreateShotlistDialog={openCreateShotlistDialog}
-                        openCreateTemplateDialog={openCreateTemplateDialog}
+                        openCreateShotlistDialog={createShotlistDialog.open}
+                        openCreateTemplateDialog={createTemplateDialog.open}
                     />
                     {children}
                 </Panel>
@@ -269,9 +275,9 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                 setSidebarOpen={setSidebarOpen}
             />
 
-            {CreateShotlistDialog}
-            {CreateTemplateDialog}
-            {AccountDialog}
+            {createShotlistDialog.Element}
+            {createTemplateDialog.Element}
+            {accountDialog.Element}
 
             <JustBoughtProDialog/>
 

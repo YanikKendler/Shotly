@@ -6,12 +6,14 @@ export default function useDashboardKeybinds({
     openCreateShotlistDialog,
     openCreateTemplateDialog,
     openAccountDialog,
-    toggleCollaborationRequests
+    toggleCollaborationRequests,
+    closeAll
 }:{
     openCreateShotlistDialog: () => void
     openCreateTemplateDialog: () => void
     openAccountDialog: () => void
     toggleCollaborationRequests: () => void
+    closeAll: () => void
 }) {
     const router= useRouter()
 
@@ -19,14 +21,17 @@ export default function useDashboardKeybinds({
         let unsubscribe = tinykeys(window, {
             "Alt+N": event => {
                 event.preventDefault()
+                closeAll()
                 openCreateShotlistDialog()
             },
             "Alt+S": event => {
                 event.preventDefault()
+                closeAll()
                 openCreateShotlistDialog()
             },
             "Alt+T": event => {
                 event.preventDefault()
+                closeAll()
                 openCreateTemplateDialog()
             },
             "Alt+H": event => { //not alt+d because that is reserved by browsers
@@ -35,10 +40,12 @@ export default function useDashboardKeybinds({
             },
             "Alt+A": event => {
                 event.preventDefault()
+                closeAll()
                 openAccountDialog()
             },
             "Alt+C": event => {
                 event.preventDefault()
+                closeAll()
                 toggleCollaborationRequests()
             }
         })

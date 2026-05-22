@@ -19,6 +19,7 @@ import "./dashboardSidebar.scss"
 
 export interface DashboardSidebarRef {
     toggleCollaborationRequests: () => void
+    setCollaborationRequestsOpen: (isOpen: boolean) => void
 }
 
 export interface DashboardSidebarProps {
@@ -57,6 +58,9 @@ const DashboardSidebar = forwardRef<DashboardSidebarRef, DashboardSidebarProps>(
     useImperativeHandle(ref, () => ({
         toggleCollaborationRequests: () => {
             collabPopupRef.current?.toggleCollaborationRequests()
+        },
+        setCollaborationRequestsOpen: (isOpen) => {
+            collabPopupRef.current?.setCollaborationRequestsOpen(isOpen)
         }
     }))
 

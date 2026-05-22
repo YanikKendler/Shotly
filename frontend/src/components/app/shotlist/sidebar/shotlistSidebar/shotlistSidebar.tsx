@@ -61,7 +61,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
 
-    const {openAccountDialog, AccountDialog} = useAccountDialog(
+    const accountDialog = useAccountDialog(
         (isOpen)=> {
             if(isOpen)
                 shotlistContext.blockKeyBinds.current.set("account", [])
@@ -96,7 +96,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
         onDeleteScene: onDeleteScene,
         onMoveScene: onMoveScene,
         createScene: createScene,
-        openAccountDialog: openAccountDialog
+        openAccountDialog: accountDialog.open
     }))
 
     useEffect(() => {
@@ -479,7 +479,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                             </button>
                         </SimpleTooltip>
                         <SimpleTooltip content={<p><span className="key">Alt</span> + <span className="key">A</span></p>}>
-                            <button onClick={openAccountDialog}>Account <User size={18}/></button>
+                            <button onClick={accountDialog.open}>Account <User size={18}/></button>
                         </SimpleTooltip>
                     </div>
                 </div>
@@ -488,7 +488,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                 <Link className="shotlistTool" href={"/public"}><Iconmark/>shotly.at</Link>
             </div>
             <button className="closearea" onClick={() => setSidebarOpen(false)}/>
-            {AccountDialog}
+            {accountDialog.Element}
         </>
     )
 })

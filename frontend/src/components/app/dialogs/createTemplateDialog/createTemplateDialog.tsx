@@ -14,7 +14,6 @@ import Config from "@/Config"
 export function useCreateTemplateDialog() {
     const dialogElementRef = useRef<DialogRef>(null);
 
-    const [promiseResolver, setPromiseResolver] = useState<(value: boolean) => void>();
     const [name, setName] = useState<string>("")
     const [isLoading, setIsLoading] = useState(false)
 
@@ -27,13 +26,14 @@ export function useCreateTemplateDialog() {
         enterPressed.current = handleConfirm
     }, [name]);
 
-    function openCreateTemplateDialog(): Promise<boolean> {
+    function open() {
         dialogElementRef.current?.open()
         setIsLoading(false)
         setName("")
-        return new Promise((resolve) => {
-            setPromiseResolver(() => resolve);
-        })
+    }
+
+    function close() {
+        dialogElementRef.current?.close()
     }
 
     async function handleConfirm() {
@@ -62,15 +62,9 @@ export function useCreateTemplateDialog() {
         }
 
         router.push(`/dashboard/template/${data.createTemplate.id}`)
-        promiseResolver?.(true)
     }
 
-    function handleCancel() {
-        dialogElementRef.current?.close()
-        promiseResolver?.(false)
-    }
-
-    const CreateTemplateDialog = (
+    const Element = (
         <Dialog
             aria-describedby={"create template dialog"}
             contentClassName={"createTemplateDialogContent"}
@@ -97,7 +91,7 @@ export function useCreateTemplateDialog() {
                     <div className={"buttons"}>
                         <button onClick={e => {
                             e.stopPropagation();
-                            handleCancel();
+                            close();
                         }}>cancel
                         </button>
                         <button disabled={name.length <= 2} onClick={e => {
@@ -111,6 +105,10 @@ export function useCreateTemplateDialog() {
         </Dialog>
     )
 
-    return {openCreateTemplateDialog, CreateTemplateDialog};
+    return {
+        open,
+        close,
+        Element
+    }
 }
 
