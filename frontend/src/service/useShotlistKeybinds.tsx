@@ -1,13 +1,13 @@
-import {Dispatch, RefObject, SetStateAction, useEffect} from "react"
+import {Dispatch, RefObject, SetStateAction, useCallback, useContext, useEffect, useLayoutEffect, useRef} from "react"
 import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys"
 import {SheetManagerRef} from "@/components/app/shotlist/table/sheetManager/sheetManager"
 import {ShotlistSidebarRef} from "@/components/app/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
 import {SelectedScene} from "@/app/shotlist/[id]/page"
-import {DialogRef} from "@/components/basic/dialog/dialog"
 import {infoNotification} from "@/service/NotificationService"
 import {useRouter} from "next/navigation"
-import {ShotlistOptionsDialogPages} from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
-import {RowColumn} from "@/utility/Types" //package has incorrectly configured type exports
+import {RowColumn} from "@/utility/Types"
+import {ShotlistContext} from "@/context/ShotlistContext"
+import {useLatestCallback} from "@/utility/useLatestCallback" //package has incorrectly configured type exports
 
 export default function useShotlistKeybinds({
     sheetManagerRef,
@@ -26,15 +26,26 @@ export default function useShotlistKeybinds({
 
     focusedCell: RefObject<RowColumn>
 
-    blockKeyBinds: RefObject<Map<string, boolean>>
+    blockKeyBinds: RefObject<Map<string, string[]>>
 }) {
     const router = useRouter()
 
 
-    //TODO show notification that informs that keybind is deactivated
     useEffect(() => {
-        const isBlocked = () => {
-            return Array.from(blockKeyBinds.current.values()).some(v => v == true)
+        const isBlocked = (keybind?: string) => {
+            const result = blockKeyBinds.current.size > 0
+
+            if(result && keybind) {
+                const currentKeyBindInUse = blockKeyBinds.current.values().some(b => b.includes(keybind))
+
+                if(!currentKeyBindInUse) {
+                    infoNotification({
+                        title: "This keybind is paused",
+                        message: "Close the current dialog/popover to use it again [Esc]"
+                    })
+                }
+            }
+            return result
         }
 
         let unsubscribe = tinykeys(window, {
@@ -60,25 +71,25 @@ export default function useShotlistKeybinds({
                 sheetManagerRef.current?.moveFocusedCell(event, 1, 0)
             },
             "Control+Enter": event => {
-                if(isBlocked()) return
+                if(isBlocked("Control+Enter")) return
 
                 event.preventDefault()
                 sheetManagerRef.current?.handleCreateShotKeybind.current()
             },
             "Alt+Enter": event => {
-                if(isBlocked()) return
+                if(isBlocked("Alt+Enter")) return
 
                 event.preventDefault()
                 sheetManagerRef.current?.handleCreateShotKeybind.current()
             },
             "Alt+N": event => {
-                if(isBlocked()) return
+                if(isBlocked("Alt+N")) return
 
                 event.preventDefault()
                 sheetManagerRef.current?.handleCreateShotKeybind.current()
             },
             "Alt+([1-9])": event => {
-                if(isBlocked()) return
+                if(isBlocked("")) return
 
                 event.preventDefault()
 
@@ -89,13 +100,13 @@ export default function useShotlistKeybinds({
                 setSelectedScene({id: sceneIdToSelect, position: scenePositionToSelect})
             },
             "Alt+O": event => {
-                if(isBlocked()) return
+                if(isBlocked("Alt+0")) return
 
                 event.preventDefault()
                 openShotlistOptionsDialog()
             },
             "Alt+A": event => {
-                if(isBlocked()) return
+                if(isBlocked("Alt+A")) return
 
                 event.preventDefault()
                 sidebarRef.current?.openAccountDialog()
@@ -105,13 +116,13 @@ export default function useShotlistKeybinds({
                 router.push("/dashboard")
             },
             "Alt+S": event => {
-                if(isBlocked()) return
+                if(isBlocked("Alt+S")) return
 
                 event.preventDefault()
                 sidebarRef.current?.createScene()
             },
             "Alt+.": event => {
-                if(isBlocked()) return
+                if(isBlocked("Alt+.")) return
 
                 event.preventDefault()
                 const currentRow = focusedCell.current.row

@@ -59,7 +59,10 @@ const CommentPopover = forwardRef<CommentPopoverRef, CommentPopoverProps>(({
     }, [shot]);
 
     useEffect(() => {
-        shotlistContext.blockKeyBinds.current.set("comments", isOpen)
+        if(isOpen)
+            shotlistContext.blockKeyBinds.current.set("comments", ["Control+Enter"])
+        else
+            shotlistContext.blockKeyBinds.current.delete("comments")
     }, [isOpen]);
 
     const sendComment = async () => {

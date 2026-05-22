@@ -323,11 +323,11 @@ const ShotlistOptionsDialog = forwardRef<ShotlistOptionsDialogRef, ShotlistOptio
                         setDataChanged(false)
                     }
 
-                    shotlistContext.blockKeyBinds.current.set("shotlistOptions", true)
+                    shotlistContext.blockKeyBinds.current.set("shotlistOptions", [])
                 }
                 else {
                     runRefreshShotlistCheck()
-                    shotlistContext.blockKeyBinds.current.set("shotlistOptions", false)
+                    shotlistContext.blockKeyBinds.current.delete("shotlistOptions")
                 }
             }}
             onRenderFinish={checkUrlAutoOpen}

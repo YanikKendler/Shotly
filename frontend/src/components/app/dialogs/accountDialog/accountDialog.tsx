@@ -549,7 +549,6 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
             showScrollGradient
             onOpenChange={isOpen => {
                 if(onOpenChange != undefined) {
-                    console.log("running openchange", onOpenChange, isOpen)
                     onOpenChange(isOpen)
                 }
             }}

@@ -60,8 +60,14 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
 }, ref) =>{
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
+
     const {openAccountDialog, AccountDialog} = useAccountDialog(
-        (isOpen)=> shotlistContext.blockKeyBinds.current.set("account", isOpen)
+        (isOpen)=> {
+            if(isOpen)
+                shotlistContext.blockKeyBinds.current.set("account", [])
+            else
+                shotlistContext.blockKeyBinds.current.delete("account")
+        }
     )
 
     const sortableRef = useRef<Sortable|null>(null)

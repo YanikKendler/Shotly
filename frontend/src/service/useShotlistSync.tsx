@@ -3,7 +3,6 @@ import {useLatestCallback} from "@/utility/useLatestCallback"
 import {SelectOption, ShotlyErrorCode} from "@/utility/Types"
 import {
     CollaborationPayload,
-    CollaborationType,
     CommentPayload,
     Query,
     SceneAttributePayload,
@@ -28,7 +27,6 @@ import {ShotlistSidebarRef} from "@/components/app/shotlist/sidebar/shotlistSide
 import {ApolloQueryResult, useApolloClient, useSubscription} from "@apollo/client"
 import {useRouter} from "next/navigation"
 import gql from "graphql-tag"
-import {ShotlistContext} from "@/context/ShotlistContext"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
 
 /**

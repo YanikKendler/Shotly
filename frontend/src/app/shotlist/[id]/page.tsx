@@ -97,7 +97,7 @@ export default function Shotlist() {
 
     const saveStateMap = useRef<Map<string, SaveState>>(new Map())
 
-    const blockKeyBindsMap = useRef(new Map<string, boolean>())
+    const blockKeyBindsMap = useRef(new Map<string, string[]>())
 
     const intro = useIntro({
         steps: [
