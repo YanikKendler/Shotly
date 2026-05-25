@@ -56,6 +56,7 @@ import AddExportSortPopover
 import ExportSort from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/exportSort/exportSort"
 import Sortable from "sortablejs"
 import useJsonExport from "@/service/export/useJsonExport"
+import SimpleCollapse, {SimpleCollapseRef} from "@/components/basic/simpleCollapse/simpleCollapse"
 
 type ExportFileTypes = "PDF" | "CSV" | "XLSX" | "JSON"
 
@@ -79,6 +80,8 @@ interface ExportSettingsLocalStorage {
     hideSceneHeadings?: boolean
     pdfExportOptions?: PdfExportOptions
     selectedScenes?: MultiValue<SelectOption>
+    selectedSceneAttributeDefs?: MultiValue<SelectOption>
+    selectedShotAttributeDefs?: MultiValue<SelectOption>
     customSceneFilters?: ExportFilterSetting[]
     customShotFilters?: ExportFilterSetting[]
     customSceneSorts?: ExportSortSetting[]
@@ -103,6 +106,8 @@ export default function ExportTab(
     const client = useApolloClient()
 
     const [scenesAsOptions, setScenesAsOptions] = useState<SelectOption[]>([{label: "this is bad", value: "-1"}])
+    const [sceneAttributeDefsAsOptions, setSceneAttributeDefsAsOptions] = useState<SelectOption[]>([{label: "this is bad", value: "-1"}])
+    const [shotAttributeDefsAsOptions, setShotAttributeDefsAsOptions] = useState<SelectOption[]>([{label: "this is bad", value: "-1"}])
 
     const [selectedFileType, setSelectedFileType] = useState<ExportFileTypes>("PDF")
     const [hideSceneHeadings, setHideSceneHeadings] = useState(false)
@@ -114,6 +119,8 @@ export default function ExportTab(
         headerText: ""
     })
     const [selectedScenes, setSelectedScenes] = useState<MultiValue<SelectOption>>([])
+    const [selectedSceneAttributeDefs, setSelectedSceneAttributeDefs] = useState<MultiValue<SelectOption>>([])
+    const [selectedShotAttributeDefs, setSelectedShotAttributeDefs] = useState<MultiValue<SelectOption>>([])
     const [customSceneFilters, setCustomSceneFilters] = useState<ExportFilterSetting[]>([])
     const [customShotFilters, setCustomShotFilters] = useState<ExportFilterSetting[]>([])
     const [customSceneSorts, setCustomSceneSorts] = useState<ExportSortSetting[]>([])
@@ -121,6 +128,8 @@ export default function ExportTab(
 
     const sceneSortContainerRef = useRef<Sortable>(null);
     const shotSortContainerRef = useRef<Sortable>(null);
+
+    const visibleAttributesRef = useRef<SimpleCollapseRef>(null);
 
     const [shotlistPreviewCache, setShotlistPreviewCache] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
     const [previewData, setPreviewData] = useState<ShotlistDto | null>(null)
@@ -140,7 +149,21 @@ export default function ExportTab(
         loadSettingsFromLocalStorage(shotlist.id)
 
         setScenesAsOptions(Utils.scenesToSelectOptions(shotlist?.scenes))
-    }, [shotlist])
+    }, [shotlist, shotAttributeDefinitions, sceneAttributeDefinitions])
+
+    useEffect(() => {
+        setSceneAttributeDefsAsOptions(!sceneAttributeDefinitions ? [] : sceneAttributeDefinitions.map(d => ({
+            label: d.name || "Unnamed",
+            value: String(d.id)
+        })))
+    }, [sceneAttributeDefinitions])
+
+    useEffect(() => {
+        setShotAttributeDefsAsOptions(!shotAttributeDefinitions ? [] : shotAttributeDefinitions.map(d => ({
+            label: d.name || "Unnamed",
+            value: String(d.id)
+        })))
+    }, [shotAttributeDefinitions]);
 
     useEffect(() => {
         if(!shotlist || !shotlist.id) return
@@ -154,6 +177,8 @@ export default function ExportTab(
             hideSceneHeadings: hideSceneHeadings,
             pdfExportOptions: pdfExportOptions,
             selectedScenes: selectedScenes,
+            selectedSceneAttributeDefs: selectedSceneAttributeDefs,
+            selectedShotAttributeDefs: selectedShotAttributeDefs,
             customSceneFilters: customSceneFilters,
             customShotFilters: customShotFilters,
             customSceneSorts: customSceneSorts,
@@ -166,10 +191,12 @@ export default function ExportTab(
         hideSceneHeadings,
         pdfExportOptions,
         selectedScenes,
+        selectedSceneAttributeDefs,
+        selectedShotAttributeDefs,
         customSceneFilters,
         customShotFilters,
         customSceneSorts,
-        customShotSorts
+        customShotSorts,
     ])
 
     useEffect(() => {
@@ -197,6 +224,20 @@ export default function ExportTab(
             const filtered = settingsObject.selectedScenes
                 .filter(selected => scenesAsOptions.some(option => option.value == selected.value))
             setSelectedScenes(filtered)
+        }
+        if(settingsObject.selectedSceneAttributeDefs) {
+            const filtered = settingsObject.selectedSceneAttributeDefs
+                .filter(selected => sceneAttributeDefinitions?.some(def => String(def.id) == selected.value))
+            setSelectedSceneAttributeDefs(filtered)
+
+            if(filtered.length > 0) visibleAttributesRef.current?.setIsExpanded(true)
+        }
+        if(settingsObject.selectedShotAttributeDefs) {
+            const filtered = settingsObject.selectedShotAttributeDefs
+                .filter(selected => shotAttributeDefinitions?.some(def => String(def.id) == selected.value))
+            setSelectedShotAttributeDefs(filtered)
+
+            if(filtered.length > 0) visibleAttributesRef.current?.setIsExpanded(true)
         }
         //check for def id to avoid loading filters in old (map) format
         if(settingsObject.customSceneFilters && settingsObject.customSceneFilters.length > 0 && settingsObject.customSceneFilters[0].definitionId) {
@@ -576,7 +617,51 @@ export default function ExportTab(
             })
         })
 
-        return {...result.data.shotlist, scenes: filteredScenes} as ShotlistDto;
+        // visible attributes
+
+        let filteredSceneAttributeDefs = result.data.shotlist?.sceneAttributeDefinitions || []
+        if(selectedSceneAttributeDefs.length > 0){
+            filteredSceneAttributeDefs = filteredSceneAttributeDefs.filter(
+                d => selectedSceneAttributeDefs.some(s => Number(s.value) == d?.id)
+            )
+        }
+
+        let filteredShotAttributeDefs = result.data.shotlist?.shotAttributeDefinitions || []
+        if(selectedShotAttributeDefs.length > 0){
+            filteredShotAttributeDefs = filteredShotAttributeDefs.filter(
+                d => selectedShotAttributeDefs.some(s => Number(s.value) == d?.id)
+            )
+        }
+
+        filteredScenes = filteredScenes.map(scene => {
+            let newAttributes = scene.attributes
+            if(selectedSceneAttributeDefs.length > 0)
+                newAttributes = newAttributes?.filter(
+                    a => selectedSceneAttributeDefs.some(s => Number(s.value) == a?.definition?.id)
+                )
+
+            let newShots = scene.shots
+            if(selectedShotAttributeDefs.length > 0)
+                newShots = newShots?.map(shot => ({
+                    ...shot,
+                    attributes: shot?.attributes?.filter(
+                        a => selectedShotAttributeDefs.some(s => Number(s.value) == a?.definition?.id)
+                    )
+                })) as ShotDto[]
+
+            return {
+                ...scene,
+                attributes: newAttributes,
+                shots: newShots
+            }
+        })
+
+        return {
+            ...result.data.shotlist,
+            scenes: filteredScenes,
+            sceneAttributeDefinitions: filteredSceneAttributeDefs,
+            shotAttributeDefinitions: filteredShotAttributeDefs
+        } as ShotlistDto;
     }
 
     async function exportShotlist() {
@@ -914,7 +999,7 @@ export default function ExportTab(
 
                     <MultiSelect
                         name={"Scenes"}
-                        placeholder={"All Scenes"}
+                        placeholder={"All scenes"}
                         options={scenesAsOptions}
                         value={selectedScenes}
                         onChange={newValue => {
@@ -924,6 +1009,44 @@ export default function ExportTab(
                         minWidth={"20rem"}
                     />
                 </div>
+                <SimpleCollapse
+                    name={"Visible Attributes"}
+                    contentClassName={"visibleAttributes"}
+                    ref={visibleAttributesRef}
+                >
+                    <div className="setting">
+                        <div className="left">
+                            <ListOrdered size={22}/>
+                            <p>Scene</p>
+                        </div>
+
+                        <MultiSelect
+                            name={"Scenes"}
+                            placeholder={"All scene attributes"}
+                            options={sceneAttributeDefsAsOptions}
+                            value={selectedSceneAttributeDefs}
+                            onChange={setSelectedSceneAttributeDefs}
+                            sorted={true}
+                            minWidth={"20rem"}
+                        />
+                    </div>
+                    <div className="setting">
+                        <div className="left">
+                            <ListOrdered size={22}/>
+                            <p>Shot</p>
+                        </div>
+
+                        <MultiSelect
+                            name={"Scenes"}
+                            placeholder={"All shot attributes"}
+                            options={shotAttributeDefsAsOptions}
+                            value={selectedShotAttributeDefs}
+                            onChange={setSelectedShotAttributeDefs}
+                            sorted={true}
+                            minWidth={"20rem"}
+                        />
+                    </div>
+                </SimpleCollapse>
             </div>
 
             {(exist.filters || exist.sorts) && <Separator/>}
