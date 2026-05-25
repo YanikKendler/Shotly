@@ -4,11 +4,13 @@ import "./collapse.scss"
 export default function Collapse({
     children,
     expanded,
-    recalculateHeightWith = []
+    recalculateHeightWith = [],
+    className
 }:{
     children: ReactNode
     expanded: boolean
     recalculateHeightWith?: any[]
+    className?: string
 }){
     const ref = useRef<HTMLDivElement>(null);
 
@@ -45,13 +47,37 @@ export default function Collapse({
     }, [])
 
     /**
-     * Remove overflow hidden on elements that are expanded per default
+     * Fallback: if `expanded` becomes true but no CSS transition runs
+     * AI
      */
     useEffect(() => {
-        if(!expanded || !ref.current) return
+        const el = ref.current
+        if (!el || !expanded) return
 
-        ref.current.style.overflow = "visible"
-    }, []);
+        let transitionStarted = false
+
+        const onTransitionRun = (e: TransitionEvent) => {
+            if (e.propertyName === "height") transitionStarted = true
+        }
+
+        el.addEventListener("transitionrun", onTransitionRun)
+
+        // Two rAFs ensure the browser has had a chance to start a transition.
+        // If none started by then, it won't — set overflow immediately.
+        const raf = requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                el.removeEventListener("transitionrun", onTransitionRun)
+                if (!transitionStarted && el.classList.contains("expanded")) {
+                    el.style.overflow = "visible"
+                }
+            })
+        })
+
+        return () => {
+            cancelAnimationFrame(raf)
+            el.removeEventListener("transitionrun", onTransitionRun)
+        }
+    }, [expanded])
 
     useLayoutEffect(() => {
         if(!ref.current) return
@@ -72,7 +98,7 @@ export default function Collapse({
     }, recalculateHeightWith)
 
     return (
-        <div className={`collapsableContent ${expanded && "expanded"}`} ref={ref}>
+        <div className={`collapsableContent ${expanded && "expanded"} ${className}`} ref={ref}>
             {children}
         </div>
     )
