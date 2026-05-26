@@ -40,7 +40,7 @@ import ExportFilter from "@/components/app/dialogs/shotlistOptionsDialog/exportT
 import Separator from "@/components/basic/separator/separator"
 import DotLoader from "@/components/basic/DotLoader"
 import {errorNotification, infoNotification, successNotification} from "@/service/NotificationService"
-import {td} from "@/service/Analytics"
+import Analytics from "@/service/Analytics"
 import ExportPreview from "@/components/app/dialogs/shotlistOptionsDialog/exportTab/exportPreview/exportPreview"
 import {DialogRef} from "@/components/basic/dialog/dialog"
 import {useConfirmDialog} from "@/components/app/dialogs/confirmDialog/confirmDialog"
@@ -688,7 +688,7 @@ export default function ExportTab(
             return
         }
 
-        td.signal("Shotlist.Options.Export.Exported", {
+        Analytics.signal("Shotlist.Options.Export.Exported", {
             fileType: selectedFileType,
             pdfExportOptions: pdfExportOptions,
             filterCount: customSceneFilters.length + customShotFilters.length,

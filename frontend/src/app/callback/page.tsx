@@ -5,7 +5,7 @@ import auth from "@/Auth"
 import { useRouter } from 'next/navigation'
 import LoadingPage from "@/components/app/feedback/loadingPage/loadingPage"
 import Auth from "@/Auth"
-import {td} from "@/service/Analytics"
+import Analytics from "@/service/Analytics"
 import Config from "@/Config"
 
 /**
@@ -18,7 +18,7 @@ export default function CallbackPage() {
     useEffect(() => {
         auth.handleAuthentication()
             .then((targetUrl) => {
-                td.signal("Callback.UserLogin")
+                Analytics.signal("Callback.UserLogin")
                 router.push(targetUrl)
             })
             .catch((error) => {

@@ -39,7 +39,7 @@ import {wuTime} from "@yanikkendler/web-utils"
 import Utils from "@/utility/Utils"
 import toast from "react-hot-toast"
 import {errorNotification, successNotification} from "@/service/NotificationService"
-import {td} from "@/service/Analytics"
+import Analytics from "@/service/Analytics"
 import Dialog, {DialogRef} from "@/components/basic/dialog/dialog"
 import BlockedUsersDialog from "@/components/app/dialogs/accountDialog/blockedUsersDialog/blockedUsersDialog"
 
@@ -363,7 +363,7 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
                         defaultValue={selectedAppearance}
                         aria-label="Appearance"
                         onValueChange={(value) => {
-                            td.signal("Account.Settings.AppearanceChanged", {appearance: value})
+                            Analytics.signal("Account.Settings.AppearanceChanged", {appearance: value})
                             setSelectedAppearance(value)
                         }}
                     >
@@ -394,7 +394,7 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
                                 className="SwitchRoot"
                                 checked={userSettings.saveExportSettingsInLocalstorage}
                                 onCheckedChange={(checked) => {
-                                    td.signal("Account.Settings.RememberExportSettings")
+                                    Analytics.signal("Account.Settings.RememberExportSettings")
                                     showSettingsSavedToast()
                                     setUserSettings(current => ({
                                         ...current,
@@ -412,7 +412,7 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
                                 className="SwitchRoot"
                                 checked={userSettings.displaySceneNumbersNextToShotNumbers}
                                 onCheckedChange={(checked) => {
-                                    td.signal("Account.Settings.SceneNumbers")
+                                    Analytics.signal("Account.Settings.SceneNumbers")
                                     showSettingsSavedToast()
                                     setUserSettings(current => ({
                                         ...current,
@@ -431,7 +431,7 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
                                 aria-label="Shot numbering after Z"
                                 value={userSettings.shotNumberingAfterZ}
                                 onValueChange={(value) => {
-                                    td.signal("Account.Settings.ShotNumbering")
+                                    Analytics.signal("Account.Settings.ShotNumbering")
                                     showSettingsSavedToast()
                                     setUserSettings(current => ({
                                         ...current,
@@ -458,7 +458,7 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
                                 step={0.01}
                                 markerCount={5}
                                 onChange={(value) => {
-                                    td.signal("Account.Settings.ShotlistScale", {scale: value})
+                                    Analytics.signal("Account.Settings.ShotlistScale", {scale: value})
                                     showSettingsSavedToast()
                                     setUserSettings(current => ({
                                         ...current,
@@ -478,7 +478,7 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
                     <Link
                         href={"https://docs.shotly.at"}
                         target={"_blank"}
-                        onClick={() => {td.signal("Account.Support.Docs")}}
+                        onClick={() => {Analytics.signal("Account.Support.Docs")}}
                     >
                         <BookText size={16} />Shotly Docs
                     </Link>
@@ -488,7 +488,7 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
                     <Link
                         href={"https://github.com/YanikKendler/shotly/issues/new/choose"}
                         target={"_blank"}
-                        onClick={() => {td.signal("Account.Support.NewIssue")}}
+                        onClick={() => {Analytics.signal("Account.Support.NewIssue")}}
                     >
                         <Bug size={16}/> New issue
                     </Link>
@@ -498,7 +498,7 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
                     <Link
                         href={"mailto:yanik@shotly.at"}
                         target={"_blank"}
-                        onClick={() => {td.signal("Account.Support.Mail")}}
+                        onClick={() => {Analytics.signal("Account.Support.Mail")}}
                     >
                         <Mail size={16}/>yanik@shotly.at
                     </Link>

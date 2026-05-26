@@ -1,7 +1,7 @@
 import {renderToStaticMarkup} from "react-dom/server"
 import {Check, ChevronLeft, ChevronRight} from "lucide-react"
 import {driver, DriveStep} from "driver.js"
-import {td} from "@/service/Analytics"
+import Analytics from "@/service/Analytics"
 
 export default function useIntro({
     steps,
@@ -36,7 +36,7 @@ export default function useIntro({
         steps: steps,
         onDestroyStarted: () => {
             if(!driverObj.isLastStep()){
-                td.signal(`${telemetryLocation}.IntroClosedEarly`, {
+                Analytics.signal(`${telemetryLocation}.IntroClosedEarly`, {
                     step: driverObj.getActiveStep()?.popover?.title ?? driverObj.getActiveIndex()
                 })
             }

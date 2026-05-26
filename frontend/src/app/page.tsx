@@ -22,7 +22,7 @@ import Skeleton from "react-loading-skeleton"
 import Config from "@/Config"
 import Separator from "@/components/basic/separator/separator"
 import SimplePopover from "@/components/basic/popover/simplePopover"
-import {td} from "@/service/Analytics"
+import Analytics from "@/service/Analytics"
 import ViewPortSwitcher from "@/components/utility/viewportSwitcher/viewPortSwitcher"
 
 export default function Landing() {
@@ -86,7 +86,7 @@ export default function Landing() {
                         href={"https://docs.shotly.at"}
                         target={"_blank"}
                         className={"noPadding"}
-                        onClick={() => td.signal("Landing.Nav.Documentation")}
+                        onClick={() => Analytics.signal("Landing.Nav.Documentation")}
                     >
                         <BookText size={22} />
                         <ViewPortSwitcher under={"Docs"} over={"Documentation"} breakpoint={400}/>
@@ -95,15 +95,15 @@ export default function Landing() {
                 <div className="center">
                     <Link
                         href={"#hero"}
-                        onClick={() => td.signal("Landing.Nav.Home")}
+                        onClick={() => Analytics.signal("Landing.Nav.Home")}
                     >Home</Link>
                     <Link
                         href={"#features"}
-                        onClick={() => td.signal("Landing.Nav.Features")}
+                        onClick={() => Analytics.signal("Landing.Nav.Features")}
                     >Features</Link>
                     <Link
                         href={"#pricing"}
-                        onClick={() => td.signal("Landing.Nav.Pricing")}
+                        onClick={() => Analytics.signal("Landing.Nav.Pricing")}
                     >Pricing</Link>
                 </div>
                 <div className="right">
@@ -112,7 +112,7 @@ export default function Landing() {
                             <Link
                                 className={"main"}
                                 href={"/dashboard"}
-                                onClick={() => td.signal("Landing.Nav.Dashboard")}
+                                onClick={() => Analytics.signal("Landing.Nav.Dashboard")}
                             >My Dashboard</Link>
                         }
                         unauthenticated={
@@ -120,14 +120,14 @@ export default function Landing() {
                                 <button
                                     className={"secondary"}
                                     onClick={() => {
-                                        td.signal("Landing.Nav.SignUp")
+                                        Analytics.signal("Landing.Nav.SignUp")
                                         Auth.register()
                                     }}
                                 >Sign up</button>
                                 <button
                                     className={"main"}
                                     onClick={() => {
-                                        td.signal("Landing.Nav.LogIn")
+                                        Analytics.signal("Landing.Nav.LogIn")
                                         Auth.login()
                                     }}
                                 >Log in</button>
@@ -151,13 +151,13 @@ export default function Landing() {
                                 authenticated={
                                     <Link
                                         href={"/dashboard"}
-                                        onClick={() => td.signal("Landing.Hero.Dashboard")}
+                                        onClick={() => Analytics.signal("Landing.Hero.Dashboard")}
                                     >My Dashboard</Link>
                                 }
                                 hasBeenAuthenticatedBefore={
                                     <button
                                         onClick={() => {
-                                            td.signal("Landing.Hero.Dashboard")
+                                            Analytics.signal("Landing.Hero.Dashboard")
                                             Auth.login()
                                         }}
                                     >My Dashboard</button>
@@ -165,7 +165,7 @@ export default function Landing() {
                                 unauthenticated={
                                     <>
                                         <button onClick={() => {
-                                            td.signal("Landing.Hero.GetStarted")
+                                            Analytics.signal("Landing.Hero.GetStarted")
                                             Auth.login()
                                         }}>Create your first shotlist</button>
                                         <small>free, no credit card required</small>
@@ -270,7 +270,7 @@ export default function Landing() {
                                 href="https://docs.shotly.at/attributes"
                                 className={"noPadding"}
                                 target={"_blank"}
-                                onClick={() => td.signal("Landing.LearnMore.Attributes")}
+                                onClick={() => Analytics.signal("Landing.LearnMore.Attributes")}
                             >
                                 Learn more
                             </Link>
@@ -285,7 +285,7 @@ export default function Landing() {
                                 href="https://docs.shotly.at/shotlist/export"
                                 className={"noPadding"}
                                 target={"_blank"}
-                                onClick={() => td.signal("Landing.Clicked.LearnMore.Export")}
+                                onClick={() => Analytics.signal("Landing.Clicked.LearnMore.Export")}
                             >
                                 Learn more
                             </Link>
@@ -320,7 +320,7 @@ export default function Landing() {
                                 href="https://docs.shotly.at/shotlist/collaboration"
                                 className={"noPadding"}
                                 target={"_blank"}
-                                onClick={() => td.signal("Landing.Clicked.LearnMore.Collaboration")}
+                                onClick={() => Analytics.signal("Landing.Clicked.LearnMore.Collaboration")}
                             >
                                 Learn more
                             </Link>
@@ -335,7 +335,7 @@ export default function Landing() {
                                 href="https://docs.shotly.at/templates"
                                 className={"noPadding"}
                                 target={"_blank"}
-                                onClick={() => td.signal("Landing.Clicked.LearnMore.Templates")}
+                                onClick={() => Analytics.signal("Landing.Clicked.LearnMore.Templates")}
                             >
                                 Learn more
                             </Link>
@@ -350,7 +350,7 @@ export default function Landing() {
                                 href="https://github.com/YanikKendler/Shotly/blob/main/README.md#about-the-license"
                                 className={"noPadding"}
                                 target={"_blank"}
-                                onClick={() => td.signal("Landing.Clicked.LearnMore.License")}
+                                onClick={() => Analytics.signal("Landing.Clicked.LearnMore.License")}
                             >
                                 Learn more
                             </Link>
@@ -393,7 +393,7 @@ export default function Landing() {
                             <button
                                 className="select secondary"
                                 onClick={() => {
-                                    td.signal("Landing.Price.Basic")
+                                    Analytics.signal("Landing.Price.Basic")
                                     Auth.login()
                                 }}
                             >Get started</button>
@@ -419,7 +419,7 @@ export default function Landing() {
                             <button
                                 className="select main"
                                 onClick={() => {
-                                    td.signal("Landing.Price.Pro")
+                                    Analytics.signal("Landing.Price.Pro")
                                     Auth.loginForPro()
                                 }}
                             >Go unlimited</button>

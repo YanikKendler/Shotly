@@ -36,7 +36,7 @@ import Skeleton from "react-loading-skeleton"
 import auth from "@/Auth"
 import SimplePopover from "@/components/basic/popover/simplePopover"
 import {errorNotification, successNotification} from "@/service/NotificationService"
-import {td} from "@/service/Analytics"
+import Analytics from "@/service/Analytics"
 import CreateShotAttributeTemplatePopup
     from "@/components/app/template/createShotAttributeTemplatePopup/createShotAttributeTemplatePopup"
 import CreateSceneAttributeTemplatePopup
@@ -463,7 +463,7 @@ export default function Template (){
                     }
                     className={"noClickFx default infoTrigger"}
                     contentClassName={"popoverContent templateInfo"}
-                    onOpen={() => td.signal("Template.InfoPopover") }
+                    onOpen={() => Analytics.signal("Template.InfoPopover") }
                 >
                     <span>More on templates</span>
                     <Info size={18}/>

@@ -1,7 +1,7 @@
 import auth0, {Auth0DecodedHash, Auth0ParseHashError, WebAuth} from 'auth0-js';
 import Config from "@/Config"
 import {errorNotification} from "@/service/NotificationService"
-import {td} from "@/service/Analytics"
+import Analytics from "@/service/Analytics"
 import {wuConstants, wuGeneral} from "@yanikkendler/web-utils/dist"
 
 export interface AuthUser {

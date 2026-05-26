@@ -1,7 +1,7 @@
 import Link from "next/link"
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
 import "./helpLink.scss"
-import {td} from "@/service/Analytics"
+import Analytics from "@/service/Analytics"
 import SimplePopover from "@/components/basic/popover/simplePopover"
 import {BookText, Bug, Lightbulb, Mail} from "lucide-react"
 
@@ -22,7 +22,7 @@ export default function HelpLink({
                     <Link
                         href={link}
                         target="_blank"
-                        onClick={() => {td.signal("HelpLink", {link: link})}}
+                        onClick={() => {Analytics.signal("HelpLink", {link: link})}}
                     >
                         <BookText size={17}/>
                         {name} Docs
@@ -30,7 +30,7 @@ export default function HelpLink({
                     <Link
                         href="https://github.com/YanikKendler/Shotly/issues/new?template=bug_report.md"
                         target="_blank"
-                        onClick={() => {td.signal("HelpLink", {link: link})}}
+                        onClick={() => {Analytics.signal("HelpLink", {link: link})}}
                     >
                         <Bug size={17}/>
                         Report a Bug
@@ -38,7 +38,7 @@ export default function HelpLink({
                     <Link
                         href="https://github.com/YanikKendler/Shotly/issues/new?template=feature_request.md"
                         target="_blank"
-                        onClick={() => {td.signal("HelpLink", {link: link})}}
+                        onClick={() => {Analytics.signal("HelpLink", {link: link})}}
                     >
                         <Lightbulb size={17}/>
                         Request a Feature
@@ -46,7 +46,7 @@ export default function HelpLink({
                     <Link
                         href="mailto:yanik@shotly.at"
                         target="_blank"
-                        onClick={() => {td.signal("HelpLink", {link: link})}}
+                        onClick={() => {Analytics.signal("HelpLink", {link: link})}}
                     >
                         <Mail size={17}/>
                         Send E-mail
