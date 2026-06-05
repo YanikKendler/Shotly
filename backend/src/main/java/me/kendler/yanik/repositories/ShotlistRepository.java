@@ -139,7 +139,7 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
             shotlist = new Shotlist(user, template, createDTO.name());
         }
 
-        LOGGER.infof("Created new shotlist: %s for user %s", shotlist.name, user.email);
+        LOGGER.infof("Created new shotlist: %s, %s", shotlist.name, shotlist.id);
 
         persist(shotlist);
 
@@ -186,6 +186,9 @@ public class ShotlistRepository implements PanacheRepositoryBase<Shotlist, UUID>
                 sceneRepository.delete(scene.id);
             }
             delete(shotlist);
+
+            LOGGER.infof("Deleted shotlist: %s, %s", shotlist.name, shotlist.id);
+
             return shotlist.toDTO();
         }
         return null;

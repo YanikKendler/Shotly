@@ -48,9 +48,9 @@ public class TemplateRepository implements PanacheRepositoryBase<Template, UUID>
 
     public TemplateDTO create(TemplateCreateDTO createDTO, JsonWebToken jwt) {
         User user = userRepository.findOrCreateByJWT(jwt);
-        Template template = new Template(userRepository.findOrCreateByJWT(jwt), createDTO.name());
+        Template template = new Template(user, createDTO.name());
         persist(template);
-        LOGGER.infof("Created new template: %s for user %s", template.name, user.email);
+        LOGGER.infof("Created new template: %s, %s", template.name, template.id);
         return template.toDTO();
     }
 
@@ -74,6 +74,8 @@ public class TemplateRepository implements PanacheRepositoryBase<Template, UUID>
         for (Shotlist shotlist : relevantShotlists) {
             shotlist.template = null;
         }
+
+        LOGGER.infof("Deleted template: %s, %s", template.name, template.id);
 
         delete(template);
         return template.toDTO();
