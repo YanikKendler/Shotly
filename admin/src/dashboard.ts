@@ -1,17 +1,18 @@
-import {css, html, LitElement} from 'lit'
-import {customElement, state} from 'lit/decorators.js'
-import authService from './AuthService'
-import {gqlClient, MutationResult, QueryResult} from './GqlClient'
+import {css, html, LitElement} from 'lit';
+import {customElement, state} from 'lit/decorators.js';
+import authService from './AuthService';
+import {gqlClient, MutationResult, QueryResult} from './GqlClient';
 import {
-  Maybe,
-  ShotlistDto,
-  TemplateDto,
-  StatCounts,
-  UserDto,
-  UserTier,
+    Maybe,
+    ShotlistDto,
+    TemplateDto,
+    StatCounts,
+    UserDto,
+    UserTier,
 } from './generatedTypes';
-import {wuTime} from '@yanikkendler/web-utils'
-import {Notyf} from 'notyf'
+import {wuTime} from '@yanikkendler/web-utils';
+import {Notyf} from 'notyf';
+import {cli} from 'lit-analyzer';
 
 export enum SortName {
     Name = 'name',
@@ -90,12 +91,12 @@ export class Dashboard extends LitElement {
             img {
                 height: 1.8rem;
             }
-            
+
             .right {
                 display: flex;
                 gap: 0.5rem;
                 margin-left: auto;
-                
+
                 @media screen and (max-width: 600px) {
                     font-size: .8rem;
                 }
@@ -107,6 +108,17 @@ export class Dashboard extends LitElement {
             align-items: flex-end;
             margin-top: 1rem;
             gap: 0.2rem;
+            width: fit-content;
+            max-width: 100%;
+            overflow-x: auto;
+            padding-right: 2rem;
+            
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+            
+            &::-webkit-scrollbar {
+              display: none; /*Chrome, Safari and Opera */
+            }
 
             p {
                 color: hsl(0, 0%, 70%);
@@ -129,8 +141,9 @@ export class Dashboard extends LitElement {
 
         .scrollArea {
             margin-top: 1rem;
-            width: 100%;
-            max-height: 50svh;
+            width: fit-content;
+            max-width: 100%;
+            max-height: 350px;
             overflow: auto;
             -ms-overflow-style: none; /* IE and Edge */
             scrollbar-width: none; /* Firefox */
@@ -146,7 +159,7 @@ export class Dashboard extends LitElement {
             font-style: italic;
             white-space: nowrap;
         }
-        
+
         table.users {
             th {
                 width: 8ch;
@@ -164,12 +177,12 @@ export class Dashboard extends LitElement {
         tr {
             width: 100%;
             --row-bg: hsl(0, 0%, 10%);
-            
+
             &.sticky th {
                 position: sticky;
                 top: 0;
                 z-index: 20 !important;
-                
+
                 &.name {
                     z-index: 30 !important;
                 }
@@ -204,6 +217,7 @@ export class Dashboard extends LitElement {
 
             td {
                 background-color: var(--row-bg);
+                position: relative;
 
                 &.edited {
                     outline: 2px solid hsl(18, 90%, 58%);
@@ -218,7 +232,7 @@ export class Dashboard extends LitElement {
                 &.name {
                     position: sticky;
                     left: 0;
-                    z-index: 1;
+                    z-index: 50;
                     font-weight: 500;
 
                     .cellValue {
@@ -232,9 +246,6 @@ export class Dashboard extends LitElement {
 
                 &.truncate {
                     .cellValue {
-                        max-width: 10ch;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
                         white-space: nowrap;
                     }
                 }
@@ -249,6 +260,10 @@ export class Dashboard extends LitElement {
                     &:hover {
                         --row-bg: hsl(0, 0%, 30%);
                     }
+
+                    .cellValue {
+                        max-width: 10ch;
+                    }
                 }
 
                 &.clickable {
@@ -259,6 +274,7 @@ export class Dashboard extends LitElement {
 
                 &.selectable {
                     cursor: pointer;
+
                     &:hover {
                         outline: 1.5px solid white;
                         color: white;
@@ -275,6 +291,21 @@ export class Dashboard extends LitElement {
                     max-width: 30ch;
                     white-space: wrap;
                     width: max-content;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    min-width: 100%;
+
+                    &.active {
+                        overflow: visible;
+                        position: absolute;
+                        max-width: 500px;
+                        background-color: var(--row-bg);
+                        outline: 1px solid white;
+                        min-width: 0;
+                        top: 0;
+                        left: 0;
+                        z-index: 10;
+                    }
                 }
 
                 p.centered {
@@ -317,40 +348,40 @@ export class Dashboard extends LitElement {
                 }
             }
         }
-    `
+    `;
 
     @state()
-    users: UserDto[] | null = null
+    users: UserDto[] | null = null;
 
     @state()
-    shotlists: ShotlistDto[] | null = null
+    shotlists: ShotlistDto[] | null = null;
 
     @state()
-    templates: TemplateDto[] | null = null
+    templates: TemplateDto[] | null = null;
 
     @state()
-    recentActiveUsers: StatCounts | null = null
+    recentActiveUsers: StatCounts | null = null;
 
     @state()
-    recentCreatedUsers: StatCounts | null = null
+    recentCreatedUsers: StatCounts | null = null;
 
     @state()
-    recentCreatedShotlists: StatCounts | null = null
+    recentCreatedShotlists: StatCounts | null = null;
 
     @state()
-    changes: UserDto[] = []
+    changes: UserDto[] = [];
 
     @state()
-    discard = false
+    discard = false;
 
     @state()
-    userFilter: UserDto | null = null
+    userFilter: UserDto | null = null;
 
     @state()
-    selectedUserSort: SortName = SortName.ActiveAt
+    selectedUserSort: SortName = SortName.ActiveAt;
 
     @state()
-    userSearchQuery: string = ""
+    userSearchQuery: string = '';
 
     sorts = new Map<SortName, (u1: UserDto, u2: UserDto) => number>([
         [SortName.Name, (u1, u2) => u1.name?.localeCompare(u2.name || '') || 0],
@@ -359,12 +390,12 @@ export class Dashboard extends LitElement {
             (u1, u2) => {
                 const time1 = u1.createdAt
                     ? new Date(u1.createdAt).getTime()
-                    : 0
+                    : 0;
                 const time2 = u2.createdAt
                     ? new Date(u2.createdAt).getTime()
-                    : 0
+                    : 0;
 
-                return time1 - time2
+                return time1 - time2;
             },
         ],
         [
@@ -372,12 +403,12 @@ export class Dashboard extends LitElement {
             (u1, u2) => {
                 const time1 = u1.createdAt
                     ? new Date(u1.createdAt).getTime()
-                    : Number.MAX_SAFE_INTEGER
+                    : Number.MAX_SAFE_INTEGER;
                 const time2 = u2.createdAt
                     ? new Date(u2.createdAt).getTime()
-                    : Number.MAX_SAFE_INTEGER
+                    : Number.MAX_SAFE_INTEGER;
 
-                return time2 - time1
+                return time2 - time1;
             },
         ],
         [
@@ -385,28 +416,37 @@ export class Dashboard extends LitElement {
             (u1, u2) => {
                 const time1 = u1.lastActiveAt
                     ? new Date(u1.lastActiveAt).getTime()
-                    : 0
+                    : 0;
                 const time2 = u2.lastActiveAt
                     ? new Date(u2.lastActiveAt).getTime()
-                    : 0
+                    : 0;
 
-                return time2 - time1
+                return time2 - time1;
             },
         ],
         [SortName.Tier, (u1, u2) => u1.tier?.localeCompare(u2.tier || '') || 0],
-    ])
+    ]);
 
     override connectedCallback() {
-        super.connectedCallback()
+        super.connectedCallback();
 
-        this.getData()
+        this.getData();
     }
 
     async getData() {
-        const client = await gqlClient.get()
+        const notyf = new Notyf({position: {x: 'center', y: 'bottom'}});
+
+        const client = await gqlClient.get();
+
+        console.log(client);
+
+        notyf.success({
+            message: 'Loading data...',
+            background: "gray"
+        });
 
         const result: QueryResult = await new Promise((resolve, reject) => {
-            let result: QueryResult
+            let result: QueryResult;
             client.subscribe(
                 {
                     query: `{ 
@@ -487,44 +527,43 @@ export class Dashboard extends LitElement {
                     next: (data) => (result = data as QueryResult),
                     error: reject,
                     complete: () => resolve(result),
-                }
-            )
-        })
+                },
+            );
+        });
 
-        console.log(result)
+        console.log(result);
 
-        this.users = (result.data.users as UserDto[]) || []
-        this.shotlists = (result.data.allShotlists as ShotlistDto[]) || []
-        this.templates = (result.data.allTemplates as TemplateDto[]) || []
-        this.recentActiveUsers = (result.data.recentActiveUserStats as StatCounts) || {}
-        this.recentCreatedUsers = (result.data.recentCreatedUserStats as StatCounts) || {}
-        this.recentCreatedShotlists = (result.data.recentCreatedShotlistStats as StatCounts) || {}
+        this.users = (result.data.users as UserDto[]) || [];
+        this.shotlists = (result.data.allShotlists as ShotlistDto[]) || [];
+        this.templates = (result.data.allTemplates as TemplateDto[]) || [];
+        this.recentActiveUsers = (result.data.recentActiveUserStats as StatCounts) || {};
+        this.recentCreatedUsers = (result.data.recentCreatedUserStats as StatCounts) || {};
+        this.recentCreatedShotlists = (result.data.recentCreatedShotlistStats as StatCounts) || {};
 
-        const notyf = new Notyf({position: {x: "center", y: "bottom"}})
         if (result.errors)
-            notyf.error(`Failed to load data - ${result.errors[0].extensions.code}`)
+            notyf.error(`Failed to load data - ${result.errors[0].extensions.code}`);
         else
-          notyf.success('Loaded data successfully')
+            notyf.success('Loaded data successfully');
     }
 
     storeChange(user: UserDto, target: HTMLElement) {
-        const existingIndex = this.changes.findIndex((u) => u.id === user.id)
+        const existingIndex = this.changes.findIndex((u) => u.id === user.id);
 
         if (existingIndex >= 0) {
-            const updated = [...this.changes]
-            updated[existingIndex] = {...updated[existingIndex], ...user}
-            this.changes = updated
+            const updated = [...this.changes];
+            updated[existingIndex] = {...updated[existingIndex], ...user};
+            this.changes = updated;
         } else {
-            this.changes = [...this.changes, user]
+            this.changes = [...this.changes, user];
         }
 
-        const cell = target.closest('td')
-        if (cell) cell.classList.add('edited')
+        const cell = target.closest('td');
+        if (cell) cell.classList.add('edited');
     }
 
     renderUser(user: UserDto) {
         if (!user) {
-            return html`<p>No user data</p>`
+            return html`<p>No user data</p>`;
         }
         return html`
             <tr>
@@ -535,7 +574,7 @@ export class Dashboard extends LitElement {
                 >
                     <p class="cellValue">${user.name}</p>
                 </td>
-                ${this.renderCell(user.email)}
+                ${this.renderCell(user.email + 'somethingsomethingsuperlong')}
                 ${this.renderCell(user.howDidYouHearReason)}
                 ${this.renderCell(wuTime.toDateTimeString(user.createdAt))}
                 ${this.renderCell(wuTime.toDateTimeString(user.lastActiveAt))}
@@ -555,8 +594,8 @@ export class Dashboard extends LitElement {
                                         e.target as HTMLInputElement
                                     ).value,
                                 },
-                                e.target as HTMLElement
-                            )
+                                e.target as HTMLElement,
+                            );
                         }}
                     />
                 </td>
@@ -574,8 +613,8 @@ export class Dashboard extends LitElement {
                                         (e.target as HTMLSelectElement).value ==
                                         'true',
                                 },
-                                e.target as HTMLElement
-                            )
+                                e.target as HTMLElement,
+                            );
                         }}
                     >
                         <option value="true" .selected=${user.active}>
@@ -587,12 +626,12 @@ export class Dashboard extends LitElement {
                     </select>
                 </td>
             </tr>
-        `
+        `;
     }
 
     renderShotlist(shotlist: ShotlistDto) {
         if (!shotlist) {
-            return html`<p>No shotlist data</p>`
+            return html`<p>No shotlist data</p>`;
         }
         return html`
             <tr>
@@ -614,12 +653,12 @@ export class Dashboard extends LitElement {
                 ${this.renderCell(shotlist.collaboratorCount)}
                 ${this.renderCell(shotlist.template?.name)}
             </tr>
-        `
+        `;
     }
 
     renderTemplate(template: TemplateDto) {
         if (!template) {
-            return html`<p>No template data</p>`
+            return html`<p>No template data</p>`;
         }
         return html`
             <tr>
@@ -637,16 +676,16 @@ export class Dashboard extends LitElement {
                 ${this.renderCell(template.sceneAttributeCount)}
                 ${this.renderCell(template.shotAttributeCount)}
             </tr>
-        `
+        `;
     }
 
     renderTierCell(user: UserDto) {
-        if (!user.tier) return this.renderEmptyCell()
+        if (!user.tier) return this.renderEmptyCell();
 
-        let tier = user.tier
+        let tier = user.tier;
 
         if (this.changes.some((u) => u.id === user.id && u.tier))
-            tier = this.changes.find((u) => u.id === user.id)!.tier!
+            tier = this.changes.find((u) => u.id === user.id)!.tier!;
 
         let content = html`
             <select
@@ -658,10 +697,10 @@ export class Dashboard extends LitElement {
                             tier: UserTier[
                                 (e.target as HTMLSelectElement)
                                     .value as keyof typeof UserTier
-                            ],
+                                ],
                         },
-                        e.target as HTMLElement
-                    )
+                        e.target as HTMLElement,
+                    );
                 }}
             >
                 <option value="Basic" .selected=${tier == UserTier.Basic}>
@@ -678,7 +717,7 @@ export class Dashboard extends LitElement {
                 </option>
                 <option value="Pro">Pro</option>
             </select>
-        `
+        `;
 
         if (tier === UserTier.Pro)
             content = html`
@@ -692,32 +731,42 @@ export class Dashboard extends LitElement {
                                     id: user.id,
                                     tier: UserTier.Basic,
                                 },
-                                e.target as HTMLElement
-                            )
+                                e.target as HTMLElement,
+                            );
                         }
                     }}
                 >
                     revoke
                 </button>
-            `
+            `;
 
-        return html` <td class="noPadding clickable">${content}</td> `
+        return html`
+            <td class="noPadding clickable">${content}</td> `;
+    }
+
+    setActive(elem: HTMLElement | null, event: MouseEvent) {
+        event.stopPropagation()
+
+        this.shadowRoot?.querySelectorAll('.active').forEach(e => e.classList.remove('active'));
+
+        elem?.classList.add('active');
     }
 
     renderCell(
         value?: Maybe<string> | Maybe<number> | Maybe<boolean>,
-        className?: string
+        className?: string,
     ) {
         if (value === null || value === '' || value === undefined)
-            return this.renderEmptyCell()
+            return this.renderEmptyCell();
 
-        return html`<td class="${className}">
-            <p class="cellValue">${value}</p>
-        </td>`
+        return html`
+            <td class="${className}" @click=${($event: MouseEvent) => this.setActive($event.target as HTMLElement, $event)}>
+                <p class="cellValue">${value}</p>
+            </td>`;
     }
 
     renderCopyCell(value?: Maybe<string> | Maybe<number> | Maybe<boolean>) {
-        if (!value) return this.renderEmptyCell()
+        if (!value) return this.renderEmptyCell();
 
         return html`
             <td
@@ -727,27 +776,28 @@ export class Dashboard extends LitElement {
             >
                 <p class="cellValue">${value}</p>
             </td>
-        `
+        `;
     }
 
     renderEmptyCell() {
-        return html`<td class="empty">[empty]</td>`
+        return html`
+            <td class="empty">[empty]</td>`;
     }
 
     copyValue(value: string) {
-        const notyf = new Notyf()
+        const notyf = new Notyf();
 
-        notyf.success(`Copied! "${value}"`)
+        notyf.success(`Copied! "${value}"`);
 
-        navigator.clipboard.writeText(value)
+        navigator.clipboard.writeText(value);
     }
 
     async saveChanges() {
-        const client = await gqlClient.get()
-        const notyf = new Notyf()
+        const client = await gqlClient.get();
+        const notyf = new Notyf();
 
         this.changes.forEach((user) => {
-            let result: MutationResult
+            let result: MutationResult;
             client.subscribe(
                 {
                     query: `
@@ -775,348 +825,350 @@ export class Dashboard extends LitElement {
                 {
                     next: (data) => (result = data as MutationResult),
                     error: (e) => {
-                        console.error(e)
+                        console.error(e);
                         notyf.error(
-                            `Failed to save changes for user ${user.name}"`
-                        )
+                            `Failed to save changes for user ${user.name}"`,
+                        );
                     },
                     complete: () => {
-                        const newUsers = [...(this.users || [])]
+                        const newUsers = [...(this.users || [])];
                         newUsers.map((u) => {
                             if (u.id == user.id) {
-                                u.active = result.data.adminUpdateUser?.active
+                                u.active = result.data.adminUpdateUser?.active;
                                 u.revokeProAfter =
-                                    result.data.adminUpdateUser?.revokeProAfter
-                                u.tier = result.data.adminUpdateUser?.tier
+                                    result.data.adminUpdateUser?.revokeProAfter;
+                                u.tier = result.data.adminUpdateUser?.tier;
                             }
-                        })
+                        });
 
-                        this.users = newUsers
+                        this.users = newUsers;
 
-                        notyf.success(`Changes saved for user ${user.name}"`)
+                        notyf.success(`Changes saved for user ${user.name}"`);
                     },
-                }
-            )
-        })
+                },
+            );
+        });
 
-        this.changes = []
+        this.changes = [];
 
         this.shadowRoot?.querySelectorAll('.edited').forEach((el) => {
-            el.classList.remove('edited')
-        })
+            el.classList.remove('edited');
+        });
     }
 
     async discardChanges() {
-        if(this.changes.length <= 0) return
+        if (this.changes.length <= 0) return;
 
-        const notyf = new Notyf()
+        const notyf = new Notyf();
 
-        this.discard = true
-        await this.updateComplete
+        this.discard = true;
+        await this.updateComplete;
 
-        this.changes = []
+        this.changes = [];
 
-        this.discard = false
-        await this.updateComplete
+        this.discard = false;
+        await this.updateComplete;
 
-        notyf.success(`Changes discarded`)
+        notyf.success(`Changes discarded`);
     }
 
     override render() {
         if (this.discard === true) {
-            this.discard = false
-            this.requestUpdate()
-            return html``
+            this.discard = false;
+            this.requestUpdate();
+            return html``;
         }
 
         const filteredShotlists = (this.shotlists || []).filter((s) =>
-            this.userFilter?.id ? s.owner?.id == this.userFilter.id : true
-        )
+            this.userFilter?.id ? s.owner?.id == this.userFilter.id : true,
+        );
 
         const filteredTemplates = (this.templates || []).filter((t) =>
-            this.userFilter?.id ? t.owner?.id == this.userFilter.id : true
-        )
+            this.userFilter?.id ? t.owner?.id == this.userFilter.id : true,
+        );
 
         return html`
-            <nav>
-                <img src="/Shotly-Admin.png" alt="A"/>
-                <h1>Admin</h1>
-                <div class="right">
-                    <button
-                        @click=${this.discardChanges}
-                        .disabled=${this.changes.length <= 0}
-                    >
-                        Discard Changes
-                    </button>
-                    <button
-                        @click=${this.saveChanges}
-                        .disabled=${this.changes.length <= 0}
-                    >
-                        Save Changes
-                    </button>
-                    <button @click=${() => this.getData()}>
-                        Refresh
-                    </button>
-                    <button @click=${() => authService.logout()}>
-                        Log Out
-                    </button>
-                </div>
-            </nav>
+            <div class="dashboardWrapper" @click=${(e: MouseEvent) => this.setActive(null, e)}>
+                <nav>
+                    <img src="/Shotly-Admin.png" alt="A" />
+                    <h1>Admin</h1>
+                    <div class="right">
+                        <button
+                            @click=${this.discardChanges}
+                            .disabled=${this.changes.length <= 0}
+                        >
+                            Discard Changes
+                        </button>
+                        <button
+                            @click=${this.saveChanges}
+                            .disabled=${this.changes.length <= 0}
+                        >
+                            Save Changes
+                        </button>
+                        <button @click=${() => this.getData()}>
+                            Refresh
+                        </button>
+                        <button @click=${() => authService.logout()}>
+                            Log Out
+                        </button>
+                    </div>
+                </nav>
 
-            <h2 style="margin-top: 1rem">Stats</h2>
-            <table class="users">
-                <tr>
-                    <th></th>
-                    <th>1h</th>
-                    <th>4h</th>
-                    <th>8h</th>
-                    <th>1d</th>
-                    <th>7d</th>
-                    <th>30d</th>
-                </tr>
-                ${!this.recentActiveUsers
-                    ? html`<p class="empty">Loading...</p>`
-                    : html`
-                          <tr>
-                              <th>Ac U</th>
-                              <td>
-                                  <p class="centered">
-                                      ${this.recentActiveUsers.lastHour}
-                                  </p>
-                              </td>
-                              <td>
-                                  <p class="centered">
-                                      ${this.recentActiveUsers.fourHours}
-                                  </p>
-                              </td>
-                              <td>
-                                  <p class="centered">
-                                      ${this.recentActiveUsers.eightHours}
-                                  </p>
-                              </td>
-                              <td>
-                                  <p class="centered">
-                                      ${this.recentActiveUsers.twentyFourHours}
-                                  </p>
-                              </td>
-                              <td>
-                                  <p class="centered">
-                                      ${this.recentActiveUsers.sevenDays}
-                                  </p>
-                              </td>
-                              <td>
-                                  <p class="centered">
-                                      ${this.recentActiveUsers.thirtyDays}
-                                  </p>
-                              </td>
-                          </tr>
-                      `}
-                ${!this.recentCreatedUsers
-                    ? html`<p class="empty">Loading...</p>`
-                    : html`
-                          <tr>
-                              <th>Cr U</th>
-                              <td>
-                                  <p class="centered">
-                                      ${this.recentCreatedUsers.lastHour}
-                                  </p>
-                              </td>
-                              <td>
-                                  <p class="centered">
-                                      ${this.recentCreatedUsers.fourHours}
-                                  </p>
-                              </td>
-                              <td>
-                                  <p class="centered">
-                                      ${this.recentCreatedUsers.eightHours}
-                                  </p>
-                              </td>
-                              <td>
-                                  <p class="centered">
-                                      ${this.recentCreatedUsers.twentyFourHours}
-                                  </p>
-                              </td>
-                              <td>
-                                  <p class="centered">
-                                      ${this.recentCreatedUsers.sevenDays}
-                                  </p>
-                              </td>
-                              <td>
-                                  <p class="centered">
-                                      ${this.recentCreatedUsers.thirtyDays}
-                                  </p>
-                              </td>
-                          </tr>
-                      `}
-                ${!this.recentCreatedShotlists
-                    ? html`<p class="empty">Loading...</p>`
-                    : html`
-                          <tr>
-                              <th>Cr S</th>
-                              <td>
-                                  <p class="centered">
-                                      ${this.recentCreatedShotlists.lastHour}
-                                  </p>
-                              </td>
-                              <td>
-                                  <p class="centered">
-                                      ${this.recentCreatedShotlists.fourHours}
-                                  </p>
-                              </td>
-                              <td>
-                                  <p class="centered">
-                                      ${this.recentCreatedShotlists.eightHours}
-                                  </p>
-                              </td>
-                              <td>
-                                  <p class="centered">
-                                      ${this.recentCreatedShotlists.twentyFourHours}
-                                  </p>
-                              </td>
-                              <td>
-                                  <p class="centered">
-                                      ${this.recentCreatedShotlists.sevenDays}
-                                  </p>
-                              </td>
-                              <td>
-                                  <p class="centered">
-                                      ${this.recentCreatedShotlists.thirtyDays}
-                                  </p>
-                              </td>
-                          </tr>
-                      `}
-            </table>
-
-            <div class="heading">
-                <h2>Users</h2>
-                <p>(${this.users?.length || 0})</p>
-                <select
-                  @change=${(e: Event) => {
-                    this.discardChanges()
-                    this.selectedUserSort =
-                      SortName[
-                        (e.target as HTMLSelectElement)
-                          .value as keyof typeof SortName
-                        ]
-                  }}
-                >
-                  <option value="Name">Name</option>
-                  <option value="CreatedAt">Oldest</option>
-                  <option value="CreatedAtReverse">Newest</option>
-                  <option value="ActiveAt" selected>Last Active</option>
-                  <option value="Tier">Tier</option>
-                </select>
-                <input type="text" placeholder="search" @input=${(e: Event) => {
-                  this.discardChanges()
-                  this.userSearchQuery = (e.target as HTMLInputElement).value
-                }}>
-            </div>
-            <div class="scrollArea">
-                <table>
-                    <tr class="sticky">
-                        <th>Id</th>
-                        <th class="name">Name</th>
-                        <th>Email</th>
-                        <th>How did you hear</th>
-                        <th>Created</th>
-                        <th>Active</th>
-                        <th>Shotlists</th>
-                        <th>Template</th>
-                        <th>Tier</th>
-                        <th>Revoke pro after</th>
-                        <th>Has cancelled</th>
-                        <th>Stripe Id</th>
-                        <th>Auth Id</th>
-                        <th>Active</th>
+                <h2 style="margin-top: 1rem">Stats</h2>
+                <table class="users">
+                    <tr>
+                        <th></th>
+                        <th>1h</th>
+                        <th>4h</th>
+                        <th>8h</th>
+                        <th>1d</th>
+                        <th>7d</th>
+                        <th>30d</th>
                     </tr>
-                    ${!this.users
+                    ${!this.recentActiveUsers
                         ? html`<p class="empty">Loading...</p>`
-                        : this.users
-                            .sort(this.sorts.get(this.selectedUserSort))
-                            .filter(u => 
-                              u.name?.toUpperCase().includes(this.userSearchQuery.toUpperCase()) || 
-                              this.userSearchQuery.toUpperCase().includes(u.name?.toUpperCase() || "")
-                            )
-                            .map((u) => {
-                                return this.renderUser(u)
-                            })}
+                        : html`
+                            <tr>
+                                <th>Ac U</th>
+                                <td>
+                                    <p class="centered">
+                                        ${this.recentActiveUsers.lastHour}
+                                    </p>
+                                </td>
+                                <td>
+                                    <p class="centered">
+                                        ${this.recentActiveUsers.fourHours}
+                                    </p>
+                                </td>
+                                <td>
+                                    <p class="centered">
+                                        ${this.recentActiveUsers.eightHours}
+                                    </p>
+                                </td>
+                                <td>
+                                    <p class="centered">
+                                        ${this.recentActiveUsers.twentyFourHours}
+                                    </p>
+                                </td>
+                                <td>
+                                    <p class="centered">
+                                        ${this.recentActiveUsers.sevenDays}
+                                    </p>
+                                </td>
+                                <td>
+                                    <p class="centered">
+                                        ${this.recentActiveUsers.thirtyDays}
+                                    </p>
+                                </td>
+                            </tr>
+                        `}
+                    ${!this.recentCreatedUsers
+                        ? html`<p class="empty">Loading...</p>`
+                        : html`
+                            <tr>
+                                <th>Cr U</th>
+                                <td>
+                                    <p class="centered">
+                                        ${this.recentCreatedUsers.lastHour}
+                                    </p>
+                                </td>
+                                <td>
+                                    <p class="centered">
+                                        ${this.recentCreatedUsers.fourHours}
+                                    </p>
+                                </td>
+                                <td>
+                                    <p class="centered">
+                                        ${this.recentCreatedUsers.eightHours}
+                                    </p>
+                                </td>
+                                <td>
+                                    <p class="centered">
+                                        ${this.recentCreatedUsers.twentyFourHours}
+                                    </p>
+                                </td>
+                                <td>
+                                    <p class="centered">
+                                        ${this.recentCreatedUsers.sevenDays}
+                                    </p>
+                                </td>
+                                <td>
+                                    <p class="centered">
+                                        ${this.recentCreatedUsers.thirtyDays}
+                                    </p>
+                                </td>
+                            </tr>
+                        `}
+                    ${!this.recentCreatedShotlists
+                        ? html`<p class="empty">Loading...</p>`
+                        : html`
+                            <tr>
+                                <th>Cr S</th>
+                                <td>
+                                    <p class="centered">
+                                        ${this.recentCreatedShotlists.lastHour}
+                                    </p>
+                                </td>
+                                <td>
+                                    <p class="centered">
+                                        ${this.recentCreatedShotlists.fourHours}
+                                    </p>
+                                </td>
+                                <td>
+                                    <p class="centered">
+                                        ${this.recentCreatedShotlists.eightHours}
+                                    </p>
+                                </td>
+                                <td>
+                                    <p class="centered">
+                                        ${this.recentCreatedShotlists.twentyFourHours}
+                                    </p>
+                                </td>
+                                <td>
+                                    <p class="centered">
+                                        ${this.recentCreatedShotlists.sevenDays}
+                                    </p>
+                                </td>
+                                <td>
+                                    <p class="centered">
+                                        ${this.recentCreatedShotlists.thirtyDays}
+                                    </p>
+                                </td>
+                            </tr>
+                        `}
                 </table>
-            </div>
 
-            <div class="heading">
-                <h2>Shotlists</h2>
-                <p>(${filteredShotlists.length})</p>
-                ${this.userFilter
-                    ? html`
-                          <p>(${this.userFilter.name})</p>
-                          <button @click=${() => (this.userFilter = null)}>
-                              Clear
-                          </button>
-                      `
-                    : html`<p>(all)</p>`}
+                <div class="heading">
+                    <h2>Users</h2>
+                    <p>(${this.users?.length || 0})</p>
+                    <select
+                        @change=${(e: Event) => {
+                            this.discardChanges();
+                            this.selectedUserSort =
+                                SortName[
+                                    (e.target as HTMLSelectElement)
+                                        .value as keyof typeof SortName
+                                    ];
+                        }}
+                    >
+                        <option value="Name">Name</option>
+                        <option value="CreatedAt">Oldest</option>
+                        <option value="CreatedAtReverse">Newest</option>
+                        <option value="ActiveAt" selected>Last Active</option>
+                        <option value="Tier">Tier</option>
+                    </select>
+                    <input type="text" placeholder="search" @input=${(e: Event) => {
+                        this.discardChanges();
+                        this.userSearchQuery = (e.target as HTMLInputElement).value;
+                    }}>
+                </div>
+                <div class="scrollArea">
+                    <table>
+                        <tr class="sticky">
+                            <th>Id</th>
+                            <th class="name">Name</th>
+                            <th>Email</th>
+                            <th>How did you hear</th>
+                            <th>Created</th>
+                            <th>Active</th>
+                            <th>Shotlists</th>
+                            <th>Template</th>
+                            <th>Tier</th>
+                            <th>Revoke pro after</th>
+                            <th>Has cancelled</th>
+                            <th>Stripe Id</th>
+                            <th>Auth Id</th>
+                            <th>Active</th>
+                        </tr>
+                        ${!this.users
+                            ? html`<p class="empty">Loading...</p>`
+                            : this.users
+                                .sort(this.sorts.get(this.selectedUserSort))
+                                .filter(u =>
+                                    u.name?.toUpperCase().includes(this.userSearchQuery.toUpperCase()) ||
+                                    this.userSearchQuery.toUpperCase().includes(u.name?.toUpperCase() || ''),
+                                )
+                                .map((u) => {
+                                    return this.renderUser(u);
+                                })}
+                    </table>
+                </div>
+
+                <div class="heading">
+                    <h2>Shotlists</h2>
+                    <p>(${filteredShotlists.length})</p>
+                    ${this.userFilter
+                        ? html`
+                            <p>(${this.userFilter.name})</p>
+                            <button @click=${() => (this.userFilter = null)}>
+                                Clear
+                            </button>
+                        `
+                        : html`<p>(all)</p>`}
+                </div>
+                <div class="scrollArea">
+                    <table>
+                        <tr class="sticky">
+                            <th>Id</th>
+                            <th class="name">Name</th>
+                            <th>Owner</th>
+                            <th>Created</th>
+                            <th>Edited</th>
+                            <th>Scenes</th>
+                            <th>Shots</th>
+                            <th>Scene Attr Defs</th>
+                            <th>Shot Attr Defs</th>
+                            <th>Collaborators</th>
+                            <th>Template</th>
+                        </tr>
+                        ${!this.shotlists
+                            ? html`<p class="empty">Loading..</p>`
+                            : filteredShotlists.length <= 0
+                                ? html`<p class="empty">No results</p>`
+                                : filteredShotlists.map((s) => {
+                                    return this.renderShotlist(s);
+                                })}
+                    </table>
+                </div>
+                <div class="heading">
+                    <h2>Templates</h2>
+                    <p>(${filteredTemplates.length})</p>
+                    ${this.userFilter
+                        ? html`
+                            <p>(${this.userFilter.name})</p>
+                            <button @click=${() => (this.userFilter = null)}>
+                                Clear
+                            </button>
+                        `
+                        : html`<p>(all)</p>`}
+                </div>
+                <div class="scrollArea">
+                    <table>
+                        <tr class="sticky">
+                            <th>Id</th>
+                            <th class="name">Name</th>
+                            <th>Owner</th>
+                            <th>Created</th>
+                            <th>Edited</th>
+                            <th>Scene Attributes</th>
+                            <th>Shot Attributes</th>
+                        </tr>
+                        ${!this.templates
+                            ? html`<p class="empty">Loading..</p>`
+                            : filteredTemplates.length <= 0
+                                ? html`<p class="empty">No results</p>`
+                                : filteredTemplates.map((t) => {
+                                    return this.renderTemplate(t);
+                                })}
+                    </table>
+                </div>
             </div>
-            <div class="scrollArea">
-                <table>
-                    <tr class="sticky">
-                        <th>Id</th>
-                        <th class="name">Name</th>
-                        <th>Owner</th>
-                        <th>Created</th>
-                        <th>Edited</th>
-                        <th>Scenes</th>
-                        <th>Shots</th>
-                        <th>Scene Attr Defs</th>
-                        <th>Shot Attr Defs</th>
-                        <th>Collaborators</th>
-                        <th>Template</th>
-                    </tr>
-                    ${!this.shotlists
-                        ? html`<p class="empty">Loading..</p>`
-                        : filteredShotlists.length <= 0
-                        ? html`<p class="empty">No results</p>`
-                        : filteredShotlists.map((s) => {
-                              return this.renderShotlist(s)
-                          })}
-                </table>
-            </div>
-            <div class="heading">
-                <h2>Templates</h2>
-                <p>(${filteredTemplates.length})</p>
-                ${this.userFilter
-                    ? html`
-                          <p>(${this.userFilter.name})</p>
-                          <button @click=${() => (this.userFilter = null)}>
-                              Clear
-                          </button>
-                      `
-                    : html`<p>(all)</p>`}
-            </div>
-            <div class="scrollArea">
-                <table>
-                    <tr class="sticky">
-                        <th>Id</th>
-                        <th class="name">Name</th>
-                        <th>Owner</th>
-                        <th>Created</th>
-                        <th>Edited</th>
-                        <th>Scene Attributes</th>
-                        <th>Shot Attributes</th>
-                    </tr>
-                    ${!this.templates
-                        ? html`<p class="empty">Loading..</p>`
-                        : filteredTemplates.length <= 0
-                        ? html`<p class="empty">No results</p>`
-                        : filteredTemplates.map((t) => {
-                              return this.renderTemplate(t)
-                          })}
-                </table>
-            </div>
-        `
+        `;
     }
 }
 
 declare global {
-  interface HTMLElementTagNameMap {
-    'app-dashboard': Dashboard;
-  }
+    interface HTMLElementTagNameMap {
+        'app-dashboard': Dashboard;
+    }
 }
