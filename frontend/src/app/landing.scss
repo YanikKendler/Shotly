@@ -22,6 +22,7 @@ main.landing{
 
   &.scrolled section.image button.scroll{
     opacity: 0;
+    pointer-events: none;
   }
 
   nav{
