@@ -218,7 +218,6 @@ main.landing{
         display: flex;
         align-items: end;
         padding-left: .3rem;
-        gap: .5rem;
 
         /*.arrow{
           position: absolute;
@@ -230,12 +229,14 @@ main.landing{
         }*/
 
         .arrow{
-          translate: 0 -.8rem;
+          translate: 0 -.3rem;
+          color: var(--text-50);
+          scale: 0.8;
         }
       }
     }
 
-    img.doodle{
+    svg.doodle{
       position: absolute;
       animation: wiggle 5s infinite;
       z-index: -1;
@@ -244,7 +245,7 @@ main.landing{
       opacity: 85%;
       transition: transform 300ms ease-out;
 
-      color: red;
+      color: var(--text-50);
 
       --shift: 0px;
 

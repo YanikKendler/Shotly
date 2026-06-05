@@ -4,6 +4,15 @@ import Auth from "@/Auth"
 import "./landing.scss"
 import Link from "next/link"
 import Wordmark from "@/components/icons/wordmark"
+import ClapboardDoodle from "@/components/icons/doodles/ClapboardDoodle"
+import BrushDoodle from "@/components/icons/doodles/BrushDoodle"
+import ShotlistDoodle from "@/components/icons/doodles/ShotlistDoodle"
+import CloseUpDoodle from "@/components/icons/doodles/CloseUpDoodle"
+import ClipboardDoodle from "@/components/icons/doodles/ClipboardDoodle"
+import MediumShotDoodle from "@/components/icons/doodles/MediumShotDoodle"
+import ThoughtsDoodle from "@/components/icons/doodles/ThoughtsDoodle"
+import CameraDoodle from "@/components/icons/doodles/CameraDoodle"
+import ArrowSmallDoodle from "@/components/icons/doodles/ArrowSmallDoodle"
 import React, {useEffect, useRef} from "react"
 import {
     CalendarCheck,
@@ -56,8 +65,8 @@ export default function Landing() {
             y: window.innerHeight * movementStrength
         }
 
-        document.querySelectorAll('.landing .hero img.doodle').forEach((doodle) => {
-            const doodleImage = doodle as HTMLImageElement
+        document.querySelectorAll('.landing .hero svg.doodle').forEach((doodle) => {
+            const doodleSvg = doodle as SVGSVGElement
 
             const rand = () => Math.random()*0.5+0.5
 
@@ -66,7 +75,7 @@ export default function Landing() {
                 y: distanceToCenterRatio.y * maxMovement.y * rand()
             }
 
-            doodleImage.style.transform = `translate(${offset.x}px, ${offset.y}px)`
+            doodleSvg.style.transform = `translate(${offset.x}px, ${offset.y}px)`
         })
     }
 
@@ -241,24 +250,17 @@ export default function Landing() {
                                 alt={"<--"}
                                 fetchPriority={"high"}
                             />*/}
-                            <Image
-                                className={"arrow"}
-                                src={"/hero-doodles/arrow-small.svg"}
-                                width={62}
-                                height={36}
-                                alt={"<--"}
-                                fetchPriority={"high"}
-                            />
+                            <ArrowSmallDoodle className={"arrow"}/>
                         </div>
                     </div>
-                    <Image className={"doodle "} id={"clapboard"} src={"/hero-doodles/doodle-0.svg"} alt={"doodle"} width={128} height={118} fetchPriority={"low"}/>
-                    <Image className={"doodle first"} id={"brush"} src={"/hero-doodles/doodle-1.svg"} alt={"doodle"} width={97} height={85} fetchPriority={"low"}/>
-                    <Image className={"doodle "} id={"shotlist"} src={"/hero-doodles/doodle-2.svg"} alt={"doodle"} width={179} height={111} fetchPriority={"low"}/>
-                    <Image className={"doodle third"} id={"close-up"} src={"/hero-doodles/doodle-3.svg"} alt={"doodle"} width={118} height={52} fetchPriority={"low"}/>
-                    <Image className={"doodle second"} id={"clipboard"} src={"/hero-doodles/doodle-4.svg"} alt={"doodle"} width={85} height={113} fetchPriority={"low"}/>
-                    <Image className={"doodle"} id={"medium-shot"} src={"/hero-doodles/doodle-5.svg"} alt={"doodle"} width={126} height={37} fetchPriority={"low"}/>
-                    <Image className={"doodle second"} id={"thoughts"} src={"/hero-doodles/doodle-6.svg"} alt={"doodle"} width={59} height={52} fetchPriority={"low"}/>
-                    <Image className={"doodle first"} id={"camera"} src={"/hero-doodles/doodle-7.svg"} alt={"doodle"} width={120} height={94} fetchPriority={"low"}/></div>
+                    <ClapboardDoodle className={"doodle"} id={"clapboard"}/>
+                    <BrushDoodle className={"doodle first"} id={"brush"}/>
+                    <ShotlistDoodle className={"doodle"} id={"shotlist"}/>
+                    <CloseUpDoodle className={"doodle third"} id={"close-up"}/>
+                    <ClipboardDoodle className={"doodle second"} id={"clipboard"}/>
+                    <MediumShotDoodle className={"doodle"} id={"medium-shot"}/>
+                    <ThoughtsDoodle className={"doodle second"} id={"thoughts"}/>
+                    <CameraDoodle className={"doodle first"} id={"camera"}/></div>
             </section>
             <div className="coverHero">
                 <section className="image">
@@ -283,7 +285,6 @@ export default function Landing() {
                                             alt={"Image of a shotlist with its scenes listet in the left sidebar and multiple shots listed on the right"}
                                             width={2095}
                                             height={1396}
-                                            ref={imageRef}
                                         />
                                     }
                                     under={
@@ -292,7 +293,6 @@ export default function Landing() {
                                             alt={"Image of a shotlist with multiple shots listed and floating buttons to open the shotlist options"}
                                             width={580}
                                             height={1069}
-                                            ref={imageRef}
                                         />
                                     }
                                 />
