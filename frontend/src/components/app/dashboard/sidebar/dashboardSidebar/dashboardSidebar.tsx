@@ -7,7 +7,7 @@ import {ApolloQueryResult} from "@apollo/client"
 import { Query, ShotlistDto, TemplateDto} from "../../../../../../lib/graphql/generated"
 import Utils from "@/utility/Utils"
 import Separator from "@/components/basic/separator/separator"
-import Iconmark from "@/components/logo/iconmark"
+import Iconmark from "@/components/icons/iconmark"
 import {usePathname} from "next/navigation"
 import {Dispatch, forwardRef, SetStateAction, useEffect, useImperativeHandle, useRef, useState} from "react"
 import CollaborationRequestsPopup, {

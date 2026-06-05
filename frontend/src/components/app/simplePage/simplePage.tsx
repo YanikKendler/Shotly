@@ -1,9 +1,9 @@
 import {ReactNode} from "react"
 import Link from "next/link"
-import Wordmark from "@/components/logo/wordmark"
+import Wordmark from "@/components/icons/wordmark"
 import "./simplePage.scss"
 import {House} from "lucide-react"
-import Iconmark from "@/components/logo/iconmark"
+import Iconmark from "@/components/icons/iconmark"
 
 export default function SimplePage({
     children,

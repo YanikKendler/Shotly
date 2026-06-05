@@ -1,4 +1,4 @@
-import Iconmark from "@/components/logo/iconmark"
+import Iconmark from "@/components/icons/iconmark"
 import {FileSliders, House, Plus, Settings2, User} from "lucide-react"
 import Link from "next/link"
 import {Popover, Tooltip } from "radix-ui"

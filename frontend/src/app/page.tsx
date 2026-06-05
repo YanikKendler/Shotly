@@ -3,10 +3,10 @@
 import Auth from "@/Auth"
 import "./landing.scss"
 import Link from "next/link"
-import Wordmark from "@/components/logo/wordmark"
+import Wordmark from "@/components/icons/wordmark"
 import React, {useEffect, useRef} from "react"
 import {
-    BookText, CalendarCheck,
+    CalendarCheck,
     Check,
     Columns3Cog,
     Download,
@@ -25,6 +25,7 @@ import SimplePopover from "@/components/basic/popover/simplePopover"
 import Analytics from "@/service/Analytics"
 import ViewPortSwitcher from "@/components/utility/viewportSwitcher/viewPortSwitcher"
 import Utils from "@/utility/Utils"
+import TextCycle from "@/components/basic/textCycle/textCycle"
 
 export default function Landing() {
     const pageRef = useRef<HTMLDivElement>(null);
@@ -133,14 +134,16 @@ export default function Landing() {
             <title>Shotly | Shotlist creation made easy</title>
             <nav>
                 <div className="left">
+                    <Wordmark/>
+                    <Separator orientation={"vertical"}/>
                     <Link
                         href={"https://docs.shotly.at"}
                         target={"_blank"}
-                        className={"noPadding"}
                         onClick={() => Analytics.signal("Landing.Nav.Documentation")}
                     >
-                        <BookText size={22} />
+                        {/*<BookText size={22} />*/}
                         <ViewPortSwitcher under={"Docs"} over={"Documentation"} breakpoint={400}/>
+                        <SquareArrowOutUpRight size={14}/>
                     </Link>
                 </div>
                 <div className="center">
@@ -168,13 +171,19 @@ export default function Landing() {
                         }
                         unauthenticated={
                             <>
-                                <button
-                                    className={"secondary"}
-                                    onClick={() => {
-                                        Analytics.signal("Landing.Nav.SignUp")
-                                        Auth.register()
-                                    }}
-                                >Sign up</button>
+                                <ViewPortSwitcher
+                                    over={
+                                        <button
+                                            className={"secondary"}
+                                            onClick={() => {
+                                                Analytics.signal("Landing.Nav.SignUp")
+                                                Auth.register()
+                                            }}
+                                        >Sign up</button>
+                                    }
+                                    breakpoint={400}
+                                />
+
                                 <button
                                     className={"main"}
                                     onClick={() => {
@@ -191,10 +200,11 @@ export default function Landing() {
             <section className="hero" onMouseMove={moveDoodlesWithMouse}>
                 <div className="content">
                     <div className="center">
-                        <Wordmark/>
+                        <h1>
+                            The best way <br/>
+                            to <TextCycle text={["create", "edit", "share", "export"]} switchInterval={3000} shuffled={false}/> Shotlists.
+                        </h1>
                         <p className={"tagline"}>
-                            <span>Shotlist creation made easy!</span>
-                            <br/>
                             Customize your shots, collaborate with your crew, and export to PDF for the shoot day.
                         </p>
                         <div className="arrowContainer">
@@ -223,23 +233,30 @@ export default function Landing() {
                                     </>
                                 }
                             />
-                            <Image
+                            {/*<Image
                                 className={"arrow"}
                                 src={"/hero-doodles/arrow.svg"}
                                 width={80}
                                 height={97}
                                 alt={"<--"}
                                 fetchPriority={"high"}
+                            />*/}
+                            <Image
+                                className={"arrow"}
+                                src={"/hero-doodles/arrow-small.svg"}
+                                width={62}
+                                height={36}
+                                alt={"<--"}
+                                fetchPriority={"high"}
                             />
                         </div>
-                        <div className="beta">Beta</div>
                     </div>
                     <Image className={"doodle "} id={"clapboard"} src={"/hero-doodles/doodle-0.svg"} alt={"doodle"} width={128} height={118} fetchPriority={"low"}/>
                     <Image className={"doodle first"} id={"brush"} src={"/hero-doodles/doodle-1.svg"} alt={"doodle"} width={97} height={85} fetchPriority={"low"}/>
                     <Image className={"doodle "} id={"shotlist"} src={"/hero-doodles/doodle-2.svg"} alt={"doodle"} width={179} height={111} fetchPriority={"low"}/>
                     <Image className={"doodle third"} id={"close-up"} src={"/hero-doodles/doodle-3.svg"} alt={"doodle"} width={118} height={52} fetchPriority={"low"}/>
                     <Image className={"doodle second"} id={"clipboard"} src={"/hero-doodles/doodle-4.svg"} alt={"doodle"} width={85} height={113} fetchPriority={"low"}/>
-                    <Image className={"doodle third"} id={"medium-shot"} src={"/hero-doodles/doodle-5.svg"} alt={"doodle"} width={126} height={37} fetchPriority={"low"}/>
+                    <Image className={"doodle"} id={"medium-shot"} src={"/hero-doodles/doodle-5.svg"} alt={"doodle"} width={126} height={37} fetchPriority={"low"}/>
                     <Image className={"doodle second"} id={"thoughts"} src={"/hero-doodles/doodle-6.svg"} alt={"doodle"} width={59} height={52} fetchPriority={"low"}/>
                     <Image className={"doodle first"} id={"camera"} src={"/hero-doodles/doodle-7.svg"} alt={"doodle"} width={120} height={94} fetchPriority={"low"}/></div>
             </section>
@@ -402,7 +419,7 @@ export default function Landing() {
                             <h3>Source Available</h3>
                             <p>All the code is public on GitHub - self host your shotlists or add your own features.</p>
                             <Link
-                                href="https://github.com/YanikKendler/Shotly/blob/main/README.md#about-the-license"
+                                href="https://github.com/YanikKendler/Shotly"
                                 className={"noPadding"}
                                 target={"_blank"}
                                 onClick={() => Analytics.signal("Landing.Clicked.LearnMore.License")}

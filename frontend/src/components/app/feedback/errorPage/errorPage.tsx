@@ -4,7 +4,7 @@ import "./errorPage.scss"
 import React from "react"
 import Link from "next/link"
 import Utils from "@/utility/Utils"
-import Wordmark from "@/components/logo/wordmark"
+import Wordmark from "@/components/icons/wordmark"
 
 export default function ErrorPage(
     {

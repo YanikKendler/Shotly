@@ -6,7 +6,6 @@
   --pricing-tier-bg: hsl(24, 20%, 8%);
   --footer-bg: hsl(0, 0%, 5%);
   --feature-unavailable-bg: hsla(0, 0%, 10%, 0.6);
-  --scroll-button-bg: radial-gradient(circle, hsla(18, 100%, 47%, 100%) 0%, hsla(18, 100%, 47%, 10%) 60%, hsla(18, 100%, 47%, 0%) 70%);
 }
 
 main.landing{
@@ -39,13 +38,6 @@ main.landing{
 
     a, button{
       font-size: clamp(.9rem, 1.3vw, 1rem);
-
-      @media screen and (max-width: 600px) {
-        svg{
-          height: 1rem;
-          width: 1rem;
-        }
-      }
     }
 
     div{
@@ -53,6 +45,12 @@ main.landing{
 
       &.left{
         justify-content: flex-start;
+        align-items: center;
+
+        .wordmark {
+          height: 1.8rem;
+          color: var(--accent);
+        }
 
         a{
           color: var(--text-30);
@@ -134,9 +132,9 @@ main.landing{
     .center{
       display: flex;
       flex-direction: column;
-      align-items: center;
       width: fit-content;
       position: relative;
+      padding-inline: .8rem;
 
       &::before{
         content: '';
@@ -163,6 +161,16 @@ main.landing{
         color: var(--accent);
       }
 
+      h1{
+        font-size: clamp(3.3rem, 10vw, 4.5rem);
+        letter-spacing: -0.02em;
+        line-height: 1.05em;
+
+        .textCycle{
+          color: var(--accent);
+        }
+      }
+
       p.tagline{
         font-size: clamp(.85rem, 1.4vw, 1rem);
         /*color: var(--accent-20);*/
@@ -170,9 +178,8 @@ main.landing{
         font-weight: 400;
         margin-top: .8em;
         max-width: 40ch;
-        text-align: center;
         line-height: 150%;
-        margin-inline: .5rem;
+        margin-inline: .3rem;
 
         span {
           font-weight: 700;
@@ -206,30 +213,24 @@ main.landing{
         color: var(--text-50);
       }
 
-      .beta{
-        position: absolute;
-        top: -1.3rem;
-        right: 0;
-        font-size: clamp(.7rem, 1.8vw, .9rem);
-        background-color: var(--beta-chip-bg);
-        border: .1rem solid var(--accent);
-        padding: 0.375em min(1.5em, 4vw);
-        border-radius: 1.5rem;
-        font-weight: 600;
-        color: var(--accent);
-      }
-
       .arrowContainer{
         position: relative;
         display: flex;
-        flex-direction: column;
-        align-items: center;
+        align-items: end;
+        padding-left: .3rem;
+        gap: .5rem;
 
-        .arrow{
+        /*.arrow{
           position: absolute;
           bottom: 1.5rem;
-          left: calc(100% + 1rem - var(--shift) / 2);
+          right: calc(100% + .5rem);
           --shift: 0px;
+          pointer-events: none;
+          transform: scale(-1, 1);
+        }*/
+
+        .arrow{
+          translate: 0 -.8rem;
         }
       }
     }
@@ -242,6 +243,8 @@ main.landing{
       pointer-events: none;
       opacity: 85%;
       transition: transform 300ms ease-out;
+
+      color: red;
 
       --shift: 0px;
 
@@ -321,6 +324,10 @@ main.landing{
         opacity: 70%;
 
         --shift: 50px;
+
+        &.third{
+          display: none;
+        }
       }
     }
   }
@@ -410,7 +417,7 @@ main.landing{
         content: "";
         width: 4.5rem;
         aspect-ratio: 1;
-        background: var(--scroll-button-bg);
+        background: radial-gradient(circle, hsla(18, 100%, 47%, 100%) 0%, hsla(18, 100%, 47%, 10%) 60%, hsla(18, 100%, 47%, 0%) 70%);
         z-index: -1;
         opacity: 50%;
         transition: opacity .5s;
@@ -463,6 +470,7 @@ main.landing{
 
       @media screen and (max-width: 800px) {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
       }
     }
 

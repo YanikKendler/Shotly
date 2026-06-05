@@ -1,13 +1,21 @@
 .textCycle{
-  overflow: hidden;
-  height: 1.5em;
-  line-height: 1em;
-  display: grid;
+  display: inline-flex;
+  height: 1em;
+  width: 4ch;
+  overflow: visible;
   align-items: center;
-  min-width: 30ch;
 
-  span{
-    display: block;
-    grid-area: 1 / 1 / 2 / 2;
+  .cycleContainer {
+    overflow: hidden;
+    height: 1.5em;
+    line-height: 1em;
+    display: grid;
+    align-items: center;
+
+    span.textDisplay{
+      display: block;
+      grid-area: 1 / 1 / 2 / 2;
+      width: fit-content;
+    }
   }
 }
