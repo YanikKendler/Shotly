@@ -52,7 +52,7 @@ function TextCycle({
         };
 
         setup();
-        timerId = setTimeout(run, switchInterval);
+        timerId = setTimeout(run, switchInterval/2);
 
         console.log("execute")
 
@@ -118,7 +118,7 @@ function TextCycle({
                 className="cycleContainer"
                 ref={container}
             >
-                <span className={"textDisplay"} ref={display1}></span>
+                <span className={"textDisplay"} ref={display1} suppressHydrationWarning>{shuffledText[0]}</span>
                 <span className={"textDisplay"} ref={display2}></span>
             </span>
         </span>
