@@ -13,7 +13,7 @@ import {
     FileCode,
     Heart,
     Info, Blocks,
-    Users, ArrowDown
+    Users, ArrowDown, SquareArrowOutUpRight
 } from "lucide-react"
 import Image from "next/image"
 import AuthSwitcher from "@/components/utility/authSwitcher/authSwitcher"
@@ -24,6 +24,7 @@ import Separator from "@/components/basic/separator/separator"
 import SimplePopover from "@/components/basic/popover/simplePopover"
 import Analytics from "@/service/Analytics"
 import ViewPortSwitcher from "@/components/utility/viewportSwitcher/viewPortSwitcher"
+import Utils from "@/utility/Utils"
 
 export default function Landing() {
     const pageRef = useRef<HTMLDivElement>(null);
@@ -39,6 +40,33 @@ export default function Landing() {
             pageRef.current.classList.remove("scrolled")
         else
             pageRef.current.classList.add("scrolled")
+    }
+
+    const moveDoodlesWithMouse = (event: React.MouseEvent) => {
+        const distanceToCenterRatio = Utils.computePositionToCenterRatio({
+            x: event.screenX,
+            y: event.screenY
+        })
+
+        const movementStrength = 0.005
+
+        const maxMovement = {
+            x: window.innerWidth * movementStrength,
+            y: window.innerHeight * movementStrength
+        }
+
+        document.querySelectorAll('.landing .hero img.doodle').forEach((doodle) => {
+            const doodleImage = doodle as HTMLImageElement
+
+            const rand = () => Math.random()*0.5+0.5
+
+            const offset = {
+                x: distanceToCenterRatio.x * maxMovement.x * rand(),
+                y: distanceToCenterRatio.y * maxMovement.y * rand()
+            }
+
+            doodleImage.style.transform = `translate(${offset.x}px, ${offset.y}px)`
+        })
     }
 
     const scaleImageOnScroll = () => {
@@ -58,6 +86,29 @@ export default function Landing() {
         const scale = minScale + (maxScale - minScale) * ratioVisible;
 
         imageRef.current.style.transform = `scale(${scale}) translateY(-${5*ratioVisible}rem)`;
+    }
+
+    const tiltImageWithMouse = (event: React.MouseEvent) => {
+        if(!imageRef.current) return
+
+        const distanceToCenterRatio = Utils.computePositionToCenterRatio({
+            x: event.clientX,
+            y: event.clientY
+        }, imageRef.current)
+
+        const angle = {
+            x: -distanceToCenterRatio.x,
+            y: distanceToCenterRatio.y
+        }
+
+        imageRef.current.style.rotate = `${angle.y} ${angle.x} 0 ${distanceToCenterRatio.d * 3}deg`;
+
+        const glintElement: HTMLSpanElement | null = imageRef.current.querySelector(".glint")
+
+        if(!glintElement) return
+
+        glintElement.style.left = (distanceToCenterRatio.x + 1) / 2 * 100 + "%"
+        glintElement.style.top = (distanceToCenterRatio.y + 1) / 2 * 100 + "%"
     }
 
     useEffect(() => {
@@ -137,7 +188,7 @@ export default function Landing() {
                 </div>
             </nav>
             <span id="hero"></span>
-            <section className="hero">
+            <section className="hero" onMouseMove={moveDoodlesWithMouse}>
                 <div className="content">
                     <div className="center">
                         <Wordmark/>
@@ -183,14 +234,14 @@ export default function Landing() {
                         </div>
                         <div className="beta">Beta</div>
                     </div>
-                    <Image className={""} id={"clapboard"} src={"/hero-doodles/doodle-0.svg"} alt={"doodle"} width={128} height={118} fetchPriority={"low"}/>
-                    <Image className={"first"} id={"brush"} src={"/hero-doodles/doodle-1.svg"} alt={"doodle"} width={97} height={85} fetchPriority={"low"}/>
-                    <Image className={""} id={"shotlist"} src={"/hero-doodles/doodle-2.svg"} alt={"doodle"} width={179} height={111} fetchPriority={"low"}/>
-                    <Image className={"third"} id={"close-up"} src={"/hero-doodles/doodle-3.svg"} alt={"doodle"} width={118} height={52} fetchPriority={"low"}/>
-                    <Image className={"second"} id={"clipboard"} src={"/hero-doodles/doodle-4.svg"} alt={"doodle"} width={85} height={113} fetchPriority={"low"}/>
-                    <Image className={"third"} id={"medium-shot"} src={"/hero-doodles/doodle-5.svg"} alt={"doodle"} width={126} height={37} fetchPriority={"low"}/>
-                    <Image className={"second"} id={"thoughts"} src={"/hero-doodles/doodle-6.svg"} alt={"doodle"} width={59} height={52} fetchPriority={"low"}/>
-                    <Image className={"first"} id={"camera"} src={"/hero-doodles/doodle-7.svg"} alt={"doodle"} width={120} height={94} fetchPriority={"low"}/></div>
+                    <Image className={"doodle "} id={"clapboard"} src={"/hero-doodles/doodle-0.svg"} alt={"doodle"} width={128} height={118} fetchPriority={"low"}/>
+                    <Image className={"doodle first"} id={"brush"} src={"/hero-doodles/doodle-1.svg"} alt={"doodle"} width={97} height={85} fetchPriority={"low"}/>
+                    <Image className={"doodle "} id={"shotlist"} src={"/hero-doodles/doodle-2.svg"} alt={"doodle"} width={179} height={111} fetchPriority={"low"}/>
+                    <Image className={"doodle third"} id={"close-up"} src={"/hero-doodles/doodle-3.svg"} alt={"doodle"} width={118} height={52} fetchPriority={"low"}/>
+                    <Image className={"doodle second"} id={"clipboard"} src={"/hero-doodles/doodle-4.svg"} alt={"doodle"} width={85} height={113} fetchPriority={"low"}/>
+                    <Image className={"doodle third"} id={"medium-shot"} src={"/hero-doodles/doodle-5.svg"} alt={"doodle"} width={126} height={37} fetchPriority={"low"}/>
+                    <Image className={"doodle second"} id={"thoughts"} src={"/hero-doodles/doodle-6.svg"} alt={"doodle"} width={59} height={52} fetchPriority={"low"}/>
+                    <Image className={"doodle first"} id={"camera"} src={"/hero-doodles/doodle-7.svg"} alt={"doodle"} width={120} height={94} fetchPriority={"low"}/></div>
             </section>
             <div className="coverHero">
                 <section className="image">
@@ -200,57 +251,61 @@ export default function Landing() {
                     >
                         <ArrowDown strokeWidth={2.5}/>
                     </button>
-                    <ThemeSwitcher
-                        light={
-                            <ViewPortSwitcher
-                                breakpoint={400}
-                                over={
-                                    <Image
-                                        src={"/landing-shotlist-image/shotlist-light-desktop.webp"}
-                                        alt={"Image of a shotlist with its scenes listet in the left sidebar and multiple shots listed on the right"}
-                                        width={2095}
-                                        height={1396}
-                                        ref={imageRef}
-                                    />
-                                }
-                                under={
-                                    <Image
-                                        src={"/landing-shotlist-image/shotlist-light-mobile.webp"}
-                                        alt={"Image of a shotlist with multiple shots listed and floating buttons to open the shotlist options"}
-                                        width={580}
-                                        height={1069}
-                                        ref={imageRef}
-                                    />
-                                }
-                            />
-                        }
-                        dark={
-                            <ViewPortSwitcher
-                                breakpoint={400}
-                                over={
-                                    <Image
-                                        src={"/landing-shotlist-image/shotlist-dark-desktop.webp"}
-                                        alt={"Image of a shotlist with its scenes listet in the left sidebar and multiple shots listed on the right"}
-                                        width={2096}
-                                        height={1397}
-                                        ref={imageRef}
-                                    />
-                                }
-                                under={
-                                    <Image
-                                        src={"/landing-shotlist-image/shotlist-dark-mobile.webp"}
-                                        alt={"Image of a shotlist with multiple shots listed and floating buttons to open the shotlist options"}
-                                        width={583}
-                                        height={1071}
-                                        ref={imageRef}
-                                    />
-                                }
-                            />
-                        }
-                        loader={
-                            <Skeleton className={"skeleton"}/>
-                        }
-                    />
+                    <div className="imageWrapper"
+                         ref={imageRef}
+                         onMouseMove={tiltImageWithMouse}
+                    >
+                        <span className="glint"></span>
+                        <ThemeSwitcher
+                            light={
+                                <ViewPortSwitcher
+                                    breakpoint={400}
+                                    over={
+                                        <Image
+                                            src={"/landing-shotlist-image/shotlist-light-desktop.webp"}
+                                            alt={"Image of a shotlist with its scenes listet in the left sidebar and multiple shots listed on the right"}
+                                            width={2095}
+                                            height={1396}
+                                            ref={imageRef}
+                                        />
+                                    }
+                                    under={
+                                        <Image
+                                            src={"/landing-shotlist-image/shotlist-light-mobile.webp"}
+                                            alt={"Image of a shotlist with multiple shots listed and floating buttons to open the shotlist options"}
+                                            width={580}
+                                            height={1069}
+                                            ref={imageRef}
+                                        />
+                                    }
+                                />
+                            }
+                            dark={
+                                <ViewPortSwitcher
+                                    breakpoint={400}
+                                    over={
+                                        <Image
+                                            src={"/landing-shotlist-image/shotlist-dark-desktop.webp"}
+                                            alt={"Image of a shotlist with its scenes listet in the left sidebar and multiple shots listed on the right"}
+                                            width={2096}
+                                            height={1397}
+                                        />
+                                    }
+                                    under={
+                                        <Image
+                                            src={"/landing-shotlist-image/shotlist-dark-mobile.webp"}
+                                            alt={"Image of a shotlist with multiple shots listed and floating buttons to open the shotlist options"}
+                                            width={583}
+                                            height={1071}
+                                        />
+                                    }
+                                />
+                            }
+                            loader={
+                                <Skeleton className={"skeleton"} style={{width:'100%'}} containerClassName={"skeletonContainer"}/>
+                            }
+                        />
+                    </div>
                 </section>
                 <section className="features" id={"features"}>
                     <h2 ref={whyShotlyRef}>Why Shotly?</h2>

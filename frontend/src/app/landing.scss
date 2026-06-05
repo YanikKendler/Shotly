@@ -157,7 +157,7 @@ main.landing{
         }
       }
 
-      svg{
+      .wordmark{
         width: clamp(30rem, 55vw, 40rem);
         max-width: 90vw;
         color: var(--accent);
@@ -228,18 +228,20 @@ main.landing{
         .arrow{
           position: absolute;
           bottom: 1.5rem;
-          left: calc(100% + 1rem - var(--shift) / 2)
+          left: calc(100% + 1rem - var(--shift) / 2);
+          --shift: 0px;
         }
       }
     }
 
-    img{
+    img.doodle{
       position: absolute;
       animation: wiggle 5s infinite;
       z-index: -1;
       user-select: none;
       pointer-events: none;
       opacity: 85%;
+      transition: transform 300ms ease-out;
 
       --shift: 0px;
 
@@ -335,27 +337,59 @@ main.landing{
     padding-top: 2rem;
     background: linear-gradient(0deg, var(--contrast) 50%, hsla(0,0%,0%, 0%) 100%);
     scroll-margin-top: 150px;
+    perspective: 1500px;
 
     @media screen and (max-width: 500px) {
       padding-bottom: 0;
     }
 
-    img {
-      filter: saturate(130%); //fixing webp per default being a little de-saturated
-    }
-    img, .skeleton{
+    .imageWrapper{
       width: 80vw;
       max-width: 1100px;
       height: fit-content;
       border-radius: .5rem;
       overflow: hidden;
-      display: block;
+      display: flex;
+
+      transition: rotate 200ms ease-out;
+      transform-origin: center;
 
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+      position: relative;
+
+      .glint{
+        width: 20vw;
+        aspect-ratio: 1;
+        position: absolute;
+        z-index: 100;
+        translate: -50% -50%;
+        background-color: var(--transparent-gray-20);
+        border-radius: 50%;
+        filter: blur(10vw);
+        transition: opacity 300ms;
+        opacity: 0;
+      }
+
+      &:hover .glint{
+        opacity: 1;
+      }
     }
 
-    .skeleton{
-      aspect-ratio: 2/1;
+    img {
+      display: block;
+      filter: saturate(130%); //fixing webp per default being a little de-saturated
+      width: 100%;
+      height: fit-content;
+    }
+
+    .skeletonContainer {
+      width: 100%;
+
+      .skeleton{
+        aspect-ratio: 2/1;
+        width: 100%;
+      }
     }
 
     button.scroll{

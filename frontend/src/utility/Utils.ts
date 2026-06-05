@@ -247,6 +247,47 @@ export default class Utils {
                 )
             }))
     }
+
+    static computePositionToCenterRatio(position: {x: number, y: number}, element?: HTMLElement) {
+        let screen = {
+            x: window.innerWidth,
+            y: window.innerHeight
+        }
+
+        let offset = {
+            x: 0,
+            y: 0
+        }
+
+        if(element) {
+            const rect = element.getBoundingClientRect()
+
+            screen = {
+                x: rect.width,
+                y: rect.height
+            }
+            offset = {
+                x: rect.left,
+                y: rect.top
+            }
+        }
+
+        const distanceToCenter = {
+            x: position.x - offset.x - screen.x / 2,
+            y: position.y - offset.y - screen.y / 2
+        }
+
+        const distanceRatio =  {
+            x: distanceToCenter.x / (screen.x / 2),
+            y: distanceToCenter.y / (screen.y / 2),
+        }
+
+        return {
+            x: distanceRatio.x,
+            y: distanceRatio.y,
+            d: Math.sqrt(distanceRatio.x**2 + distanceRatio.y**2) / Math.sqrt(2)
+        }
+    }
 }
 
 export const reactSelectTheme: ThemeConfig = (theme) => ({

@@ -1,6 +1,5 @@
 'use client'
 
-import Auth from "@/Auth"
 import {useEffect, useState} from "react"
 
 export default function ThemeSwitcher({
