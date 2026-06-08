@@ -29,7 +29,7 @@ export default function ErrorPage(
         <div className={"errorPage"}>
             <title>Shotly | Error</title>
             <div className={"header"}>
-                <Link href={"/public"}><Wordmark/></Link>
+                <Link href={"/"}><Wordmark/></Link>
             </div>
             <div className="content">
                 <span className="smiley">:(</span>

@@ -161,7 +161,7 @@ const DashboardSidebar = forwardRef<DashboardSidebarRef, DashboardSidebarProps>(
             </div>
         </div>
         <div className="bottom">
-            <Link className="shotlistTool" href={"/public"}><Iconmark/>shotly.at</Link>
+            <Link className="shotlistTool" href={"/"}><Iconmark/>shotly.at</Link>
         </div>
         <button className="closearea" onClick={() => setSidebarOpen(false)}/>
     </>)
