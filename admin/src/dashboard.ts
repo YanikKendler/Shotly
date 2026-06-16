@@ -1086,7 +1086,8 @@ export class Dashboard extends LitElement {
                                 .sort(this.sorts.get(this.selectedUserSort))
                                 .filter(u =>
                                     u.name?.toUpperCase().includes(this.userSearchQuery.toUpperCase()) ||
-                                    this.userSearchQuery.toUpperCase().includes(u.name?.toUpperCase() || ''),
+                                    this.userSearchQuery.toUpperCase().includes(u.name?.toUpperCase() || '') ||
+                                    u.email?.toUpperCase().includes(this.userSearchQuery.toUpperCase())
                                 )
                                 .map((u) => {
                                     return this.renderUser(u);
