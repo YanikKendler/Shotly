@@ -427,6 +427,10 @@ export default function Landing() {
                                 Learn more
                             </Link>
                         </div>
+                        {/*
+                            - Keybinds
+                            - Comments
+                        */}
                     </div>
                 </section>
                 <section className="pricing" id={"pricing"}>

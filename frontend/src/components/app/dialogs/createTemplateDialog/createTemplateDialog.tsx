@@ -92,12 +92,14 @@ export function useCreateTemplateDialog() {
                         <button onClick={e => {
                             e.stopPropagation();
                             close();
-                        }}>cancel
+                        }}>
+                            Cancel
                         </button>
                         <button disabled={name.length <= 2} onClick={e => {
                             e.stopPropagation();
                             handleConfirm();
-                        }} className={"accent confirm"}>create
+                        }} className={"accent confirm"}>
+                            Create
                         </button>
                     </div>
                 </>

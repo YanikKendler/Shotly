@@ -174,7 +174,7 @@ export function useCreateShotlistDialog() {
                         close();
                     }}
                 >
-                    cancel
+                    Cancel
                 </button>
                 <button
                     disabled={name.length <= 2}
@@ -184,7 +184,7 @@ export function useCreateShotlistDialog() {
                     }}
                     className={"confirm"}
                 >
-                    create
+                    Create
                 </button>
             </div>
         </>
