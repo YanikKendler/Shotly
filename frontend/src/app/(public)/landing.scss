@@ -217,7 +217,7 @@ main.landing{
       .arrowContainer{
         position: relative;
         display: flex;
-        align-items: end;
+        align-items: start;
         padding-left: .3rem;
 
         /*.arrow{
@@ -230,7 +230,7 @@ main.landing{
         }*/
 
         .arrow{
-          translate: 0 -.3rem;
+          translate: 0 1rem;
           color: var(--text-50);
           scale: 0.8;
         }

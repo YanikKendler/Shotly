@@ -31,7 +31,7 @@ import Skeleton from "react-loading-skeleton"
 import Sortable from 'sortablejs';
 import {CellRef, ValueCell} from "@/components/app/shotlist/table/cell/valueCell"
 import {Row, RowRef} from "../row/row";
-import {SelectedScene} from "@/app/shotlist/[id]/page"
+import {SelectedScene} from "@/app/(application)/shotlist/[id]/page"
 import {
     ShotlistOptionsDialogMainPage,
     ShotlistOptionsDialogSubPage

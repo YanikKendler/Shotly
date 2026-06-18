@@ -21,7 +21,7 @@ import {
 } from "../../lib/graphql/generated"
 import {errorNotification} from "@/service/NotificationService"
 import {SheetManagerRef} from "@/components/app/shotlist/table/sheetManager/sheetManager"
-import {PresentCollaborator, SelectedScene} from "@/app/shotlist/[id]/page"
+import {PresentCollaborator, SelectedScene} from "@/app/(application)/shotlist/[id]/page"
 import {SceneAttributeParser, ShotAttributeParser} from "@/utility/AttributeParser"
 import {SceneListRef} from "@/components/app/shotlist/sidebar/sceneList/sceneList"
 import {ApolloQueryResult, useApolloClient, useSubscription} from "@apollo/client"

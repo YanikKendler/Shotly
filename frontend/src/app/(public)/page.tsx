@@ -224,22 +224,14 @@ export default function Landing() {
                                         onClick={() => Analytics.signal("Landing.Hero.Dashboard")}
                                     >My Dashboard</Link>
                                 }
-                                hasBeenAuthenticatedBefore={
-                                    <button
-                                        onClick={() => {
-                                            Analytics.signal("Landing.Hero.Dashboard")
-                                            Auth.login()
-                                        }}
-                                    >My Dashboard</button>
-                                }
                                 unauthenticated={
-                                    <>
+                                    <div>
                                         <button onClick={() => {
                                             Analytics.signal("Landing.Hero.GetStarted")
                                             Auth.login()
                                         }}>Create your first shotlist</button>
                                         <small>free, no credit card required</small>
-                                    </>
+                                    </div>
                                 }
                             />
                             {/*<Image
@@ -530,10 +522,10 @@ export default function Landing() {
                     </div>
                     <div>
                         <h3>Legal</h3>
-                        <Link className={"noPadding"} href={"/legal/cookies"}>Cookies</Link>
-                        <Link className={"noPadding"} href={"/legal/privacy"}>Privacy</Link>
-                        <Link className={"noPadding"} href={"/legal/legalNotice"}>Legal notice</Link>
-                        <Link className={"noPadding"} href={"/legal/termsOfUse"}>Terms of use</Link>
+                        <Link className={"noPadding"} href={"/src/app/(public)/legal/cookies"}>Cookies</Link>
+                        <Link className={"noPadding"} href={"/src/app/(public)/legal/privacy"}>Privacy</Link>
+                        <Link className={"noPadding"} href={"/src/app/(public)/legal/legalNotice"}>Legal notice</Link>
+                        <Link className={"noPadding"} href={"/src/app/(public)/legal/termsOfUse"}>Terms of use</Link>
                     </div>
 
                     <div>

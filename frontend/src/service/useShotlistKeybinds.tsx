@@ -2,7 +2,7 @@ import {Dispatch, RefObject, SetStateAction, useCallback, useContext, useEffect,
 import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys"
 import {SheetManagerRef} from "@/components/app/shotlist/table/sheetManager/sheetManager"
 import {SceneListRef} from "@/components/app/shotlist/sidebar/sceneList/sceneList"
-import {SelectedScene} from "@/app/shotlist/[id]/page"
+import {SelectedScene} from "@/app/(application)/shotlist/[id]/page"
 import {infoNotification} from "@/service/NotificationService"
 import {useRouter} from "next/navigation"
 import {RowColumn} from "@/utility/Types"

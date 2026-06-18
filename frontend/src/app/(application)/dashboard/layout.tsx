@@ -6,7 +6,7 @@ import "./layout.scss"
 import React, {useEffect, useRef, useState} from "react"
 import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
-import { Query } from "../../../lib/graphql/generated"
+import { Query } from "../../../../lib/graphql/generated"
 import auth from "@/Auth"
 import {usePathname, useRouter} from "next/navigation"
 import {useCreateShotlistDialog} from "@/components/app/dialogs/createShotlistDialog/createShotlistDialog"
@@ -215,7 +215,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         noLink
     />
 
-    if(!auth.getUser())
+    if(!auth.getUser() || true)
         return <LoadingPage/>
 
     //yeah i know this is ugly

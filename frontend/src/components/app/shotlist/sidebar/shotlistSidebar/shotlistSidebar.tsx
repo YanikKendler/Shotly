@@ -12,7 +12,7 @@ import React, {Dispatch, RefObject, SetStateAction, useContext, useEffect, useRe
 import {ShotlistContext} from "@/context/ShotlistContext"
 import gql from "graphql-tag"
 import {wuGeneral} from "@yanikkendler/web-utils"
-import {SelectedScene} from "@/app/shotlist/[id]/page"
+import {SelectedScene} from "@/app/(application)/shotlist/[id]/page"
 import "./shotlistSidebar.scss"
 import SimplePopover from "@/components/basic/popover/simplePopover"
 import Sidebar from "@/components/app/sidebar/sidebar"

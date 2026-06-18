@@ -5,7 +5,7 @@ import {
     ShotlistOptionsDialogPages,
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {GenericError, RowColumn, SelectOption} from "@/utility/Types"
-import {PresentCollaborator, SaveState} from "@/app/shotlist/[id]/page"
+import {PresentCollaborator, SaveState} from "@/app/(application)/shotlist/[id]/page"
 import {CollaborationType, UserDto} from "../../lib/graphql/generated"
 
 export interface ShotlistContextProps {

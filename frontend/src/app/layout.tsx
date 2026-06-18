@@ -1,17 +1,14 @@
 import "./globals.scss"
 import 'react-loading-skeleton/dist/skeleton.css'
 import React from "react"
-import {ApolloWrapper} from "@/wrapper/ApolloWrapper"
 import {Inter} from 'next/font/google'
 import {Tooltip} from "radix-ui"
-import AuthWrapper from "@/wrapper/AuthWrapper"
 import Config from "@/Config"
 import {Metadata, Viewport} from "next"
 import {SkeletonTheme} from "react-loading-skeleton"
 import {Toaster} from "react-hot-toast"
 import {CircleAlert, CircleCheck} from "lucide-react"
 import Link from "next/link"
-import Ralph from "@/components/app/ralph/ralph"
 import "driver.js/dist/driver.css";
 
 export const metadata: Metadata = {
@@ -119,15 +116,12 @@ export default function RootLayout({
         <body>
             <div className="root">
                 {(Config.mode === "dev-deployment") && <div className="infoBanner">You are currently viewing a development deployment. Please go to <Link className={"inline noPadding"} href={"https://shotly.at"}>Shotly.at</Link> instead.</div>}
-                <AuthWrapper> {/*should be the outermost*/}
-                    <ApolloWrapper> {/*should also be out*/}
-                        <Tooltip.Provider skipDelayDuration={0}> {/*deactivate instant open of tooltips... kinda: https://github.com/radix-ui/primitives/issues/3873*/}
-                            <SkeletonTheme baseColor="var(--skelleton-base-color)" highlightColor="var(--skelleton-highlight-color)">
-                                {children}
-                            </SkeletonTheme>
-                        </Tooltip.Provider>
-                    </ApolloWrapper>
-                </AuthWrapper>
+
+                <Tooltip.Provider skipDelayDuration={0}> {/*deactivate instant open of tooltips... kinda: https://github.com/radix-ui/primitives/issues/3873*/}
+                    <SkeletonTheme baseColor="var(--skelleton-base-color)" highlightColor="var(--skelleton-highlight-color)">
+                        {children}
+                    </SkeletonTheme>
+                </Tooltip.Provider>
             </div>
             <Toaster
                 position={"bottom-center"}
@@ -145,7 +139,6 @@ export default function RootLayout({
                     },
                 }}
             />
-            <Ralph/>
         </body>
         </html>
     )

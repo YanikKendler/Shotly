@@ -1,4 +1,4 @@
-import {ReadOnlyReason} from "@/app/shotlist/[id]/page"
+import {ReadOnlyReason} from "@/app/(application)/shotlist/[id]/page"
 import {useState} from "react"
 import {X} from "lucide-react"
 import "./readOnlyBanner.scss"

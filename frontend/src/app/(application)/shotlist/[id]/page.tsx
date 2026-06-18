@@ -10,7 +10,7 @@ import {
     ShotAttributeDefinitionBase,
     UserMinimalDto,
     UserTier
-} from "../../../../lib/graphql/generated"
+} from "../../../../../lib/graphql/generated"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
 import './shotlist.scss'
 import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
@@ -50,7 +50,6 @@ export interface PresentCollaborator {
 
 export type SaveState = "saved" | "saving" | "error"
 
-/* TODO move this all into /dashboard and setup redirect */
 export default function Shotlist() {
     const client = useApolloClient()
     const router = useRouter()
@@ -99,7 +98,7 @@ export default function Shotlist() {
 
     const saveStateMap = useRef<Map<string, SaveState>>(new Map())
 
-    //TODO redo this with a global system in an "appContext" once shotlist is moved to /dashboard/shotlist
+    //TODO redo this with a global system in an "appContext"
     const blockKeyBindsMap = useRef(new Map<string, string[]>())
 
     const intro = useIntro({

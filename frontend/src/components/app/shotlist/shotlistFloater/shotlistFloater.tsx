@@ -6,7 +6,7 @@ import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
 import DotLoader from "@/components/basic/DotLoader"
 import {Check, LoaderCircle, Menu, RefreshCw} from "lucide-react"
 import HelpLink from "@/components/app/helpLink/helpLink"
-import { SaveState } from "@/app/shotlist/[id]/page"
+import { SaveState } from "@/app/(application)/shotlist/[id]/page"
 import "./shotlistFloater.scss"
 
 export interface ShotlistFloaterRef {

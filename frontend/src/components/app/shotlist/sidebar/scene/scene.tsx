@@ -29,7 +29,7 @@ import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
 import {successNotification} from "@/service/NotificationService"
 import Utils from "@/utility/Utils"
 import Collapse from "@/components/basic/collapse/collapse"
-import {SelectedScene} from "@/app/shotlist/[id]/page"
+import {SelectedScene} from "@/app/(application)/shotlist/[id]/page"
 
 export interface SidebarSceneRef {
     closePopover: () => void

@@ -1,0 +1,19 @@
+import {ReactElement} from "react"
+import {ApolloWrapper} from "@/wrapper/ApolloWrapper"
+import AuthWrapper from "@/wrapper/AuthWrapper"
+import Ralph from "@/components/app/ralph/ralph"
+
+export default function AppLayout({
+    children
+}:{
+    children: ReactElement;
+}){
+    return (
+        <AuthWrapper> {/*should be the outermost*/}
+            <ApolloWrapper> {/*should also be out*/}
+                {children}
+                <Ralph/>
+            </ApolloWrapper>
+        </AuthWrapper>
+    )
+}

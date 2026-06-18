@@ -136,8 +136,6 @@ class Auth {
             return
         }
 
-        //td.clientUser = authResult.idTokenPayload.sub
-
         this.authUser = {
             email: authResult.idTokenPayload.email,
             sub: authResult.idTokenPayload.sub,

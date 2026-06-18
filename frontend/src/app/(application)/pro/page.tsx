@@ -11,7 +11,7 @@ import {useRouter} from "next/navigation"
 import PaymentService from "@/service/PaymentService"
 import SimplePage from "@/components/app/simplePage/simplePage"
 import Link from "next/link"
-import {Query, UserDto, UserTier} from "../../../lib/graphql/generated"
+import {Query, UserDto, UserTier} from "../../../../lib/graphql/generated"
 import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 import Config from "@/Config"
 import Separator from "@/components/basic/separator/separator"
@@ -146,8 +146,8 @@ export default function Pro(){
                     </div>
                     <Separator/>
                     <p className={"small"}>
-                        By proceeding, you agree to our <Link href={"/legal/termsOfUse"} className={"inline"}>Terms of
-                        Use</Link> and <Link href={"/legal/privacy"} className={"inline"}>Privacy Policy</Link>.
+                        By proceeding, you agree to our <Link href={"/src/app/(public)/legal/termsOfUse"} className={"inline"}>Terms of
+                        Use</Link> and <Link href={"/src/app/(public)/legal/privacy"} className={"inline"}>Privacy Policy</Link>.
                         <br/>
                         Subscriptions renew automatically every month until canceled. You can cancel anytime in your
                         account settings.
@@ -172,8 +172,8 @@ export default function Pro(){
                     </div>
                     <Separator/>
                     <p className={"small"}>
-                        By proceeding, you agree to our <Link href={"/legal/termsOfUse"} className={"inline"}>Terms of
-                        Use</Link> and <Link href={"/legal/privacy"} className={"inline"}>Privacy Policy</Link>.
+                        By proceeding, you agree to our <Link href={"/src/app/(public)/legal/termsOfUse"} className={"inline"}>Terms of
+                        Use</Link> and <Link href={"/src/app/(public)/legal/privacy"} className={"inline"}>Privacy Policy</Link>.
                         <br/>
                         Subscriptions renew automatically every month until canceled. You can cancel anytime in your
                         account settings.

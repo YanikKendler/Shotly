@@ -5,7 +5,7 @@ import "./dashboard.scss"
 import React, {useContext, useEffect, useState} from "react"
 import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 import {ArrowRight, ChevronLeft, ChevronRight, Plus,} from "lucide-react"
-import {ShotlistDto, TemplateDto} from "../../../lib/graphql/generated"
+import {ShotlistDto, TemplateDto} from "../../../../lib/graphql/generated"
 import {useCreateShotlistDialog} from "@/components/app/dialogs/createShotlistDialog/createShotlistDialog"
 import Utils from "@/utility/Utils"
 import Config from "@/Config"
@@ -146,7 +146,7 @@ export default function Overview() {
                     <span><Plus size={22}/>New Template</span>
                 </button>
             </DashboardGrid>
-            <Link href={"/dashboard/archive"} className={"archive default"}>Archive <ArrowRight size={16} strokeWidth={2}/></Link>
+            <Link href={"/src/app/(application)/dashboard/archive"} className={"archive default"}>Archive <ArrowRight size={16} strokeWidth={2}/></Link>
 
             {createShotlistDialog.Element}
             {createTemplateDialog.Element}

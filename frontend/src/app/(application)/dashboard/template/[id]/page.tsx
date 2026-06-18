@@ -9,7 +9,7 @@ import {
     Query,
     SceneAttributeTemplateBase,
     ShotAttributeTemplateBase,
-} from "../../../../../lib/graphql/generated"
+} from "../../../../../../lib/graphql/generated"
 import gql from "graphql-tag"
 import {wuGeneral} from "@yanikkendler/web-utils"
 import { Info, Pencil, Trash } from "lucide-react"

@@ -10,7 +10,7 @@ import {useAccountDialog} from "@/components/app/dialogs/accountDialog/accountDi
 import Sortable from "sortablejs"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import "./sceneList.scss"
-import {SelectedScene} from "@/app/shotlist/[id]/page"
+import {SelectedScene} from "@/app/(application)/shotlist/[id]/page"
 import {SceneAttributeRef} from "@/components/app/shotlist/sidebar/sceneAttribute/sceneAttribute"
 import Skeleton from "react-loading-skeleton"
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
