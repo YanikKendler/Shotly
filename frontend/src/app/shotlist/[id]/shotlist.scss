@@ -9,12 +9,11 @@ main.shotlist{
   position: relative;
   overflow: hidden;
 
-  .content{
+  > .PanelGroup > .content{
     display: flex;
     flex-direction: column;
     width: 100%;
     height: 100%;
-    margin-left: 1px;
 
     &.reloading{
       pointer-events: none;

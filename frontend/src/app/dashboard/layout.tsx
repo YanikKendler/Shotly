@@ -10,7 +10,6 @@ import { Query } from "../../../lib/graphql/generated"
 import auth from "@/Auth"
 import {usePathname, useRouter} from "next/navigation"
 import {useCreateShotlistDialog} from "@/components/app/dialogs/createShotlistDialog/createShotlistDialog"
-import {useAccountDialog} from "@/components/app/dialogs/accountDialog/accountDialog"
 import Utils from "@/utility/Utils"
 import {useCreateTemplateDialog} from "@/components/app/dialogs/createTemplateDialog/createTemplateDialog"
 import LoadingPage from "@/components/app/feedback/loadingPage/loadingPage"
@@ -25,7 +24,7 @@ import HowDidYouHearFloater from "@/components/app/dashboard/floaterDialogs/howD
 import ChangeLogFloater from "@/components/app/dashboard/floaterDialogs/changeLogFloater"
 import {CHANGELOG} from "@/data/changelog"
 import DashboardFloater from "@/components/app/dashboard/dashboardFloater/dashboardFloater";
-import DashboardSidebar, {DashboardSidebarRef} from "@/components/app/dashboard/sidebar/dashboardSidebar/dashboardSidebar"
+import DashboardSidebar from "@/components/app/dashboard/sidebar/dashboardSidebar/dashboardSidebar"
 import useDashboardKeybinds from "@/service/useDashboardKeybinds"
 import DashboardDialogFloater from "@/components/app/dashboard/dashboardDialogFloater/dashboardDialogFloater"
 
@@ -41,15 +40,10 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
     const createShotlistDialog = useCreateShotlistDialog()
     const createTemplateDialog = useCreateTemplateDialog()
-    const accountDialog = useAccountDialog()
 
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
-    const sidebarRef = useRef<DashboardSidebarRef>(null)
-
     const [dialogStep, setDialogStep] = useState(DialogStep.LOADING)
-
-    const [sidebarOpen, setSidebarOpen] = useState<boolean>(false)
 
     const [enterNameFloaterVisible, setEnterNameFloaterVisible] = useState(false)
     const [howDidYouHearFloaterVisible, setHowDidYouHearFloaterVisible] = useState(false)
@@ -60,13 +54,9 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     useDashboardKeybinds({
         openCreateShotlistDialog: createShotlistDialog.open,
         openCreateTemplateDialog: createTemplateDialog.open,
-        openAccountDialog: accountDialog.open,
-        toggleCollaborationRequests: () => sidebarRef.current?.toggleCollaborationRequests(),
         closeAll: () => {
             createShotlistDialog.close()
             createTemplateDialog.close()
-            accountDialog.close()
-            sidebarRef.current?.setCollaborationRequestsOpen(false)
         }
     })
 
@@ -242,22 +232,11 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         <title>Shotly | Dashboard</title>
         <main className="home">
             <PanelGroup autoSaveId={"shotly-dashboard-sidebar-width"} direction="horizontal" className={"PanelGroup"}>
-                <Panel
-                    defaultSize={20}
-                    maxSize={30}
-                    minSize={12}
-                    className={`sidebar ${isTemplatePage ? "collapse" : ""} ${sidebarOpen ? "open" : "closed"}`}
-                >
-                    <DashboardSidebar
-                        ref={sidebarRef}
-                        query={query}
-                        openCreateShotlistDialog={createShotlistDialog.open}
-                        openCreateTemplateDialog={createTemplateDialog.open}
-                        openAccountDialog={accountDialog.open}
-                        setSidebarOpen={setSidebarOpen}
-                        reloadShotlists={() => loadData({ loadShotlists: true, loadTemplates: false, loadUser: false })}
-                    />
-                </Panel>
+                <DashboardSidebar
+                    query={query}
+                    openCreateShotlistDialog={createShotlistDialog.open}
+                    reloadShotlists={() => loadData({ loadShotlists: true, loadTemplates: false, loadUser: false })}
+                />
                 <PanelResizeHandle className="PanelResizeHandle sidebarResize"/>
                 <Panel className={`headerContainer ${isTemplatePage && "template"}`}>
                     <DashboardHeader
@@ -272,12 +251,10 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             <DashboardFloater
                 reloadDashboardData={loadData}
                 setRefreshSignal={setRefreshSignal}
-                setSidebarOpen={setSidebarOpen}
             />
 
             {createShotlistDialog.Element}
             {createTemplateDialog.Element}
-            {accountDialog.Element}
 
             <JustBoughtProDialog/>
 

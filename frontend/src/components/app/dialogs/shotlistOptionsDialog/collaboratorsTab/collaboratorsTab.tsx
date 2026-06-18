@@ -422,7 +422,7 @@ export default function CollaboratorsTab(
     return (
         <div className={"shotlistOptionsDialogCollaboratorsTab shotlistOptionsDialogPage"}>
             <div className="top">
-                <h2>Current Collaborators</h2>
+                <h2>Collaborators</h2>
                 <button className={"closeButton"} onClick={shotlistOptionsDialogRef.current?.close}>
                     <X size={18}/>
                 </button>

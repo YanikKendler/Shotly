@@ -11,12 +11,10 @@ import {Query} from "../../../../../lib/graphql/generated"
 
 export default function DashboardFloater({
     reloadDashboardData,
-    setRefreshSignal,
-    setSidebarOpen
+    setRefreshSignal
 }:{
     reloadDashboardData: () => Promise<ApolloQueryResult<Query>>
     setRefreshSignal: Dispatch<SetStateAction<number>>
-    setSidebarOpen: Dispatch<SetStateAction<boolean>>
 }){
     const pathname = usePathname()
 
@@ -67,10 +65,6 @@ export default function DashboardFloater({
                 link={`https://docs.shotly.at/${isTemplatePage ? "templates" : "dashboard"}`}
                 name={isTemplatePage ? "Template" : "Dashboard"}
             />
-            {
-                isTemplatePage &&
-                <button className="openSidebar" onClick={() => setSidebarOpen(true)}><Menu/></button>
-            }
         </div>
     )
 }

@@ -6,7 +6,7 @@ import {
     ShotlistOptionsDialogMainPage, ShotlistOptionsDialogPages,
     ShotlistOptionsDialogSubPage
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
-import {Settings2} from "lucide-react"
+import {Columns3Cog, Settings2} from "lucide-react"
 import "./shotlistHeader.scss"
 
 export default function ShotlistHeader({
@@ -46,7 +46,7 @@ export default function ShotlistHeader({
                     main: ShotlistOptionsDialogMainPage.attributes
                 })}
             >
-                <Settings2 size={16}/>
+                <Columns3Cog size={16}/>
             </button>
         </div>
     )

@@ -1,0 +1,50 @@
+.navigation{
+  padding-inline: .2rem;
+  padding-top: .15rem;
+  padding-bottom: .8rem;
+  background-color: var(--navigation-bg);
+  display: flex;
+  flex-direction: column;
+
+  button, a{
+    padding: .4rem;
+    color: var(--text-10);
+    position: relative;
+
+    &:hover{
+      background-color: var(--transparent-gray-20);
+      color: var(--text);
+    }
+
+    .badge{
+      aspect-ratio: 1;
+      height: 1.3rem;
+      display: grid;
+      place-items: center;
+      border-radius: 100%;
+      font-weight: bold;
+      text-align: center;
+      background-color: var(--collaborator);
+      color: var(--contrast);
+      position: absolute;
+      right: -.5rem;
+      bottom: 1rem;
+      font-size: .8rem;
+    }
+  }
+
+  .separator{
+    --offset: .4rem;
+    --color: light-dark(hsl(0, 0%, 70%), hsl(0 0% 30%));
+  }
+
+  .top, .bottom {
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+
+    &.bottom {
+      margin-top: auto;
+    }
+  }
+}

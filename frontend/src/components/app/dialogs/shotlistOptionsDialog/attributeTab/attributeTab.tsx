@@ -55,7 +55,6 @@ export default function AttributeTab(
     }
 ) {
     const client = useApolloClient()
-    const router = useRouter()
 
     const addSceneAttributePopoverRef = useRef<SimplePopoverRef>(null)
     const addShotAttributePopoverRef = useRef<SimplePopoverRef>(null)

@@ -54,8 +54,6 @@ function TextCycle({
         setup();
         timerId = setTimeout(run, switchInterval/2);
 
-        console.log("execute")
-
         return () => {
             isActive = false;
             clearTimeout(timerId);

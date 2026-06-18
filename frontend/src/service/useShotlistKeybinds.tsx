@@ -1,7 +1,7 @@
 import {Dispatch, RefObject, SetStateAction, useCallback, useContext, useEffect, useLayoutEffect, useRef} from "react"
 import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys"
 import {SheetManagerRef} from "@/components/app/shotlist/table/sheetManager/sheetManager"
-import {ShotlistSidebarRef} from "@/components/app/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
+import {SceneListRef} from "@/components/app/shotlist/sidebar/sceneList/sceneList"
 import {SelectedScene} from "@/app/shotlist/[id]/page"
 import {infoNotification} from "@/service/NotificationService"
 import {useRouter} from "next/navigation"
@@ -18,7 +18,7 @@ export default function useShotlistKeybinds({
     blockKeyBinds
 }:{
     sheetManagerRef: RefObject<SheetManagerRef | null>
-    sidebarRef: RefObject<ShotlistSidebarRef | null>
+    sidebarRef: RefObject<SceneListRef | null>
 
     openShotlistOptionsDialog: () => void
 
@@ -28,9 +28,6 @@ export default function useShotlistKeybinds({
 
     blockKeyBinds: RefObject<Map<string, string[]>>
 }) {
-    const router = useRouter()
-
-
     useEffect(() => {
         const isBlocked = (keybind?: string) => {
             const result = blockKeyBinds.current.size > 0
@@ -105,16 +102,6 @@ export default function useShotlistKeybinds({
 
                 event.preventDefault()
                 openShotlistOptionsDialog()
-            },
-            "Alt+A": event => {
-                if(isBlocked("Alt+A")) return
-
-                event.preventDefault()
-                sidebarRef.current?.openAccountDialog()
-            },
-            "Alt+H": event => { //not alt+d because that is reserved by browsers
-                event.preventDefault()
-                router.push("/dashboard")
             },
             "Alt+S": event => {
                 if(isBlocked("Alt+S")) return

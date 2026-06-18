@@ -12,6 +12,7 @@ const nextConfig = {
             minute: '2-digit'
         }),
     },
+    devIndicator: false
 };
 
 export default nextConfig;

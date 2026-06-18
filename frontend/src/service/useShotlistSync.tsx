@@ -23,7 +23,7 @@ import {errorNotification} from "@/service/NotificationService"
 import {SheetManagerRef} from "@/components/app/shotlist/table/sheetManager/sheetManager"
 import {PresentCollaborator, SelectedScene} from "@/app/shotlist/[id]/page"
 import {SceneAttributeParser, ShotAttributeParser} from "@/utility/AttributeParser"
-import {ShotlistSidebarRef} from "@/components/app/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
+import {SceneListRef} from "@/components/app/shotlist/sidebar/sceneList/sceneList"
 import {ApolloQueryResult, useApolloClient, useSubscription} from "@apollo/client"
 import {useRouter} from "next/navigation"
 import gql from "graphql-tag"
@@ -246,7 +246,7 @@ export function useShotlistSync({
     currentUserId: string | null
 
     sheetManagerRef: RefObject<SheetManagerRef | null>
-    sidebarRef: RefObject<ShotlistSidebarRef | null>
+    sidebarRef: RefObject<SceneListRef | null>
 
     selectedScene: SelectedScene | null
 

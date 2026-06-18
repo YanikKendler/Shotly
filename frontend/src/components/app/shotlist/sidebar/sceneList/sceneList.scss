@@ -1,0 +1,36 @@
+.sceneList{
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  padding-bottom: 10rem;
+  overflow-y: auto;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+  height: 100%;
+
+  &::-webkit-scrollbar {
+    display: none; /*Chrome, Safari and Opera */
+  }
+
+  &.reloading{
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  #scenes > .empty {
+    text-align: center;
+    color: var(--text-40);
+    font-size: .9rem;
+    margin-block: 1rem;
+  }
+
+  button.create:not([disabled]){
+    color: var(--text-40);
+    font-size: .9rem;
+
+    &:hover{
+      background-color: var(--transparent-gray-10);
+      color: var(--text);
+    }
+  }
+}

@@ -12,6 +12,7 @@ import Skeleton from "react-loading-skeleton"
 import { Popover } from "radix-ui"
 import "./collaborationRequestsPopup.scss"
 import {useConfirmDialog} from "@/components/app/dialogs/confirmDialog/confirmDialog"
+import NavigationItem from "@/components/app/navigation/navigationItem"
 
 export interface CollaborationRequestsPopupRef {
     toggleCollaborationRequests: () => void
@@ -212,24 +213,26 @@ const CollaborationRequestsPopup = forwardRef<
     return (
         <>
         <Popover.Root open={collaborationRequestOpen} onOpenChange={setCollaborationRequestOpen}>
-            <SimpleTooltip
-                content={<p><span className="key">Alt</span> + <span className="key">C</span></p>}
-            >
-                <Popover.Trigger className={"collaborationRequestsTrigger"}>
-                    Collaborations
-                    <Inbox size={18}/>
-                    {
-                        pendingCollaborations.data.pendingCollaborations && pendingCollaborations.data.pendingCollaborations.length > 0 &&
-                        <span className={"badge"}>{pendingCollaborations.data.pendingCollaborations.length}</span>
+            <Popover.Anchor>
+                <NavigationItem
+                    Icon={Inbox}
+                    action={() => setCollaborationRequestOpen(current => !current)}
+                    description={"Collaboration Requests"}
+                    badge={
+                        pendingCollaborations.data?.pendingCollaborations &&
+                        pendingCollaborations.data?.pendingCollaborations.length > 0 ?
+                        pendingCollaborations.data.pendingCollaborations.length :
+                        undefined
                     }
-                </Popover.Trigger>
-            </SimpleTooltip>
+                />
+            </Popover.Anchor>
             <Popover.Portal>
                 <Popover.Content
                     className={"popoverContent CollaborationRequests"}
                     side={"top"}
                     align={"start"}
                     onOpenAutoFocus={e => e.preventDefault()}
+                    sideOffset={4}
                 >
                     <div className="top">
                         <h2>Collaboration requests</h2>

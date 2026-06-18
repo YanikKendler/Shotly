@@ -26,6 +26,7 @@ export default function DashboardSidebarSection({
 }) {
     const [expanded, setExpanded] = useState(true)
 
+    //TODO maybe make section headings fullcaps
     return (
         <div className={"sidebarSection"}>
             <button className={"noClickFx"} onClick={() => setExpanded(!expanded)}>

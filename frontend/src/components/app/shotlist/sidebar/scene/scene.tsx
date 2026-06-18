@@ -1,7 +1,7 @@
 'use client'
 
 import {SceneDto} from "../../../../../../lib/graphql/generated"
-import "./sidebarScene.scss"
+import "./scene.scss"
 import React, {
     Dispatch,
     forwardRef,
@@ -49,7 +49,7 @@ export interface SidebarSceneProps {
     readOnly: boolean
 }
 
-const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
+const Scene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
         scene,
         position,
         expanded,
@@ -243,4 +243,4 @@ const SidebarScene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
     )
 })
 
-export default SidebarScene
+export default Scene

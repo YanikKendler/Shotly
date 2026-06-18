@@ -3,7 +3,7 @@
 import React, {forwardRef, RefObject, useContext, useEffect, useImperativeHandle, useRef, useState} from 'react';
 import "./shotlistOptionsDialog.scss"
 import {Tabs, VisuallyHidden} from "radix-ui"
-import {FileDown, List, Users, X, Settings2} from "lucide-react"
+import {FileDown, List, Users, X, Settings2, Columns3Cog, Settings} from "lucide-react"
 import {
     AnySceneAttributeDefinition,
     AnyShotAttributeDefinition,
@@ -339,11 +339,11 @@ const ShotlistOptionsDialog = forwardRef<ShotlistOptionsDialogRef, ShotlistOptio
             >
                 <Tabs.List className={"tabs"}>
                     <Tabs.Trigger value={"general"}>
-                        <Settings2 size={18} strokeWidth={2}/>
+                        <Settings size={18} strokeWidth={2}/>
                         General
                     </Tabs.Trigger>
                     <Tabs.Trigger value={"attributes"}>
-                        <List size={18} strokeWidth={2}/>
+                        <Columns3Cog size={18} strokeWidth={2}/>
                         Attributes
                     </Tabs.Trigger>
                     <Tabs.Trigger value={"collaborators"}>

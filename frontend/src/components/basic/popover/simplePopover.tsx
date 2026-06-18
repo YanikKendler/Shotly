@@ -27,7 +27,7 @@ const SimplePopover = forwardRef<SimplePopoverRef, SimplePopoverProps>(({
     text,
     content,
     fontSize = 0.9,
-    offset = 2,
+    offset = 6,
     asChild = false,
     side = "top",
     className = "",

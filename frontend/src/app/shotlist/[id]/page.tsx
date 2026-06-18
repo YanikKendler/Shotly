@@ -26,7 +26,7 @@ import Utils, {uuidRegex} from "@/utility/Utils"
 import Config from "@/Config"
 import {GenericError, RowColumn, SelectOption, ShotlyErrorCode} from "@/utility/Types"
 import SheetManager, {SheetManagerRef} from "@/components/app/shotlist/table/sheetManager/sheetManager"
-import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/app/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
+import {SceneListRef} from "@/components/app/shotlist/sidebar/sceneList/sceneList"
 import {errorNotification} from "@/service/NotificationService"
 import {useShotlistSync} from "@/service/useShotlistSync"
 import useShotlistKeybinds from "@/service/useShotlistKeybinds"
@@ -34,6 +34,7 @@ import ShotlistFloater, {ShotlistFloaterRef} from "@/components/app/shotlist/sho
 import ReadOnlyBanner from "@/components/app/shotlist/readOnlyBanner/readOnlyBanner"
 import ShotlistHeader from "@/components/app/shotlist/shotlistHeader/shotlistHeader"
 import useIntro from "@/service/useIntro"
+import ShotlistSidebar from "@/components/app/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
 
 export interface SelectedScene {
     id: string | null
@@ -49,6 +50,7 @@ export interface PresentCollaborator {
 
 export type SaveState = "saved" | "saving" | "error"
 
+/* TODO move this all into /dashboard and setup redirect */
 export default function Shotlist() {
     const client = useApolloClient()
     const router = useRouter()
@@ -89,7 +91,7 @@ export default function Shotlist() {
     const shotlistElementRef = useRef<HTMLDivElement>(null);
     const headerRef = useRef<HTMLDivElement>(null)
     const sheetManagerRef = useRef<SheetManagerRef>(null)
-    const sidebarRef = useRef<ShotlistSidebarRef>(null)
+    const sidebarRef = useRef<SceneListRef>(null)
     const floaterRef = useRef<ShotlistFloaterRef>(null)
 
     const [shotSelectOptionsCache, setShotSelectOptionsCache] = useState(new Map<number, SelectOption[]>())
@@ -97,6 +99,7 @@ export default function Shotlist() {
 
     const saveStateMap = useRef<Map<string, SaveState>>(new Map())
 
+    //TODO redo this with a global system in an "appContext" once shotlist is moved to /dashboard/shotlist
     const blockKeyBindsMap = useRef(new Map<string, string[]>())
 
     const intro = useIntro({
@@ -165,19 +168,20 @@ export default function Shotlist() {
         setTimeout(() => {
             document.title = `Shotly | ${query.data.shotlist?.name || "Shotlist"}`
         },500)
-    }, [query.data.shotlist?.name]);
+    }, [query.data.shotlist?.name])
 
     useEffect(() => {
-        calculateAccessRights()
-    }, [isArchived, query.data.shotlistCollaborationType]);
+        calculateAccessRights() //displays the banner and locks page if no edit rights
+    }, [isArchived, query.data.shotlistCollaborationType])
 
+    //handle scene selections
     useEffect(() => {
         sheetManagerRef.current?.showLoader()
 
         const url = new URL(window.location.href)
         url.searchParams.set("sid", selectedScene.id || "")
         router.replace(url.toString())
-    }, [selectedScene]);
+    }, [selectedScene])
 
     const loadData = async (noCache: boolean = false) => {
         const result = await client.query({
@@ -245,7 +249,7 @@ export default function Shotlist() {
         })
 
         if(result.errors) {
-            handleShotlistError({
+            handleError({
                 locationKey: "loadShotlist",
                 message: "Failed to load Shotlist.",
                 cause: result.errors
@@ -276,9 +280,7 @@ export default function Shotlist() {
         setReloadKey(k => k + 1)
     }
 
-    const handleShotlistError = (error: GenericError) => {
-        console.error(error)
-
+    const handleError = (error: GenericError) => {
         errorNotification({
             title: `Oh no, an error occurred at "${error.locationKey}".`,
             message: error.message
@@ -568,7 +570,7 @@ export default function Shotlist() {
             setFocusedSceneAttributeId: setFocusedSceneAttributeId,
 
             setSaveState: setSaveState,
-            handleError: handleShotlistError,
+            handleError: handleError,
 
             presentCollaborators: presentCollaborators,
 
@@ -586,34 +588,19 @@ export default function Shotlist() {
                     direction="horizontal"
                     className={"PanelGroup"}
                 >
-                    <Panel
-                        defaultSize={20}
-                        maxSize={30}
-                        minSize={12}
-                        className={`sidebar collapse ${sidebarOpen ? "open" : "closed"}`}
-                    >
-                        <ShotlistSidebar
-                            query={query}
-                            setQuery={setQuery}
-                            sceneCount={sceneCount}
-                            setSceneCount={setSceneCount}
-                            selectedScene={selectedScene}
-                            setSelectedScene={setSelectedScene}
-
-                            isReadOnly={isViewOrCommentOnly}
-                            setSidebarOpen={setSidebarOpen}
-                            reloadInProgress={reloadInProgress}
-
-                            openShotlistOptionsDialog={() => {
-                                shotlistOptionsDialogRef.current?.open()
-                                intro.cancel()
-                            }}
-
-                            presentCollaborators={Array.from(presentCollaborators?.values().map(c => c.user) || [])}
-
-                            ref={sidebarRef}
-                        />
-                    </Panel>
+                    <ShotlistSidebar
+                        query={query}
+                        setQuery={setQuery}
+                        openShotlistOptionsDialog={openShotlistOptionsDialog}
+                        isViewOrCommentOnly={isViewOrCommentOnly}
+                        reloadInProgress={reloadInProgress}
+                        sceneCount={sceneCount}
+                        setSceneCount={setSceneCount}
+                        selectedScene={selectedScene}
+                        setSelectedScene={setSelectedScene}
+                        presentCollaborators={Array.from(presentCollaborators?.values().map(c => c.user) || [])}
+                        sceneListRef={sidebarRef}
+                    />
 
                     <PanelResizeHandle className="PanelResizeHandle sidebarResize" hitAreaMargins={{fine: 5, coarse: 10}}/>
 
