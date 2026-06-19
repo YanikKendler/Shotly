@@ -13,7 +13,6 @@ import Sidebar from "@/components/app/sidebar/sidebar"
 import {AppContext} from "@/context/AppContext"
 import {wuText} from "@yanikkendler/web-utils/dist"
 
-//TODO template selected state
 export default function DashboardSidebar ({
     query,
     reloadShotlists,

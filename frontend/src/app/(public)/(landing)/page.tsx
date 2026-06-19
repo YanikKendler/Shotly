@@ -22,7 +22,7 @@ import {
     FileCode,
     Heart,
     Info, Blocks,
-    Users, ArrowDown, SquareArrowOutUpRight
+    Users, ArrowDown, SquareArrowOutUpRight, Keyboard, MessageSquareText, Cloud
 } from "lucide-react"
 import Image from "next/image"
 import AuthSwitcher from "@/components/utility/authSwitcher/authSwitcher"
@@ -40,6 +40,9 @@ export default function Landing() {
     const pageRef = useRef<HTMLDivElement>(null);
     const imageRef = useRef<HTMLImageElement>(null);
     const whyShotlyRef = useRef<HTMLDivElement>(null);
+
+    const proTierRef = useRef<HTMLDivElement>(null);
+    const basicTierRef = useRef<HTMLDivElement>(null);
 
     const handleScroll = () => {
         if(!pageRef.current) return;
@@ -98,27 +101,40 @@ export default function Landing() {
         imageRef.current.style.transform = `scale(${scale}) translateY(-${5*ratioVisible}rem)`;
     }
 
-    const tiltImageWithMouse = (event: React.MouseEvent) => {
-        if(!imageRef.current) return
+    const tiltImageWithMouse = (event: React.MouseEvent, element: HTMLElement | null) => {
+        if(!element) return
+
+        tiltElementWithMouse(event, element)
 
         const distanceToCenterRatio = Utils.computePositionToCenterRatio({
             x: event.clientX,
             y: event.clientY
-        }, imageRef.current)
+        }, element)
+
+        const glintElement: HTMLSpanElement | null = element.querySelector(".glint")
+
+        if(!glintElement) return
+
+        glintElement.style.left = (distanceToCenterRatio.x + 1) / 2 * 100 + "%"
+        glintElement.style.top = (distanceToCenterRatio.y + 1) / 2 * 100 + "%"
+    }
+
+    const tiltElementWithMouse = (event: React.MouseEvent, element: HTMLElement | null, strength = 1) => {
+        if(!element) return
+
+        const distanceToCenterRatio = Utils.computePositionToCenterRatio({
+            x: event.clientX,
+            y: event.clientY
+        }, element)
 
         const angle = {
             x: -distanceToCenterRatio.x,
             y: distanceToCenterRatio.y
         }
 
-        imageRef.current.style.rotate = `${angle.y} ${angle.x} 0 ${distanceToCenterRatio.d * 3}deg`;
+        console.log(distanceToCenterRatio)
 
-        const glintElement: HTMLSpanElement | null = imageRef.current.querySelector(".glint")
-
-        if(!glintElement) return
-
-        glintElement.style.left = (distanceToCenterRatio.x + 1) / 2 * 100 + "%"
-        glintElement.style.top = (distanceToCenterRatio.y + 1) / 2 * 100 + "%"
+        element.style.rotate = `${angle.y} ${angle.x} 0 ${distanceToCenterRatio.d * 3 * strength}deg`;
     }
 
     useEffect(() => {
@@ -264,7 +280,7 @@ export default function Landing() {
                     </button>
                     <div className="imageWrapper"
                          ref={imageRef}
-                         onMouseMove={tiltImageWithMouse}
+                         onMouseMove={(e) => tiltImageWithMouse(e, imageRef.current)}
                     >
                         <span className="glint"></span>
                         <ThemeSwitcher
@@ -356,7 +372,7 @@ export default function Landing() {
                         </div>
                         <div className="feature">
                             <div className="icon">
-                                <svg className="raw" height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+                                {/*<svg className="raw" height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
                                      viewBox="0 0 512.001 512.001">
                                     <g>
                                         <g>
@@ -369,7 +385,8 @@ export default function Landing() {
                                                 C480.005,334.256,433.141,381.12,375.537,381.12z"/>
                                         </g>
                                     </g>
-                                </svg>
+                                </svg>*/}
+                                <Cloud size={40}/>
                             </div>
                             <h3>Cloud Based</h3>
                             <p>Your Shotlist lives in the cloud. Accessible from anywhere at any time.</p>
@@ -385,6 +402,36 @@ export default function Landing() {
                                 className={"noPadding"}
                                 target={"_blank"}
                                 onClick={() => Analytics.signal("Landing.Clicked.LearnMore.Collaboration")}
+                            >
+                                Learn more
+                            </Link>
+                        </div>
+                        <div className="feature">
+                            <div className="icon">
+                                <Keyboard size={40}/>
+                            </div>
+                            <h3>Extensive Keybinds</h3>
+                            <p>Every core action has a dedicated keybind, allowing you to edit shotlists completely mouse-free.</p>
+                            <Link
+                                href="https://docs.shotly.at/shotlist/navigation/#keybinds"
+                                className={"noPadding"}
+                                target={"_blank"}
+                                onClick={() => Analytics.signal("Landing.Clicked.LearnMore.Keybinds")}
+                            >
+                                Learn more
+                            </Link>
+                        </div>
+                        <div className="feature">
+                            <div className="icon">
+                                <MessageSquareText size={40}/>
+                            </div>
+                            <h3>Comments</h3>
+                            <p>Invite colleagues to comment on individual shots, track feedback, or simply note down your own ideas.</p>
+                            <Link
+                                href="https://docs.shotly.at/shotlist/comments"
+                                className={"noPadding"}
+                                target={"_blank"}
+                                onClick={() => Analytics.signal("Landing.Clicked.LearnMore.Comments")}
                             >
                                 Learn more
                             </Link>
@@ -419,15 +466,15 @@ export default function Landing() {
                                 Learn more
                             </Link>
                         </div>
-                        {/*
-                            - Keybinds
-                            - Comments
-                        */}
                     </div>
                 </section>
                 <section className="pricing" id={"pricing"}>
                     <div className="content">
-                        <div className="tier">
+                        <div
+                            className="tier"
+                            ref={basicTierRef}
+                            onMouseMove={(e) => tiltElementWithMouse(e, basicTierRef.current, 1.5)}
+                        >
                             <div className="top">
                                 <p className="name">Basic</p>
                                 <div className="price">
@@ -467,7 +514,11 @@ export default function Landing() {
                             >Get started</button>
                         </div>
 
-                        <div className="tier">
+                        <div
+                            className="tier"
+                            ref={proTierRef}
+                            onMouseMove={(e) => tiltElementWithMouse(e, proTierRef.current, 1.5)}
+                        >
                             <div className="top">
                                 <p className="name">Pro</p>
                                 <div className="price">
@@ -531,10 +582,10 @@ export default function Landing() {
                     <div>
                         <h3>Support</h3>
                         <Link className={"noPadding"} href={"https://docs.shotly.at"} target={"_blank"}>Documentation</Link>
-                        <Link className={"noPadding"} href={"https://github.com/YanikKendler/shotly/issues/new/choose"} target={"_blank"}>Report a Bug</Link>
-                        <Link className={"noPadding"} href={"https://github.com/YanikKendler/shotly/issues/new/choose"} target={"_blank"}>Suggest a Feature</Link>
                         <Link className={"noPadding"} href={"/freeForStudents"}>Free for Students</Link>
                         <Link className={"noPadding"} href={"/changelog"}>Changelog</Link>
+                        <Link className={"noPadding"} href={"https://github.com/YanikKendler/shotly/issues/new/choose"} target={"_blank"}>Report a Bug</Link>
+                        <Link className={"noPadding"} href={"https://github.com/YanikKendler/shotly/issues/new/choose"} target={"_blank"}>Suggest a Feature</Link>
                         <Link className={"noPadding"} href={"https://github.com/users/YanikKendler/projects/7/views/4"} target={"_blank"}>Issue tracker</Link>
                     </div>
                 </footer>

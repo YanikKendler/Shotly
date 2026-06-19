@@ -378,6 +378,7 @@ main.landing{
         filter: blur(10vw);
         transition: opacity 300ms;
         opacity: 0;
+        pointer-events: none;
       }
 
       &:hover .glint{
@@ -571,6 +572,7 @@ main.landing{
       gap: 3rem;
       max-width: 50rem;
       width: 100%;
+      perspective: 1500px;
 
       @media screen and (max-width: 800px) {
           flex-direction: column;
@@ -585,6 +587,15 @@ main.landing{
       width: 100%;
       padding: 1rem;
       border-radius: .5rem;
+      transform-origin: center;
+      transition: rotate 200ms ease-out, box-shadow 400ms;
+      outline: 1.5px solid transparent;
+
+      &:hover{
+        /*outline-color: var(--transparent-accent-30);*/
+        /*box-shadow: 0 0 8px 2px var(--transparent-accent-30);*/
+        box-shadow: -3px 3px 10px 3px var(--transparent-contrast-15);
+      }
 
       .top{
         display: flex;
