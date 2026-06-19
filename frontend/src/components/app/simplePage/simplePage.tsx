@@ -16,7 +16,7 @@ export default function SimplePage({
         <main className={`simplePage ${className || ""}`}>
             <nav>
                 <div className="left">
-                    <Link href={"/"}><Iconmark/>Home</Link>
+                    <Link href={"/"}><Iconmark/>Landing Page</Link>
                 </div>
                 <Link href={"/"} className={"middle"}><Wordmark/></Link>
                 <div className="right">

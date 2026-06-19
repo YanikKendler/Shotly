@@ -126,7 +126,6 @@ export default function Pro(){
                 }
 
                 <div className="buttons">
-                    {/*TODO button is too small*/}
                     <Link className={"filled"} href={"/dashboard"}>My Dashboard</Link>
                 </div>
             </>

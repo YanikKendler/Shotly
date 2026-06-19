@@ -7,7 +7,11 @@ main.pro{
   }
 
   .buttons{
-    margin-top: 1rem;
+    button, a{
+      padding-inline: 1.2em;
+      padding-block: 0.8em;
+      font-size: .9rem;
+    }
   }
 
   .separator{

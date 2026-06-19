@@ -49,7 +49,7 @@ main.simplePage{
     }
   }
 
-  .content{
+  :where(.content){
     max-width: 60ch;
     width: 100%;
     margin-inline: auto;
@@ -117,7 +117,7 @@ main.simplePage{
       font-size: inherit;
     }
 
-    .buttons{
+    :where(.buttons){
       display: flex;
       gap: .5em;
       margin-top: 2em;
