@@ -43,7 +43,10 @@ class Auth {
         this.silentAuth = this.silentAuth.bind(this)
     }
 
-    login() {
+    login(returnTo?: string) {
+        if(returnTo)
+            sessionStorage.setItem(Config.localStorageKey.returnToUrl, returnTo)
+
         this.auth0.authorize()
     }
 

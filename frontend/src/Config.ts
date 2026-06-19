@@ -47,6 +47,7 @@ export default class Config {
         hasLoggedInBefore: "shotly-has-logged-in-before",
         userIdentifier: "shotly-user-identifier",
         latestVersionUsed: "shotly-latest-version-used",
+        returnToUrl: "shotly-return-to-url",
     }
 
     static readonly loadingMessage = {
