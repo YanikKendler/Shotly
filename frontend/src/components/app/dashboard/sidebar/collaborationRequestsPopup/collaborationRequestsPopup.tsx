@@ -217,13 +217,14 @@ const CollaborationRequestsPopup = forwardRef<
                 <NavigationItem
                     Icon={Inbox}
                     action={() => setCollaborationRequestOpen(current => !current)}
-                    description={"Collaboration Requests"}
+                    description={<>Collaboration Requests <span className="key">Alt</span> <span className="gray">+</span> <span className="key">C</span></>}
                     badge={
                         pendingCollaborations.data?.pendingCollaborations &&
                         pendingCollaborations.data?.pendingCollaborations.length > 0 ?
                         pendingCollaborations.data.pendingCollaborations.length :
                         undefined
                     }
+                    selected={collaborationRequestOpen}
                 />
             </Popover.Anchor>
             <Popover.Portal>

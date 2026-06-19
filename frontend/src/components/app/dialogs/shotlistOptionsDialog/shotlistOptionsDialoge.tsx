@@ -336,6 +336,7 @@ const ShotlistOptionsDialog = forwardRef<ShotlistOptionsDialogRef, ShotlistOptio
                 onValueChange={page => {
                     setSelectedMainPage(page as ShotlistOptionsDialogMainPage)
                 }}
+                orientation={"vertical"}
             >
                 <Tabs.List className={"tabs"}>
                     <Tabs.Trigger value={"general"}>

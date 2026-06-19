@@ -6,10 +6,12 @@ import { Query, ShotlistDto, TemplateDto} from "../../../../../../lib/graphql/ge
 import Utils from "@/utility/Utils"
 import Separator from "@/components/basic/separator/separator"
 import {usePathname} from "next/navigation"
-import {useEffect, useState} from "react"
+import {useContext, useEffect, useState} from "react"
 import DashboardSidebarSection from "@/components/app/dashboard/sidebar/dashboardSidebarSection/dashboardSidebarSection"
 import "./dashboardSidebar.scss"
 import Sidebar from "@/components/app/sidebar/sidebar"
+import {AppContext} from "@/context/AppContext"
+import {wuText} from "@yanikkendler/web-utils/dist"
 
 //TODO template selected state
 export default function DashboardSidebar ({
@@ -21,23 +23,15 @@ export default function DashboardSidebar ({
     reloadShotlists: () => void
     openCreateShotlistDialog: () => void
 }){
+    const appContext = useContext(AppContext)
     const pathname = usePathname()
 
-    const [pagename, setPagename] = useState("Dashboard")
-
-    useEffect(() => {
-        if(pathname.includes("template"))
-            setPagename("Template")
-        else if(pathname.includes("archive"))
-            setPagename("Archive")
-        else
-            setPagename("Dashboard")
-    }, [pathname])
+    const potentialTemplateId = pathname.split('?')[0].split("/").at(-1)
 
     return (
         <Sidebar
             className={"dashboardSidebar"}
-            heading={pagename}
+            heading={wuText.upperOrLowerRange(appContext.page, 0, 0) || "Shotly"}
             list={<>
                 <DashboardSidebarSection
                     title={"My Shotlists"}
@@ -83,11 +77,13 @@ export default function DashboardSidebar ({
                         (query.data.templates as TemplateDto[])
                             ?.sort(Utils.orderShotlistsOrTemplatesByName)
                             ?.map((template) => ({
+                                id: template.id,
                                 name: template.name,
                                 link: `/dashboard/template/${template.id}`,
                                 icon: <Blocks size={18}/>
                             }))
                     }
+                    selectedId={potentialTemplateId}
                 />
             </>}
             isLoading={query.loading}

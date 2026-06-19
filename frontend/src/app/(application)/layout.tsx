@@ -2,6 +2,7 @@ import {ReactElement} from "react"
 import {ApolloWrapper} from "@/wrapper/ApolloWrapper"
 import AuthWrapper from "@/wrapper/AuthWrapper"
 import Ralph from "@/components/app/ralph/ralph"
+import {AppContextProvider} from "@/context/AppContext"
 
 export default function AppLayout({
     children
@@ -11,8 +12,10 @@ export default function AppLayout({
     return (
         <AuthWrapper> {/*should be the outermost*/}
             <ApolloWrapper> {/*should also be out*/}
-                {children}
-                <Ralph/>
+                <AppContextProvider>
+                    {children}
+                    <Ralph/>
+                </AppContextProvider>
             </ApolloWrapper>
         </AuthWrapper>
     )

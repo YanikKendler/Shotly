@@ -59,6 +59,7 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
     const [deleting, setDeleting] = useState(false)
     const [passwordResetDisabled, setPasswordResetDisabled] = useState(false)
+    const [isOpen, setIsOpen] = useState(false)
 
     const [selectedAppearance, setSelectedAppearance] = useState<string>("system")
     const [userSettings, setUserSettings] = useState<UserSettings>({
@@ -555,6 +556,7 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
                 if(onOpenChange != undefined) {
                     onOpenChange(isOpen)
                 }
+                setIsOpen(isOpen)
             }}
         >
             <div className="top sticky">
@@ -573,6 +575,7 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
     return {
         open,
         close,
+        isOpen: isOpen,
         Element
     };
 }

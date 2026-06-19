@@ -1,5 +1,5 @@
 main.home .sidebar .sidebarSection{
-  button{
+  button.collapseButton{
     width: 100%;
     font-size: .9rem;
     font-weight: 500;
@@ -16,7 +16,7 @@ main.home .sidebar .sidebarSection{
     }
   }
 
-  a{
+  a.entry{
     padding: .2rem;
     padding-left: .4rem;
     justify-content: left;
@@ -28,6 +28,11 @@ main.home .sidebar .sidebarSection{
       background-color: var(--transparent-gray-10);
       text-decoration: underline;
       color: var(--text);
+    }
+
+    &.selected{
+      background-color: var(--transparent-accent-20);
+      color: var(--accent);
     }
   }
 

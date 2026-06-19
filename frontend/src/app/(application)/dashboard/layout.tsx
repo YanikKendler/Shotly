@@ -215,7 +215,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         noLink
     />
 
-    if(!auth.getUser() || true)
+    if(!auth.getUser())
         return <LoadingPage/>
 
     //yeah i know this is ugly

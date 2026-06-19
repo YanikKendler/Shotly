@@ -10,8 +10,8 @@ import CollaborationRequestsPopup
 } from "@/components/app/dashboard/sidebar/collaborationRequestsPopup/collaborationRequestsPopup"
 import Separator from "@/components/basic/separator/separator"
 import useNavigationKeybinds from "@/service/useNavigationKeybinds"
+import {AppContext} from "@/context/AppContext"
 
-//TODO selected states
 //TODO remove shotlistContext
 export default function Navigation({
     onCollaborationAccepted = () => {},
@@ -20,6 +20,7 @@ export default function Navigation({
     onCollaborationAccepted?: () => void,
     children?: ReactNode
 }){
+    const appContext = useContext(AppContext)
     const shotlistContext = useContext(ShotlistContext)
     const accountDialog = useAccountDialog(
         (isOpen)=> {
@@ -45,21 +46,27 @@ export default function Navigation({
                     Icon={House}
                     action={"/dashboard"}
                     description={<>Dashboard <span className="key">Alt</span> <span className="gray">+</span> <span className="key">H</span></>}
+                    selected={appContext.page == "dashboard"}
                 />
                 <NavigationItem
                     Icon={Archive}
                     action={"/dashboard/archive"}
                     description={"Archive"}
+                    selected={appContext.page == "archive"}
                 />
             </div>
             <div className="bottom">
                 {children}
                 {children && <Separator/>}
-                <CollaborationRequestsPopup ref={collabPopupRef} reloadShotlists={onCollaborationAccepted}/>
+                <CollaborationRequestsPopup
+                    ref={collabPopupRef}
+                    reloadShotlists={onCollaborationAccepted}
+                />
                 <NavigationItem
                     Icon={User}
                     action={() => {accountDialog.open()}}
-                    description={"Your Account"}
+                    description={<>Your Account <span className="key">Alt</span> <span className="gray">+</span> <span className="key">A</span></>}
+                    selected={accountDialog.isOpen}
                 />
             </div>
             {accountDialog.Element}

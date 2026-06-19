@@ -105,22 +105,22 @@ export default function ShotlistSidebar({
                 <NavigationItem
                     Icon={Settings}
                     action={() => openShotlistOptionsDialog({main: ShotlistOptionsDialogMainPage.general})}
-                    description={"Shotlist Settings"}
+                    description={<>Shotlist Settings <span className="key">Alt</span> <span className="gray">+</span> <span className="key">O</span></>}
                 />
                 <NavigationItem
                     Icon={Columns3Cog}
                     action={() => openShotlistOptionsDialog({main: ShotlistOptionsDialogMainPage.attributes})}
-                    description={"Attributes"}
+                    description={<>Attributes <span className="key">Alt</span> <span className="gray">+</span> <span className="key">O</span></>}
                 />
                 <NavigationItem
                     Icon={Users}
                     action={() => openShotlistOptionsDialog({main: ShotlistOptionsDialogMainPage.collaborators})}
-                    description={"Collaborators"}
+                    description={<>Collaborators <span className="key">Alt</span> <span className="gray">+</span> <span className="key">O</span></>}
                 />
                 <NavigationItem
                     Icon={Download}
                     action={() => openShotlistOptionsDialog({main: ShotlistOptionsDialogMainPage.export})}
-                    description={"Export"}
+                    description={<>Export <span className="key">Alt</span> <span className="gray">+</span> <span className="key">O</span></>}
                 />
             </>}
             heading={

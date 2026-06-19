@@ -146,7 +146,7 @@ export default function Overview() {
                     <span><Plus size={22}/>New Template</span>
                 </button>
             </DashboardGrid>
-            <Link href={"/src/app/(application)/dashboard/archive"} className={"archive default"}>Archive <ArrowRight size={16} strokeWidth={2}/></Link>
+            <Link href={"/dashboard/archive"} className={"archive default"}>Archive <ArrowRight size={16} strokeWidth={2}/></Link>
 
             {createShotlistDialog.Element}
             {createTemplateDialog.Element}

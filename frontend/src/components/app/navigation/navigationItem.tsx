@@ -7,18 +7,22 @@ export default function NavigationItem({
     Icon,
     action,
     description,
-    badge
+    badge,
+    selected
 }:{
     Icon: ForwardRefExoticComponent<Omit<LucideProps, "ref">>
     action: string | (() => void)
     description: ReactNode
     badge?: string | number
+    selected?: boolean | undefined
 }){
     const renderAction = (children: ReactElement) => {
+        const className = `navigationItem ${selected == true && "selected"}`
+
         if(typeof action === "string"){
-            return <Link href={action}>{children}</Link>
+            return <Link href={action} className={className}>{children}</Link>
         }else{
-            return <button onClick={action}>{children}</button>
+            return <button onClick={action} className={className}>{children}</button>
         }
     }
 
