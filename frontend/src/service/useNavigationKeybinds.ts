@@ -1,33 +1,33 @@
-import {useEffect} from "react"
+import {useContext, useEffect} from "react"
 import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys"
-import {useRouter} from "next/navigation" //package has incorrectly configured type exports
+import {useRouter} from "next/navigation"
+import {AppContext} from "@/context/AppContext" //package has incorrectly configured type exports
 
-/* TODO close all functionality does not work */
 export default function useNavigationKeybinds({
     openAccountDialog,
     toggleCollaborationRequests,
-    closeAll
 }:{
     openAccountDialog: () => void
     toggleCollaborationRequests: () => void
-    closeAll: () => void
 }) {
     const router = useRouter()
+    const appContext = useContext(AppContext)
 
     useEffect(() => {
         let unsubscribe = tinykeys(window, {
             "Alt+H": event => { //not alt+d because that is reserved by browsers
                 event.preventDefault()
+                appContext.closeOverlays()
                 router.push("/dashboard")
             },
             "Alt+A": event => {
                 event.preventDefault()
-                closeAll()
+                appContext.closeOverlays()
                 openAccountDialog()
             },
             "Alt+C": event => {
                 event.preventDefault()
-                closeAll()
+                appContext.closeOverlays()
                 toggleCollaborationRequests()
             }
         })

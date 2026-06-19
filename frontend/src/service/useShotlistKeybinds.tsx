@@ -7,15 +7,15 @@ import {infoNotification} from "@/service/NotificationService"
 import {useRouter} from "next/navigation"
 import {RowColumn} from "@/utility/Types"
 import {ShotlistContext} from "@/context/ShotlistContext"
-import {useLatestCallback} from "@/utility/useLatestCallback" //package has incorrectly configured type exports
+import {useLatestCallback} from "@/utility/useLatestCallback"
+import {AppContext} from "@/context/AppContext" //package has incorrectly configured type exports
 
 export default function useShotlistKeybinds({
     sheetManagerRef,
     sidebarRef,
     setSelectedScene,
     openShotlistOptionsDialog,
-    focusedCell,
-    blockKeyBinds
+    focusedCell
 }:{
     sheetManagerRef: RefObject<SheetManagerRef | null>
     sidebarRef: RefObject<SceneListRef | null>
@@ -25,67 +25,51 @@ export default function useShotlistKeybinds({
     setSelectedScene: Dispatch<SetStateAction<SelectedScene>>
 
     focusedCell: RefObject<RowColumn>
-
-    blockKeyBinds: RefObject<Map<string, string[]>>
 }) {
+    const appContext = useContext(AppContext)
+
     useEffect(() => {
-        const isBlocked = (keybind?: string) => {
-            const result = blockKeyBinds.current.size > 0
-
-            if(result && keybind) {
-                const currentKeyBindInUse = blockKeyBinds.current.values().some(b => b.includes(keybind))
-
-                if(!currentKeyBindInUse) {
-                    infoNotification({
-                        title: "This keybind is paused",
-                        message: "Close the current dialog/popover to use it [Esc]"
-                    })
-                }
-            }
-            return result
-        }
-
         let unsubscribe = tinykeys(window, {
             "ArrowLeft": event => {
-                if(isBlocked()) return
+                appContext.closeOverlays()
 
                 sheetManagerRef.current?.moveFocusedCell(event, 0, -1)
             },
             "ArrowRight": event => {
-                if(isBlocked()) return
+                appContext.closeOverlays()
 
                 sheetManagerRef.current?.moveFocusedCell(event, 0, 1)
             },
             "ArrowUp": event => {
-                if(isBlocked()) return
+                appContext.closeOverlays()
 
                 sheetManagerRef.current?.moveFocusedCell(event, -1, 0)
             },
             "ArrowDown": event => {
-                if(isBlocked()) return
+                appContext.closeOverlays()
 
                 sheetManagerRef.current?.moveFocusedCell(event, 1, 0)
             },
             "Control+Enter": event => {
-                if(isBlocked("Control+Enter")) return
+                if(appContext.isKeybindBlocked("Control+Enter")) return
 
                 event.preventDefault()
                 sheetManagerRef.current?.handleCreateShotKeybind.current()
             },
             "Alt+Enter": event => {
-                if(isBlocked("Alt+Enter")) return
+                if(appContext.isKeybindBlocked("Alt+Enter")) return
 
                 event.preventDefault()
                 sheetManagerRef.current?.handleCreateShotKeybind.current()
             },
             "Alt+N": event => {
-                if(isBlocked("Alt+N")) return
+                if(appContext.isKeybindBlocked("Alt+N")) return
 
                 event.preventDefault()
                 sheetManagerRef.current?.handleCreateShotKeybind.current()
             },
             "Alt+([1-9])": event => {
-                if(isBlocked("")) return
+                if(appContext.isKeybindBlocked("")) return
 
                 //TODO always causes scene reload
 
@@ -98,19 +82,19 @@ export default function useShotlistKeybinds({
                 setSelectedScene({id: sceneIdToSelect, position: scenePositionToSelect})
             },
             "Alt+O": event => {
-                if(isBlocked("Alt+0")) return
+                appContext.closeOverlays()
 
                 event.preventDefault()
                 openShotlistOptionsDialog()
             },
             "Alt+S": event => {
-                if(isBlocked("Alt+S")) return
+                if(appContext.isKeybindBlocked("Alt+S")) return
 
                 event.preventDefault()
                 sidebarRef.current?.createScene()
             },
             "Alt+.": event => {
-                if(isBlocked("Alt+.")) return
+                if(appContext.isKeybindBlocked("Alt+.")) return
 
                 event.preventDefault()
                 const currentRow = focusedCell.current.row

@@ -21,22 +21,13 @@ export default function Navigation({
     children?: ReactNode
 }){
     const appContext = useContext(AppContext)
-    const shotlistContext = useContext(ShotlistContext)
-    const accountDialog = useAccountDialog(
-        (isOpen)=> {
-            if(isOpen)
-                shotlistContext.blockKeyBinds.current.set("account", [])
-            else
-                shotlistContext.blockKeyBinds.current.delete("account")
-        }
-    )
+    const accountDialog = useAccountDialog()
 
     const collabPopupRef = useRef<CollaborationRequestsPopupRef>(null)
 
     useNavigationKeybinds({
         openAccountDialog: accountDialog.open,
         toggleCollaborationRequests: () => collabPopupRef.current?.toggleCollaborationRequests(),
-        closeAll: () => {}
     })
 
     return (

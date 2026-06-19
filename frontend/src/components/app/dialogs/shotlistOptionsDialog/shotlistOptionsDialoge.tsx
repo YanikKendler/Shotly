@@ -20,6 +20,7 @@ import Separator from "@/components/basic/separator/separator"
 import {errorNotification, successNotification} from "@/service/NotificationService"
 import Dialog, {DialogRef} from "@/components/basic/dialog/dialog"
 import {ShotlistContext} from "@/context/ShotlistContext"
+import {AppContext} from "@/context/AppContext"
 
 export interface ShotlistOptionsDialogRef {
     open: (pages?: ShotlistOptionsDialogPages) => void
@@ -61,6 +62,10 @@ const ShotlistOptionsDialog = forwardRef<ShotlistOptionsDialogRef, ShotlistOptio
     isArchived,
     setIsArchived,
 }, ref) => {
+    const client = useApolloClient()
+    const router = useRouter()
+    const appContext = useContext(AppContext)
+
     const [sceneAttributeDefinitions, setSceneAttributeDefinitions] = useState<AnySceneAttributeDefinition[] | null>(null);
     const [shotAttributeDefinitions, setShotAttributeDefinitions] = useState<AnyShotAttributeDefinition[] | null>(null);
     const [shotlist, setShotlist] = useState<ShotlistDto | null>(null);
@@ -72,10 +77,6 @@ const ShotlistOptionsDialog = forwardRef<ShotlistOptionsDialogRef, ShotlistOptio
     const [selectedSubPage, setSelectedSubPage] = useState<ShotlistOptionsDialogSubPage>(ShotlistOptionsDialogSubPage.scene);
 
     const [isLoading, setIsLoading] = useState(true)
-
-    const client = useApolloClient()
-    const router = useRouter()
-    const shotlistContext = useContext(ShotlistContext)
 
     const lastRefresh = useRef(0);
 
@@ -313,12 +314,9 @@ const ShotlistOptionsDialog = forwardRef<ShotlistOptionsDialogRef, ShotlistOptio
                         loadData()
                         setDataChanged(false)
                     }
-
-                    shotlistContext.blockKeyBinds.current.set("shotlistOptions", [])
                 }
                 else {
                     runRefreshShotlistCheck()
-                    shotlistContext.blockKeyBinds.current.delete("shotlistOptions")
                 }
             }}
             onRenderFinish={checkUrlAutoOpen}

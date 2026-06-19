@@ -56,10 +56,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
     useDashboardKeybinds({
         openCreateShotlistDialog: createShotlistDialog.open,
         openCreateTemplateDialog: createTemplateDialog.open,
-        closeAll: () => {
-            createShotlistDialog.close()
-            createTemplateDialog.close()
-        }
     })
 
     // load Data

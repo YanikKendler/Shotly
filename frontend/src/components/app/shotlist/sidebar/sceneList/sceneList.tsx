@@ -6,7 +6,6 @@ import ErrorDisplay from "@/components/app/feedback/errorDisplay/errorDisplay"
 import Scene, {SidebarSceneRef} from "@/components/app/shotlist/sidebar/scene/scene"
 import React, {Dispatch, forwardRef, SetStateAction, useContext, useEffect, useImperativeHandle, useRef} from "react"
 import Utils from "@/utility/Utils"
-import {useAccountDialog} from "@/components/app/dialogs/accountDialog/accountDialog"
 import Sortable from "sortablejs"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import "./sceneList.scss"
@@ -14,6 +13,7 @@ import {SelectedScene} from "@/app/(application)/shotlist/[id]/page"
 import {SceneAttributeRef} from "@/components/app/shotlist/sidebar/sceneAttribute/sceneAttribute"
 import Skeleton from "react-loading-skeleton"
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
+import {AppContext} from "@/context/AppContext"
 
 export interface SceneListRef {
     getScene: (position: number) => SidebarSceneRef | null
@@ -23,7 +23,6 @@ export interface SceneListRef {
     onDeleteScene: (sceneId: string) => void
     onMoveScene: (sceneId: string, to: number) => void
     createScene: () => void
-    openAccountDialog: () => void
 }
 
 export interface ShotlistSidebarProps {
@@ -49,15 +48,7 @@ const SceneList = forwardRef<SceneListRef, ShotlistSidebarProps>(({
 }, ref) =>{
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
-
-    const accountDialog = useAccountDialog(
-        (isOpen)=> {
-            if(isOpen)
-                shotlistContext.blockKeyBinds.current.set("account", [])
-            else
-                shotlistContext.blockKeyBinds.current.delete("account")
-        }
-    )
+    const appContext = useContext(AppContext)
 
     const sortableRef = useRef<Sortable|null>(null)
 
@@ -83,7 +74,6 @@ const SceneList = forwardRef<SceneListRef, ShotlistSidebarProps>(({
         onDeleteScene: onDeleteScene,
         onMoveScene: onMoveScene,
         createScene: createScene,
-        openAccountDialog: accountDialog.open
     }))
 
     useEffect(() => {

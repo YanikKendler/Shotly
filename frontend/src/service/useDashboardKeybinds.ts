@@ -1,30 +1,31 @@
-import {useEffect} from "react"
-import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys" //package has incorrectly configured type exports
+import {useContext, useEffect} from "react"
+import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys"
+import {AppContext} from "@/context/AppContext" //package has incorrectly configured type exports
 
 export default function useDashboardKeybinds({
     openCreateShotlistDialog,
     openCreateTemplateDialog,
-    closeAll
 }:{
     openCreateShotlistDialog: () => void
     openCreateTemplateDialog: () => void
-    closeAll: () => void
 }) {
+    const appContext = useContext(AppContext)
+
     useEffect(() => {
         let unsubscribe = tinykeys(window, {
             "Alt+N": event => {
+                appContext.closeOverlays()
                 event.preventDefault()
-                closeAll()
                 openCreateShotlistDialog()
             },
             "Alt+S": event => {
+                appContext.closeOverlays()
                 event.preventDefault()
-                closeAll()
                 openCreateShotlistDialog()
             },
             "Alt+T": event => {
+                appContext.closeOverlays()
                 event.preventDefault()
-                closeAll()
                 openCreateTemplateDialog()
             },
         })

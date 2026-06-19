@@ -62,9 +62,15 @@ const CommentPopover = forwardRef<CommentPopoverRef, CommentPopoverProps>(({
 
     useEffect(() => {
         if(isOpen)
-            shotlistContext.blockKeyBinds.current.set("comments", ["Control+Enter"])
+            appContext.visibleOverlays.current.set(
+                "comments",
+                {
+                    close: () => onOpenChange(false),
+                    usingKeybinds:["Control+Enter"]
+                }
+            )
         else
-            shotlistContext.blockKeyBinds.current.delete("comments")
+            appContext.visibleOverlays.current.delete("comments")
     }, [isOpen]);
 
     const sendComment = async () => {

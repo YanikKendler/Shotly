@@ -1,7 +1,9 @@
 import {Portal} from "radix-ui"
-import {forwardRef, ReactNode, useEffect, useImperativeHandle, useRef} from "react"
+import {forwardRef, ReactNode, useContext, useEffect, useId, useImperativeHandle, useRef} from "react"
 import "./dialog.scss"
-import {tinykeys, KeyBindingMap} from "@/../node_modules/tinykeys/dist/tinykeys" /*package has incorrectly configured type exports*/
+import {tinykeys, KeyBindingMap} from "@/../node_modules/tinykeys/dist/tinykeys"
+import {useConfirmDialog} from "@/components/app/dialogs/confirmDialog/confirmDialog"
+import {AppContext} from "@/context/AppContext" /*package has incorrectly configured type exports*/
 
 interface DialogProps {
     children: ReactNode
@@ -30,6 +32,9 @@ const Dialog = forwardRef<DialogRef, DialogProps>(({
     showScrollGradient = false,
     defaultOpen = false
 }, ref) => {
+    const appContext = useContext(AppContext)
+    const dialogId = useId();
+
     const dialogElement = useRef<HTMLDivElement>(null)
     const removeKeyBinds = useRef<() => void>(() => {})
     const initialRenderFinished = useRef(false)
@@ -78,6 +83,11 @@ const Dialog = forwardRef<DialogRef, DialogProps>(({
             return
         }
 
+        appContext.visibleOverlays.current.set(
+            `dialog-${dialogId}`,
+            { close: close, usingKeybinds: Object.keys(keyBinds) }
+        )
+
         setDisplay(true)
 
         onOpenChange(true)
@@ -98,6 +108,7 @@ const Dialog = forwardRef<DialogRef, DialogProps>(({
         setDisplay(false)
         onOpenChange(false)
         removeKeyBinds.current()
+        appContext.visibleOverlays.current.delete(`dialog-${dialogId}`)
     }
 
     const handleScroll = () => {

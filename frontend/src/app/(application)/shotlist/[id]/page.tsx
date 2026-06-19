@@ -98,9 +98,6 @@ export default function Shotlist() {
 
     const saveStateMap = useRef<Map<string, SaveState>>(new Map())
 
-    //TODO redo this with a global system in an "appContext"
-    const blockKeyBindsMap = useRef(new Map<string, string[]>())
-
     const intro = useIntro({
         steps: [
             { popover: { title: 'Your first Shotlist', description: 'This is where the fun beginns!' } },
@@ -489,8 +486,7 @@ export default function Shotlist() {
         sidebarRef: sidebarRef,
         openShotlistOptionsDialog: openShotlistOptionsDialog,
         focusedCell: focusedCell,
-        setSelectedScene: setSelectedScene,
-        blockKeyBinds: blockKeyBindsMap
+        setSelectedScene: setSelectedScene
     })
 
     if(query.errors && query.errors.length > 0) {
@@ -556,8 +552,6 @@ export default function Shotlist() {
             handleError: handleError,
 
             presentCollaborators: presentCollaborators,
-
-            blockKeyBinds: blockKeyBindsMap,
 
             currentCollaborationType: currentCollaborationType
         }}>
