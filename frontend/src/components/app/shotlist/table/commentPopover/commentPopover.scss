@@ -33,11 +33,12 @@
   &:not(.visible) {
     &:not(.commenterMode).showOnHover {
       border: none;
-      color: var(--text-50);
+      color: var(--text-60);
+      background-color: transparent;
 
       &:hover {
-        opacity: 1;
-        background-color: var(--comment-button-bg);
+        background-color: var(--comment-button-hover-bg);
+        color: var(--text);
       }
     }
 

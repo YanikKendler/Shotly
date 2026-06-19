@@ -65,6 +65,10 @@
         color: var(--accent);
       }
     }
+
+    button.comments.showOnHover{
+      opacity: 1;
+    }
   }
 
   &.active{

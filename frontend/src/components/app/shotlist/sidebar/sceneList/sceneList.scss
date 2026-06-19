@@ -24,9 +24,10 @@
     margin-block: 1rem;
   }
 
-  button.create:not([disabled]){
+  button.create{
     color: var(--text-40);
-    font-size: .9rem;
+    font-size: .95rem;
+    margin-top: .3rem;
 
     &:hover{
       background-color: var(--transparent-gray-10);
