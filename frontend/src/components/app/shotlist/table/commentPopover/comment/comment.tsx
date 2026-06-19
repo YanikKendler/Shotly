@@ -11,6 +11,7 @@ import MarkdownEditor, {MarkdownEditorRef} from "@/components/basic/markdownEdit
 import gql from "graphql-tag"
 import {errorNotification, successNotification} from "@/service/NotificationService"
 import {useApolloClient} from "@apollo/client"
+import {AppContext} from "@/context/AppContext"
 
 export interface CommentRef {
     isBeingEdited: boolean
@@ -28,6 +29,7 @@ const Comment = forwardRef<CommentRef, CommentProps>(({
 }, ref) =>{
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
+    const appContext = useContext(AppContext)
 
     const [newCommentText, setNewCommentText] = useState(comment?.text || undefined)
 
@@ -141,14 +143,14 @@ const Comment = forwardRef<CommentRef, CommentProps>(({
 
     const hideEditor = () => {
         editorRef.current?.forceToolBarHidden()
-        setTimeout(() => { //wait for toolbar animatin to finish
+        setTimeout(() => { //wait for toolbar animation to finish
             setIsBeingEdited(false)
         }, 180)
     }
 
     if(!comment || comment.archived) return null
 
-    const commentOwnedByCurrentUser = comment.owner?.id == shotlistContext.currentUser?.id
+    const commentOwnedByCurrentUser = comment.owner?.id == appContext.currentUser?.id
 
     return (
         <div className={`comment ${isBeingEdited && "isBeingEdited"}`}>

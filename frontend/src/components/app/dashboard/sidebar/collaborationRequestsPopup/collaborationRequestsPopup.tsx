@@ -38,8 +38,6 @@ const CollaborationRequestsPopup = forwardRef<
     const [pendingCollaborations, setPendingCollaborations] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
     useEffect(() => {
-        if(!auth.getUser()) return
-
         loadPendingCollaborations()
     }, [])
 

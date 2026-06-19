@@ -65,7 +65,6 @@ const ShotlistOptionsDialog = forwardRef<ShotlistOptionsDialogRef, ShotlistOptio
     const [shotAttributeDefinitions, setShotAttributeDefinitions] = useState<AnyShotAttributeDefinition[] | null>(null);
     const [shotlist, setShotlist] = useState<ShotlistDto | null>(null);
     const [collaborations, setCollaborations] = useState<CollaborationDto[] | null>(null)
-    const [currentUser, setCurrentUser] = useState<UserDto | null>(null)
     // used for refreshing the shotlist on dialog close, only when any data has been edited
     const [stringifiedAttributeData, setStringifiedAttributeData] = useState<string>("");
     const [dataChanged, setDataChanged] = useState(false);
@@ -205,9 +204,6 @@ const ShotlistOptionsDialog = forwardRef<ShotlistOptionsDialogRef, ShotlistOptio
                             }
                         }
                     }
-                    currentUser {
-                        id
-                    }
                 }`,
                 variables: {shotlistId: shotlistId},
                 fetchPolicy: "no-cache",
@@ -230,7 +226,6 @@ const ShotlistOptionsDialog = forwardRef<ShotlistOptionsDialogRef, ShotlistOptio
         setShotlist(result.data.shotlist)
         //is its own state to not influence he refresh check (data stringification)
         setCollaborations(result.data.shotlist.collaborations)
-        setCurrentUser(result.data.currentUser)
 
         setStringifiedAttributeData(
             JSON.stringify(result.data.shotAttributeDefinitions) +
@@ -364,7 +359,6 @@ const ShotlistOptionsDialog = forwardRef<ShotlistOptionsDialogRef, ShotlistOptio
                         setShotlist={setShotlist}
                         dataChanged={() => setDataChanged(true)}
                         isReadOnly={isReadOnly}
-                        currentUser={currentUser}
                         shotlistOptionsDialogRef={dialogRef}
                         isArchived={isArchived}
                         setIsArchived={setIsArchived}
@@ -390,7 +384,6 @@ const ShotlistOptionsDialog = forwardRef<ShotlistOptionsDialogRef, ShotlistOptio
                         collaborations={collaborations}
                         setCollaborations={setCollaborations}
                         shotlistOptionsDialogRef={dialogRef}
-                        isAvailable={shotlist?.owner?.id == currentUser?.id}
                     />
                 </Tabs.Content>
                 {/*keep the tab mounted so that the selected filters don't disappear when switching tabs*/}

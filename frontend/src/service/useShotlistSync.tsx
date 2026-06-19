@@ -28,6 +28,7 @@ import {ApolloQueryResult, useApolloClient, useSubscription} from "@apollo/clien
 import {useRouter} from "next/navigation"
 import gql from "graphql-tag"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
+import {AppContext} from "@/context/AppContext"
 
 /**
  * It would be lovely to only query the shot attributes for example if the shot was created
@@ -229,7 +230,6 @@ const SHOTLIST_UPDATES_SUBSCRIPTION = gql`
 
 export function useShotlistSync({
     shotlistId,
-    currentUserId,
     sheetManagerRef,
     sidebarRef,
     selectedScene,
@@ -243,7 +243,6 @@ export function useShotlistSync({
     refreshShotlist
 }:{
     shotlistId: string | null
-    currentUserId: string | null
 
     sheetManagerRef: RefObject<SheetManagerRef | null>
     sidebarRef: RefObject<SceneListRef | null>
@@ -264,6 +263,7 @@ export function useShotlistSync({
 }) {
     const client = useApolloClient()
     const router = useRouter()
+    const appContext = useContext(AppContext)
 
     const collaboratorSelectedCell = useRef<Map<string, SelectedCellPayload>>(new Map())
     const collaboratorSelectedSceneAttribute = useRef<Map<string, SelectedSceneAttributePayload>>(new Map())
@@ -271,8 +271,8 @@ export function useShotlistSync({
     const initialConnectTimestamp = useRef<number>(-1);
 
     const { data, loading, error, restart } = useSubscription(SHOTLIST_UPDATES_SUBSCRIPTION, {
-        skip: !currentUserId || !shotlistId,
-        variables: { shotlistId, userId: currentUserId },
+        skip: !appContext.currentUser?.id || !shotlistId,
+        variables: { shotlistId, userId: appContext.currentUser?.id },
         shouldResubscribe: true,
         onData: ({ data }) => {
             const updateDTO = data.data.shotlistUpdates
@@ -365,7 +365,7 @@ export function useShotlistSync({
                         )
                         break
                     case ShotlistUpdateType.CollaborationDeleted:
-                        if(currentUserId == updateDTO.payload.userId){
+                        if(appContext.currentUser?.id == updateDTO.payload.userId){
                             setQuery(current => ({
                                 ...current,
                                 errors: [{
@@ -597,7 +597,7 @@ export function useShotlistSync({
 
     const collaboratorTypeChanged = (payload: CollaborationPayload)=> {
         //we are only interested if our own permissions changed
-        if(currentUserId != payload.userId && payload.type) return
+        if(appContext.currentUser?.id != payload.userId && payload.type) return
 
         console.log("updating collaborator type to", payload.type)
 

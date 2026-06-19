@@ -1,4 +1,4 @@
-import React, {RefObject, useEffect, useState} from "react"
+import React, {RefObject, useContext, useEffect, useState} from "react"
 import {useApolloClient} from "@apollo/client"
 import {useConfirmDialog} from "@/components/app/dialogs/confirmDialog/confirmDialog"
 import "./collaboratorsTab.scss"
@@ -24,6 +24,7 @@ import {DialogRef} from "@/components/basic/dialog/dialog"
 import auth from "@/Auth"
 import {ShotlyErrorCode} from "@/utility/Types"
 import {useRouter} from "next/navigation"
+import {AppContext} from "@/context/AppContext"
 
 export default function CollaboratorsTab(
     {
@@ -31,18 +32,17 @@ export default function CollaboratorsTab(
         collaborations,
         setCollaborations,
         shotlistOptionsDialogRef,
-        isAvailable
     }:{
         shotlist: ShotlistDto | null
         collaborations: CollaborationDto[] | null
         setCollaborations: React.Dispatch<React.SetStateAction<CollaborationDto[] | null>>
         shotlistOptionsDialogRef: RefObject<DialogRef | null>
-        isAvailable: boolean
     }
 ) {
     const client = useApolloClient()
     const { confirm, ConfirmDialog } = useConfirmDialog()
     const router = useRouter()
+    const appContext = useContext(AppContext)
 
     const [inputValue, setInputValue] = useState("")
     const [userIsAlreadyAMember, setUserIsAlreadyAMember] = useState(false)
@@ -50,9 +50,9 @@ export default function CollaboratorsTab(
 
     useEffect(() => {
         const isAlreadyACollaborator = collaborations?.some(c => c.user?.email == inputValue) || false
-        const isOwner = auth.getUser()?.email == inputValue
+        const isOwner = appContext.currentUser?.email == inputValue //assuming that only the owner can edit collabs
         setUserIsAlreadyAMember(isAlreadyACollaborator || isOwner)
-    }, [inputValue]);
+    }, [inputValue])
 
     const addCollaborator = async () => {
         if(!wuConstants.Regex.email.test(inputValue)) return
@@ -268,7 +268,7 @@ export default function CollaboratorsTab(
 
     let content
 
-    if(!isAvailable) {
+    if(shotlist?.owner?.id != appContext.currentUser?.id) {
         content = <>
             <div className="leave">
                 <p>Leave this Shotlist</p>

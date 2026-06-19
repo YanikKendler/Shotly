@@ -5,22 +5,18 @@ import "./accountDialog.scss"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import {
-    Ban,
     BookText,
     Bug, GraduationCap,
     LogOut,
-    LucideMail,
     Mail,
     Monitor,
     Moon,
     Rocket, SquareArrowOutUpRight,
     Sun,
     Trash,
-    User,
-    UserRound, UserRoundPen,
     X
 } from "lucide-react"
-import Auth from "@/Auth"
+import auth from "@/Auth"
 import {Query, UserDto, UserTier} from "../../../../../lib/graphql/generated"
 import {RadioGroup, Switch, VisuallyHidden} from "radix-ui"
 import TextField from "@/components/basic/textField/textField"
@@ -42,6 +38,7 @@ import {errorNotification, successNotification} from "@/service/NotificationServ
 import Analytics from "@/service/Analytics"
 import Dialog, {DialogRef} from "@/components/basic/dialog/dialog"
 import BlockedUsersDialog from "@/components/app/dialogs/accountDialog/blockedUsersDialog/blockedUsersDialog"
+import {AppContext} from "@/context/AppContext"
 
 export interface UserSettings {
     saveExportSettingsInLocalstorage: boolean
@@ -53,10 +50,10 @@ export interface UserSettings {
 export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
     const client = useApolloClient()
     const {confirm, ConfirmDialog} = useConfirmDialog()
+    const appContext = useContext(AppContext)
 
     const dialogElementRef = useRef<DialogRef>(null)
 
-    const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
     const [deleting, setDeleting] = useState(false)
     const [passwordResetDisabled, setPasswordResetDisabled] = useState(false)
     const [isOpen, setIsOpen] = useState(false)
@@ -133,43 +130,6 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
         writeSettingsToLocalStorage()
     }, [userSettings])
 
-    async function getCurrentUser(){
-        const result = await client.query({
-            query: gql`
-                query currentUser{
-                    currentUser {
-                        id
-                        name
-                        email
-                        createdAt
-                        tier
-                        hasCancelled
-                        shotlists {
-                            name
-                        }
-                        revokeProAfter
-                        blockedUsers {
-                            id
-                            name
-                            email
-                        }
-                    }
-                }`,
-            fetchPolicy: "no-cache"
-        })
-
-        if(result.error) {
-            errorNotification({
-                title: "Failed to load user data",
-                tryAgainLater: true
-            })
-            console.error("Error fetching current user:", result.error)
-            return
-        }
-
-        setQuery(result)
-    }
-
     const showSettingsSavedToast = () => {
         successNotification({
             title: "Preferences updated"
@@ -183,7 +143,7 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
 
     const open = () => {
         dialogElementRef.current?.open()
-        getCurrentUser()
+        appContext.reloadCurrentUser()
     }
 
     const close = () => {
@@ -211,7 +171,7 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
             return;
         }
 
-        toast(`Please check your email: "${query.data.currentUser?.email}" for a link to reset your password.`)
+        toast(`Please check your email: "${appContext.currentUser?.email}" for a link to reset your password.`)
 
         setTimeout(() => {
             setPasswordResetDisabled(false)
@@ -221,7 +181,7 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
     async function deleteAccount() {
         let decision = await confirm({
             title: "Are you sure?",
-            message: `This will delete your account and all associated data. The following shotlist(s) will be deleted: ${query.data.currentUser?.shotlists?.map(s => `"${s!.name}"`).join(", ")}. All running subscriptions will be canceled. This action cannot be undone.`,
+            message: `This will delete your account and all associated data. The following shotlist(s) will be deleted: ${appContext.currentUser?.shotlists?.map(s => `"${s!.name}"`).join(", ")}. All running subscriptions will be canceled. This action cannot be undone.`,
             checkbox: true,
             buttons: {
                 confirm: {
@@ -253,7 +213,7 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
             return;
         }
 
-        Auth.logout();
+        auth.logout();
     }
 
     const updateUserName = async (name: string) => {
@@ -297,28 +257,28 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
             <>
                 <TextField
                     label={"email"}
-                    value={query.data.currentUser?.email || "unknown"}
+                    value={appContext.currentUser?.email || "unknown"}
                     disabled={true}
-                    loading={query.loading}
+                    loading={appContext.currentUserReloading}
                 />
 
                 <TextField
                     label={"display name"}
-                    value={query.data.currentUser?.name || "unknown"}
+                    value={appContext.currentUser?.name || "unknown"}
                     info={"This a publicly visible name used for collaboration with others. You cannot use it to log in."}
                     maxLength={50}
                     placeholder={"John Doe"}
                     valueChange={updateUserName}
                     debounceValueChange={true}
-                    loading={query.loading}
+                    loading={appContext.currentUserReloading}
                 />
 
                 {
-                    query.loading ?
+                    appContext.currentUserReloading ?
                     <Skeleton height={"2.5rem"}/> :
                     <>
                         {
-                            !Auth.getUser()?.isSocial &&
+                            !auth.getUser()?.isSocial &&
                             <div className="row">
                                 <p>Send password reset request to your email</p>
                                 <button disabled={passwordResetDisabled} className={"logout"} onClick={resetPassword}>
@@ -330,15 +290,15 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
                         <div className="row subscription">
                             <p>Subscription</p>
                             {
-                                query.data.currentUser?.tier == UserTier.Basic ?
-                                    query.data.currentUser?.hasCancelled == true ?
+                                appContext.currentUser?.tier == UserTier.Basic ?
+                                    appContext.currentUser?.hasCancelled == true ?
                                         <button className={"primary"} onClick={PaymentService.manageSubscription}><Rocket size={18}/>Renew subscription</button> :
                                         <Link className={"primary"} href={"/pro"}><Rocket size={18}/>Upgrade to Pro</Link> :
-                                query.data.currentUser?.tier == UserTier.Pro ?
+                                appContext.currentUser?.tier == UserTier.Pro ?
                                     <button onClick={PaymentService.manageSubscription}>Manage subscription<SquareArrowOutUpRight size={16}/></button> :
-                                query.data.currentUser?.tier == UserTier.ProStudent ?
+                                appContext.currentUser?.tier == UserTier.ProStudent ?
                                     <Link href={"/pro"}><GraduationCap size={18}/>Pro for students</Link>:
-                                query.data.currentUser?.tier == UserTier.ProFree ?
+                                appContext.currentUser?.tier == UserTier.ProFree ?
                                     <Link href={"/pro"}>( ͡° ͜ʖ ͡°)</Link> :
                                     <SimpleTooltip
                                         content={
@@ -509,18 +469,18 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
 
                 <div className="row">
                     <p>Blocked users</p>
-                    <BlockedUsersDialog query={query} setQuery={setQuery}/>
+                    <BlockedUsersDialog/>
                 </div>
                 <div className="row">
                     <p>Use another account</p>
                     <button
-                        onClick={() => Auth.logout()}
+                        onClick={() => auth.logout()}
                     >
                         <LogOut size={16}/>Sign out
                     </button>
                 </div>
                 {
-                    query.loading ?
+                    appContext.currentUserReloading ?
                     <Skeleton height={"2.5rem"}/> :
                     <div className="row">
                         <p>Delete your account</p>

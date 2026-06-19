@@ -1,5 +1,5 @@
 import {ShotlistDto, UserDto} from "../../../../../../lib/graphql/generated"
-import React, {RefObject, useState} from "react"
+import React, {RefObject, useContext, useState} from "react"
 import gql from "graphql-tag"
 import {wuGeneral, wuTime} from "@yanikkendler/web-utils"
 import {useApolloClient} from "@apollo/client"
@@ -15,13 +15,13 @@ import {DialogRef} from "@/components/basic/dialog/dialog"
 import {Archive, ArchiveRestore, Info, Trash, X} from "lucide-react"
 import SimplePopover from "@/components/basic/popover/simplePopover"
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
+import {AppContext} from "@/context/AppContext"
 
 export default function GeneralTab({
     shotlist,
     setShotlist,
     dataChanged,
     isReadOnly,
-    currentUser,
     shotlistOptionsDialogRef,
     isArchived,
     setIsArchived,
@@ -30,7 +30,6 @@ export default function GeneralTab({
     setShotlist: React.Dispatch<React.SetStateAction<ShotlistDto | null>>,
     dataChanged: () => void,
     isReadOnly: boolean,
-    currentUser: UserDto | null,
     shotlistOptionsDialogRef: RefObject<DialogRef | null>,
     isArchived: boolean,
     setIsArchived: (isArchived: boolean) => void,
@@ -39,6 +38,7 @@ export default function GeneralTab({
     const client = useApolloClient()
     const { confirm, ConfirmDialog } = useConfirmDialog();
     const router = useRouter()
+    const appContext = useContext(AppContext)
 
     const [deleting, setDeleting] = useState(false)
 
@@ -174,7 +174,7 @@ export default function GeneralTab({
         }
     }
 
-    if(!shotlist || !currentUser) return (
+    if(!shotlist) return (
         <div className={"shotlistOptionsDialogGeneralTab shotlistOptionsDialogPage"}>
             <div className="top">
                 <h2>Shotlist settings</h2>
@@ -234,7 +234,7 @@ export default function GeneralTab({
             </div>
 
             {
-                shotlist.owner?.id == currentUser?.id &&
+                shotlist.owner?.id == appContext.currentUser?.id &&
                 <div className={"bottom"}>
                     <div className="row">
                         <div className="left">

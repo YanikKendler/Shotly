@@ -1,24 +1,20 @@
 import {Check, UserRoundPen, X} from "lucide-react"
 import Dialog, {DialogRef} from "@/components/basic/dialog/dialog"
-import React, {Dispatch, SetStateAction, useRef} from "react"
+import React, {Dispatch, SetStateAction, useContext, useRef} from "react"
 import "./blockedUsersDialog.scss"
-import {ApolloQueryResult, useApolloClient} from "@apollo/client"
+import {useApolloClient} from "@apollo/client"
 import {Maybe, Query, UserMinimalDto} from "../../../../../../lib/graphql/generated"
 import Skeleton from "react-loading-skeleton"
 import Link from "next/link"
 import {useConfirmDialog} from "@/components/app/dialogs/confirmDialog/confirmDialog"
 import {errorNotification, successNotification} from "@/service/NotificationService"
 import gql from "graphql-tag"
+import {AppContext} from "@/context/AppContext"
 
-export default function BlockedUsersDialog({
-    query,
-    setQuery
-}:{
-    query: ApolloQueryResult<Query>,
-    setQuery: Dispatch<SetStateAction<ApolloQueryResult<Query>>>
-}) {
+export default function BlockedUsersDialog() {
     const {confirm, ConfirmDialog} = useConfirmDialog()
     const client = useApolloClient()
+    const appContext = useContext(AppContext)
 
     const dialogRef = useRef<DialogRef>(null)
 
@@ -65,19 +61,13 @@ export default function BlockedUsersDialog({
             message: `"${user.name}" can now send you collaboration invites again.`
         })
 
-        setQuery(current => {
-            let newBlockedUsers = current.data.currentUser?.blockedUsers
+        appContext.setCurrentUser(current => {
+            let newBlockedUsers = current?.blockedUsers
                 ?.filter(b => b?.id !== user.id)
 
             return {
                 ...current,
-                data: {
-                    ...current.data,
-                    currentUser: {
-                        ...current.data.currentUser,
-                        blockedUsers: newBlockedUsers
-                    }
-                }
+                blockedUsers: newBlockedUsers
             }
         })
     }
@@ -97,16 +87,16 @@ export default function BlockedUsersDialog({
                     </button>
                 </div>
                 {
-                    query.loading ?
+                    appContext.currentUserReloading ?
                     <>
                         <Skeleton height={"2rem"}/>
                         <Skeleton height={"2rem"}/>
                     </>
                     :
-                    (query.data?.currentUser?.blockedUsers?.length ?? 0) == 0 ?
+                    (appContext.currentUser?.blockedUsers?.length ?? 0) == 0 ?
                     <p className="empty">You have not blocked any users.</p>
                     :
-                    query.data.currentUser?.blockedUsers?.map(blockedUser => (
+                    appContext.currentUser?.blockedUsers?.map(blockedUser => (
                         <div className={"entry"} key={blockedUser?.id}>
                             <p>{blockedUser?.name ?? "Unknown"} • <span className={"gray"}>{blockedUser?.email ?? "Unknown"}</span></p>
                             <button
@@ -120,7 +110,7 @@ export default function BlockedUsersDialog({
                 }
                 <p className="bottom">
                     Blocked users are unable to invite you to their shotlists but you might still see their edits.
-                    <Link className={"inline"} href={"https://docs.shotly.at/account#blocked-users"}>Read more..</Link>
+                    <Link className={"inline"} href={"https://docs.shotly.at/account#blocked-users"} target={"_blank"}>Read more..</Link>
                 </p>
             </Dialog>
 

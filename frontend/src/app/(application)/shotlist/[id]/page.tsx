@@ -112,11 +112,6 @@ export default function Shotlist() {
     })
 
     useEffect(() => {
-        if(!auth.isAuthenticated()){
-            auth.login()
-            return
-        }
-
         //validate shotlist id
         if(!uuidRegex.test(id)){
             setQuery(current => ({
@@ -128,8 +123,6 @@ export default function Shotlist() {
             }))
             return
         }
-
-        if(!auth.getUser()) return
 
         //initially load data
         loadData(true)
@@ -237,11 +230,6 @@ export default function Shotlist() {
                         }
                     }
                     shotlistCollaborationType(shotlistId: $id)
-                    currentUser {
-                        id,
-                        name,
-                        email
-                    }
                 }`,
             variables: {id: id},
             fetchPolicy: noCache ? "no-cache" : "cache-first",
@@ -483,7 +471,6 @@ export default function Shotlist() {
 
     const sync = useShotlistSync({
         shotlistId: id,
-        currentUserId: query.data.currentUser?.id || null,
         sheetManagerRef: sheetManagerRef,
         sidebarRef: sidebarRef,
         selectedScene: selectedScene,
@@ -505,9 +492,6 @@ export default function Shotlist() {
         setSelectedScene: setSelectedScene,
         blockKeyBinds: blockKeyBindsMap
     })
-
-    if(!auth.getUser())
-        return <LoadingPage/>
 
     if(query.errors && query.errors.length > 0) {
         switch (query.errors[0]?.extensions?.code as ShotlyErrorCode) {
@@ -572,8 +556,6 @@ export default function Shotlist() {
             handleError: handleError,
 
             presentCollaborators: presentCollaborators,
-
-            currentUser: query.data.currentUser ?? null,
 
             blockKeyBinds: blockKeyBindsMap,
 

@@ -56,12 +56,6 @@ class Auth {
         });
     }
 
-    loginForPro(){
-        this.auth0.authorize({
-            appState: { targetUrl: '/pro' }
-        });
-    }
-
     logout() {
         localStorage.setItem(Config.localStorageKey.isLoggedIn, JSON.stringify(false));
         this.auth0.logout({

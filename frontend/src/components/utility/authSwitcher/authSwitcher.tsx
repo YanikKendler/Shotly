@@ -1,6 +1,6 @@
 'use client'
 
-import Auth from "@/Auth"
+import auth from "@/Auth"
 import {ReactElement, useEffect, useState} from "react"
 
 export default function AuthSwitcher({
@@ -13,7 +13,7 @@ export default function AuthSwitcher({
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     useEffect(() => {
-        setIsAuthenticated(Auth.hasLoggedInBefore())
+        setIsAuthenticated(auth.hasLoggedInBefore())
     }, [])
 
     if(isAuthenticated) {

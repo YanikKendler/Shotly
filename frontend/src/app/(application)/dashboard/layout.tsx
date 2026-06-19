@@ -3,7 +3,7 @@
 import gql from "graphql-tag"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import "./layout.scss"
-import React, {useEffect, useRef, useState} from "react"
+import React, {useContext, useEffect, useRef, useState} from "react"
 import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
 import { Query } from "../../../../lib/graphql/generated"
@@ -27,6 +27,7 @@ import DashboardFloater from "@/components/app/dashboard/dashboardFloater/dashbo
 import DashboardSidebar from "@/components/app/dashboard/sidebar/dashboardSidebar/dashboardSidebar"
 import useDashboardKeybinds from "@/service/useDashboardKeybinds"
 import DashboardDialogFloater from "@/components/app/dashboard/dashboardDialogFloater/dashboardDialogFloater"
+import {AppContext} from "@/context/AppContext"
 
 export interface DashboardQueryConf {
     loadShotlists: boolean
@@ -37,6 +38,7 @@ export interface DashboardQueryConf {
 export default function DashboardLayout({children}: { children: React.ReactNode }) {
     const client = useApolloClient()
     const pathname = usePathname()
+    const appContext = useContext(AppContext)
 
     const createShotlistDialog = useCreateShotlistDialog()
     const createTemplateDialog = useCreateTemplateDialog()
@@ -62,13 +64,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
     // load Data
     useEffect(() => {
-        if(!auth.isAuthenticated()){
-            auth.login()
-            return
-        }
-
-        if(!auth.getUser()) return
-
         loadData()
             .then(result => {
                 // when creating a new account, the backend sometimes takes too long to create the default template
@@ -94,18 +89,18 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
     //Show floater Dialogs
     useEffect(() => {
-        if(!query.data.currentUser) return
+        if(!appContext.currentUser) return
 
         if(dialogStep != DialogStep.QUESTIONS) return
 
-        const howDidYouHearReason = query.data.currentUser?.howDidYouHearReason
+        const howDidYouHearReason = appContext.currentUser?.howDidYouHearReason
 
         if(!howDidYouHearReason || wuConstants.Regex.empty.test(howDidYouHearReason) || Config.OVERRIDE_INTRO_CHECKS){
             setHowDidYouHearFloaterVisible(true)
         }
 
-        const email = query.data.currentUser?.email
-        const name = query.data.currentUser?.name
+        const email = appContext.currentUser?.email
+        const name = appContext.currentUser?.name
 
         if((name && email && name == email) || Config.OVERRIDE_INTRO_CHECKS){
             setEnterNameFloaterVisible(true)
@@ -115,7 +110,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
         if(
             !latestVersionUsed &&
-            new Date(query.data.currentUser.createdAt).getTime() < Date.now() - wuConstants.Time.msPerHour
+            new Date(appContext.currentUser.createdAt).getTime() < Date.now() - wuConstants.Time.msPerHour
         ){
             setChangelogFloaterVisible(true)
         }
@@ -123,7 +118,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         if(Utils.isNewerVersion(latestVersionUsed, CHANGELOG[0].version)){
             setChangelogFloaterVisible(true)
         }
-    }, [dialogStep, query.data.currentUser])
+    }, [dialogStep, appContext.currentUser])
 
     const loadData = async (
         conf: DashboardQueryConf = {loadShotlists: true, loadTemplates: true, loadUser: true}
@@ -135,7 +130,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
         const result = await client.query({
             query: gql`
-                query home($loadShotlists: Boolean!, $loadTemplates: Boolean!, $loadUser: Boolean!){
+                query home($loadShotlists: Boolean!, $loadTemplates: Boolean!){
                     shotlists @include(if: $loadShotlists){
                         personal {
                             id
@@ -170,12 +165,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                             email
                         }
                     }
-                    currentUser @include(if: $loadUser){
-                        name
-                        email
-                        howDidYouHearReason
-                        createdAt
-                    }
                 }`,
             variables: conf,
             fetchPolicy: "no-cache"
@@ -193,7 +182,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
             ...result,
             data: {
                 ...current.data,
-                currentUser: conf.loadUser ? result.data.currentUser : current.data.currentUser,
                 shotlists: conf.loadShotlists ? result.data.shotlists : current.data.shotlists,
                 templates: conf.loadTemplates ? result.data.templates : current.data.templates
             },
@@ -214,9 +202,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         reload
         noLink
     />
-
-    if(!auth.getUser())
-        return <LoadingPage/>
 
     //yeah i know this is ugly
     const isTemplatePage = pathname.includes("template")

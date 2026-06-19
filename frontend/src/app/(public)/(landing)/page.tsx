@@ -1,6 +1,6 @@
 "use client"
 
-import Auth from "@/Auth"
+import auth from "@/Auth"
 import "./landing.scss"
 import Link from "next/link"
 import Wordmark from "@/components/icons/wordmark"
@@ -202,7 +202,7 @@ export default function Landing() {
                                             className={"secondary"}
                                             onClick={() => {
                                                 Analytics.signal("Landing.Nav.SignUp")
-                                                Auth.register()
+                                                auth.register()
                                             }}
                                         >Sign up</button>
                                     }
@@ -213,7 +213,7 @@ export default function Landing() {
                                     className={"main"}
                                     onClick={() => {
                                         Analytics.signal("Landing.Nav.LogIn")
-                                        Auth.login()
+                                        auth.login()
                                     }}
                                 >Log in</button>
                             </>
@@ -244,7 +244,7 @@ export default function Landing() {
                                     <div>
                                         <button onClick={() => {
                                             Analytics.signal("Landing.Hero.GetStarted")
-                                            Auth.login()
+                                            auth.login()
                                         }}>Create your first shotlist</button>
                                         <small>free, no credit card required</small>
                                     </div>
@@ -509,7 +509,7 @@ export default function Landing() {
                                 className="select secondary"
                                 onClick={() => {
                                     Analytics.signal("Landing.Price.Basic")
-                                    Auth.login()
+                                    auth.login()
                                 }}
                             >Get started</button>
                         </div>
@@ -539,7 +539,7 @@ export default function Landing() {
                                 className="select main"
                                 onClick={() => {
                                     Analytics.signal("Landing.Price.Pro")
-                                    Auth.loginForPro()
+                                    auth.login("/pro")
                                 }}
                             >Go unlimited</button>
                         </div>

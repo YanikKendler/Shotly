@@ -1,12 +1,12 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import "./createShotlistDialog.scss"
 import {useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import TextField from "@/components/basic/textField/textField"
 import Loader from "@/components/app/feedback/loader/loader"
-import {TemplateDto, UserDto, UserTier} from "../../../../../lib/graphql/generated"
+import {Template, TemplateDto, UserDto, UserTier} from "../../../../../lib/graphql/generated"
 import SimpleSelect from "@/components/basic/simpleSelect/simpleSelect"
 import {SelectOption} from "@/utility/Types"
 import {useRouter} from "next/navigation"
@@ -15,70 +15,29 @@ import {errorNotification} from "@/service/NotificationService"
 import Dialog, {DialogRef} from "@/components/basic/dialog/dialog"
 import Skeleton from "react-loading-skeleton"
 import Config from "@/Config"
+import {AppContext} from "@/context/AppContext"
 
 export function useCreateShotlistDialog() {
     const dialogElementRef = useRef<DialogRef>(null);
 
     const [name, setName] = useState<string>("")
     const [isCreating, setIsCreating] = useState(false)
-    const [templates, setTemplates] = useState<SelectOption[]>([{label: "No template", value: "null"}]);
     const [selectedTemplateId, setSelectedTemplateId] = useState<string>("null");
-    const [currentUser, setCurrentUser] = useState<UserDto | null>(null);
 
     const enterPressed = useRef(handleConfirm)
 
     const router = useRouter()
     const client = useApolloClient()
+    const appContext = useContext(AppContext)
 
     useEffect(() => {
         enterPressed.current = handleConfirm
     }, [name, isCreating, selectedTemplateId])
 
-    async function loadData() {
-        const {data, errors} = await client.query({
-            query: gql`
-                query createShotlistData {
-                    templates {
-                        id
-                        name
-                    }
-                    currentUser {
-                        tier
-                        shotlistCount
-                    }
-                }
-            `,
-            fetchPolicy: "no-cache"
-        })
-
-        if(errors){
-            errorNotification({
-                title: "Failed to load creation data",
-                tryAgainLater: true
-            })
-            console.error(errors)
-            return
-        }
-
-        setCurrentUser(data.currentUser)
-
-        const options: SelectOption[] = data.templates.map((template: TemplateDto) => ({
-            label: template.name,
-            value: template.id
-        }))
-
-        options.unshift({label: "No template", value: "null"})
-
-        setTemplates(options)
-
-        if(options.length > 1)
-            setSelectedTemplateId(options[1].value)
-    }
-
     function open() {
         dialogElementRef.current?.open()
         setIsCreating(false)
-        loadData()
+        appContext.reloadCurrentUser()
     }
 
     function close() {
@@ -120,7 +79,7 @@ export function useCreateShotlistDialog() {
 
     let content: React.ReactElement
 
-    if(!currentUser)
+    if(appContext.currentUserReloading)
         content = <>
             <h2 className={"title center"}>Create Shotlist</h2>
             <Skeleton height={"2.5rem"}/>
@@ -130,7 +89,11 @@ export function useCreateShotlistDialog() {
                 <Skeleton width={"10rem"} height={"2rem"}/>
             </div>
         </>
-    else if(currentUser.tier == UserTier.Basic && currentUser.shotlistCount && currentUser.shotlistCount >= 1)
+    else if(
+        appContext.currentUser?.tier == UserTier.Basic &&
+        appContext.currentUser?.shotlistCount &&
+        appContext.currentUser?.shotlistCount >= 1
+    )
         content = <>
             <h2 className={"title center"}>Sorry, you have reached the maximum number of Shotlists.</h2>
             <p>Your account is on the basic tier, that means you are limited to a single shotlist. Please consider going Pro for 2.99€ / month.</p>
@@ -165,7 +128,13 @@ export function useCreateShotlistDialog() {
                 label={"Template"}
                 name={"Template"}
                 onChange={setSelectedTemplateId}
-                options={templates}
+                options={[
+                    {label: "No template", value: "null"},
+                    ...(appContext.currentUser?.templates as Template[])?.map((template: Template) => ({
+                        label: template.name || "Unnamed",
+                        value: template.id || "Unknown"
+                    }))
+                ]}
                 value={selectedTemplateId}
             />
             <div className={"buttons"}>

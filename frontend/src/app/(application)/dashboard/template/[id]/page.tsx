@@ -110,8 +110,6 @@ export default function Template (){
             return
         }
 
-        if(!auth.getUser()) return
-
         loadTemplate()
 
         if(localStorage.getItem(Config.localStorageKey.templateTourCompleted) != "true") {

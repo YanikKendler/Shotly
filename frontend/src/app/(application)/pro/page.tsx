@@ -1,81 +1,23 @@
 "use client";
 
-import Auth from "@/Auth"
-import auth from "@/Auth"
 import "./pro.scss";
-import {useEffect, useState} from "react"
+import {useContext} from "react"
 import LoadingPage from "@/components/app/feedback/loadingPage/loadingPage"
-import gql from "graphql-tag"
-import {ApolloQueryResult, useApolloClient} from "@apollo/client"
-import {useRouter} from "next/navigation"
 import PaymentService from "@/service/PaymentService"
 import SimplePage from "@/components/app/simplePage/simplePage"
 import Link from "next/link"
-import {Query, UserDto, UserTier} from "../../../../lib/graphql/generated"
+import {UserTier} from "../../../../lib/graphql/generated"
 import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
-import Config from "@/Config"
 import Separator from "@/components/basic/separator/separator"
 import {wuTime} from "@yanikkendler/web-utils"
-import {errorNotification} from "@/service/NotificationService"
+import {AppContext} from "@/context/AppContext"
 
 export default function Pro(){
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-
-    const client = useApolloClient();
-    const router = useRouter();
-
-    const [currentUser, setCurrentUser] = useState<UserDto | null>(null);
-
-    useEffect(() => {
-        if(!auth.isAuthenticated()){
-            auth.loginForPro()
-            return
-        }
-
-        if(!auth.getUser()) return
-
-        getCurrentUser();
-    }, []);
-
-    useEffect(() => {
-        if(!currentUser) return
-    }, [currentUser]);
-
-    const getCurrentUser = async () => {
-        const result: ApolloQueryResult<Query> = await client.query({
-            query: gql`
-                query checkCurrentUserTier {
-                    currentUser {
-                        id
-                        tier
-                        hasCancelled
-                        revokeProAfter
-                    }
-                }`,
-            fetchPolicy: "no-cache"
-        })
-
-        if(result.error || !result.data.currentUser || !result.data.currentUser.id) {
-            errorNotification({
-                title: "Failed to load user data",
-                tryAgainLater: true
-            })
-            console.error("Error fetching current user:", result.error);
-            router.push("/");
-            Auth.logout();
-            return
-        }
-
-        setCurrentUser(result.data.currentUser)
-
-        setIsLoading(false);
-    }
-
-    if(isLoading || !auth.getUser()) return <LoadingPage/>
+    const appContext = useContext(AppContext)
 
     let content;
 
-    if(!currentUser || !currentUser.id || !currentUser.tier) return (
+    if(!appContext.currentUser) return (
         <ErrorPage
             title={"User could not be loaded"}
             description={"Please try again later."}
@@ -84,7 +26,7 @@ export default function Pro(){
         />
     )
 
-    else if(currentUser.tier == UserTier.Pro)
+    else if(appContext.currentUser.tier == UserTier.Pro)
         content = (
             <>
                 <h1>You already own Shotly Pro!</h1>
@@ -99,21 +41,21 @@ export default function Pro(){
                 </div>
             </>
         )
-    else if(currentUser.tier == UserTier.ProStudent)
+    else if(appContext.currentUser.tier == UserTier.ProStudent)
         content = (
             <>
                 <h1>You already own Shotly Pro for Free!</h1>
                 <p>Since you are a student living off student money and stuff :D</p>
                 <p>Lets hope you are not american.. then you would be living off student debt :(</p>
                 <br/>
-                <p>Your pro subscription will be revoked after {wuTime.toDateString(currentUser.revokeProAfter) || "unknown"}.</p>
+                <p>Your pro subscription will be revoked after {wuTime.toDateString(appContext.currentUser.revokeProAfter) || "unknown"}.</p>
 
                 <div className="buttons">
                     <Link className={"filled"} href={"/dashboard"}>My Dashboard</Link>
                 </div>
             </>
         )
-    else if(currentUser.tier == UserTier.ProFree)
+    else if(appContext.currentUser.tier == UserTier.ProFree)
         content = (
             <>
                 <h1>You already own Shotly Pro for Free!</h1>
@@ -121,8 +63,8 @@ export default function Pro(){
                 <p>Aaaanyways, if you are in fact a friend - have fun mate!</p>
                 <br/>
                 {
-                    currentUser.revokeProAfter &&
-                    <p>Your pro subscription will be revoked after {wuTime.toDateString(currentUser.revokeProAfter) || "unknown"}.</p>
+                    appContext.currentUser.revokeProAfter &&
+                    <p>Your pro subscription will be revoked after {wuTime.toDateString(appContext.currentUser.revokeProAfter) || "unknown"}.</p>
                 }
 
                 <div className="buttons">
@@ -131,7 +73,7 @@ export default function Pro(){
             </>
         )
     else {
-        if (currentUser.hasCancelled == true)
+        if (appContext.currentUser.hasCancelled == true)
             content = (
                 <>
                     <h1>Thank you for choosing Shotly Pro!</h1>

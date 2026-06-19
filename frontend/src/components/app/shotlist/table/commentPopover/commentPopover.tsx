@@ -11,6 +11,7 @@ import gql from "graphql-tag"
 import {errorNotification} from "@/service/NotificationService"
 import Comment, {CommentRef} from "@/components/app/shotlist/table/commentPopover/comment/comment"
 import MarkdownEditor, {MarkdownEditorRef} from "@/components/basic/markdownEditor/markdownEditor"
+import {AppContext} from "@/context/AppContext"
 
 export interface CommentPopoverRef {
     onCreateComment: (comment: CommentDto) => void
@@ -39,6 +40,7 @@ const CommentPopover = forwardRef<CommentPopoverRef, CommentPopoverProps>(({
 }, ref)=> {
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
+    const appContext = useContext(AppContext)
 
     const [commentText, setCommentText] = useState<string | undefined>("")
 
@@ -79,8 +81,8 @@ const CommentPopover = forwardRef<CommentPopoverRef, CommentPopoverProps>(({
             shotId: shot.id,
             sceneId: shot.sceneId,
             owner: {
-                id: shotlistContext.currentUser?.id,
-                name: shotlistContext.currentUser?.name ?? "Unknown"
+                id: appContext.currentUser?.id,
+                name: appContext.currentUser?.name ?? "Unknown"
             },
             text: sanitizedCommentText,
             edited: false
