@@ -1,3 +1,7 @@
 .sidebar.dashboardSidebar{
-
+  @media screen and (max-width: 600px) {
+    .navigation .bottom{
+      display: none;
+    }
+  }
 }

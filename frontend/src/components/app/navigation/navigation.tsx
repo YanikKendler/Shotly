@@ -11,8 +11,8 @@ import CollaborationRequestsPopup
 import Separator from "@/components/basic/separator/separator"
 import useNavigationKeybinds from "@/service/useNavigationKeybinds"
 import {AppContext} from "@/context/AppContext"
+import ViewPortSwitcher from "@/components/utility/viewportSwitcher/viewPortSwitcher"
 
-//TODO remove shotlistContext
 export default function Navigation({
     onCollaborationAccepted = () => {},
     children
@@ -30,6 +30,28 @@ export default function Navigation({
         toggleCollaborationRequests: () => collabPopupRef.current?.toggleCollaborationRequests(),
     })
 
+    const renderTools = () => (<>
+        <CollaborationRequestsPopup
+            ref={collabPopupRef}
+            reloadShotlists={onCollaborationAccepted}
+        />
+        <NavigationItem
+            Icon={User}
+            action={accountDialog.open}
+            description={<>Your Account <span className="key">Alt</span> <span className="gray">+</span> <span className="key">A</span></>}
+            selected={accountDialog.isOpen}
+        />
+    </>)
+
+    const renderArchive = () => (
+        <NavigationItem
+            Icon={Archive}
+            action={"/dashboard/archive"}
+            description={"Archive"}
+            selected={appContext.page == "archive"}
+        />
+    )
+
     return (
         <nav className={"navigation"}>
             <div className="top">
@@ -39,26 +61,24 @@ export default function Navigation({
                     description={<>Dashboard <span className="key">Alt</span> <span className="gray">+</span> <span className="key">H</span></>}
                     selected={appContext.page == "dashboard"}
                 />
-                <NavigationItem
-                    Icon={Archive}
-                    action={"/dashboard/archive"}
-                    description={"Archive"}
-                    selected={appContext.page == "archive"}
-                />
+                {
+                    appContext.page == "shotlist"
+                        ?
+                    <ViewPortSwitcher
+                        breakpoint={600}
+                        over={renderArchive()}
+                    />
+                        :
+                    renderArchive()
+                }
+                <ViewPortSwitcher breakpoint={600} under={renderTools()}/>
             </div>
             <div className="bottom">
                 {children}
-                {children && <Separator/>}
-                <CollaborationRequestsPopup
-                    ref={collabPopupRef}
-                    reloadShotlists={onCollaborationAccepted}
-                />
-                <NavigationItem
-                    Icon={User}
-                    action={() => {accountDialog.open()}}
-                    description={<>Your Account <span className="key">Alt</span> <span className="gray">+</span> <span className="key">A</span></>}
-                    selected={accountDialog.isOpen}
-                />
+                <ViewPortSwitcher breakpoint={600} over={<>
+                    {children && <Separator/>}
+                    {renderTools()}
+                </>}/>
             </div>
             {accountDialog.Element}
         </nav>

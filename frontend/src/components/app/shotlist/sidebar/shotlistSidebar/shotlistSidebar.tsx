@@ -1,5 +1,5 @@
 import NavigationItem from "@/components/app/navigation/navigationItem";
-import {Columns3Cog, Download, Settings, Users } from "lucide-react";
+import {Columns3Cog, Download, List, Settings, Users} from "lucide-react";
 import SceneList, {SceneListRef} from "../sceneList/sceneList";
 import Skeleton from "react-loading-skeleton"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
@@ -8,7 +8,7 @@ import {
     ShotlistOptionsDialogMainPage,
     ShotlistOptionsDialogPages
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
-import React, {Dispatch, RefObject, SetStateAction, useContext, useEffect, useRef} from "react"
+import React, {Dispatch, RefObject, SetStateAction, useContext, useEffect, useRef, useState} from "react"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import gql from "graphql-tag"
 import {wuGeneral} from "@yanikkendler/web-utils"
@@ -16,6 +16,7 @@ import {SelectedScene} from "@/app/(application)/shotlist/[id]/page"
 import "./shotlistSidebar.scss"
 import SimplePopover from "@/components/basic/popover/simplePopover"
 import Sidebar from "@/components/app/sidebar/sidebar"
+import ViewPortSwitcher from "@/components/utility/viewportSwitcher/viewPortSwitcher"
 
 export default function ShotlistSidebar({
     query,
@@ -45,7 +46,9 @@ export default function ShotlistSidebar({
     const shotlistContext = useContext(ShotlistContext)
     const client = useApolloClient()
 
-    const nameInputRef = useRef<HTMLInputElement>(null);
+    const nameInputRef = useRef<HTMLInputElement>(null)
+
+    const [contentVisible, setContentVisible] = useState(false)
 
     useEffect(() => {
         if(nameInputRef.current && query.data.shotlist?.name)
@@ -101,28 +104,51 @@ export default function ShotlistSidebar({
     return (
         <Sidebar
             className="shotlistSidebar"
-            additionalNavItems={<>
-                <NavigationItem
-                    Icon={Settings}
-                    action={() => openShotlistOptionsDialog({main: ShotlistOptionsDialogMainPage.general})}
-                    description={<>Shotlist Settings <span className="key">Alt</span> <span className="gray">+</span> <span className="key">O</span></>}
+            contentVisible={contentVisible}
+            additionalNavItems={
+                <ViewPortSwitcher
+                    breakpoint={600}
+                    over={
+                        <>
+                            <NavigationItem
+                                Icon={Settings}
+                                action={() => openShotlistOptionsDialog({main: ShotlistOptionsDialogMainPage.general})}
+                                description={<>Shotlist Settings <span className="key">Alt</span> <span className="gray">+</span> <span className="key">O</span></>}
+                            />
+                            <NavigationItem
+                                Icon={Columns3Cog}
+                                action={() => openShotlistOptionsDialog({main: ShotlistOptionsDialogMainPage.attributes})}
+                                description={<>Attributes <span className="key">Alt</span> <span className="gray">+</span> <span className="key">O</span></>}
+                            />
+                            <NavigationItem
+                                Icon={Users}
+                                action={() => openShotlistOptionsDialog({main: ShotlistOptionsDialogMainPage.collaborators})}
+                                description={<>Collaborators <span className="key">Alt</span> <span className="gray">+</span> <span className="key">O</span></>}
+                            />
+                            <NavigationItem
+                                Icon={Download}
+                                action={() => openShotlistOptionsDialog({main: ShotlistOptionsDialogMainPage.export})}
+                                description={<>Export <span className="key">Alt</span> <span className="gray">+</span> <span className="key">O</span></>}
+                            />
+                        </>
+                    }
+                    under={
+                        <>
+                            <NavigationItem
+                                Icon={Settings}
+                                action={() => openShotlistOptionsDialog()}
+                                description={<>Shotlist Settings <span className="key">Alt</span> <span className="gray">+</span> <span className="key">O</span></>}
+                            />
+                            <NavigationItem
+                                Icon={List}
+                                action={() => setContentVisible(current => !current)}
+                                description={<>Scenes</>}
+                                selected={contentVisible}
+                            />
+                        </>
+                    }
                 />
-                <NavigationItem
-                    Icon={Columns3Cog}
-                    action={() => openShotlistOptionsDialog({main: ShotlistOptionsDialogMainPage.attributes})}
-                    description={<>Attributes <span className="key">Alt</span> <span className="gray">+</span> <span className="key">O</span></>}
-                />
-                <NavigationItem
-                    Icon={Users}
-                    action={() => openShotlistOptionsDialog({main: ShotlistOptionsDialogMainPage.collaborators})}
-                    description={<>Collaborators <span className="key">Alt</span> <span className="gray">+</span> <span className="key">O</span></>}
-                />
-                <NavigationItem
-                    Icon={Download}
-                    action={() => openShotlistOptionsDialog({main: ShotlistOptionsDialogMainPage.export})}
-                    description={<>Export <span className="key">Alt</span> <span className="gray">+</span> <span className="key">O</span></>}
-                />
-            </>}
+            }
             heading={
                 <input
                     type="text"

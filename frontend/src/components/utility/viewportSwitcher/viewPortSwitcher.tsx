@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react"
 
 export default function ViewPortSwitcher({
+    breakpoint,
     under,
-    over,
-    breakpoint
+    over
 }: {
-    under?: React.ReactElement | string
-    over: React.ReactElement | string
     breakpoint: number
+    under?: React.ReactElement | string
+    over?: React.ReactElement | string
 }) {
     const [windowWidth, setWindowWidth] = useState<number | null>(null)
 

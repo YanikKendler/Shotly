@@ -14,7 +14,7 @@ main.shotlist .header{
     display: none; /*Chrome, Safari and Opera */
   }
 
-  @media screen and (max-width: 500px){
+  @media screen and (max-width: 600px){
     padding-inline: 1.5rem .5rem;
   }
 
@@ -32,10 +32,6 @@ main.shotlist .header{
       position: sticky;
       left: 0;
       background-color: var(--sidebar-bg);
-
-      @media screen and (max-width: 500px){
-        left: -1.5rem;
-      }
     }
 
     &.attribute{
@@ -61,6 +57,10 @@ main.shotlist .header{
     color: var(--text-50);
     padding: .4rem;
     background-color: var(--sidebar-bg);
+
+    @media screen and (max-width: 600px) {
+      display: none;
+    }
 
     &:hover{
       color: var(--text);

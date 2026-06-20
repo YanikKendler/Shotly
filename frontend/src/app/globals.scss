@@ -62,6 +62,7 @@
   --transparent-contrast-30: hsla(0, 0%, 90%, 30%);
 
   --transparent-gray-10: hsla(0, 0%, 50%, 10%);
+  --transparent-gray-15: hsla(0, 0%, 50%, 15%);
   --transparent-gray-20: hsla(0, 0%, 50%, 20%);
   --transparent-gray-30: hsla(0, 0%, 50%, 30%);
 
@@ -484,6 +485,10 @@ span.chip{
   gap: .5rem;
   z-index: 200;
 
+  @media screen and (max-width: 500px) {
+    bottom: 4rem;
+  }
+
   > * {
     box-shadow: .2rem .2rem .5rem .2rem var(--transparent-contrast-15);
   }
@@ -497,16 +502,6 @@ span.chip{
     display: grid;
     place-content: center;
     color: var(--text-30);
-  }
-
-  .openSidebar {
-    height: 45px;
-    width: 45px;
-    display: none;
-
-    @media screen and (max-width: 500px) {
-      display: flex;
-    }
   }
 }
 
@@ -576,14 +571,28 @@ span.chip{
 
 // Style radix tooltip and popover
 
+.popoverContent {
+  @media screen and (max-width: 500px){
+    width: 95vw;
+  }
+}
+
+.tooltipContent {
+  @media screen and (pointer: coarse){
+    display: none !important;
+  }
+}
+
 .tooltipContent, .popoverContent {
+  --max-width: calc(100vw - 12px);
+
   background-color: var(--contrast);
   font-size: .9rem;
   border-radius: .5rem;
   border: 1px solid var(--popup-border);
   text-align: center;
   animation: slideUpAndFade 200ms ease-in-out;
-  max-width: 300px;
+  max-width: min(300px, var(--max-width));
   max-height: min(500px, var(--radix-popper-available-height));
   display: flex;
   flex-direction: column;

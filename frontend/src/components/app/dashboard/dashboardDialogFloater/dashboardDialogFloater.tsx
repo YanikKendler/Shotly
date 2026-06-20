@@ -18,7 +18,7 @@ export default function DashboardDialogFloater({
     }, [visible]);
 
     if(isDialogMode)
-        return <Dialog ref={dialogRef} defaultOpen contentClassName={"dashboardDialogFloater dialogMode"}>
+        return <Dialog ref={dialogRef} defaultOpen={visible} contentClassName={"dashboardDialogFloater dialogMode"}>
             {children}
         </Dialog>
 

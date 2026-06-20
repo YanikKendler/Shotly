@@ -1,6 +1,7 @@
 import React, {ReactNode, useEffect, useLayoutEffect, useRef} from "react"
 import "./collapse.scss"
 
+//TODO doesnt handle sidebar responsiveness well, needs more height recalculations
 export default function Collapse({
     children,
     expanded,

@@ -3,6 +3,7 @@ div.dialog {
   inset: 0;
   display: none;
   place-items: center;
+  will-change: display;
 
   > .overlay {
     background-color: rgba(0, 0, 0, 0.4);

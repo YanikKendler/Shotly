@@ -5,9 +5,9 @@
 .popoverContent.CollaborationRequests{
   --reloadButtonBg: hsl(0, 0%, 95%);
 
-  min-width: 55ch;
+  min-width: min(55ch, var(--max-width));
   min-height: 10rem;
-  max-width: 90vw;
+  max-width: var(--max-width);
   border: 1px solid var(--default-interactable-border);
   overflow: hidden;
 

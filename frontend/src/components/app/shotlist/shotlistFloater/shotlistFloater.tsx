@@ -48,7 +48,7 @@ const ShotlistFloater = forwardRef<ShotlistFloaterRef, ShotlistFloaterProps>(({
             wuAnimate.spin(refreshButtonRef.current, 300, 360)
 
         refreshShotlist().then(() => {
-            successNotification({title: "Shotlist reloaded.", message: "All data is up to date. Sync service was reconnected."})
+            successNotification({title: "Shotlist reloaded.", message: "All data is up to date. Sync reconnected."})
         })
 
         restartSync()
@@ -89,7 +89,6 @@ const ShotlistFloater = forwardRef<ShotlistFloaterRef, ShotlistFloaterProps>(({
                 <span className="error">!</span>
             </div>
             <HelpLink link="https://docs.shotly.at/shotlist/navigation" name={"Shotlist"}/>
-            <button className="openSidebar" onClick={() => setSidebarOpen(true)}><Menu/></button>
         </div>
     )
 })

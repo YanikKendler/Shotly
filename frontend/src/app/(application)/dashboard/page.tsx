@@ -16,6 +16,7 @@ import DashboardGridShotlist from "@/components/app/dashboard/grid/dashboardGrid
 import DashboardGridTemplate from "@/components/app/dashboard/grid/dashboardGridItem/dashboardGridTemplate"
 import DashboardGrid from "@/components/app/dashboard/grid/dashboardGrid/dashboardGrid"
 import useIntro from "@/service/useIntro"
+import ViewPortSwitcher from "@/components/utility/viewportSwitcher/viewPortSwitcher"
 
 export default function Overview() {
     const dashboardContext = useContext(DashboardContext)
@@ -146,7 +147,9 @@ export default function Overview() {
                     <span><Plus size={22}/>New Template</span>
                 </button>
             </DashboardGrid>
-            <Link href={"/dashboard/archive"} className={"archive default"}>Archive <ArrowRight size={16} strokeWidth={2}/></Link>
+            <ViewPortSwitcher breakpoint={600} over={
+                <Link href={"/dashboard/archive"} className={"archive default"}>Archive <ArrowRight size={16} strokeWidth={2}/></Link>
+            }/>
 
             {createShotlistDialog.Element}
             {createTemplateDialog.Element}

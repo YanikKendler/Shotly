@@ -4,7 +4,6 @@ import Navigation from "@/components/app/navigation/navigation"
 import Skeleton from "react-loading-skeleton"
 import "./sidebar.scss"
 
-//TODO handle responsiveness
 export default function Sidebar({
     className,
     additionalNavItems,
@@ -12,7 +11,8 @@ export default function Sidebar({
     list,
     bottom,
     isLoading,
-    onCollaborationAccepted
+    onCollaborationAccepted,
+    contentVisible = false
 }:{
     className: string
     additionalNavItems?: ReactElement
@@ -21,9 +21,8 @@ export default function Sidebar({
     bottom?: ReactElement
     isLoading: boolean
     onCollaborationAccepted?: () => void
+    contentVisible?: boolean
 }){
-    const [isOpen, setIsOpen] = useState(true)
-
     const renderHeading = () => {
         if(isLoading) return <Skeleton height={"2rem"}/>
 
@@ -39,14 +38,14 @@ export default function Sidebar({
             defaultSize={20}
             maxSize={40}
             minSize={12}
-            className={`sidebar collapse ${isOpen ? "open" : "closed"} ${className}`}
+            className={`sidebar ${contentVisible ? "open" : "closed"} ${className}`}
         >
             <Navigation
                 onCollaborationAccepted={onCollaborationAccepted}
             >
                 {additionalNavItems}
             </Navigation>
-            <div className="content">
+            <div className={`content ${contentVisible ? "open" : "closed"}`}>
                 <div className={`top`}>
                     { renderHeading() }
                     { list }

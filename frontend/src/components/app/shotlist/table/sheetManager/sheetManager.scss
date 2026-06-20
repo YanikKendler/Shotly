@@ -31,10 +31,10 @@
 
     @media screen and (max-width: 600px){
       padding: {
-        top: 0.5rem;
+        top: .8rem;
         left: 1.5rem;
-        right: calc(0.5rem + var(--sheet-additional-padding-right));
-        bottom: 3rem;
+        right: calc(1.5rem + var(--sheet-additional-padding-right));
+        bottom: 9rem;
       };
     }
 

@@ -210,7 +210,10 @@ const CollaborationRequestsPopup = forwardRef<
 
     return (
         <>
-        <Popover.Root open={collaborationRequestOpen} onOpenChange={setCollaborationRequestOpen}>
+        <Popover.Root
+            open={collaborationRequestOpen}
+            onOpenChange={setCollaborationRequestOpen}
+        >
             <Popover.Anchor>
                 <NavigationItem
                     Icon={Inbox}
@@ -232,6 +235,7 @@ const CollaborationRequestsPopup = forwardRef<
                     align={"start"}
                     onOpenAutoFocus={e => e.preventDefault()}
                     sideOffset={4}
+                    collisionPadding={6}
                 >
                     <div className="top">
                         <h2>Collaboration requests</h2>

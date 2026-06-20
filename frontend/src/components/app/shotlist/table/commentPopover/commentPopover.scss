@@ -20,6 +20,7 @@
   background-color: var(--comment-button-bg);
   border: 1px solid var(--default-interactable-border);
   opacity: 0;
+  box-shadow: 0 0 4px 4px var(--transparent-contrast-10);
 
   &.visible {
     opacity: 1;
