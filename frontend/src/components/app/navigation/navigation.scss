@@ -6,6 +6,10 @@
   display: flex;
   flex-direction: column;
 
+  &.keyboardOpen{
+    display: none;
+  }
+
   .top, .bottom {
     display: flex;
     flex-direction: column;
@@ -54,11 +58,16 @@
     &.selected{
       background-color: var(--transparent-accent-20);
       color: var(--accent);
+
+      .bold{
+        color: var(--accent-60);
+      }
     }
 
     .bold{
-      font-weight: 500;
+      font-weight: 600;
       font-size: .95rem;
+      color: var(--text-40);
     }
 
     .badge{

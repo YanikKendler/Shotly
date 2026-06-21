@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from "react"
+import {useScreenWidth} from "@/utility/useScreenWidth"
 
 export default function ViewPortSwitcher({
     breakpoint,
@@ -11,21 +11,9 @@ export default function ViewPortSwitcher({
     under?: React.ReactElement | string
     over?: React.ReactElement | string
 }) {
-    const [windowWidth, setWindowWidth] = useState<number | null>(null)
+    const width = useScreenWidth()
 
-    useEffect(() => {
-        const handleResize = () => setWindowWidth(window.innerWidth)
-
-        handleResize()
-
-        window.addEventListener('resize', handleResize)
-
-        return () => window.removeEventListener('resize', handleResize)
-    }, [])
-
-    if (windowWidth === null) return null
-
-    if(windowWidth > breakpoint)
+    if(width > breakpoint)
         return over
     else
         return under

@@ -572,7 +572,7 @@ span.chip{
 // Style radix tooltip and popover
 
 .tooltipContent, .popoverContent {
-  --max-width: calc(100vw - 12px);
+  --max-width: calc(100vw - 20px);
 
   background-color: var(--contrast);
   font-size: .9rem;

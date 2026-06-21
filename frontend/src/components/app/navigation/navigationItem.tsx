@@ -2,6 +2,7 @@ import {ForwardRefExoticComponent, ReactElement, ReactNode} from "react"
 import {LucideProps} from "lucide-react"
 import Link from "next/link"
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
+import {useScreenWidth} from "@/utility/useScreenWidth"
 
 export default function NavigationItem({
     Icon,

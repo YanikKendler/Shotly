@@ -221,7 +221,6 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                 <PanelResizeHandle className="PanelResizeHandle sidebarResize"/>
                 <Panel className={`headerContainer ${isTemplatePage && "template"}`}>
                     <DashboardHeader
-                        query={query}
                         openCreateShotlistDialog={createShotlistDialog.open}
                         openCreateTemplateDialog={createTemplateDialog.open}
                     />

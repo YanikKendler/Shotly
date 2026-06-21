@@ -12,6 +12,7 @@ import Separator from "@/components/basic/separator/separator"
 import useNavigationKeybinds from "@/service/useNavigationKeybinds"
 import {AppContext} from "@/context/AppContext"
 import ViewPortSwitcher from "@/components/utility/viewportSwitcher/viewPortSwitcher"
+import {useKeyboardOpen} from "@/utility/useKeyboardOpen"
 
 export default function Navigation({
     onCollaborationAccepted = () => {},
@@ -22,6 +23,8 @@ export default function Navigation({
 }){
     const appContext = useContext(AppContext)
     const accountDialog = useAccountDialog()
+
+    const keyboardOpen = useKeyboardOpen()
 
     const collabPopupRef = useRef<CollaborationRequestsPopupRef>(null)
 
@@ -53,7 +56,7 @@ export default function Navigation({
     )
 
     return (
-        <nav className={"navigation"}>
+        <nav className={`navigation ${keyboardOpen && "keyboardOpen"}`}>
             <div className="top">
                 <NavigationItem
                     Icon={House}
@@ -71,7 +74,13 @@ export default function Navigation({
                         :
                     renderArchive()
                 }
-                <ViewPortSwitcher breakpoint={600} under={renderTools()}/>
+                <ViewPortSwitcher
+                    breakpoint={600}
+                    under={<>
+                        <Separator orientation={"vertical"}/>
+                        {renderTools()}
+                    </>}
+                />
             </div>
             <div className="bottom">
                 {children}
