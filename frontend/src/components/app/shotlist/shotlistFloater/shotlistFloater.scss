@@ -119,3 +119,35 @@ main.shotlist .floater{
     }
   }
 }
+
+.popoverContent.helpLinkPopoverContent{
+  .saveIndicator{
+    display: inline-grid;
+    padding: .5rem;
+
+    .saved, .saving, .error {
+      opacity: 0;
+      grid-area: 1/1/2/2;
+      color: var(--text-30);
+    }
+
+    &[data-state="saving"] {
+      .saving {
+        opacity: 1;
+      }
+    }
+
+    &[data-state="saved"]{
+      .saved{
+        opacity: 1;
+      }
+    }
+
+    &[data-state="error"] {
+      .error {
+        opacity: 1;
+        color: var(--bad);
+      }
+    }
+  }
+}

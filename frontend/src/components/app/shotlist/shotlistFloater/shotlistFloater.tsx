@@ -1,4 +1,4 @@
-import {Dispatch, forwardRef, SetStateAction, useImperativeHandle, useRef, useState} from "react"
+import {forwardRef, useImperativeHandle, useRef, useState} from "react"
 import {wuAnimate} from "@yanikkendler/web-utils"
 import {successNotification} from "@/service/NotificationService"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
@@ -8,6 +8,8 @@ import {Check, LoaderCircle, Menu, RefreshCw} from "lucide-react"
 import HelpLink from "@/components/app/helpLink/helpLink"
 import { SaveState } from "@/app/(application)/shotlist/[id]/page"
 import "./shotlistFloater.scss"
+import ViewPortSwitcher from "@/components/utility/viewportSwitcher/viewPortSwitcher"
+import Separator from "@/components/basic/separator/separator"
 
 export interface ShotlistFloaterRef {
     displaySaveState: (state: SaveState) => void
@@ -17,14 +19,12 @@ export interface ShotlistFloaterProps {
     reloadInProgress: boolean
     refreshShotlist: () => Promise<void>
     restartSync: () => void
-    setSidebarOpen: Dispatch<SetStateAction<boolean>>
 }
 
 const ShotlistFloater = forwardRef<ShotlistFloaterRef, ShotlistFloaterProps>(({
     reloadInProgress,
     refreshShotlist,
     restartSync,
-    setSidebarOpen
 }, ref) => {
     const saveIndicatorRef = useRef<HTMLDivElement>(null)
 
@@ -73,22 +73,42 @@ const ShotlistFloater = forwardRef<ShotlistFloaterRef, ShotlistFloaterProps>(({
                     </div>
                 </SimpleTooltip>
             }
-            <SimpleTooltip text={refreshBlocked ? "please wait a few seconds" : "refresh"} fontSize={0.8}>
-                <button
-                    className={"round right noClickFx"}
-                    ref={refreshButtonRef}
-                    onClick={refresh}
-                    disabled={refreshBlocked}
-                >
-                    <RefreshCw size={16}/>
-                </button>
-            </SimpleTooltip>
-            <div className="saveIndicator" data-state="saved" ref={saveIndicatorRef} aria-hidden>
-                <span className="saving"><LoaderCircle size={18}/></span>
-                <span className="saved"><Check size={18} strokeWidth={2.5}/></span>
-                <span className="error">!</span>
-            </div>
-            <HelpLink link="https://docs.shotly.at/shotlist/navigation" name={"Shotlist"}/>
+            <ViewPortSwitcher
+                breakpoint={600}
+                over={<>
+                    <SimpleTooltip text={refreshBlocked ? "please wait a few seconds" : "refresh"} fontSize={0.8}>
+                        <button
+                            className={"round right noClickFx"}
+                            ref={refreshButtonRef}
+                            onClick={refresh}
+                            disabled={refreshBlocked}
+                        >
+                            <RefreshCw size={16}/>
+                        </button>
+                    </SimpleTooltip>
+                    <div className="saveIndicator" data-state="saved" ref={saveIndicatorRef} aria-hidden>
+                        <span className="saving"><LoaderCircle size={18}/></span>
+                        <span className="saved"><Check size={18} strokeWidth={2.5}/></span>
+                        <span className="error">!</span>
+                    </div>
+                </>}
+            />
+            <HelpLink
+                link="https://docs.shotly.at/shotlist/navigation"
+                name={"Shotlist"}
+                additionalItems={<ViewPortSwitcher
+                    breakpoint={600}
+                    under={<>
+                        <Separator/>
+                        <button onClick={refresh}><RefreshCw size={16}/>Refresh</button>
+                        <div className="saveIndicator" data-state="saved" ref={saveIndicatorRef} aria-hidden>
+                            <span className="saving">Saving changes<DotLoader/></span>
+                            <span className="saved">All changes saved</span>
+                            <span className="error">Error saving changes</span>
+                        </div>
+                    </>}
+                />}
+            />
         </div>
     )
 })

@@ -1,4 +1,4 @@
-import {ReactElement} from "react"
+import {ReactNode} from "react"
 import {ApolloWrapper} from "@/wrapper/ApolloWrapper"
 import AuthWrapper from "@/wrapper/AuthWrapper"
 import Ralph from "@/components/app/ralph/ralph"
@@ -7,7 +7,7 @@ import {AppContextProvider} from "@/context/AppContext"
 export default function AppLayout({
     children
 }:{
-    children: ReactElement;
+    children: ReactNode
 }){
     return (
         <AuthWrapper> {/*should be the outermost*/}

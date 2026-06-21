@@ -4,15 +4,19 @@ import "./helpLink.scss"
 import Analytics from "@/service/Analytics"
 import SimplePopover from "@/components/basic/popover/simplePopover"
 import {BookText, Bug, Lightbulb, Mail} from "lucide-react"
+import {ReactElement, ReactNode, useEffect} from "react"
+import Separator from "@/components/basic/separator/separator"
 
 export default function HelpLink({
     link,
     floating = false,
-    name
+    name,
+    additionalItems
 }: {
     link: string
     floating?: boolean
     name: string
+    additionalItems?: ReactNode
 }) {
     return (
         <SimplePopover
@@ -51,6 +55,7 @@ export default function HelpLink({
                         <Mail size={17}/>
                         Send E-mail
                     </Link>
+                    { additionalItems }
                 </>
             }
             contentClassName={"helpLinkPopoverContent"}

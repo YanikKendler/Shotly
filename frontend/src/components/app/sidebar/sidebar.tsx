@@ -1,5 +1,5 @@
 import { Panel } from "react-resizable-panels";
-import {cloneElement, ReactElement, useState} from "react"
+import {cloneElement, Dispatch, ReactElement, SetStateAction, useState} from "react"
 import Navigation from "@/components/app/navigation/navigation"
 import Skeleton from "react-loading-skeleton"
 import "./sidebar.scss"
@@ -12,7 +12,9 @@ export default function Sidebar({
     bottom,
     isLoading,
     onCollaborationAccepted,
-    contentVisible = false
+    contentVisible = false,
+    setContentVisible = () => {},
+    canShowCloseArea = false
 }:{
     className: string
     additionalNavItems?: ReactElement
@@ -22,15 +24,14 @@ export default function Sidebar({
     isLoading: boolean
     onCollaborationAccepted?: () => void
     contentVisible?: boolean
+    setContentVisible?: Dispatch<SetStateAction<boolean>>
+    canShowCloseArea?: boolean
 }){
     const renderHeading = () => {
         if(isLoading) return <Skeleton height={"2rem"}/>
 
-        if(typeof heading == "string") return <h1 className={"heading"}>{heading}</h1>
-        else return cloneElement(heading, {
-            // @ts-ignore
-            className: `${heading.props.className || ''} heading`.trim()
-        })
+        if(typeof heading == "string") return <h1>{heading}</h1>
+        else return heading
     }
 
     return (
@@ -47,7 +48,9 @@ export default function Sidebar({
             </Navigation>
             <div className={`content ${contentVisible ? "open" : "closed"}`}>
                 <div className={`top`}>
-                    { renderHeading() }
+                    <div className="heading">
+                        { renderHeading() }
+                    </div>
                     { list }
                 </div>
                 {
@@ -57,6 +60,10 @@ export default function Sidebar({
                     </div>
                 }
             </div>
+            {
+                canShowCloseArea &&
+                <div className={`closeArea ${contentVisible ? "open" : "closed"}`} onClick={() => setContentVisible(false)}></div>
+            }
         </Panel>
     )
 }

@@ -65,9 +65,9 @@ export default function Shotlist() {
 
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
+    //TODO figure out a way of querying the position for acurate number display even when getting sceneId from LS
     const [selectedScene, setSelectedScene] = useState<SelectedScene>({ id: sceneId, position: null })
     const [elementIsBeingDragged, setElementIsBeingDragged] = useState(false)
-    const [sidebarOpen, setSidebarOpen] = useState(false)
 
     const shotlistOptionsDialogRef = useRef<ShotlistOptionsDialogRef>(null);
 
@@ -605,7 +605,6 @@ export default function Shotlist() {
                     refreshShotlist={refreshShotlist}
                     restartSync={sync.restart}
                     reloadInProgress={reloadInProgress}
-                    setSidebarOpen={setSidebarOpen}
                 />
             </main>
             <ShotlistOptionsDialog

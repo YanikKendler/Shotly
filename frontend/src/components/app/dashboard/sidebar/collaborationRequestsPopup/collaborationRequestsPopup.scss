@@ -11,6 +11,10 @@
   border: 1px solid var(--default-interactable-border);
   overflow: hidden;
 
+  @media screen and (max-width: 600px){
+    width: var(--max-width);
+  }
+
   .top {
     width: 100%;
     background-color: var(--reloadButtonBg);

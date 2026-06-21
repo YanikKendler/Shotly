@@ -71,6 +71,10 @@
   min-width: min(95vw, 40ch);
   gap: 0;
 
+  @media screen and (max-width: 600px){
+    width: var(--max-width);
+  }
+
   > .top{
     display: flex;
     justify-content: space-between;

@@ -44,6 +44,7 @@
     color: var(--text-10);
     position: relative;
     transition: background-color 200ms ease-out, color 200ms ease-out;
+    gap: .3rem;
 
     &:hover{
       background-color: var(--transparent-gray-20);
@@ -53,6 +54,11 @@
     &.selected{
       background-color: var(--transparent-accent-20);
       color: var(--accent);
+    }
+
+    .bold{
+      font-weight: 500;
+      font-size: .95rem;
     }
 
     .badge{

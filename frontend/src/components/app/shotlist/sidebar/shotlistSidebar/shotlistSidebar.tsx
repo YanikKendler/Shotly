@@ -105,6 +105,8 @@ export default function ShotlistSidebar({
         <Sidebar
             className="shotlistSidebar"
             contentVisible={contentVisible}
+            setContentVisible={setContentVisible}
+            canShowCloseArea
             additionalNavItems={
                 <ViewPortSwitcher
                     breakpoint={600}
@@ -141,6 +143,7 @@ export default function ShotlistSidebar({
                             />
                             <NavigationItem
                                 Icon={List}
+                                additionalContent={<span className="bold">{(selectedScene.position ?? 0) + 1}</span>}
                                 action={() => setContentVisible(current => !current)}
                                 description={<>Scenes</>}
                                 selected={contentVisible}
@@ -150,15 +153,23 @@ export default function ShotlistSidebar({
                 />
             }
             heading={
-                <input
-                    type="text"
-                    defaultValue={query.data.shotlist?.name || ""}
-                    placeholder={"shotlist name"}
-                    className={"name"}
-                    onInput={e => debounceUpdateShotlistName(e.currentTarget.value)}
-                    role={"heading"}
-                    disabled={isViewOrCommentOnly}
-                    ref={nameInputRef}
+                <ViewPortSwitcher
+                    breakpoint={600}
+                    under={
+                        <h2>Scenes</h2>
+                    }
+                    over={
+                        <input
+                            type="text"
+                            defaultValue={query.data.shotlist?.name || ""}
+                            placeholder={"shotlist name"}
+                            className={"name"}
+                            onInput={e => debounceUpdateShotlistName(e.currentTarget.value)}
+                            role={"heading"}
+                            disabled={isViewOrCommentOnly}
+                            ref={nameInputRef}
+                        />
+                    }
                 />
             }
             list={

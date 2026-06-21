@@ -34,12 +34,13 @@
     padding: .2rem;
   }
 
-  a {
+  a, button {
     font-size: .85rem;
     padding: .4rem;
     color: var(--text-20);
     gap: .3rem;
     justify-content: start;
+    width: 100%;
 
     &:hover {
       color: var(--accent);

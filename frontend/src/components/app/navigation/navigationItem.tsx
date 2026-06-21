@@ -5,12 +5,14 @@ import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
 
 export default function NavigationItem({
     Icon,
+    additionalContent,
     action,
     description,
     badge,
     selected
 }:{
     Icon: ForwardRefExoticComponent<Omit<LucideProps, "ref">>
+    additionalContent?: ReactNode
     action: string | (() => void)
     description: ReactNode
     badge?: string | number
@@ -32,6 +34,7 @@ export default function NavigationItem({
                 renderAction(
                     <>
                         <Icon size={22} strokeWidth={2.3}/>
+                        {additionalContent}
                         {badge && <span className={"badge"}>{badge}</span>}
                     </>
                 )

@@ -8,6 +8,8 @@ import {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
 import {Menu, RefreshCw} from "lucide-react";
 import {ApolloQueryResult} from "@apollo/client"
 import {Query} from "../../../../../lib/graphql/generated"
+import ViewPortSwitcher from "@/components/utility/viewportSwitcher/viewPortSwitcher"
+import Separator from "@/components/basic/separator/separator";
 
 export default function DashboardFloater({
     reloadDashboardData,
@@ -51,19 +53,31 @@ export default function DashboardFloater({
 
     return (
         <div className="floater">
-            <SimpleTooltip text={refreshBlocked ? "please wait a few seconds" : "refresh"} fontSize={0.8}>
-                <button
-                    className={"round right noClickFx"}
-                    ref={refreshButtonRef}
-                    onClick={refresh}
-                    disabled={refreshBlocked}
-                >
-                    <RefreshCw size={16}/>
-                </button>
-            </SimpleTooltip>
+            <ViewPortSwitcher
+                breakpoint={600}
+                over={
+                    <SimpleTooltip text={refreshBlocked ? "please wait a few seconds" : "refresh"} fontSize={0.8}>
+                        <button
+                            className={"round right noClickFx"}
+                            ref={refreshButtonRef}
+                            onClick={refresh}
+                            disabled={refreshBlocked}
+                        >
+                            <RefreshCw size={16}/>
+                        </button>
+                    </SimpleTooltip>
+                }
+            />
             <HelpLink
                 link={`https://docs.shotly.at/${isTemplatePage ? "templates" : "dashboard"}`}
                 name={isTemplatePage ? "Template" : "Dashboard"}
+                additionalItems={<ViewPortSwitcher
+                    breakpoint={600}
+                    under={<>
+                        <Separator/>
+                        <button onClick={refresh}><RefreshCw size={16}/>Refresh</button>
+                    </>}
+                />}
             />
         </div>
     )

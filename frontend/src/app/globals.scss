@@ -571,18 +571,6 @@ span.chip{
 
 // Style radix tooltip and popover
 
-.popoverContent {
-  @media screen and (max-width: 500px){
-    width: 95vw;
-  }
-}
-
-.tooltipContent {
-  @media screen and (pointer: coarse){
-    display: none !important;
-  }
-}
-
 .tooltipContent, .popoverContent {
   --max-width: calc(100vw - 12px);
 
@@ -617,6 +605,18 @@ span.chip{
     scrollbar-width: thin;
     max-height: 15rem;
     padding: .4rem;
+  }
+}
+
+.tooltipContent {
+  @media screen and (pointer: coarse){
+    display: none !important;
+  }
+}
+
+.popoverContent {
+  @media screen and (max-width: 600px){
+    max-width: var(--max-width);
   }
 }
 

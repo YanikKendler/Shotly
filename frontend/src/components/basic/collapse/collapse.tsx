@@ -1,7 +1,6 @@
 import React, {ReactNode, useEffect, useLayoutEffect, useRef} from "react"
 import "./collapse.scss"
 
-//TODO doesnt handle sidebar responsiveness well, needs more height recalculations
 export default function Collapse({
     children,
     expanded,
@@ -15,12 +14,18 @@ export default function Collapse({
 }){
     const ref = useRef<HTMLDivElement>(null);
 
+    const layoutEffectRan = useRef(false);
+    const useEffectRan = useRef(false);
+    const mountTime = useRef(Date.now());
+
     /**
      * Removes overflow hidden from the content while it is expanded
      * to allow popovers or similar to be displayed correctly
      */
     useEffect(() => {
-        if(!ref.current) return
+        if(!ref.current || useEffectRan.current) return
+
+        useEffectRan.current = true
 
         const onTransitionStart = (e: TransitionEvent) => {
             if(e.propertyName != "height" || !ref.current) return
@@ -36,6 +41,9 @@ export default function Collapse({
             if(ref.current.classList.contains("expanded")) {
                 ref.current.style.overflow = "visible"
             }
+            else {
+                ref.current.style.overflow = ""
+            }
         }
 
         ref.current.addEventListener("transitionend", onTransitionEnd)
@@ -45,7 +53,7 @@ export default function Collapse({
             ref.current?.removeEventListener("transitionend", onTransitionEnd)
             ref.current?.removeEventListener("transitionrun", onTransitionStart)
         }
-    }, [])
+    }, [ref.current])
 
     /**
      * Fallback: if `expanded` becomes true but no CSS transition runs
@@ -55,6 +63,10 @@ export default function Collapse({
         const el = ref.current
         if (!el || !expanded) return
 
+        // 1. Ignore entirely if the component is older than 3 seconds (3000ms)
+        const isOlderThan3Seconds = Date.now() - mountTime.current > 3000;
+        if (isOlderThan3Seconds) return;
+
         let transitionStarted = false
 
         const onTransitionRun = (e: TransitionEvent) => {
@@ -63,25 +75,25 @@ export default function Collapse({
 
         el.addEventListener("transitionrun", onTransitionRun)
 
-        // Two rAFs ensure the browser has had a chance to start a transition.
-        // If none started by then, it won't — set overflow immediately.
-        const raf = requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                el.removeEventListener("transitionrun", onTransitionRun)
-                if (!transitionStarted && el.classList.contains("expanded")) {
-                    el.style.overflow = "visible"
-                }
-            })
-        })
+        // 2. Lower Priority: Use setTimeout instead of requestAnimationFrame.
+        // 50ms is plenty of time for the browser to trigger 'transitionrun'
+        // without blocking the main rendering thread.
+        const timer = setTimeout(() => {
+            el.removeEventListener("transitionrun", onTransitionRun)
+
+            if (!transitionStarted && el.classList.contains("expanded")) {
+                el.style.overflow = "visible"
+            }
+        }, 50)
 
         return () => {
-            cancelAnimationFrame(raf)
+            clearTimeout(timer)
             el.removeEventListener("transitionrun", onTransitionRun)
         }
     }, [expanded])
 
     useLayoutEffect(() => {
-        if(!ref.current) return
+        if(!ref.current || layoutEffectRan.current) return
 
         ref.current.style.height = "auto"
         ref.current.style.transition = "none"
@@ -95,8 +107,10 @@ export default function Collapse({
 
         if(rect.height == 0) return
 
+        layoutEffectRan.current = true
+
         ref.current.style.setProperty("--expanded-height", rect.height + "px")
-    }, recalculateHeightWith)
+    }, [recalculateHeightWith, ref.current])
 
     return (
         <div className={`collapsableContent ${expanded && "expanded"} ${className}`} ref={ref}>
