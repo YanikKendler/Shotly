@@ -171,7 +171,7 @@ const CommentPopover = forwardRef<CommentPopoverRef, CommentPopoverProps>(({
                     ref={contentElementRef}
                     className="popoverContent commentPopover"
                     sideOffset={6}
-                    collisionPadding={4}
+                    collisionPadding={10}
                     onCloseAutoFocus={e => e.preventDefault()}
                     onOpenAutoFocus={(e) => {
                         e.preventDefault()

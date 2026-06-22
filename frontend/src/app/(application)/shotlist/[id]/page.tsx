@@ -34,7 +34,9 @@ import ShotlistFloater, {ShotlistFloaterRef} from "@/components/app/shotlist/sho
 import ReadOnlyBanner from "@/components/app/shotlist/readOnlyBanner/readOnlyBanner"
 import ShotlistHeader from "@/components/app/shotlist/shotlistHeader/shotlistHeader"
 import useIntro from "@/service/useIntro"
-import ShotlistSidebar from "@/components/app/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
+import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/app/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
+import ViewPortSwitcher from "@/components/utility/viewportSwitcher/viewPortSwitcher"
+import Skeleton from "react-loading-skeleton"
 
 export interface SelectedScene {
     id: string | null
@@ -90,7 +92,8 @@ export default function Shotlist() {
     const shotlistElementRef = useRef<HTMLDivElement>(null);
     const headerRef = useRef<HTMLDivElement>(null)
     const sheetManagerRef = useRef<SheetManagerRef>(null)
-    const sidebarRef = useRef<SceneListRef>(null)
+    const sceneListRef = useRef<SceneListRef>(null)
+    const sidebarRef = useRef<ShotlistSidebarRef>(null);
     const floaterRef = useRef<ShotlistFloaterRef>(null)
 
     const [shotSelectOptionsCache, setShotSelectOptionsCache] = useState(new Map<number, SelectOption[]>())
@@ -469,7 +472,7 @@ export default function Shotlist() {
     const sync = useShotlistSync({
         shotlistId: id,
         sheetManagerRef: sheetManagerRef,
-        sidebarRef: sidebarRef,
+        sidebarRef: sceneListRef,
         selectedScene: selectedScene,
         setQuery: setQuery,
         setIsArchived: setIsArchived,
@@ -483,7 +486,7 @@ export default function Shotlist() {
 
     useShotlistKeybinds({
         sheetManagerRef: sheetManagerRef,
-        sidebarRef: sidebarRef,
+        sidebarRef: sceneListRef,
         openShotlistOptionsDialog: openShotlistOptionsDialog,
         focusedCell: focusedCell,
         setSelectedScene: setSelectedScene
@@ -574,12 +577,18 @@ export default function Shotlist() {
                         selectedScene={selectedScene}
                         setSelectedScene={setSelectedScene}
                         presentCollaborators={Array.from(presentCollaborators?.values().map(c => c.user) || [])}
-                        sceneListRef={sidebarRef}
+                        sceneListRef={sceneListRef}
+                        ref={sidebarRef}
                     />
 
                     <PanelResizeHandle className="PanelResizeHandle sidebarResize" hitAreaMargins={{fine: 5, coarse: 10}}/>
 
                     <Panel className={`content ${reloadInProgress && "reloading"}`} id={"shotTable"}>
+                        <ViewPortSwitcher breakpoint={600} under={
+                            query.loading ?
+                            <Skeleton height={"2rem"} style={{margin: ".3rem", width: "calc(100% - .6rem)"}}/> :
+                            <h1 className={"shotlistName"} onClick={sidebarRef.current?.openSceneList}>{query.data.shotlist?.name || "Unnamed"} • Scene {selectedScene.position ? selectedScene.position + 1 : "#"}</h1>
+                        }/>
                         <ShotlistHeader
                             ref={headerRef}
                             query={query}

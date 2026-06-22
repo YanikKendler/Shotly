@@ -235,7 +235,7 @@ const CollaborationRequestsPopup = forwardRef<
                     align={"start"}
                     onOpenAutoFocus={e => e.preventDefault()}
                     sideOffset={4}
-                    collisionPadding={6}
+                    collisionPadding={10}
                 >
                     <div className="top">
                         <h2>Collaboration requests</h2>

@@ -8,7 +8,10 @@ import {
     ShotlistOptionsDialogMainPage,
     ShotlistOptionsDialogPages
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
-import React, {Dispatch, RefObject, SetStateAction, useContext, useEffect, useRef, useState} from "react"
+import React, {
+    Dispatch, forwardRef, RefObject, SetStateAction, useContext, useEffect,
+    useImperativeHandle, useRef, useState
+} from "react"
 import {ShotlistContext} from "@/context/ShotlistContext"
 import gql from "graphql-tag"
 import {wuGeneral} from "@yanikkendler/web-utils"
@@ -18,19 +21,11 @@ import SimplePopover from "@/components/basic/popover/simplePopover"
 import Sidebar from "@/components/app/sidebar/sidebar"
 import ViewPortSwitcher from "@/components/utility/viewportSwitcher/viewPortSwitcher"
 
-export default function ShotlistSidebar({
-    query,
-    setQuery,
-    openShotlistOptionsDialog,
-    isViewOrCommentOnly,
-    reloadInProgress,
-    sceneCount,
-    setSceneCount,
-    selectedScene,
-    setSelectedScene,
-    presentCollaborators,
-    sceneListRef
-}:{
+export interface ShotlistSidebarRef {
+    openSceneList: () => void
+}
+
+export interface ShotlistSidebarProps {
     query: ApolloQueryResult<Query>
     setQuery: Dispatch<SetStateAction<ApolloQueryResult<Query>>>
     openShotlistOptionsDialog: (pages?: ShotlistOptionsDialogPages) => void
@@ -42,7 +37,21 @@ export default function ShotlistSidebar({
     setSelectedScene: Dispatch<SetStateAction<SelectedScene>>
     presentCollaborators: UserMinimalDto[]
     sceneListRef: RefObject<SceneListRef | null>
-}){
+}
+
+const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
+    query,
+    setQuery,
+    openShotlistOptionsDialog,
+    isViewOrCommentOnly,
+    reloadInProgress,
+    sceneCount,
+    setSceneCount,
+    selectedScene,
+    setSelectedScene,
+    presentCollaborators,
+    sceneListRef
+}, ref) =>{
     const shotlistContext = useContext(ShotlistContext)
     const client = useApolloClient()
 
@@ -54,6 +63,10 @@ export default function ShotlistSidebar({
         if(nameInputRef.current && query.data.shotlist?.name)
             nameInputRef.current.value = query.data.shotlist.name
     }, [query.data.shotlist?.name])
+
+    useImperativeHandle(ref, () => ({
+        openSceneList: () => setContentVisible(true)
+    }))
 
     const updateShotlistName = async (name: string) => {
         shotlistContext.setSaveState("updateShotlistName", "saving")
@@ -143,7 +156,7 @@ export default function ShotlistSidebar({
                             />
                             <NavigationItem
                                 Icon={List}
-                                additionalContent={<span className="bold">{(selectedScene.position ?? 0) + 1}</span>}
+                                additionalContent={<span className="bold">{selectedScene.position ? selectedScene.position + 1 : "#"}</span>}
                                 action={() => setContentVisible(current => !current)}
                                 description={<>Scenes</>}
                                 selected={contentVisible}
@@ -213,4 +226,6 @@ export default function ShotlistSidebar({
             isLoading={query.loading}
         />
     )
-}
+})
+
+export default ShotlistSidebar

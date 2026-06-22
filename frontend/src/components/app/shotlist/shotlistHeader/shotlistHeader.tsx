@@ -4,9 +4,8 @@ import Skeleton from "react-loading-skeleton"
 import {ApolloQueryResult} from "@apollo/client"
 import {
     ShotlistOptionsDialogMainPage, ShotlistOptionsDialogPages,
-    ShotlistOptionsDialogSubPage
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
-import {Columns3Cog, Settings2} from "lucide-react"
+import {Columns3Cog} from "lucide-react"
 import "./shotlistHeader.scss"
 
 export default function ShotlistHeader({
