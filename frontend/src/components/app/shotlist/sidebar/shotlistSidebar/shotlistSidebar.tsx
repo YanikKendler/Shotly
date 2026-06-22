@@ -156,7 +156,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                             />
                             <NavigationItem
                                 Icon={List}
-                                additionalContent={<span className="bold">{selectedScene.position ? selectedScene.position + 1 : "#"}</span>}
+                                additionalContent={<span className="bold">{selectedScene.position != null ? selectedScene.position + 1 : "#"}</span>}
                                 action={() => setContentVisible(current => !current)}
                                 description={<>Scenes</>}
                                 selected={contentVisible}

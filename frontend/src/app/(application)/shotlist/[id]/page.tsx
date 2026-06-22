@@ -63,12 +63,11 @@ export default function Shotlist() {
     * should handle this better because currently if the scene positon is null the scene nums in the rows would be displayed wrong
     * should probably just shift the selected scene to shotcontext
     */
-    const sceneId = searchParams?.get('sid')
+    const urlSceneId = searchParams?.get('sid')
 
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
-    //TODO figure out a way of querying the position for acurate number display even when getting sceneId from LS
-    const [selectedScene, setSelectedScene] = useState<SelectedScene>({ id: sceneId, position: null })
+    const [selectedScene, setSelectedScene] = useState<SelectedScene>({ id: null, position: null })
     const [elementIsBeingDragged, setElementIsBeingDragged] = useState(false)
 
     const shotlistOptionsDialogRef = useRef<ShotlistOptionsDialogRef>(null);
@@ -137,21 +136,36 @@ export default function Shotlist() {
             }
         }
 
-        //select first scene if none is selected
+        if(
+            query.loading ||
+            !query.data.shotlist ||
+            !query.data.shotlist?.scenes ||
+            !query.data.shotlist?.scenes[0]
+        ) return
+
         if(
             (
                 selectedScene?.id == "" ||
                 selectedScene?.id == null
-            ) &&
-            !query.loading &&
-            query.data.shotlist &&
-            query.data.shotlist.scenes &&
-            query.data.shotlist.scenes[0]?.id != undefined
+            )
         ) {
-            setSelectedScene({
-                id: query.data.shotlist.scenes[0].id,
-                position: query.data.shotlist.scenes[0]?.position || null
-            })
+            //select scene from URL
+            if(urlSceneId && urlSceneId != ""){
+                const scene = query.data.shotlist.scenes.find(s => s?.id == urlSceneId)
+
+                setSelectedScene({
+                    id: scene?.id ?? null,
+                    position: scene?.position ?? null
+                })
+            }
+
+            //select first scene if none is selected
+            if(selectedScene.id == null) {
+                setSelectedScene({
+                    id: query.data.shotlist.scenes[0].id ?? null,
+                    position: query.data.shotlist.scenes[0]?.position ?? null
+                })
+            }
         }
     }, [query])
 
@@ -587,7 +601,7 @@ export default function Shotlist() {
                         <ViewPortSwitcher breakpoint={600} under={
                             query.loading ?
                             <Skeleton height={"2rem"} style={{margin: ".3rem", width: "calc(100% - .6rem)"}}/> :
-                            <h1 className={"shotlistName"} onClick={sidebarRef.current?.openSceneList}>{query.data.shotlist?.name || "Unnamed"} • Scene {selectedScene.position ? selectedScene.position + 1 : "#"}</h1>
+                            <h1 className={"shotlistName"} onClick={sidebarRef.current?.openSceneList}>{query.data.shotlist?.name || "Unnamed"} • Scene {selectedScene.position != null ? selectedScene.position + 1 : "#"}</h1>
                         }/>
                         <ShotlistHeader
                             ref={headerRef}
