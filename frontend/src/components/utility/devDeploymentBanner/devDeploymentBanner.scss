@@ -1,0 +1,21 @@
+.devDeploymentBanner{
+  width: 100%;
+  background-color: var(--accent);
+  padding: .5rem;
+  text-align: center;
+  color: var(--contrast);
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  font-size: .8rem;
+  display: flex;
+
+  a {
+    font-weight: bold;
+    text-decoration: underline;
+
+    &:hover{
+      color: var(--accent-90);
+    }
+  }
+}

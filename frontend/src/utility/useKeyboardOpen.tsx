@@ -36,8 +36,7 @@ export function useKeyboardOpen(): boolean {
             const isKeyboardTargetFocused = isTextArea || isContentEditable || isTextInput;
 
             // Check if the screen is reasonably small (typical mobile portrait height)
-            // 850px is a safe threshold for modern large phones
-            const isSmallScreen = window.innerHeight < 850;
+            const isSmallScreen = window.innerHeight < 550;
 
             setIsKeyboardOpen(isKeyboardTargetFocused && isSmallScreen);
         };

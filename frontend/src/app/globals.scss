@@ -279,27 +279,6 @@ svg {
   height: 100dvh;
   display: flex;
   flex-direction: column;
-
-  .infoBanner{
-    width: 100%;
-    background-color: var(--accent);
-    padding: .5rem;
-    text-align: center;
-    color: var(--contrast);
-    position: sticky;
-    top: 0;
-    z-index: 200;
-    font-size: .8rem;
-
-    a {
-      font-weight: bold;
-      text-decoration: underline;
-
-      &:hover{
-        color: var(--accent-90);
-      }
-    }
-  }
 }
 
 .AuthWrapper{
