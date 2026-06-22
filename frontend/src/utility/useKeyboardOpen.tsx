@@ -48,10 +48,14 @@ export function useKeyboardOpen(): boolean {
         // Note: focusin/focusout bubble, whereas focus/blur do not.
         document.addEventListener('focusin', checkKeyboardState);
         document.addEventListener('focusout', checkKeyboardState);
+        document.addEventListener('resize', checkKeyboardState);
+        window.visualViewport?.addEventListener('resize', checkKeyboardState);
 
         return () => {
+            document.removeEventListener('resize', checkKeyboardState)
             document.removeEventListener('focusin', checkKeyboardState);
             document.removeEventListener('focusout', checkKeyboardState);
+            window.visualViewport?.removeEventListener('resize', checkKeyboardState);
         };
     }, []);
 
