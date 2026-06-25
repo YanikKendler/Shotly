@@ -1,6 +1,8 @@
 import React, {ReactNode, useEffect, useLayoutEffect, useRef} from "react"
 import "./collapse.scss"
 
+
+//TODO doesnt work reliably on mobile, calculates wrong height on dashboard
 export default function Collapse({
     children,
     expanded,

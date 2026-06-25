@@ -9,6 +9,8 @@
   z-index: 200;
   font-size: .8rem;
   display: flex;
+  justify-content: center;
+  align-items: center;
 
   a {
     font-weight: bold;
@@ -16,6 +18,12 @@
 
     &:hover{
       color: var(--accent-90);
+    }
+  }
+
+  button {
+    &:hover {
+      background-color: var(--transparent-gray-20);
     }
   }
 }
