@@ -19,9 +19,7 @@ import ShotlistOptionsDialog, {
     ShotlistOptionsDialogPages,
     ShotlistOptionsDialogRef,
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
-import LoadingPage from "@/components/app/feedback/loadingPage/loadingPage"
 import {Panel, PanelGroup, PanelResizeHandle} from "react-resizable-panels"
-import auth from "@/Auth"
 import Utils, {uuidRegex} from "@/utility/Utils"
 import Config from "@/Config"
 import {GenericError, RowColumn, SelectOption, ShotlyErrorCode} from "@/utility/Types"
@@ -68,7 +66,6 @@ export default function Shotlist() {
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
     const [selectedScene, setSelectedScene] = useState<SelectedScene>({ id: null, position: null })
-    const [elementIsBeingDragged, setElementIsBeingDragged] = useState(false)
 
     const shotlistOptionsDialogRef = useRef<ShotlistOptionsDialogRef>(null);
 
@@ -528,8 +525,6 @@ export default function Shotlist() {
     return (
         <ShotlistContext.Provider value={{
             openShotlistOptionsDialog: openShotlistOptionsDialog,
-            elementIsBeingDragged: elementIsBeingDragged,
-            setElementIsBeingDragged: setElementIsBeingDragged,
             shotCount: shotCount,
             setShotCount: (count) => {
                 setShotCount(count);

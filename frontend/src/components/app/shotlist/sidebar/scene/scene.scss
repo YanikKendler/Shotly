@@ -39,7 +39,7 @@
     }
   }
 
-  &.expanded{
+  &.expanded:not(.sortable-drag){
     border-color: var(--expanded-border);
 
     .name{

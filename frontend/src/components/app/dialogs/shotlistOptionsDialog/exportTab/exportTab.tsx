@@ -6,7 +6,7 @@ import {
     RotateCcw,
     Rows4,
 } from "lucide-react"
-import React, {Fragment, RefObject, useCallback, useEffect, useRef, useState} from "react"
+import React, {Fragment, RefObject, useCallback, useContext, useEffect, useRef, useState} from "react"
 import gql from "graphql-tag"
 import {wuTime} from "@yanikkendler/web-utils"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
@@ -57,6 +57,7 @@ import ExportSort from "@/components/app/dialogs/shotlistOptionsDialog/exportTab
 import Sortable from "sortablejs"
 import useJsonExport from "@/service/export/useJsonExport"
 import SimpleCollapse, {SimpleCollapseRef} from "@/components/basic/simpleCollapse/simpleCollapse"
+import {AppContext} from "@/context/AppContext"
 
 type ExportFileTypes = "PDF" | "CSV" | "XLSX" | "JSON"
 
@@ -104,6 +105,7 @@ export default function ExportTab(
 ) {
     const {confirm, ConfirmDialog} = useConfirmDialog()
     const client = useApolloClient()
+    const appContext = useContext(AppContext)
 
     const [scenesAsOptions, setScenesAsOptions] = useState<SelectOption[]>([{label: "this is bad", value: "-1"}])
     const [sceneAttributeDefsAsOptions, setSceneAttributeDefsAsOptions] = useState<SelectOption[]>([{label: "this is bad", value: "-1"}])
@@ -865,11 +867,13 @@ export default function ExportTab(
                 fallbackTolerance: 5,
                 onStart: (event) => {
                     if (event.oldIndex === undefined) return
+
+                    appContext.setElementIsBeingDragged(true)
                 },
                 onEnd: (event) => {
-                    if(!event.item || event.oldIndex == undefined || event.newIndex == undefined) return
+                    appContext.setElementIsBeingDragged(false)
 
-                    console.log("moved", event.item, "from", event.oldIndex, "to", event.newIndex)
+                    if(!event.item || event.oldIndex == undefined || event.newIndex == undefined) return
 
                     setCustomSceneSorts(current => {
                         let newSorts = [...current]
@@ -895,11 +899,13 @@ export default function ExportTab(
                 fallbackTolerance: 5,
                 onStart: (event) => {
                     if (event.oldIndex === undefined) return
+
+                    appContext.setElementIsBeingDragged(true)
                 },
                 onEnd: (event) => {
-                    if(!event.item || event.oldIndex == undefined || event.newIndex == undefined) return
+                    appContext.setElementIsBeingDragged(false)
 
-                    console.log("moved", event.item, "from", event.oldIndex, "to", event.newIndex)
+                    if(!event.item || event.oldIndex == undefined || event.newIndex == undefined) return
 
                     setCustomShotSorts(current => {
                         let newSorts = [...current]

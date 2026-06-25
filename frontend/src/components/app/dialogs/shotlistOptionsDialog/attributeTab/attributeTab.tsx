@@ -1,6 +1,6 @@
 import {SceneAttributeType, ShotAttributeType, ShotlistDto} from "../../../../../../lib/graphql/generated"
 import {Popover, Separator, Tabs} from "radix-ui"
-import React, {RefObject, useRef} from "react"
+import React, {RefObject, useContext, useRef} from "react"
 import gql from "graphql-tag"
 import {useApolloClient} from "@apollo/client"
 import {useRouter} from "next/navigation"
@@ -25,6 +25,7 @@ import Skeleton from "react-loading-skeleton"
 import {errorNotification} from "@/service/NotificationService"
 import {DialogRef} from "@/components/basic/dialog/dialog"
 import SimplePopover, {SimplePopoverRef} from "@/components/basic/popover/simplePopover"
+import {AppContext} from "@/context/AppContext"
 
 export default function AttributeTab(
     {
@@ -55,6 +56,7 @@ export default function AttributeTab(
     }
 ) {
     const client = useApolloClient()
+    const appContext = useContext(AppContext)
 
     const addSceneAttributePopoverRef = useRef<SimplePopoverRef>(null)
     const addShotAttributePopoverRef = useRef<SimplePopoverRef>(null)
@@ -126,7 +128,9 @@ export default function AttributeTab(
     }
 
     function handleShotAttributeDefinitionDragEnd(event: any) {
-        const {active, over} = event;
+        appContext.setElementIsBeingDragged(false)
+
+        const {active, over} = event
 
         if (active.id !== over.id && shotAttributeDefinitions) {
             const oldIndex = shotAttributeDefinitions.findIndex((definition) => definition.id === active.id);
@@ -211,6 +215,8 @@ export default function AttributeTab(
     }
 
     function handleSceneAttributeDefinitionDragEnd(event: any) {
+        appContext.setElementIsBeingDragged(false)
+
         const {active, over} = event;
 
         if (active.id !== over.id && sceneAttributeDefinitions) {
@@ -295,6 +301,7 @@ export default function AttributeTab(
                             <DndContext
                                 sensors={sensors}
                                 collisionDetection={closestCenter}
+                                onDragStart={() => appContext.setElementIsBeingDragged(true)}
                                 onDragEnd={handleSceneAttributeDefinitionDragEnd}
                             >
                                 <SortableContext
@@ -358,6 +365,7 @@ export default function AttributeTab(
                             <DndContext
                                 sensors={sensors}
                                 collisionDetection={closestCenter}
+                                onDragStart={() => appContext.setElementIsBeingDragged(true)}
                                 onDragEnd={handleShotAttributeDefinitionDragEnd}
                             >
                                 <SortableContext

@@ -73,7 +73,7 @@
     }
   }
 
-  &.active{
+  &.active, &.sortable-chosen.sortable-ghost{
     --row-bg: var(--accent-95) !important;
     --grip-color: var(--accent-60);
     --grip-hover-color: var(--accent);

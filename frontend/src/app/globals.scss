@@ -230,6 +230,11 @@ body {
   background-color: var(--contrast);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  &.grabCursor,
+  &.grabCursor * {
+    cursor: grabbing !important;
+  }
 }
 
 * {
@@ -696,12 +701,6 @@ body .driver-popover {
       color: var(--text);
     }
   }
-}
-
-// style sortableJS
-
-.sortable-drag {
-  display: none;
 }
 
 //style radix radio group

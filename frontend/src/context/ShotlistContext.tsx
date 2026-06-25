@@ -10,8 +10,6 @@ import {CollaborationType, UserDto} from "../../lib/graphql/generated"
 
 export interface ShotlistContextProps {
     openShotlistOptionsDialog: (pages?: ShotlistOptionsDialogPages) => void
-    elementIsBeingDragged: boolean
-    setElementIsBeingDragged: (isBeingDragged: boolean) => void
     shotCount: number
     setShotCount: (count: number) => void
     sceneCount: number
@@ -41,9 +39,6 @@ export interface ShotlistContextProps {
 export const ShotlistContext = createContext<ShotlistContextProps>({
     //open the edit dialog from anywhere: like the shot attribute value selector
     openShotlistOptionsDialog: (page) => {},
-    //to disable tooltips when dragging
-    elementIsBeingDragged: false,
-    setElementIsBeingDragged: () => {},
     //for disabling move up/down buttons
     shotCount: 0,
     setShotCount: () => {},

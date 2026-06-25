@@ -35,6 +35,7 @@ import {tinykeys} from "@/../node_modules/tinykeys/dist/tinykeys"
 import {successNotification} from "@/service/NotificationService"
 import CellBase from "@/components/app/shotlist/table/cell/cellBase"
 import CommentPopover, {CommentPopoverRef} from "@/components/app/shotlist/table/commentPopover/commentPopover"
+import {AppContext} from "@/context/AppContext"
 
 export interface RowRef {
     id: string,
@@ -77,6 +78,7 @@ const RowBase = forwardRef<RowRef, RowProps>(({
 }, ref) => {
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
+    const appContext = useContext(AppContext)
 
     const [contextOptionsOpen, setContextOptionsOpen] = useState(false)
     const [commentPopoverOpen, setCommentPopoverOpen] = useState(false)
@@ -196,7 +198,7 @@ const RowBase = forwardRef<RowRef, RowProps>(({
                 <Popover.Root
                     open={contextOptionsOpen}
                     onOpenChange={(open) => {
-                        if (shotlistContext.elementIsBeingDragged) return
+                        if (appContext.elementIsBeingDragged.current) return
 
                         setContextOptionsOpen(open)
                     }}

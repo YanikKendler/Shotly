@@ -96,11 +96,13 @@ const SceneList = forwardRef<SceneListRef, ShotlistSidebarProps>(({
                 onStart: (event) => {
                     if(event.oldIndex === undefined) return
 
-                    shotlistContext.elementIsBeingDragged = true
+                    appContext.setElementIsBeingDragged(true)
 
                     sceneRefs.current.get(event.oldIndex)?.closePopover()
                 },
                 onEnd: (event) => {
+                    appContext.setElementIsBeingDragged(false)
+
                     //so that the drag ghost is hidden before re-rendering otherwise it hangs in the air for half a second
                     requestAnimationFrame(() => {
                         if(!event.item || event.oldIndex === undefined || event.newIndex === undefined) return
@@ -111,8 +113,6 @@ const SceneList = forwardRef<SceneListRef, ShotlistSidebarProps>(({
                             event.item.dataset.sceneId as string,
                             event.newIndex
                         )
-
-                        shotlistContext.elementIsBeingDragged = false
                     })
                 }
             })

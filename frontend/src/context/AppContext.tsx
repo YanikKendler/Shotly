@@ -22,7 +22,9 @@ export const AppContext = createContext<{
     setCurrentUser: Dispatch<SetStateAction<UserDto | null>>
     visibleOverlays: RefObject<Map<string, VisibleOverlay>>
     isKeybindBlocked: (keybind: string) => boolean,
-    closeOverlays: () => void
+    closeOverlays: () => void,
+    elementIsBeingDragged: RefObject<boolean>,
+    setElementIsBeingDragged: (isDragged: boolean) => void
 }>({
     page: "",
     currentUser: null,
@@ -32,6 +34,8 @@ export const AppContext = createContext<{
     visibleOverlays: {current: new Map()},
     isKeybindBlocked: () => false,
     closeOverlays: () => {},
+    elementIsBeingDragged: {current: false},
+    setElementIsBeingDragged: () => {}
 })
 
 export const AppContextProvider = ({
@@ -45,6 +49,7 @@ export const AppContextProvider = ({
     const [page, setPage] = useState("")
     const [currentUser, setCurrentUser] = useState<UserDto | null>(null)
     const visibleOverlays = useRef(new Map<string, VisibleOverlay>())
+    const elementIsBeingDragged = useRef(false);
 
     const [initialLoadComplete, setInitialLoadComplete] = useState(false)
     const [reloading, setReloading] = useState(false)
@@ -129,7 +134,7 @@ export const AppContextProvider = ({
 
         //Check if the pressed keybind is being overwritten by the overlay, if not - show a notification
         const currentKeyBindInUse = visibleOverlays.current.values().some(b => b.usingKeybinds?.includes(keybind))
-        if(!currentKeyBindInUse) {
+        if(anyOverlayOpen && !currentKeyBindInUse) {
             infoNotification({
                 title: "This keybind is paused",
                 message: "Close the current overlay to use it [Esc]"
@@ -143,6 +148,15 @@ export const AppContextProvider = ({
         visibleOverlays.current.forEach(overlay => overlay.close())
     }
 
+    const setElementIsBeingDragged = (visible: boolean) => {
+        elementIsBeingDragged.current = visible
+
+        if(visible)
+            document.body.classList.add("grabCursor")
+        else
+            document.body.classList.remove("grabCursor")
+    }
+
     return <AppContext.Provider value={{
         page: page,
         currentUser: currentUser,
@@ -151,7 +165,9 @@ export const AppContextProvider = ({
         setCurrentUser: setCurrentUser,
         visibleOverlays: visibleOverlays,
         isKeybindBlocked: isKeybindBlocked,
-        closeOverlays: closeOverlays
+        closeOverlays: closeOverlays,
+        elementIsBeingDragged: elementIsBeingDragged,
+        setElementIsBeingDragged: setElementIsBeingDragged,
     }}>
         {
             initialLoadComplete

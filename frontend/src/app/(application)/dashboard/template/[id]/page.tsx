@@ -4,7 +4,7 @@ import "./template.scss"
 import {useParams, useRouter} from "next/navigation"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
-import React, {useEffect, useState} from "react"
+import React, {useContext, useEffect, useState} from "react"
 import {
     Query,
     SceneAttributeTemplateBase,
@@ -42,16 +42,18 @@ import CreateShotAttributeTemplatePopup
 import CreateSceneAttributeTemplatePopup
     from "@/components/app/template/createSceneAttributeTemplatePopup/createSceneAttributeTemplatePopup"
 import useIntro from "@/service/useIntro"
+import {AppContext} from "@/context/AppContext"
 
 export default function Template (){
     const params = useParams<{ id: string }>()
     const id = params?.id || ""
 
-    const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
-
     const client = useApolloClient()
     const router = useRouter()
-    const { confirm, ConfirmDialog } = useConfirmDialog();
+    const { confirm, ConfirmDialog } = useConfirmDialog()
+    const appContext = useContext(AppContext)
+
+    const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -265,6 +267,8 @@ export default function Template (){
     }
 
     function handleShotDefinitionDragEnd(event: any) {
+        appContext.setElementIsBeingDragged(false)
+
         const {active, over} = event;
 
         if (active.id !== over.id && query.data.template && query.data.template.shotAttributes) {
@@ -331,6 +335,8 @@ export default function Template (){
     }
 
     function handleSceneAttributeDragEnd(event: any) {
+        appContext.setElementIsBeingDragged(false)
+
         const {active, over} = event;
 
         if (active.id !== over.id && query.data.template && query.data.template.sceneAttributes) {
@@ -478,6 +484,7 @@ export default function Template (){
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
+                onDragStart={() => appContext.setElementIsBeingDragged(true)}
                 onDragEnd={handleSceneAttributeDragEnd}
             >
                 <SortableContext
@@ -514,6 +521,7 @@ export default function Template (){
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
+                onDragStart={() => appContext.setElementIsBeingDragged(true)}
                 onDragEnd={handleShotDefinitionDragEnd}
             >
                 <SortableContext

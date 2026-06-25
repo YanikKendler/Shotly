@@ -30,6 +30,7 @@ import {successNotification} from "@/service/NotificationService"
 import Utils from "@/utility/Utils"
 import Collapse from "@/components/basic/collapse/collapse"
 import {SelectedScene} from "@/app/(application)/shotlist/[id]/page"
+import {AppContext} from "@/context/AppContext"
 
 export interface SidebarSceneRef {
     closePopover: () => void
@@ -60,6 +61,7 @@ const Scene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
 }, ref) => {
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
+    const appContext = useContext(AppContext)
     const { confirm, ConfirmDialog } = useConfirmDialog();
     
     const [sceneAttributes, setSceneAttributes] = useState<AnySceneAttribute[]>(scene.attributes as AnySceneAttribute[]);
@@ -128,7 +130,7 @@ const Scene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
         <div
             className={`sidebarScene ${expanded ? 'expanded' : ''} ${editMenuIsOpen && "menuOpen"} ${markAsDeleted && "deleting"} ${readOnly && "readOnly"}`}
             onClick={() => {
-                if(!shotlistContext.elementIsBeingDragged && !expanded)
+                if(!appContext.elementIsBeingDragged.current && !expanded)
                     setSelectedScene({id: scene.id as string, position: position})
             }}
             data-scene-id={scene.id}
@@ -145,11 +147,12 @@ const Scene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                         <Popover.Root
                             open={editMenuIsOpen}
                             onOpenChange={(open) => {
-                                if (shotlistContext.elementIsBeingDragged) return
+                                if (appContext.elementIsBeingDragged.current) return
 
                                 setEditMenuIsOpen(open)
                             }}
                         >
+                            {/*TODO keybinds and stylematch to shots*/}
                             <Popover.Trigger
                                 className="grip"
                                 onClick={e => {

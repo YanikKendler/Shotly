@@ -39,6 +39,7 @@ import {
 import CreatorCell from "@/components/app/shotlist/table/cell/creatorCell"
 import LoaderCell from "@/components/app/shotlist/table/cell/loaderCell"
 import ScrollArea from "@/components/basic/scrollArea/scrollArea"
+import {AppContext} from "@/context/AppContext"
 
 export interface SheetManagerRef {
     getCellRef: (row: number, column: number) => CellRef | null
@@ -88,6 +89,7 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 }, ref) => {
     const shotlistContext = useContext(ShotlistContext)
     const client = useApolloClient()
+    const appContext = useContext(AppContext)
 
     //all updates from this value can run in the background to not cause lag or freeze and impact UX
     const deferredSelectedScene = useDeferredValue(selectedScene)
@@ -626,10 +628,12 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                 onStart: (event) => {
                     if (event.oldIndex === undefined) return
 
-                    shotlistContext.elementIsBeingDragged = true
+                    appContext.setElementIsBeingDragged(true)
                     rowRefs.current.get(event.oldIndex)?.closeContextOptions()
                 },
                 onEnd: (event) => {
+                    appContext.setElementIsBeingDragged(false)
+
                     //so that the drag ghost is hidden before re-rendering otherwise it hangs in the air for half a second
                     requestAnimationFrame(() => {
                         if(!event.item || event.oldIndex === undefined || event.newIndex === undefined) return
@@ -638,7 +642,6 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                             event.item.dataset.shotId as string,
                             event.newIndex
                         )
-                        shotlistContext.elementIsBeingDragged = false
                     })
                 }
             })
