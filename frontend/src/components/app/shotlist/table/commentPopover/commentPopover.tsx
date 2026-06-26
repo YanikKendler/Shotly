@@ -46,6 +46,8 @@ const CommentPopover = forwardRef<CommentPopoverRef, CommentPopoverProps>(({
 
     const [comments, setComments] = useState<Maybe<CommentDto>[]>([])
 
+    const [badgeVisible, setBadgeVisible] = useState(false)
+
     const contentElementRef = useRef<HTMLDivElement>(null)
     const editorRef = useRef<MarkdownEditorRef>(null)
 
@@ -61,17 +63,39 @@ const CommentPopover = forwardRef<CommentPopoverRef, CommentPopoverProps>(({
     }, [shot]);
 
     useEffect(() => {
-        if(isOpen)
+        if(isOpen) {
             appContext.visibleOverlays.current.set(
                 "comments",
                 {
                     close: () => onOpenChange(false),
-                    usingKeybinds:["Control+Enter"]
+                    usingKeybinds: ["Control+Enter"]
                 }
             )
-        else
+        }
+        else {
             appContext.visibleOverlays.current.delete("comments")
+        }
     }, [isOpen]);
+
+    useEffect(() => {
+        if(!shot.id || !comments || comments.length == 0) return
+
+        const viewTime = shotlistContext.commentThreadViewTime[shot.id]
+
+        const newestValidComment = comments.findLast(c => !c?.archived)
+
+        if(!newestValidComment) return
+
+        if(
+            viewTime == undefined ||
+            new Date(newestValidComment?.createdAt).getTime() > viewTime
+        ){
+            setBadgeVisible(true)
+        }
+        else {
+            setBadgeVisible(false)
+        }
+    }, [comments])
 
     const sendComment = async () => {
         if(!commentText || wuConstants.Regex.empty.test(commentText)) return
@@ -91,7 +115,8 @@ const CommentPopover = forwardRef<CommentPopoverRef, CommentPopoverProps>(({
                 name: appContext.currentUser?.name ?? "Unknown"
             },
             text: sanitizedCommentText,
-            edited: false
+            edited: false,
+            createdAt: Date.now()
         }
 
         onCreateComment(newComment)
@@ -153,16 +178,28 @@ const CommentPopover = forwardRef<CommentPopoverRef, CommentPopoverProps>(({
     return (
         <Popover.Root
             open={isOpen}
-            onOpenChange={onOpenChange}
+            onOpenChange={(isOpen) => {
+                onOpenChange(isOpen)
+
+                setBadgeVisible(false)
+                shotlistContext.viewedCommentThread(shot.id ?? "")
+            }}
         >
-            { (
-                buttonIsVisible
-                ||
-                showOnHover && shotlistContext.currentCollaborationType != CollaborationType.View
+            {
+                (
+                    buttonIsVisible
+                        ||
+                    showOnHover && shotlistContext.currentCollaborationType != CollaborationType.View
                 ) &&
                 <div className={`commentTriggerWrapper`}>
-                    <Popover.Trigger className={`comments ${buttonIsVisible && "visible"} ${showOnHover && "showOnHover"} ${shotlistContext.currentCollaborationType == CollaborationType.Comment && "commenterMode"}`}>
+                    <Popover.Trigger
+                        className={`comments ${buttonIsVisible && "visible"} ${showOnHover && "showOnHover"} ${shotlistContext.currentCollaborationType == CollaborationType.Comment && "commenterMode"} noClickFx`}
+                    >
                         <MessageSquareText size={16}/>
+                        {
+                            badgeVisible && !isOpen &&
+                            <span className="badge"/>
+                        }
                     </Popover.Trigger>
                 </div>
             }

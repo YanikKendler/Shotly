@@ -8,6 +8,7 @@ import gql from "graphql-tag"
 import {errorNotification, infoNotification} from "@/service/NotificationService"
 import auth from "@/Auth"
 import LoadingPage from "@/components/app/feedback/loadingPage/loadingPage"
+import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
 
 export interface VisibleOverlay{
     close: () => void,
@@ -53,6 +54,7 @@ export const AppContextProvider = ({
 
     const [initialLoadComplete, setInitialLoadComplete] = useState(false)
     const [reloading, setReloading] = useState(false)
+    const [loadError, setLoadError] = useState(false)
 
     useEffect(() => {
         if(!auth.isAuthenticated()){
@@ -122,6 +124,7 @@ export const AppContextProvider = ({
                 message: "Failed to application data.",
                 tryAgainLater: true,
             })
+            setLoadError(true)
         }
 
         setCurrentUser(result.data.currentUser ?? null)
@@ -156,6 +159,8 @@ export const AppContextProvider = ({
         else
             document.body.classList.remove("grabCursor")
     }
+
+    if(loadError) return <ErrorPage title={"Failed to load"} description={"Could not load application data"}/>
 
     return <AppContext.Provider value={{
         page: page,

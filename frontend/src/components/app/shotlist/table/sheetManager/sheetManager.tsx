@@ -228,7 +228,8 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
                             },
                             text,
                             edited,
-                            shotId
+                            shotId,
+                            createdAt
                         }
                         sceneId
                     }

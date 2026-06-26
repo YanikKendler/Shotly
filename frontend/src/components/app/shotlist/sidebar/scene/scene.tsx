@@ -91,6 +91,8 @@ const Scene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
         setCollaboratorHighlight(userId: string){
             const collaborator = shotlistContext.presentCollaborators.get(userId)
 
+            if(collaboratorsViewing.some(c => c.user?.id == userId)) return
+
             if(collaborator)
                 setCollaboratorsViewing(current => [...current, collaborator])
         },

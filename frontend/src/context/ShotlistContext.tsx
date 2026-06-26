@@ -5,8 +5,8 @@ import {
     ShotlistOptionsDialogPages,
 } from "@/components/app/dialogs/shotlistOptionsDialog/shotlistOptionsDialoge"
 import {GenericError, RowColumn, SelectOption} from "@/utility/Types"
-import {PresentCollaborator, SaveState} from "@/app/(application)/shotlist/[id]/page"
-import {CollaborationType, UserDto} from "../../lib/graphql/generated"
+import {SaveState} from "@/app/(application)/shotlist/[id]/page"
+import {CollaborationType, PresentCollaborator} from "../../lib/graphql/generated"
 
 export interface ShotlistContextProps {
     openShotlistOptionsDialog: (pages?: ShotlistOptionsDialogPages) => void
@@ -34,6 +34,9 @@ export interface ShotlistContextProps {
     presentCollaborators: Map<string, PresentCollaborator>
 
     currentCollaborationType: CollaborationType | null
+
+    commentThreadViewTime: Record<string, number>
+    viewedCommentThread: (shotId: string) => void
 }
 
 export const ShotlistContext = createContext<ShotlistContextProps>({
@@ -64,5 +67,8 @@ export const ShotlistContext = createContext<ShotlistContextProps>({
     //for displaying collaborator names from cellHighlight
     presentCollaborators: new Map(),
     //for optionally displaying stuff based on type
-    currentCollaborationType: null
+    currentCollaborationType: null,
+    //for highlighting new comments
+    commentThreadViewTime: {},
+    viewedCommentThread: () => {}
 })

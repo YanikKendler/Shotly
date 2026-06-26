@@ -62,12 +62,14 @@ export default function Shotlist() {
     const [query, setQuery] = useState<ApolloQueryResult<Query>>(Utils.defaultQueryResult)
 
     const [selectedScene, setSelectedScene] = useState<SelectedScene>({ id: null, position: null })
-
-    const shotlistOptionsDialogRef = useRef<ShotlistOptionsDialogRef>(null);
+    const focusedCell = useRef<RowColumn>({row: -1, column:-1})
+    const focusedSceneAttributeId = useRef(-1)
 
     const [reloadKey, setReloadKey] = useState(0)
     const [reloadInProgress, setReloadInProgress] = useState(false)
 
+    /* TODO invalidate collaborators if they have been inactive for more than 60 seconds or whatever */
+    const [presentCollaborators, setPresentCollaborators] = useState<Map<string, PresentCollaborator>>(new Map())
     const [currentCollaborationType, setCurrentCollaborationType] = useState<CollaborationType | null>(null)
     const [readOnlyReason, setReadOnlyReason] = useState<ReadOnlyReason>(null)
     const [isArchived, setIsArchived] = useState(false)
@@ -75,23 +77,20 @@ export default function Shotlist() {
     const [shotCount, setShotCount] = useState(0)
     const [sceneCount, setSceneCount] = useState(0)
 
-    /* TODO invalidate collaborators if they have been inactive for more than 60 seconds or whatever */
-    const [presentCollaborators, setPresentCollaborators] = useState<Map<string, PresentCollaborator>>(new Map())
-
-    const focusedCell = useRef<RowColumn>({row: -1, column:-1})
-    const focusedSceneAttributeId = useRef(-1)
-
     const shotlistElementRef = useRef<HTMLDivElement>(null);
     const headerRef = useRef<HTMLDivElement>(null)
     const sheetManagerRef = useRef<SheetManagerRef>(null)
     const sceneListRef = useRef<SceneListRef>(null)
     const sidebarRef = useRef<ShotlistSidebarRef>(null);
     const floaterRef = useRef<ShotlistFloaterRef>(null)
+    const shotlistOptionsDialogRef = useRef<ShotlistOptionsDialogRef>(null);
 
     const [shotSelectOptionsCache, setShotSelectOptionsCache] = useState(new Map<number, SelectOption[]>())
     const [sceneSelectOptionsCache, setSceneSelectOptionsCache] = useState(new Map<number, SelectOption[]>())
 
     const saveStateMap = useRef<Map<string, SaveState>>(new Map())
+
+    const [commentThreadViewTime, setCommentThreadViewTime] = useState<Record<string, number>>({})
 
     const intro = useIntro({
         steps: [
@@ -118,6 +117,12 @@ export default function Shotlist() {
 
         //initially load data
         loadData(true)
+
+        const commentThreadViewTimeLs = localStorage.getItem(Config.localStorageKey.commentThreadViewTime(id))
+
+        if(commentThreadViewTimeLs && commentThreadViewTimeLs != ""){
+            setCommentThreadViewTime(JSON.parse(commentThreadViewTimeLs))
+        }
     }, [id])
 
     useEffect(() => {
@@ -187,6 +192,15 @@ export default function Shotlist() {
             sceneId: selectedScene.id,
         })
     }, [selectedScene])
+
+    useEffect(() => {
+        if(!query.data.shotlist?.id || !commentThreadViewTime) return
+
+        localStorage.setItem(
+            Config.localStorageKey.commentThreadViewTime(query.data.shotlist?.id),
+            JSON.stringify(commentThreadViewTime)
+        )
+    }, [commentThreadViewTime]);
 
     const loadData = async (noCache: boolean = false) => {
         const result = await client.query({
@@ -482,6 +496,13 @@ export default function Shotlist() {
         shotlistOptionsDialogRef.current.open(pages)
     }
 
+    const viewedCommentThread = (shotId: string)=> {
+        setCommentThreadViewTime(current => ({
+            ...current,
+            [shotId]: Date.now()
+        }))
+    }
+
     const sync = useShotlistSync({
         shotlistId: id,
         sheetManagerRef: sheetManagerRef,
@@ -567,7 +588,10 @@ export default function Shotlist() {
 
             presentCollaborators: presentCollaborators,
 
-            currentCollaborationType: currentCollaborationType
+            currentCollaborationType: currentCollaborationType,
+
+            commentThreadViewTime: commentThreadViewTime,
+            viewedCommentThread: viewedCommentThread
         }}>
             <ReadOnlyBanner isReadOnly={isViewOrCommentOnly} readOnlyReason={readOnlyReason}/>
 

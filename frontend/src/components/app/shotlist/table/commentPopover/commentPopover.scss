@@ -21,6 +21,7 @@
   border: 1px solid var(--default-interactable-border);
   opacity: 0;
   box-shadow: 0 0 4px 4px var(--transparent-contrast-10);
+  position: relative;
 
   &.visible {
     opacity: 1;
@@ -61,6 +62,17 @@
     position: absolute;
     height: calc(40px * var(--shotlist-scale));
     width: 2rem;
+  }
+
+  span.badge{
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 10px;
+    aspect-ratio: 1;
+    background-color: var(--collaborator);
+    translate: 3px 3px;
+    border-radius: 20px;
   }
 }
 

@@ -231,7 +231,8 @@ const SHOTLIST_UPDATES_SUBSCRIPTION = gql`
                         edited,
                         shotId,
                         sceneId,
-                        archived
+                        archived,
+                        createdAt
                     }
                 }
                 ... on EmptyPayload {

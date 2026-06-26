@@ -39,6 +39,7 @@ export default class Config {
         //enforces the convention more nicely because its accessed in the same place as all other local storage keys
         //but then throws an error if its used as a value instead of a function call and requires the shotlistId to be passed
         exportSettings: (shotlistId: string) => "shotly-export-settings_" + shotlistId,
+        commentThreadViewTime: (shotlistId: string) => "shotly-comments-viewed_" + shotlistId,
         userSettings: "shotly-user-settings",
         dashboardTourCompleted: "shotly-dashboard-tour-completed",
         shotlistTourCompleted: "shotly-shotlist-tour-completed",
