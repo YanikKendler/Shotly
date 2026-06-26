@@ -219,7 +219,7 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
                     reloadShotlists={() => loadData({ loadShotlists: true, loadTemplates: false, loadUser: false })}
                 />
                 <PanelResizeHandle className="PanelResizeHandle sidebarResize"/>
-                <Panel className={`headerContainer ${isTemplatePage && "template"}`}>
+                <Panel className={`headerContainer ${isTemplatePage && "template"}`} order={1}>
                     <DashboardHeader
                         openCreateShotlistDialog={createShotlistDialog.open}
                         openCreateTemplateDialog={createTemplateDialog.open}

@@ -592,7 +592,7 @@ export default function Shotlist() {
 
                     <PanelResizeHandle className="PanelResizeHandle sidebarResize" hitAreaMargins={{fine: 5, coarse: 10}}/>
 
-                    <Panel className={`content ${reloadInProgress && "reloading"}`} id={"shotTable"}>
+                    <Panel className={`content ${reloadInProgress && "reloading"}`} id={"shotTable"} order={1}>
                         <ViewPortSwitcher breakpoint={600} under={
                             query.loading ?
                             <Skeleton height={"2rem"} style={{margin: ".3rem", width: "calc(100% - .6rem)"}}/> :

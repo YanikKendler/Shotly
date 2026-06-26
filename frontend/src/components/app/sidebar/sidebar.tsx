@@ -42,6 +42,7 @@ export default function Sidebar({
             maxSize={40}
             minSize={12}
             className={`sidebar ${contentVisible ? "open" : "closed"} ${className}`}
+            order={0}
         >
             <Navigation
                 onCollaborationAccepted={onCollaborationAccepted}
