@@ -11,6 +11,12 @@ main.home .sidebar .sidebarSection{
       color: var(--text);
     }
 
+    .text{
+      flex-shrink: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     svg.chevron{
       transition: rotate .2s;
     }

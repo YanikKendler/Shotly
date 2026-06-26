@@ -51,7 +51,7 @@ export default function DashboardSidebarSection({
     return (
         <div className={"sidebarSection"}>
             <button className={"collapseButton noClickFx"} onClick={toggleExpand}>
-                {title} <ChevronDown size={18} className={"chevron"}/>
+                <span className={"text"}>{title}</span><ChevronDown size={18} className={"chevron"}/>
             </button>
             <Collapse expanded={expanded} recalculateHeightWith={[isLoading, entries]}>
                 {
