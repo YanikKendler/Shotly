@@ -7,6 +7,7 @@ import CellMultiSelectInput from "../input/cellMultiSelectInput/cellMultiSelectI
 import {ShotAttributeParser} from "@/utility/AttributeParser"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
 import {
+    PresentCollaborator,
     ShotMultiSelectAttributeDto,
     ShotSingleSelectAttributeDto,
     ShotTextAttributeDto, UserMinimalDto
@@ -61,7 +62,7 @@ const ValueCellBase = forwardRef<CellRef, CellProps>(({
 
     const [readOnlyValue, setReadOnlyValue] = useState<string>("")
 
-    const [isBlockedByCollaborator, setIsBlockedByCollaborator] = useState<UserMinimalDto | null>(null)
+    const [isBlockedByCollaborator, setIsBlockedByCollaborator] = useState<PresentCollaborator | null>(null)
 
     useEffect(() => {
         if(attribute){
@@ -92,7 +93,7 @@ const ValueCellBase = forwardRef<CellRef, CellProps>(({
             const collaborator = shotlistContext.presentCollaborators.get(userId)
 
             if(collaborator)
-                setIsBlockedByCollaborator(collaborator.user)
+                setIsBlockedByCollaborator(collaborator)
         },
         removeCollaboratorHighlight(userId: string){
             setIsBlockedByCollaborator(null)
@@ -192,9 +193,9 @@ const ValueCellBase = forwardRef<CellRef, CellProps>(({
 
                     {
                         isBlockedByCollaborator &&
-                        <SimpleTooltip text={isBlockedByCollaborator.name ?? "Unknown"} fontSize={0.8} delay={0}>
+                        <SimpleTooltip text={isBlockedByCollaborator.user?.name ?? "Unknown"} fontSize={0.8} delay={0}>
                             <span className={"collaboratorName"}>
-                                {isBlockedByCollaborator.name ? isBlockedByCollaborator.name.substring(0,1).toUpperCase() : "?"}
+                                {isBlockedByCollaborator.user?.name ? isBlockedByCollaborator.user.name.substring(0,1).toUpperCase() : "?"}
                             </span>
                         </SimpleTooltip>
                     }
