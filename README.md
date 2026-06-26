@@ -22,7 +22,7 @@ If you need help please [read the Documentation](https://docs.shotly.at) or cont
 
 - Create a comprehensive, simple but powerful shotlist tool
 - Provide a free version without any restrictions on core features, except the allowed number of shotlists and collaborators
-- Allow exporting of shotlist all the data in a shotlist
+- Always allow exporting of all the data in a shotlist
 - Allow full and permanent deletion of all data
 
 ### Non-Goals
@@ -41,6 +41,8 @@ Create a fork of the Shotly repository, create a feature branch, commit your cha
 Refer to the [official github guide](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork) for details.
 
 There are no solid hard conventions for the style of code, but its important to me that you clearly mark full AI usage in the code by leaving a `//AI` comment above all functions that were mostly AI generated, you will find a few examples in the codebase already. If you generate 2 lines of css with AI that is not noteworthy. If you vibecoded your whole pull request please say so in your message.
+
+If you want to help, look at the [tasks](https://github.com/users/YanikKendler/projects/7) for the current milestone.
 
 If you need help or have questions while coding up a feature dont hesitate to contact me, I will galdly explain anything to you.
 
