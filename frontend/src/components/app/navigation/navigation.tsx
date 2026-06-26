@@ -16,10 +16,12 @@ import {useKeyboardOpen} from "@/utility/useKeyboardOpen"
 
 export default function Navigation({
     onCollaborationAccepted = () => {},
-    children
+    additionalPages,
+    additionalTools
 }:{
     onCollaborationAccepted?: () => void,
-    children?: ReactNode
+    additionalPages?: ReactNode
+    additionalTools?: ReactNode
 }){
     const appContext = useContext(AppContext)
     const accountDialog = useAccountDialog()
@@ -80,12 +82,13 @@ export default function Navigation({
                         <Separator orientation={"vertical"}/>
                         {renderTools()}
                     </>}
+                    over={additionalPages}
                 />
             </div>
             <div className="bottom">
-                {children}
+                {additionalTools}
                 <ViewPortSwitcher breakpoint={600} over={<>
-                    {children && <Separator/>}
+                    {additionalTools && <Separator/>}
                     {renderTools()}
                 </>}/>
             </div>

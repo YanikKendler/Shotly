@@ -1,12 +1,13 @@
 import { Panel } from "react-resizable-panels";
-import {cloneElement, Dispatch, ReactElement, SetStateAction, useState} from "react"
+import {cloneElement, Dispatch, ReactElement, ReactNode, SetStateAction, useState} from "react"
 import Navigation from "@/components/app/navigation/navigation"
 import Skeleton from "react-loading-skeleton"
 import "./sidebar.scss"
 
 export default function Sidebar({
     className,
-    additionalNavItems,
+    additionalPageItems,
+    additionalToolItems,
     heading,
     list,
     bottom,
@@ -17,7 +18,8 @@ export default function Sidebar({
     canShowCloseArea = false
 }:{
     className: string
-    additionalNavItems?: ReactElement
+    additionalPageItems?: ReactNode
+    additionalToolItems?: ReactNode
     heading: string | ReactElement
     list: ReactElement
     bottom?: ReactElement
@@ -43,9 +45,9 @@ export default function Sidebar({
         >
             <Navigation
                 onCollaborationAccepted={onCollaborationAccepted}
-            >
-                {additionalNavItems}
-            </Navigation>
+                additionalPages={additionalPageItems}
+                additionalTools={additionalToolItems}
+            />
             <div className={`content ${contentVisible ? "open" : "closed"}`}>
                 <div className={`top`}>
                     <div className="heading">

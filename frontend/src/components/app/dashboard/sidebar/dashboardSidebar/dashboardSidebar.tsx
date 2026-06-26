@@ -12,6 +12,7 @@ import "./dashboardSidebar.scss"
 import Sidebar from "@/components/app/sidebar/sidebar"
 import {AppContext} from "@/context/AppContext"
 import {wuText} from "@yanikkendler/web-utils/dist"
+import NavigationItem from "@/components/app/navigation/navigationItem"
 
 export default function DashboardSidebar ({
     query,
@@ -31,6 +32,11 @@ export default function DashboardSidebar ({
         <Sidebar
             className={"dashboardSidebar"}
             heading={wuText.upperOrLowerRange(appContext.page, 0, 0) || "Shotly"}
+            additionalPageItems={appContext.page == "template" && <NavigationItem
+                Icon={Blocks}
+                description={"Template"}
+                selected={true}
+            />}
             list={<>
                 <DashboardSidebarSection
                     title={"My Shotlists"}

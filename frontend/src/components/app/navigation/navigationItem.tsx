@@ -14,7 +14,7 @@ export default function NavigationItem({
 }:{
     Icon: ForwardRefExoticComponent<Omit<LucideProps, "ref">>
     additionalContent?: ReactNode
-    action: string | (() => void)
+    action?: string | (() => void)
     description: ReactNode
     badge?: string | number
     selected?: boolean | undefined

@@ -1,6 +1,7 @@
 'use client'
 
 import {useScreenWidth} from "@/utility/useScreenWidth"
+import {ReactNode} from "react"
 
 export default function ViewPortSwitcher({
     breakpoint,
@@ -8,8 +9,8 @@ export default function ViewPortSwitcher({
     over
 }: {
     breakpoint: number
-    under?: React.ReactElement | string
-    over?: React.ReactElement | string
+    under?: ReactNode | string
+    over?: ReactNode | string
 }) {
     const width = useScreenWidth()
 

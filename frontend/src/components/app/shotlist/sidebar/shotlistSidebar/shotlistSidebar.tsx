@@ -1,5 +1,5 @@
 import NavigationItem from "@/components/app/navigation/navigationItem";
-import {Columns3Cog, Download, List, Settings, Users} from "lucide-react";
+import {Columns3Cog, Download, List, NotepadText, Settings, Users} from "lucide-react";
 import SceneList, {SceneListRef} from "../sceneList/sceneList";
 import Skeleton from "react-loading-skeleton"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
@@ -120,7 +120,12 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
             contentVisible={contentVisible}
             setContentVisible={setContentVisible}
             canShowCloseArea
-            additionalNavItems={
+            additionalPageItems={<NavigationItem
+                Icon={NotepadText}
+                description={"Shotlist"}
+                selected={true}
+            />}
+            additionalToolItems={
                 <ViewPortSwitcher
                     breakpoint={600}
                     over={
