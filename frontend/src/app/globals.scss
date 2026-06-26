@@ -592,7 +592,7 @@ span.chip{
   }
 }
 
-.tooltipContent {
+.tooltipContent:not(.showOnMobile) {
   @media screen and (pointer: coarse){
     display: none !important;
   }

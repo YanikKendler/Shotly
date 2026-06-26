@@ -23,6 +23,7 @@ export interface SceneListRef {
     onDeleteScene: (sceneId: string) => void
     onMoveScene: (sceneId: string, to: number) => void
     createScene: () => void
+    whenReady: (then: () => void) => void
 }
 
 export interface ShotlistSidebarProps {
@@ -55,11 +56,15 @@ const SceneList = forwardRef<SceneListRef, ShotlistSidebarProps>(({
     const sceneRefs = useRef<Map<number, SidebarSceneRef | null>>(new Map())
     const creationLoaderRef = useRef<HTMLDivElement>(null)
 
+    const isReady = useRef(false);
+    const whenReadyQueue = useRef<(() => void)[]>([]);
+
     useImperativeHandle(ref, () => ({
         getScene: (position: number) => sceneRefs.current.get(position) || null,
-        findScene: (sceneId: string): SidebarSceneRef | null =>
-            Array.from(sceneRefs.current.values())
-                .find(scene => scene?.id == sceneId) ?? null,
+        findScene: (sceneId: string): SidebarSceneRef | null => {
+            return Array.from(sceneRefs.current.values())
+                .find(scene => scene?.id == sceneId) ?? null
+        },
         findAttribute: attributeId => {
             for (let sceneRef of Array.from(sceneRefs.current.values())) {
                 if(!sceneRef) continue
@@ -74,9 +79,25 @@ const SceneList = forwardRef<SceneListRef, ShotlistSidebarProps>(({
         onDeleteScene: onDeleteScene,
         onMoveScene: onMoveScene,
         createScene: createScene,
+        whenReady: (then: () => void) => {
+            if(isReady.current == true)
+                then()
+            else
+                whenReadyQueue.current.push(then)
+        }
     }))
 
     useEffect(() => {
+        if(query.loading) return
+
+        if(isReady.current == false) {
+            let fun
+            while (fun = whenReadyQueue.current.pop()) {
+                fun()
+            }
+            isReady.current = true
+        }
+
         if (sortableRef.current?.el) {
             sortableRef.current.destroy()
         }

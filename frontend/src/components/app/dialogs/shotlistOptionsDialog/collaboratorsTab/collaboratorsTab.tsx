@@ -297,7 +297,9 @@ export default function CollaboratorsTab(
                         collaborations?.map((collab) => (
                             <div className={"collaborator"} key={collab.id}>
                                 <User size={26}/>
-                                <p><span className={"bold"}>{collab.user?.name}</span> • {collab.user?.email}</p>
+                                <p className={"name"}>
+                                    <span className={"bold"}>{collab.user?.name}</span> • <span className="gray">{collab.user?.email}</span>
+                                </p>
                                 {
                                     /* Its possible for the same email to be signed up via both google and password auth */
                                     collab.user?.auth0Sub?.startsWith("google-oauth2|") &&

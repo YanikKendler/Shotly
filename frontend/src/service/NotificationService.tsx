@@ -74,7 +74,7 @@ export function infoNotification({ title, message, sub, action} : NotificationPr
         </>
     ), {
         icon: <Info/>,
-        duration: ((title?.length || 0) + (message?.length || 0) + (sub?.length || 0)) * 50
+        duration: ((title?.length || 0) + (message?.length || 0) + (sub?.length || 0)) * 75
     })
 }
 
@@ -101,6 +101,6 @@ export function successNotification({ title, message, sub, action} : Notificatio
         </>
     ), {
         icon: <CircleCheck/>,
-        duration: ((title?.length || 0) + (message?.length || 0) + (sub?.length || 0)) * 50
+        duration: ((title?.length || 0) + (message?.length || 0) + (sub?.length || 0)) * 75
     })
 }

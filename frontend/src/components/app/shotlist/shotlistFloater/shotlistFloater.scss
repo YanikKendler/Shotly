@@ -124,6 +124,7 @@ main.shotlist .floater{
   .saveIndicator{
     display: inline-grid;
     padding: .5rem;
+    font-size: .8rem;
 
     .saved, .saving, .error {
       opacity: 0;

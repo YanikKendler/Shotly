@@ -20,6 +20,7 @@ import "./shotlistSidebar.scss"
 import SimplePopover from "@/components/basic/popover/simplePopover"
 import Sidebar from "@/components/app/sidebar/sidebar"
 import ViewPortSwitcher from "@/components/utility/viewportSwitcher/viewPortSwitcher"
+import {useScreenWidth} from "@/utility/useScreenWidth"
 
 export interface ShotlistSidebarRef {
     openSceneList: () => void
@@ -54,6 +55,8 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
 }, ref) =>{
     const shotlistContext = useContext(ShotlistContext)
     const client = useApolloClient()
+
+    const screenWidth = useScreenWidth()
 
     const nameInputRef = useRef<HTMLInputElement>(null)
 
@@ -205,7 +208,7 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
                 />
             }
             bottom={
-                !collaboratorsArePresent ? undefined :
+                !collaboratorsArePresent || screenWidth < 600 ? undefined :
                 <SimplePopover
                     content={
                         Array.from(presentCollaborators).map(user => (

@@ -1,0 +1,22 @@
+.collaboratorDisplay{
+  height: 1.4rem;
+  background-color: var(--collaborator);
+  color: var(--collaborator-contrast);
+  font-size: .8rem;
+  font-weight: 600;
+  border-radius: 2rem;
+  white-space: nowrap;
+  display: grid;
+  place-items: center;
+  padding-inline: .3rem;
+  transition: background-color .2s;
+  user-select: none;
+
+  &.square{
+    aspect-ratio: 1;
+  }
+
+  &:hover{
+    background-color: var(--collaborator-dark);
+  }
+}

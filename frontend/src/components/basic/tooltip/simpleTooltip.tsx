@@ -1,5 +1,5 @@
 import { Tooltip } from "radix-ui";
-import {ReactNode} from "react"
+import {ReactNode, useState} from "react"
 import "./simpleTooltip.scss"
 
 
@@ -16,7 +16,8 @@ export default function SimpleTooltip({
     delay = 500,
     canOpen = true,
     side = "top",
-    forceOpen
+    forceOpen = false,
+    showOnMobile = false
 }: {
     children: ReactNode
     text?: string
@@ -31,10 +32,18 @@ export default function SimpleTooltip({
     canOpen?: boolean
     side?: "top" | "right" | "bottom" | "left"
     forceOpen?: boolean
+    showOnMobile?: boolean
 }){
+    const [isOpen, setIsOpen] = useState(false)
+
     return (
-        <Tooltip.Root delayDuration={delay} open={forceOpen}>
-            <Tooltip.Trigger asChild>
+        <Tooltip.Root delayDuration={delay} open={isOpen || forceOpen} onOpenChange={setIsOpen}>
+            <Tooltip.Trigger
+                asChild
+                onClick={() => {
+                    if(showOnMobile) setIsOpen(current => !current)
+                }}
+            >
                 {
                     asButton ?
                     (
@@ -55,7 +64,7 @@ export default function SimpleTooltip({
                 {
                     canOpen &&
                     <Tooltip.Content
-                        className="tooltipContent"
+                        className={`tooltipContent ${showOnMobile && "showOnMobile"}`}
                         sideOffset={offset}
                         style={{fontSize: fontSize + "rem"}}
                         side={side}

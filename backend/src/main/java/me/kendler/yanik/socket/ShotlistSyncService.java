@@ -7,7 +7,6 @@ import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import me.kendler.yanik.dto.user.UserMinimalDTO;
 import me.kendler.yanik.model.User;
 import me.kendler.yanik.repositories.UserRepository;
 import me.kendler.yanik.socket.payload.PresentCollaboratorsPayload;
@@ -30,7 +29,7 @@ public class ShotlistSyncService {
     private final Map<UUID, BroadcastProcessor<ShotlistUpdateDTO>> rooms = new ConcurrentHashMap<>();
 
     // Tracks which users are in which room for the "Present Collaborators" payload
-    private final Map<UUID, Set<UUID>> roomUsers = new ConcurrentHashMap<>();
+    private final Map<UUID, Set<PresentCollaborator>> roomUsers = new ConcurrentHashMap<>();
 
     private BroadcastProcessor<ShotlistUpdateDTO> getRoom(UUID shotlistId) {
         return rooms.computeIfAbsent(shotlistId, id -> BroadcastProcessor.create());
@@ -75,42 +74,51 @@ public class ShotlistSyncService {
         }
     }
 
+    public void updateCollaboratorScene(UUID shotlistId, UUID userId, UUID newSceneId) {
+        Set<PresentCollaborator> collaborators = roomUsers.get(shotlistId);
+
+        if (collaborators != null) {
+            collaborators.stream()
+                    .filter(c -> c.user.id().equals(userId))
+                    .findFirst()
+                    .ifPresent(collaborator -> collaborator.selectedSceneId = newSceneId);
+        }
+    }
+
     @Transactional
     protected void handleJoin(UUID shotlistId, UUID userId) {
-        roomUsers.computeIfAbsent(shotlistId, k -> ConcurrentHashMap.newKeySet()).add(userId);
         User user = userRepository.findById(userId);
 
         if (user != null) {
-            broadcast(shotlistId, new ShotlistUpdateDTO(ShotlistUpdateType.USER_JOINED, userId, new UserPayload(user.toMinimalDTO())));
+            PresentCollaborator collaborator = new PresentCollaborator(user.toMinimalDTO());
+            roomUsers.computeIfAbsent(shotlistId, k -> ConcurrentHashMap.newKeySet()).add(collaborator);
+
+            broadcast(shotlistId, new ShotlistUpdateDTO(ShotlistUpdateType.USER_JOINED, userId, new UserPayload(collaborator)));
         }
     }
 
     @Transactional
     protected void handleLeave(UUID shotlistId, UUID userId) {
-        Set<UUID> users = roomUsers.get(shotlistId);
-        if (users != null) users.remove(userId);
+        Set<PresentCollaborator> users = roomUsers.get(shotlistId);
 
-        User user = userRepository.findById(userId);
-        if (user != null) {
-            broadcast(shotlistId, new ShotlistUpdateDTO(ShotlistUpdateType.USER_LEFT, userId, new UserPayload(user.toMinimalDTO())));
-        }
+        PresentCollaborator collaborator = users.stream().filter(c -> c.user.id().equals(userId)).findFirst().orElse(null);
+        users.remove(collaborator);
+
+        roomUsers.put(shotlistId, users);
+
+        broadcast(shotlistId, new ShotlistUpdateDTO(ShotlistUpdateType.USER_LEFT, userId, new UserPayload(collaborator)));
     }
 
     @Transactional
     protected ShotlistUpdateDTO getPresentCollaborators(UUID shotlistId, UUID userId) {
-        Set<UUID> presentUserIds = roomUsers.getOrDefault(shotlistId, Collections.emptySet());
+        Set<PresentCollaborator> presentCollaborators = roomUsers.getOrDefault(shotlistId, Collections.emptySet());
 
-        Set<UUID> filteredUserIds = presentUserIds.stream().filter(u -> !u.equals(userId)).collect(Collectors.toSet());
-
-        List<UserMinimalDTO> presentUsers = userRepository.find("id IN ?1", filteredUserIds).list()
-                .stream()
-                .map(User::toMinimalDTO)
-                .toList();
+        Set<PresentCollaborator> filteredCollaborators = presentCollaborators.stream().filter(u -> !u.user.id().equals(userId)).collect(Collectors.toSet());
 
         return new ShotlistUpdateDTO(
                 ShotlistUpdateType.PRESENT_COLLABORATORS,
                 shotlistId,
-                new PresentCollaboratorsPayload(presentUsers)
+                new PresentCollaboratorsPayload(filteredCollaborators.stream().toList())
         );
     }
 }

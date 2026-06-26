@@ -17,6 +17,7 @@
   border: 2px solid transparent;
   transition: border .2s, color .2s;
   background-color: var(--sidebar-bg);
+  position: relative;
 
   &.deleting{
     opacity: .4;
@@ -48,6 +49,10 @@
       .text{
         font-weight: 700;
       }
+    }
+
+    .right{
+      margin-left: .5rem;
     }
   }
 
@@ -81,6 +86,7 @@
     gap: .5rem;
     color: var(--text);
     transition: color .2s;
+    align-items: center;
 
     .text{
       white-space: nowrap;

@@ -12,6 +12,7 @@ import me.kendler.yanik.repositories.UserRepository;
 import me.kendler.yanik.socket.payload.EmptyPayload;
 import me.kendler.yanik.socket.payload.SelectedCellPayload;
 import me.kendler.yanik.socket.payload.SelectedSceneAttributePayload;
+import me.kendler.yanik.socket.payload.SelectedScenePayload;
 import org.eclipse.microprofile.graphql.GraphQLApi;
 import org.eclipse.microprofile.graphql.Mutation;
 import org.eclipse.microprofile.jwt.JsonWebToken;
@@ -73,6 +74,26 @@ public class ShotlistSyncResource {
                     user.id,
                     payload
             )
+        );
+
+        return true;
+    }
+
+    @Mutation
+    public boolean syncShotlistSceneSelected(UUID shotlistId, SelectedScenePayload payload) {
+        User user = userRepository.findOrCreateByJWT(jwt);
+
+        accessService.checkEdit(shotlistId, jwt);
+
+        syncService.updateCollaboratorScene(shotlistId, user.id, payload.sceneId());
+
+        syncService.broadcast(
+                shotlistId,
+                new ShotlistUpdateDTO(
+                        ShotlistUpdateType.COLLABORATOR_SCENE_SELECTED,
+                        user.id,
+                        payload
+                )
         );
 
         return true;

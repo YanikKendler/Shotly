@@ -1,7 +1,7 @@
 package me.kendler.yanik.socket.payload;
 
-import me.kendler.yanik.dto.user.UserMinimalDTO;
+import me.kendler.yanik.socket.PresentCollaborator;
 
 public record UserPayload (
-    UserMinimalDTO user
+    PresentCollaborator collaborator
 ) implements ShotlistUpdatePayload { }

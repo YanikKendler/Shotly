@@ -1,7 +1,7 @@
 import {wuConstants, wuText} from "@yanikkendler/web-utils/dist"
 import {ThemeConfig} from "react-select"
 import {AnySceneAttribute, SelectOption, ShotlistOrTemplate} from "@/utility/Types"
-import {SceneDto, ShotlistDto} from "../../lib/graphql/generated"
+import {CollaborationType, SceneDto, ShotlistDto} from "../../lib/graphql/generated"
 import {NetworkStatus} from "@apollo/client"
 import {UserSettings} from "@/components/app/dialogs/accountDialog/accountDialog"
 import Config from "@/Config"
@@ -286,6 +286,16 @@ export default class Utils {
             x: distanceRatio.x,
             y: distanceRatio.y,
             d: Math.sqrt(distanceRatio.x**2 + distanceRatio.y**2) / Math.sqrt(2)
+        }
+    }
+
+    static collaborationTypeToHumanReadable(type: CollaborationType | undefined | null, asRole?: boolean) {
+        if(!type) return "Unknown"
+
+        switch (type) {
+            case CollaborationType.Comment: return asRole ? 'Commenter' : 'Comment'
+            case CollaborationType.Edit: return asRole ? 'Editor' : 'Edit'
+            case CollaborationType.View: return asRole ? 'Viewer' : 'View'
         }
     }
 }

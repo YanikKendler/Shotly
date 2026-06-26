@@ -20,11 +20,17 @@ main.shotlist{
       opacity: .5;
     }
 
-    h1.shotlistName{
-      text-align: center;
-      font-size: 1.2rem;
-      padding: 0.3rem 0.5rem;
-      font-weight: 500;
+    > .mobileHeading {
+      display: flex;
+      align-items: center;
+      padding: .3rem;
+
+      h1{
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: 500;
+        margin-inline: auto;
+      }
     }
   }
 }

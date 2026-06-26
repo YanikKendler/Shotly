@@ -1,6 +1,6 @@
 'use client'
 
-import {SceneDto} from "../../../../../../lib/graphql/generated"
+import {PresentCollaborator, SceneDto, UserMinimalDto} from "../../../../../../lib/graphql/generated"
 import "./scene.scss"
 import React, {
     Dispatch,
@@ -31,12 +31,15 @@ import Utils from "@/utility/Utils"
 import Collapse from "@/components/basic/collapse/collapse"
 import {SelectedScene} from "@/app/(application)/shotlist/[id]/page"
 import {AppContext} from "@/context/AppContext"
+import CollaboratorDisplay from "@/components/app/shotlist/collaboratorDisplay/collaboratorDisplay"
 
 export interface SidebarSceneRef {
     closePopover: () => void
-    getAttribute: (position: number) => SceneAttributeRef | null,
-    findAttribute: (attributeId: number) => SceneAttributeRef | null,
-    id: string,
+    getAttribute: (position: number) => SceneAttributeRef | null
+    findAttribute: (attributeId: number) => SceneAttributeRef | null
+    setCollaboratorHighlight: (userId: string) => void
+    removeCollaboratorHighlight: (userId: string) => void
+    id: string
     position: number
 }
 
@@ -70,6 +73,8 @@ const Scene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
 
     const attributeRefs = useRef<Map<number, SceneAttributeRef | null>>(new Map())
 
+    const [collaboratorsViewing, setCollaboratorsViewing] = useState<PresentCollaborator[]>([])
+
     useImperativeHandle(ref, () => ({
         closePopover: () => setEditMenuIsOpen(false),
         position: position,
@@ -82,6 +87,15 @@ const Scene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                 if(attributeRef.id == attributeId) return attributeRef
             }
             return null
+        },
+        setCollaboratorHighlight(userId: string){
+            const collaborator = shotlistContext.presentCollaborators.get(userId)
+
+            if(collaborator)
+                setCollaboratorsViewing(current => [...current, collaborator])
+        },
+        removeCollaboratorHighlight(userId: string){
+            setCollaboratorsViewing(current => current.filter(c => c.user?.id != userId))
         }
     }))
 
@@ -140,6 +154,7 @@ const Scene = forwardRef<SidebarSceneRef, SidebarSceneProps>(({
                 <p className="text">
                     { Utils.sceneAttributesToSceneName(sceneAttributes) }
                 </p>
+                <CollaboratorDisplay collaborators={collaboratorsViewing}/>
                 <div className="right">
                     <p className={"count"}>{scene.shotCount}</p>
                     {

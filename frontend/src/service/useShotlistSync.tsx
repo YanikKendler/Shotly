@@ -3,13 +3,13 @@ import {useLatestCallback} from "@/utility/useLatestCallback"
 import {SelectOption, ShotlyErrorCode} from "@/utility/Types"
 import {
     CollaborationPayload,
-    CommentPayload,
+    CommentPayload, PresentCollaborator,
     Query,
     SceneAttributePayload,
     ScenePayload,
     SceneSelectOptionPayload,
     SelectedCellPayload,
-    SelectedSceneAttributePayload,
+    SelectedSceneAttributePayload, SelectedScenePayload,
     ShotAttributePayload,
     ShotlistPayload,
     ShotlistUpdateDto,
@@ -19,9 +19,9 @@ import {
     UserMinimalDto,
     UserPayload
 } from "../../lib/graphql/generated"
-import {errorNotification} from "@/service/NotificationService"
+import {errorNotification, infoNotification} from "@/service/NotificationService"
 import {SheetManagerRef} from "@/components/app/shotlist/table/sheetManager/sheetManager"
-import {PresentCollaborator, SelectedScene} from "@/app/(application)/shotlist/[id]/page"
+import {SelectedScene} from "@/app/(application)/shotlist/[id]/page"
 import {SceneAttributeParser, ShotAttributeParser} from "@/utility/AttributeParser"
 import {SceneListRef} from "@/components/app/shotlist/sidebar/sceneList/sceneList"
 import {ApolloQueryResult, useApolloClient, useSubscription} from "@apollo/client"
@@ -29,6 +29,7 @@ import {useRouter} from "next/navigation"
 import gql from "graphql-tag"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
 import {AppContext} from "@/context/AppContext"
+import Utils from "@/utility/Utils"
 
 /**
  * It would be lovely to only query the shot attributes for example if the shot was created
@@ -46,14 +47,22 @@ const SHOTLIST_UPDATES_SUBSCRIPTION = gql`
             payload {
                 ... on PresentCollaboratorsPayload {
                     collaborators {
-                        id
-                        name
+                        user {
+                            id
+                            name
+                        }
+                        joinedAt
+                        selectedSceneId
                     }
                 }
                 ... on UserPayload {
-                    user {
-                        id
-                        name
+                    collaborator {
+                        user {
+                            id
+                            name
+                        }
+                        joinedAt
+                        selectedSceneId
                     }
                 }
                 ... on CollaborationPayload {
@@ -196,6 +205,11 @@ const SHOTLIST_UPDATES_SUBSCRIPTION = gql`
                     column
                     sceneId
                 }
+                
+                ... on SelectedScenePayload {
+                    sceneId
+                }
+                
                 ... on SelectedSceneAttributePayload {
                     attributeId
                     sceneId
@@ -231,7 +245,7 @@ const SHOTLIST_UPDATES_SUBSCRIPTION = gql`
 export function useShotlistSync({
     shotlistId,
     sheetManagerRef,
-    sidebarRef,
+    sceneListRef,
     selectedScene,
     setQuery,
     setIsArchived,
@@ -245,7 +259,7 @@ export function useShotlistSync({
     shotlistId: string | null
 
     sheetManagerRef: RefObject<SheetManagerRef | null>
-    sidebarRef: RefObject<SceneListRef | null>
+    sceneListRef: RefObject<SceneListRef | null>
 
     selectedScene: SelectedScene | null
 
@@ -265,7 +279,11 @@ export function useShotlistSync({
     const router = useRouter()
     const appContext = useContext(AppContext)
 
+    //userID to payload (stores row + cell)
     const collaboratorSelectedCell = useRef<Map<string, SelectedCellPayload>>(new Map())
+    //userID to payload (stores sceneId)
+    const collaboratorSelectedScene = useRef<Map<string, SelectedScenePayload>>(new Map())
+    //userID to payload (stores sceneId + attributeId)
     const collaboratorSelectedSceneAttribute = useRef<Map<string, SelectedSceneAttributePayload>>(new Map())
 
     const initialConnectTimestamp = useRef<number>(-1);
@@ -321,28 +339,25 @@ export function useShotlistSync({
             case "UserPayload":
                 const userPayload = updateDTO.payload as UserPayload
 
-                const userId = userPayload.user?.id
+                const userId = userPayload.collaborator?.user?.id
 
                 // skip if current state is newer than incoming
                 // don't update if the user has been updated from a later message already
                 // (avoid desyncs due to delayed messages)
                 if(
                     !userId ||
-                    (presentCollaborators?.get(userId)?.updatedAt?.getTime() || Infinity)
+                    (new Date(presentCollaborators?.get(userId)?.joinedAt)?.getTime() || Infinity)
                     < new Date(updateDTO.timestamp).getTime()
                 ) {
                     return
                 }
 
                 if(updateDTO.type == ShotlistUpdateType.UserJoined){
-                    if(!userPayload.user) return
+                    if(!userPayload.collaborator) return
 
                     setPresentCollaborators(prev => {
                         const newMap = new Map(prev)
-                        newMap.set(userId, {
-                            updatedAt: new Date(updateDTO.timestamp),
-                            user: userPayload.user as UserMinimalDto
-                        })
+                        newMap.set(userId, userPayload.collaborator ?? {})
                         return newMap
                     })
                 }
@@ -350,11 +365,27 @@ export function useShotlistSync({
                     setPresentCollaborators(prev => {
                         const newMap = new Map(prev)
                         newMap.forEach(collab => {
-                            if(collab.user.id == userId)
+                            if(collab.user?.id == userId)
                                 newMap.delete(collab.user.id)
                         })
                         return newMap
                     })
+
+                    const relevantSelectedScene = collaboratorSelectedScene.current.get(updateDTO.userId ?? "")
+                    if(relevantSelectedScene) {
+                        sceneListRef.current
+                            ?.findScene(relevantSelectedScene.sceneId ?? "")
+                            ?.removeCollaboratorHighlight(updateDTO.userId ?? "")
+                    }
+
+                    const relevantSelectedCell = collaboratorSelectedCell.current.get(updateDTO.userId ?? "")
+                    if(relevantSelectedCell) {
+                        if(selectedScene?.id == relevantSelectedCell.sceneId) {
+                            sheetManagerRef.current
+                                ?.getCellRef(relevantSelectedCell.row, relevantSelectedCell.column)
+                                ?.removeCollaboratorHighlight(updateDTO.userId ?? "")
+                        }
+                    }
                 }
                 break
             case "CollaborationPayload":
@@ -379,11 +410,25 @@ export function useShotlistSync({
                 break
             case "PresentCollaboratorsPayload":
                 const collabMap = new Map<string, PresentCollaborator>()
-                updateDTO.payload.collaborators?.forEach(user => {
-                    if(!user?.id) return
-                    collabMap.set(user?.id ?? "unknown", {user: user, updatedAt: updateDTO.timestamp})
-                })
                 setPresentCollaborators(collabMap)
+
+                sceneListRef.current?.whenReady(() => {
+                    if(updateDTO.payload?.__typename != "PresentCollaboratorsPayload") return
+
+                    updateDTO.payload.collaborators?.forEach(collaborator => {
+                        if(!collaborator?.user?.id) return
+
+                        collabMap.set(collaborator.user.id, collaborator)
+
+                        setCollaboratorSceneHighlight({
+                            userId: collaborator.user.id,
+                            payload: {
+                                __typename: "SelectedScenePayload",
+                                sceneId: collaborator.selectedSceneId
+                            }
+                        })
+                    })
+                })
                 break
             case "SceneAttributePayload":
                 updateSceneAttribute(updateDTO.payload)
@@ -409,6 +454,9 @@ export function useShotlistSync({
                 break
             case "SelectedCellPayload":
                 setCollaboratorCellHighlight(updateDTO)
+                break
+            case "SelectedScenePayload":
+                setCollaboratorSceneHighlight(updateDTO)
                 break
             case "SelectedSceneAttributePayload":
                 setCollaboratorSceneAttributeHighlight(updateDTO)
@@ -451,7 +499,6 @@ export function useShotlistSync({
                         break
                     case ShotlistUpdateType.CommentText:
                     case ShotlistUpdateType.CommentArchival:
-                        console.log(updateDTO)
                         updateComment(updateDTO.payload as CommentPayload)
                         break
                 }
@@ -547,28 +594,28 @@ export function useShotlistSync({
     const updateSceneAttribute = (payload: SceneAttributePayload)=> {
         if(!payload.attribute) return
 
-        const attributeRef = sidebarRef?.current?.findAttribute(payload.attribute.id)
+        const attributeRef = sceneListRef?.current?.findAttribute(payload.attribute.id)
 
         attributeRef?.setReadOnlyValue(SceneAttributeParser.toValueString(payload.attribute, false))
         attributeRef?.setValue(SceneAttributeParser.toMultiTypeValue(payload.attribute))
     }
 
     const createScene = (payload: ScenePayload)=> {
-        if(!payload.scene || !payload.scene.id || !sidebarRef?.current) return
+        if(!payload.scene || !payload.scene.id || !sceneListRef?.current) return
 
-        sidebarRef?.current.onCreateScene(payload.scene)
+        sceneListRef?.current.onCreateScene(payload.scene)
     }
 
     const updateScene = (payload: ScenePayload)=> {
-        if(!payload.scene || !payload.scene.id || !sidebarRef?.current) return
+        if(!payload.scene || !payload.scene.id || !sceneListRef?.current) return
 
-        sidebarRef?.current.onMoveScene(payload.scene.id, payload.scene.position)
+        sceneListRef?.current.onMoveScene(payload.scene.id, payload.scene.position)
     }
 
     const deleteScene = (payload: ScenePayload)=> {
-        if(!payload.scene || !payload.scene.id || !sidebarRef?.current) return
+        if(!payload.scene || !payload.scene.id || !sceneListRef?.current) return
 
-        sidebarRef?.current.onDeleteScene(payload.scene.id)
+        sceneListRef?.current.onDeleteScene(payload.scene.id)
     }
 
     const shotAttributeOptionCreated = (payload: ShotSelectOptionPayload)=> {
@@ -599,7 +646,10 @@ export function useShotlistSync({
         //we are only interested if our own permissions changed
         if(appContext.currentUser?.id != payload.userId && payload.type) return
 
-        console.log("updating collaborator type to", payload.type)
+        infoNotification({
+            title: "Collaboration type updated",
+            message: `You are now a "${Utils.collaborationTypeToHumanReadable(payload.type, true)}"`
+        })
 
         //causes reload of access perm calculation
         setQuery(prev => {
@@ -679,6 +729,27 @@ export function useShotlistSync({
         collaboratorSelectedCell.current.set(updateDTO.userId, updateDTO.payload)
     }
 
+    const setCollaboratorSceneHighlight = (updateDTO: ShotlistUpdateDto)=> {
+        if(updateDTO.payload?.__typename != "SelectedScenePayload" || !updateDTO.userId) return
+
+        //remove the highlight from the previously selected scene
+        if (collaboratorSelectedScene.current.has(updateDTO.userId)) {
+            const currentlySelected = collaboratorSelectedScene.current.get(updateDTO.userId)
+
+            if (currentlySelected?.sceneId != updateDTO.payload.sceneId) {
+                sceneListRef?.current
+                    ?.findScene(currentlySelected?.sceneId ?? "")
+                    ?.removeCollaboratorHighlight(updateDTO.userId)
+            }
+        }
+
+        sceneListRef?.current
+            ?.findScene(updateDTO.payload.sceneId ?? "")
+            ?.setCollaboratorHighlight(updateDTO.userId)
+
+        collaboratorSelectedScene.current.set(updateDTO.userId, updateDTO.payload)
+    }
+
     const setCollaboratorSceneAttributeHighlight = (updateDTO: ShotlistUpdateDto)=> {
         if(updateDTO.payload?.__typename != "SelectedSceneAttributePayload" || !updateDTO.userId) return
 
@@ -688,13 +759,13 @@ export function useShotlistSync({
                 const currentlySelected = collaboratorSelectedSceneAttribute.current.get(updateDTO.userId)
 
                 if (currentlySelected != updateDTO.payload) {
-                    sidebarRef?.current
+                    sceneListRef?.current
                         ?.findAttribute(currentlySelected?.attributeId ?? -1)
                         ?.removeCollaboratorHighlight(updateDTO.userId)
                 }
             }
 
-            sidebarRef?.current
+            sceneListRef?.current
                 ?.findAttribute(updateDTO.payload?.attributeId ?? -1)
                 ?.setCollaboratorHighlight(updateDTO.userId)
         }
@@ -743,6 +814,26 @@ export function useShotlistSync({
         }
     }
 
+    const syncShotlistSceneSelected = async (payload: SelectedScenePayload) => {
+        const {data, errors} = await client.mutate({
+                mutation: gql`
+                    mutation syncShotlistSceneSelected($shotlistId: String, $payload: SelectedScenePayloadInput) {
+                        syncShotlistSceneSelected(shotlistId: $shotlistId, payload: $payload)
+                    }`,
+                variables: {shotlistId: shotlistId, payload: payload}
+            },
+        )
+
+        if(errors){
+            errorNotification({
+                title: "Failed to sync scene selection",
+                message: "Please refresh this page."
+            })
+            console.error(errors)
+            return
+        }
+    }
+
     const syncShotlistSceneAttributeSelected = async (payload: SelectedSceneAttributePayload) => {
         const {data, errors} = await client.mutate({
                 mutation: gql`
@@ -766,6 +857,7 @@ export function useShotlistSync({
     return {
         syncShotlistOptionsUpdated,
         syncShotlistCellSelected,
+        syncShotlistSceneSelected,
         syncShotlistSceneAttributeSelected,
         restart
     }

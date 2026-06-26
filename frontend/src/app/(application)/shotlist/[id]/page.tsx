@@ -4,7 +4,7 @@ import gql from "graphql-tag"
 import React, {useEffect, useRef, useState} from "react"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
 import {
-    CollaborationType,
+    CollaborationType, PresentCollaborator,
     Query,
     SceneDto,
     ShotAttributeDefinitionBase,
@@ -35,6 +35,7 @@ import useIntro from "@/service/useIntro"
 import ShotlistSidebar, {ShotlistSidebarRef} from "@/components/app/shotlist/sidebar/shotlistSidebar/shotlistSidebar"
 import ViewPortSwitcher from "@/components/utility/viewportSwitcher/viewPortSwitcher"
 import Skeleton from "react-loading-skeleton"
+import CollaboratorDisplay from "@/components/app/shotlist/collaboratorDisplay/collaboratorDisplay"
 
 export interface SelectedScene {
     id: string | null
@@ -42,11 +43,6 @@ export interface SelectedScene {
 }
 
 export type ReadOnlyReason = "tooManyShotlists" | "collaborationViewOnly" | "collaborationCommentOnly" | "archived" | null
-
-export interface PresentCollaborator {
-    updatedAt: Date
-    user: UserMinimalDto
-}
 
 export type SaveState = "saved" | "saving" | "error"
 
@@ -179,11 +175,17 @@ export default function Shotlist() {
 
     //handle scene selections
     useEffect(() => {
+        if(selectedScene.id == null) return
+
         sheetManagerRef.current?.showLoader()
 
         const url = new URL(window.location.href)
         url.searchParams.set("sid", selectedScene.id || "")
         router.replace(url.toString())
+
+        sync.syncShotlistSceneSelected({
+            sceneId: selectedScene.id,
+        })
     }, [selectedScene])
 
     const loadData = async (noCache: boolean = false) => {
@@ -483,7 +485,7 @@ export default function Shotlist() {
     const sync = useShotlistSync({
         shotlistId: id,
         sheetManagerRef: sheetManagerRef,
-        sidebarRef: sceneListRef,
+        sceneListRef: sceneListRef,
         selectedScene: selectedScene,
         setQuery: setQuery,
         setIsArchived: setIsArchived,
@@ -585,7 +587,7 @@ export default function Shotlist() {
                         setSceneCount={setSceneCount}
                         selectedScene={selectedScene}
                         setSelectedScene={setSelectedScene}
-                        presentCollaborators={Array.from(presentCollaborators?.values().map(c => c.user) || [])}
+                        presentCollaborators={Array.from(presentCollaborators?.values().map(c => c.user ?? {}) || [])}
                         sceneListRef={sceneListRef}
                         ref={sidebarRef}
                     />
@@ -594,9 +596,18 @@ export default function Shotlist() {
 
                     <Panel className={`content ${reloadInProgress && "reloading"}`} id={"shotTable"} order={1}>
                         <ViewPortSwitcher breakpoint={600} under={
-                            query.loading ?
-                            <Skeleton height={"2rem"} style={{margin: ".3rem", width: "calc(100% - .6rem)"}}/> :
-                            <h1 className={"shotlistName"} onClick={sidebarRef.current?.openSceneList}>{query.data.shotlist?.name || "Unnamed"} • Scene {selectedScene.position != null ? selectedScene.position + 1 : "#"}</h1>
+                            query.loading
+                                ?
+                            <Skeleton height={"2rem"} style={{margin: ".3rem", width: "calc(100% - .6rem)"}}/>
+                                :
+                            <div className="mobileHeading">
+                                <h1 onClick={sidebarRef.current?.openSceneList}>
+                                    <span>{query.data.shotlist?.name || "Unnamed"}</span>
+                                    {" • "}
+                                    Scene {selectedScene.position != null ? selectedScene.position + 1 : "#"}
+                                </h1>
+                                <CollaboratorDisplay collaborators={Array.from(presentCollaborators.values())}/>
+                            </div>
                         }/>
                         <ShotlistHeader
                             ref={headerRef}
