@@ -30,6 +30,7 @@ import gql from "graphql-tag"
 import {wuConstants} from "@yanikkendler/web-utils/dist"
 import {AppContext} from "@/context/AppContext"
 import Utils from "@/utility/Utils"
+import useWhenReady from "@/service/useWhenReady"
 
 /**
  * It would be lovely to only query the shot attributes for example if the shot was created
@@ -243,6 +244,8 @@ const SHOTLIST_UPDATES_SUBSCRIPTION = gql`
     }
 `
 
+/*TODO show scenes selectin when joining*/
+/*TODO scene attributes can get stuck in highlighted state*/
 export function useShotlistSync({
     shotlistId,
     sheetManagerRef,
@@ -279,6 +282,7 @@ export function useShotlistSync({
     const client = useApolloClient()
     const router = useRouter()
     const appContext = useContext(AppContext)
+    const whenReady = useWhenReady()
 
     //userID to payload (stores row + cell)
     const collaboratorSelectedCell = useRef<Map<string, SelectedCellPayload>>(new Map())
@@ -299,7 +303,7 @@ export function useShotlistSync({
             if (updateDTO) {
                 processUpdate(updateDTO)
             }
-        }
+        },
     })
 
     useEffect(() => {
@@ -312,10 +316,12 @@ export function useShotlistSync({
             })
         }
         if(!error && !loading){
-            if(initialConnectTimestamp.current == -1)
+            if(initialConnectTimestamp.current == -1) { //fist time connect
                 initialConnectTimestamp.current = Date.now()
-            else if(initialConnectTimestamp.current < Date.now() - wuConstants.Time.msPerSecond * 10)
-                refreshShotlist().then()
+                whenReady.ready()
+            }
+            else if(initialConnectTimestamp.current < Date.now() - wuConstants.Time.msPerSecond * 10) //last connection was more than 10 secs ago
+                refreshShotlist()
         }
     }, [error, loading])
 
@@ -860,6 +866,7 @@ export function useShotlistSync({
         syncShotlistCellSelected,
         syncShotlistSceneSelected,
         syncShotlistSceneAttributeSelected,
-        restart
+        restart,
+        whenReady: whenReady.execute
     }
 }

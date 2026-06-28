@@ -188,9 +188,9 @@ export default function Shotlist() {
         url.searchParams.set("sid", selectedScene.id || "")
         router.replace(url.toString())
 
-        sync.syncShotlistSceneSelected({
+        sync.whenReady(() => sync.syncShotlistSceneSelected({
             sceneId: selectedScene.id,
-        })
+        }))
     }, [selectedScene])
 
     useEffect(() => {

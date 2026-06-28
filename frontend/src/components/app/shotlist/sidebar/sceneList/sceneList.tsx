@@ -14,6 +14,7 @@ import {SceneAttributeRef} from "@/components/app/shotlist/sidebar/sceneAttribut
 import Skeleton from "react-loading-skeleton"
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
 import {AppContext} from "@/context/AppContext"
+import useWhenReady from "@/service/useWhenReady"
 
 export interface SceneListRef {
     getScene: (position: number) => SidebarSceneRef | null
@@ -50,14 +51,12 @@ const SceneList = forwardRef<SceneListRef, ShotlistSidebarProps>(({
     const client = useApolloClient()
     const shotlistContext = useContext(ShotlistContext)
     const appContext = useContext(AppContext)
+    const whenReady = useWhenReady()
 
     const sortableRef = useRef<Sortable|null>(null)
 
     const sceneRefs = useRef<Map<number, SidebarSceneRef | null>>(new Map())
     const creationLoaderRef = useRef<HTMLDivElement>(null)
-
-    const isReady = useRef(false);
-    const whenReadyQueue = useRef<(() => void)[]>([]);
 
     useImperativeHandle(ref, () => ({
         getScene: (position: number) => sceneRefs.current.get(position) || null,
@@ -79,24 +78,13 @@ const SceneList = forwardRef<SceneListRef, ShotlistSidebarProps>(({
         onDeleteScene: onDeleteScene,
         onMoveScene: onMoveScene,
         createScene: createScene,
-        whenReady: (then: () => void) => {
-            if(isReady.current == true)
-                then()
-            else
-                whenReadyQueue.current.push(then)
-        }
+        whenReady: whenReady.execute
     }))
 
     useEffect(() => {
         if(query.loading) return
 
-        if(isReady.current == false) {
-            let fun
-            while (fun = whenReadyQueue.current.pop()) {
-                fun()
-            }
-            isReady.current = true
-        }
+        whenReady.ready()
 
         if (sortableRef.current?.el) {
             sortableRef.current.destroy()
