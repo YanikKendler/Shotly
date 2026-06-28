@@ -177,6 +177,8 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
     }, [deferredSelectedScene]) //runs in the background to not block other actions like scene selection
 
     useEffect(() => {
+        if(!query.data.shots || query.data.shots.length == 0) return
+
         // select a attribute (in a newly created shot)
         // specified by attributePositionToSelect.current after the shots are re rendered
         if(attributePositionToSelect.current >= 0){
@@ -186,6 +188,13 @@ const SheetManager = forwardRef<SheetManagerRef, SheetManagerProps>(({
 
             attributePositionToSelect.current = -1
         }
+
+        //set default comment viewTime for all shots so that not all comments are marked as new
+        query.data.shots.forEach(shot => {
+            if(shot?.id && shotlistContext.commentThreadViewTime[shot.id] == undefined){
+                shotlistContext.viewedCommentThread(shot.id)
+            }
+        })
     }, [query.data.shots])
 
 

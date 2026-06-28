@@ -26,6 +26,7 @@ import {ShotlyErrorCode} from "@/utility/Types"
 import {useRouter} from "next/navigation"
 import {AppContext} from "@/context/AppContext"
 
+/*TODO loader broken*/
 export default function CollaboratorsTab(
     {
         shotlist,

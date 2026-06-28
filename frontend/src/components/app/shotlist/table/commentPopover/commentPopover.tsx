@@ -84,10 +84,9 @@ const CommentPopover = forwardRef<CommentPopoverRef, CommentPopoverProps>(({
 
         const newestValidComment = comments.findLast(c => !c?.archived)
 
-        if(!newestValidComment) return
+        if(!newestValidComment || !viewTime) return
 
         if(
-            viewTime == undefined ||
             new Date(newestValidComment?.createdAt).getTime() > viewTime
         ){
             setBadgeVisible(true)
