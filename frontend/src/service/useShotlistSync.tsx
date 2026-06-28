@@ -244,8 +244,6 @@ const SHOTLIST_UPDATES_SUBSCRIPTION = gql`
     }
 `
 
-/*TODO show scenes selectin when joining*/
-/*TODO scene attributes can get stuck in highlighted state*/
 export function useShotlistSync({
     shotlistId,
     sheetManagerRef,
@@ -708,6 +706,7 @@ export function useShotlistSync({
 
     // INPUT HIGHLIGHTING
 
+    //TODO support displaying highlight positions when swapping scenes that were selected before the scene was visible
     const setCollaboratorCellHighlight = (updateDTO: ShotlistUpdateDto)=> {
         if(updateDTO.payload?.__typename != "SelectedCellPayload" || !updateDTO.userId) return
 
@@ -760,22 +759,21 @@ export function useShotlistSync({
     const setCollaboratorSceneAttributeHighlight = (updateDTO: ShotlistUpdateDto)=> {
         if(updateDTO.payload?.__typename != "SelectedSceneAttributePayload" || !updateDTO.userId) return
 
-        if(updateDTO.payload.sceneId == selectedScene?.id) { //the new highlight is in the currently selected scene
-            //remove the highlight from the previously selected attribute
-            if (collaboratorSelectedSceneAttribute.current.has(updateDTO.userId)) {
-                const currentlySelected = collaboratorSelectedSceneAttribute.current.get(updateDTO.userId)
+        //remove the highlight from the previously selected attribute
+        if (collaboratorSelectedSceneAttribute.current.has(updateDTO.userId)) {
+            const currentlySelected = collaboratorSelectedSceneAttribute.current.get(updateDTO.userId)
 
-                if (currentlySelected != updateDTO.payload) {
-                    sceneListRef?.current
-                        ?.findAttribute(currentlySelected?.attributeId ?? -1)
-                        ?.removeCollaboratorHighlight(updateDTO.userId)
-                }
+            if (currentlySelected != updateDTO.payload) {
+                sceneListRef?.current
+                    ?.findAttribute(currentlySelected?.attributeId ?? -1)
+                    ?.removeCollaboratorHighlight(updateDTO.userId)
             }
-
-            sceneListRef?.current
-                ?.findAttribute(updateDTO.payload?.attributeId ?? -1)
-                ?.setCollaboratorHighlight(updateDTO.userId)
         }
+
+        sceneListRef?.current
+            ?.findAttribute(updateDTO.payload?.attributeId ?? -1)
+            ?.setCollaboratorHighlight(updateDTO.userId)
+
         collaboratorSelectedSceneAttribute.current.set(updateDTO.userId, updateDTO.payload)
     }
 
