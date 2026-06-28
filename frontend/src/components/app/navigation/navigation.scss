@@ -5,6 +5,13 @@
   background-color: var(--navigation-bg);
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+
+  &::-webkit-scrollbar {
+    display: none; /*Chrome, Safari and Opera */
+  }
 
   &.keyboardOpen{
     display: none;
