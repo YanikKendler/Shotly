@@ -99,15 +99,16 @@ main.template{
     }
   }
 
-  .add{
-    color: var(--text-50);
-    font-size: .95rem;
+  button.add{
+    color: var(--accent);
+    font-size: .9rem;
     translate: -.2rem 0;
-    min-width: 20ch;
+    background-color: var(--transparent-accent-10);
+    font-weight: 600;
+    padding-block: .4rem;
 
     &:hover{
-      color: var(--text);
-      background-color: var(--transparent-gray-10);
+      background-color: var(--transparent-accent-30);
     }
   }
 }
@@ -130,10 +131,14 @@ main.template{
 }
 
 .editAttributeOptionTemplatesPopup{
+  padding: .2rem;
+
   .option{
     display: flex;
     align-items: center;
     gap: .5rem;
+    padding: .3rem;
+    padding-right: 0;
 
     input{
       outline: none;
@@ -157,9 +162,11 @@ main.template{
     }
   }
 
-  > button{
+  button.add{
     color: var(--text-40);
     justify-content: flex-start;
+    font-size: .9rem;
+    padding-inline: .3rem;
 
     svg{
       color: var(--text-40);

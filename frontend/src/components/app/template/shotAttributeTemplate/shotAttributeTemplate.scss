@@ -31,10 +31,11 @@ div.shotAttributeTemplate{
   }
 
   .nameInput{
-    padding-block: .5rem;
+    padding: .5rem;
     outline: 1px solid transparent;
     font-weight: 500;
     border: 2px solid var(--default-interactable-border);
+    font-size: .95rem;
 
     &::placeholder{
       font-weight: normal;
@@ -46,11 +47,12 @@ div.shotAttributeTemplate{
   }
 
   .editOptions{
-    font-size: .9rem;
+    font-size: .85rem;
     border: 2px solid var(--default-interactable-border);
     align-self: stretch;
     gap: 1rem;
     color: var(--text-40);
+    font-weight: 500;
 
     &:hover{
       color: var(--text);

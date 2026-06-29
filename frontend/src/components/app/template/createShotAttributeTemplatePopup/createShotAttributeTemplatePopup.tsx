@@ -82,7 +82,7 @@ export default function CreateShotAttributeTemplatePopup({
                 </button>
             </>}
         >
-            New shot attribute <Plus size={20}/>
+            New <Plus size={20}/>
         </SimplePopover>
     )
 }

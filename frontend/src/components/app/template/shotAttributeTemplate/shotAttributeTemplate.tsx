@@ -222,7 +222,7 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
                 {...listeners}
                 {...attributes}
             >
-                <GripVertical/>
+                <GripVertical size={22}/>
             </div>
             <Icon size={18} strokeWidth={3}/>
             <TextField
@@ -233,7 +233,7 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
             />
             {(attribute.__typename == "ShotMultiSelectAttributeTemplateDTO" || attribute.__typename == "ShotSingleSelectAttributeTemplateDTO") && (
                 <Popover.Root>
-                    <Popover.Trigger className={"editOptions"}>Edit options <Pencil size={16}/></Popover.Trigger>
+                    <Popover.Trigger className={"editOptions"}>Edit options <Pencil size={14}/></Popover.Trigger>
                     <Popover.Portal>
                         <Popover.Content className="popoverContent editAttributeOptionTemplatesPopup" sideOffset={5}
                                          align={"start"}>
@@ -246,10 +246,17 @@ export default function ShotAttributeTemplate({attributeTemplate, onDelete}: { a
                                         valueChange={(value) => debouncedUpdateOptionName(option.id, value)}
                                         debounceValueChange={true}
                                     />
-                                    <button className="bad" onClick={() => deleteSelectOption(option.id)}><Trash size={18}/></button>
+                                    <button className="bad" onClick={() => deleteSelectOption(option.id)}>
+                                        <Trash size={16}/>
+                                    </button>
                                 </div>
                             ))}
-                            <button onClick={createSelectOption}><Plus size={18}/>New option</button>
+                            <button
+                                onClick={createSelectOption}
+                                className={"add"}
+                            >
+                                <Plus size={16}/>New option
+                            </button>
                         </Popover.Content>
                     </Popover.Portal>
                 </Popover.Root>

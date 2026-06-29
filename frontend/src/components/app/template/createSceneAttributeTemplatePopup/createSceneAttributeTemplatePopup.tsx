@@ -78,7 +78,7 @@ export default function CreateSceneAttributeTemplatePopup({
                 </button>
             </>}
         >
-            New scene attribute <Plus size={20}/>
+            New <Plus size={20}/>
         </SimplePopover>
     )
 }

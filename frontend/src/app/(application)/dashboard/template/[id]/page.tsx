@@ -443,7 +443,7 @@ export default function Template (){
                             <div className="spacerContainer">
                                 <p className="spacer">{query.data.template?.name}</p>
                                 <Pencil
-                                    size={18}
+                                    size={16}
                                     style={{display: query.data.template?.name == "" ? "none" : "block"}}
                                 />
                             </div>
@@ -515,6 +515,8 @@ export default function Template (){
                 templateId={id}
                 isLoading={query.loading}
             />
+
+            <br/>
 
             <h3>Shot attributes</h3>
 
