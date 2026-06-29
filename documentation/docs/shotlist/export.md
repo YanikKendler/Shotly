@@ -37,6 +37,10 @@ If toggled on, no scene headings will be rendered, but all scene filters and sor
 
 Using the **Scenes** filter, you can control which scenes to include in the export. If a scene is not included in the "Scenes" filter, it will never be included, even if a custom filter matches a shot inside.
 
+## Visisble Attributes
+
+Allows you to select which attributes you want to be displayed for scenes/shots. All attributes will still be used for filters. they are only visually hidden. For example, you can filter your shots to only include scenes with a specific actor and then hide the "Actor" attribute since it is redundant.
+
 ## Custom filters
 
 Using the `Add filter` button, you can add a **Custom filter** for any multi-select or single-select attribute. You can then select a list of values that qualify for that filter. If you add a second filter, every shot/scene has to **pass both** the first and the second filter.
@@ -44,7 +48,7 @@ Using the `Add filter` button, you can add a **Custom filter** for any multi-sel
 The following modes are available, they can be cycled by clicking on the current condition.
 
 - `IS ONE OF`: one or more of the selected options have to be selected in the attribute
-- `IS EXACTLY`: all of the selected options have to be selected in the attribute
+- `IS EXACTLY`: exactly the selected options have to be selected in the attribute
 - `IS NOT`: none of the selected options are allowed to be selected in the attribute
 
 Filters can be removed using the `X` button on the right.

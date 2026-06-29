@@ -4,7 +4,7 @@ import {
     ListOrdered,
     X,
     RotateCcw,
-    Rows4,
+    Rows4, Table,
 } from "lucide-react"
 import React, {Fragment, RefObject, useCallback, useContext, useEffect, useRef, useState} from "react"
 import gql from "graphql-tag"
@@ -1038,7 +1038,7 @@ export default function ExportTab(
                     </div>
                     <div className="setting">
                         <div className="left">
-                            <ListOrdered size={22}/>
+                            <Table size={22}/>
                             <p>Shot</p>
                         </div>
 
