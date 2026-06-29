@@ -378,6 +378,7 @@ const ShotlistOptionsDialog = forwardRef<ShotlistOptionsDialogRef, ShotlistOptio
                 </Tabs.Content>
                 <Tabs.Content value={"collaborators"} className={"content"}>
                     <CollaboratorsTab
+                        isLoading={isLoading}
                         shotlist={shotlist}
                         collaborations={collaborations}
                         setCollaborations={setCollaborations}

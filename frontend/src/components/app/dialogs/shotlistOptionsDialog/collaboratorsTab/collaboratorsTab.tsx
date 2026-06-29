@@ -26,14 +26,15 @@ import {ShotlyErrorCode} from "@/utility/Types"
 import {useRouter} from "next/navigation"
 import {AppContext} from "@/context/AppContext"
 
-/*TODO loader broken*/
 export default function CollaboratorsTab(
     {
+        isLoading,
         shotlist,
         collaborations,
         setCollaborations,
         shotlistOptionsDialogRef,
     }:{
+        isLoading: boolean,
         shotlist: ShotlistDto | null
         collaborations: CollaborationDto[] | null
         setCollaborations: React.Dispatch<React.SetStateAction<CollaborationDto[] | null>>
@@ -269,7 +270,13 @@ export default function CollaboratorsTab(
 
     let content
 
-    if(shotlist?.owner?.id != appContext.currentUser?.id) {
+    if(isLoading) {
+        content = <>
+            <Skeleton height={"2rem"} style={{marginTop: ".5rem"}} count={2}/>
+            <Skeleton height={"2rem"} width={"15ch"} style={{marginTop: "2rem"}}/>
+        </>
+    }
+    else if(shotlist?.owner?.id != appContext.currentUser?.id) {
         content = <>
             <div className="leave">
                 <p>Leave this Shotlist</p>
@@ -281,12 +288,6 @@ export default function CollaboratorsTab(
                 </button>
             </div>
             <p className={"empty"}>As a collaborator, you don’t have permission to edit collaborators.</p>
-        </>
-    }
-    else if(collaborations == null) {
-        content = <>
-            <Skeleton height={"2rem"} style={{marginTop: ".5rem"}} count={2}/>
-            <Skeleton height={"2rem"} width={"15ch"} style={{marginTop: "2rem"}}/>
         </>
     }
     else {
