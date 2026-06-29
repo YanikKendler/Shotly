@@ -31,7 +31,6 @@ export default function ExportFilter({
     onToggleMethod: () => void
 }) {
 
-    //TODO docs for includeOnly
     const humanReadableMethod = new Map<ExportFilterMethod, string>([
         ["include", `is one of`],
         ["includeOnly", "is exactly"],

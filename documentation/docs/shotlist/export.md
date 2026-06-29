@@ -41,7 +41,11 @@ Using the **Scenes** filter, you can control which scenes to include in the expo
 
 Using the `Add filter` button, you can add a **Custom filter** for any multi-select or single-select attribute. You can then select a list of values that qualify for that filter. If you add a second filter, every shot/scene has to **pass both** the first and the second filter.
 
-By clicking on the `IS ONE OF` text you can change the filters mode to `IS NOT`, where selected values will be excluded.
+The following modes are available, they can be cycled by clicking on the current condition.
+
+- `IS ONE OF`: one or more of the selected options have to be selected in the attribute
+- `IS EXACTLY`: all of the selected options have to be selected in the attribute
+- `IS NOT`: none of the selected options are allowed to be selected in the attribute
 
 Filters can be removed using the `X` button on the right.
     
