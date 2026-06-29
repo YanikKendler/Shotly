@@ -26,16 +26,17 @@ You can also **block** a user from sending you any more collaboration requests i
 
 ## Managing Collaborators
 
-Each collaborator can either be a `Viewer` or an `Editor`. This "Collaboration Type" can be set for each collaborator individually via a dropdown.
+Each collaborator can either be a `Viewer` a `Commenter` or an `Editor`. This "Collaboration Type" can be set for each collaborator individually via a dropdown.
 
-|                               | Viewers | Editors | Owner |
-| ----------------------------- | ------- | ------ | ------ |
-| Can view shots and scenes     | x | x | x |
-| Can edit shots and scenes     |   | x | x |
-| Can add or remove Attributes  |   | x | x |
-| Can export the shotlist       | x | x | x |
-| Can see or edit collaborators |   |   | x |
-| Can delete the shotlist       |   |   | x |
+|                               | Viewers | Commenters | Editors | Owner |
+| ----------------------------- | ------- | ---------- | ------- | ----- |
+| Can view shots and scenes     | x | x | x | x |
+| Can edit shots and scenes     |   |   | x | x |
+| Can add or remove Attributes  |   |   | x | x |
+| Can comment on Shots          |   | x | x | x |
+| Can export the shotlist       | x | x | x | x |
+| Can see or edit collaborators |   |   |   | x |
+| Can delete the shotlist       |   |   |   | x |
 
 Collaborators can also be **removed** from a shotlist entirely using the trash bin button.
 
