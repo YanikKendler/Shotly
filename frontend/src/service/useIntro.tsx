@@ -3,6 +3,7 @@ import {Check, ChevronLeft, ChevronRight} from "lucide-react"
 import {driver, DriveStep} from "driver.js"
 import Analytics from "@/service/Analytics"
 
+//TODO update intros to work with new sidebar
 export default function useIntro({
     steps,
     telemetryLocation,

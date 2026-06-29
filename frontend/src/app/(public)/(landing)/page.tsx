@@ -298,7 +298,7 @@ export default function Landing() {
                                     under={
                                         <Image
                                             src={"/landing-shotlist-image/shotlist-light-mobile.webp"}
-                                            alt={"Image of a shotlist with multiple shots listed and floating buttons to open the shotlist options"}
+                                            alt={"Image of a shotlist with multiple shots listed and floating buttons to open the shotlist settings"}
                                             width={580}
                                             height={1069}
                                         />
@@ -319,7 +319,7 @@ export default function Landing() {
                                     under={
                                         <Image
                                             src={"/landing-shotlist-image/shotlist-dark-mobile.webp"}
-                                            alt={"Image of a shotlist with multiple shots listed and floating buttons to open the shotlist options"}
+                                            alt={"Image of a shotlist with multiple shots listed and floating buttons to open the shotlist settings"}
                                             width={583}
                                             height={1071}
                                         />

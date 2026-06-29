@@ -7,18 +7,18 @@ To work on the same shotlist with others, invite friends or colleagues using the
 
 ## Adding Collaborators
 
-Collaborators can only be added to specific shotlists, one at a time. To **add a collaborator**, open the `Shotlist Options` in the bottom left and select the `Collaborators` tab.
+Collaborators can only be added to specific shotlists, one at a time. To **add a collaborator**, click on the collaborators icon in the left sidebar.
 
-Using the input field at the bottom and the `invite` button, you can now add a collaborator using their email. <!-- There is no option to search for a user by their name or parts of their email to prevent the leakage of email addresses -->.
+Using the input field at the bottom and the `invite` button, you can now add a collaborator using their email. <!-- There is no option to search for a user by their name or parts of their email to prevent the leakage of email addresses. -->
 
 Only valid email addresses can be added as collaborators. You will see an error message if you enter a syntactically valid email that is not linked to an existing Shotly account.
 
-!!! Edgecase
+??? Edgecase
     It is technically possible for the same email to be used in two different Shotly accounts by logging in with both "email & password" and "Google" using the same email. In that case, both accounts will be added as a collaborator. In the collaboration tab, all Google logins will be marked with a small "G" icon next to the email address.
 
 ## Accepting Collaborations
 
-If your account has been **invited** to collaborate on a shotlist, you will not immediately see that shotlist on your [dashboard](../dashboard.md). You first have to accept the collaboration invite by clicking the `Collaborations` button on the bottom left of your [dashboard](../dashboard.md) (this button is not visible when viewing a shotlist). You may need to refresh the request using the button in the top right before you can see new invites.
+If your account has been **invited** to collaborate on a shotlist, you will not immediately see that shotlist on your [dashboard](../dashboard.md). You first have to accept the collaboration invite by clicking the inbox icon in the left sidebar. You may need to refresh the request using the button in the top right before you can see new invites.
 
 You can now **accept** or **decline** the request by clicking the checkmark or X icon. Upon accepting, the shotlist will show up both in your sidebar and on your dashboard. If you decline the request, it will disappear, and the shotlist's owner can **resend the request**.
 
@@ -47,4 +47,4 @@ If a collaborator declined a collaboration request, a new button will appear in 
 
 ## Leaving Collaborations
 
-As a Collaborator you can leave any shotlist by opening the `Shotlist Options` dialog in the bottom left, navigating to "Collaborators" and clicking the `Leave` button. If you are the shotlist owner, you cannot leave the shotlist.
+As a Collaborator you can leave any shotlist by opening the modal via the "Collaborators" icon in the left sidebar and clicking the `Leave` button. If you are the shotlist owner, you cannot leave the shotlist.

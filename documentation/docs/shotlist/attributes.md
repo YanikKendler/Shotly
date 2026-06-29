@@ -1,6 +1,6 @@
 # Attributes
 
-The attributes for all scenes and shots of a given shotlist can be controlled in one central location: `Shotlist options` > `Attributes`.
+The attributes for all scenes and shots of a given shotlist can be controlled via the Attribute settings by clicking the "table" icon in the left sidebar.
 
 Currently, Shotly supports three types of attributes:
 

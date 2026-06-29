@@ -10,7 +10,7 @@ This also means that deleting a template has **no effect** on any shotlists. <!-
 
 Templates can be edited by selecting a template from the **sidebar** or **dashboard**. 
 
-New "attribute templates" can be added using the `Add scene attribute` / `Add shot attribute` buttons. These reflect the [attributes](./shotlist/attributes.md) that will later be created in the shotlist.
+New "attribute templates" can be added using the `New` buttons. These reflect the [attributes](./shotlist/attributes.md) that will later be created in the shotlist.
 
 Attribute templates can be **reordered** by dragging the 6-dots on the left, they can be **deleted** using the trash bin icon to the right.
 

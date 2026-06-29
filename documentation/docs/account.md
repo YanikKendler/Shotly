@@ -5,7 +5,7 @@ You can log into Shotly by using either your email and password or Google.
 !!! Info
     Shotly will never send you spamy marketing emails or similar. Your email is primarily used to provide a unique login and an option to reset your password. The only other time you will receive an email from Shotly is if I personally reach out to you.
 
-You can manage your account at any time by clicking on `Account` in the lower left of the sidebar.
+You can manage your account at any time by clicking on the "User" icon in the lower left of the sidebar.
 
 ---
 
@@ -32,7 +32,7 @@ In this dialog you can also change your user settings:
 
 ### Blocked users
 
-This row allows you to view and unblock users by clicking the `Manage` button. This opens a dialog where you can see all users that you have blocked via the [Collaborations Popup](dashboard.md#collaborations) on the dashboard. 
+This row allows you to view and unblock users by clicking the `Manage` button. This opens a dialog where you can see all users that you have blocked via the Collaborations Popup in the left sidebar. 
 
 The following happens when blocking a user:
 

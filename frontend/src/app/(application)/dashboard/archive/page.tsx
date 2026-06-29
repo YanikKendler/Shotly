@@ -142,7 +142,7 @@ export default function Archive(){
                         &&
                         <p className="empty">
                             Nothing here yet. <br/>
-                            You can archive shotlists via the "Shotlist Options" modal.
+                            You can archive shotlists via the Shotlist settings.
                         </p>
                     }
                     {

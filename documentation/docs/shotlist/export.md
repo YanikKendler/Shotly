@@ -1,6 +1,8 @@
 # Export
 
-Shotlists can be exported via the `Shotlist Options` > `Export` dialog by any [Collaborator](./collaboration.md) who can view the shotlist. Before exporting, the shotlist can be filtered to include only specific shots or scenes.
+Shotlists can be exported via the download icon in the left sidebar, which opens the export dialog.
+
+Any [Collaborator](./collaboration.md) who can view the shotlist can also export it. Before exporting, the shotlist can be filtered to include only specific shots or scenes.
 
 By default all export settings are stored locally even if you close shotly or re-start your device. You can change this behavior using the [Account dialog](../account.md#settings)
 
@@ -39,7 +41,7 @@ Using the **Scenes** filter, you can control which scenes to include in the expo
 
 ## Visisble Attributes
 
-Allows you to select which attributes you want to be displayed for scenes/shots. All attributes will still be used for filters. they are only visually hidden. For example, you can filter your shots to only include scenes with a specific actor and then hide the "Actor" attribute since it is redundant.
+Allows you to **select which attributes are displayed** for scenes/shots. All attributes will still be used for filters, they are only visually hidden. For example, you can filter your shots to only include scenes with a specific actor and then hide the "Actor" attribute since it is redundant.
 
 ## Custom filters
 
@@ -47,9 +49,9 @@ Using the `Add filter` button, you can add a **Custom filter** for any multi-sel
 
 The following modes are available, they can be cycled by clicking on the current condition.
 
-- `IS ONE OF`: one or more of the selected options have to be selected in the attribute
-- `IS EXACTLY`: exactly the selected options have to be selected in the attribute
-- `IS NOT`: none of the selected options are allowed to be selected in the attribute
+- `IS ONE OF`: one or more of the selected options have to be present in the attribute
+- `IS EXACTLY`: exactly the selected options have to be present in the attribute
+- `IS NOT`: none of the selected options are allowed to be present in the attribute
 
 Filters can be removed using the `X` button on the right.
     

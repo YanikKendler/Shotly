@@ -63,7 +63,7 @@ const ShotlistFloater = forwardRef<ShotlistFloaterRef, ShotlistFloaterProps>(({
             {
                 reloadInProgress &&
                 <SimpleTooltip
-                    text={"The reload is automatically triggered when either you or a collaborator make changes to the shotlist options like adding/removing attributes."}
+                    text={"The reload is automatically triggered when either you or a collaborator make changes to the shotlist settings like adding/removing attributes."}
                     fontSize={0.85}
                     offset={0}
                     delay={0}
