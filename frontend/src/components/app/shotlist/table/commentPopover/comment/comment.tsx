@@ -23,6 +23,7 @@ export interface CommentProps {
     onUpdateComment: (comment: CommentDto) => void
 }
 
+//TODO display created time
 const Comment = forwardRef<CommentRef, CommentProps>(({
     comment,
     onUpdateComment,

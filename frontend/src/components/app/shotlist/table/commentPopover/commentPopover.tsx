@@ -28,7 +28,6 @@ export interface CommentPopoverProps {
     showOnHover: boolean
 }
 
-//TODO docs
 const CommentPopover = forwardRef<CommentPopoverRef, CommentPopoverProps>(({
     isOpen,
     onOpenChange,

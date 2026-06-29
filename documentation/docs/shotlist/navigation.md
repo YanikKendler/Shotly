@@ -33,6 +33,7 @@ The shotlist supports the following keybinds:
     - can be closed using `Esc`
 - A new shot can be created using `Alt + N`, `Alt + Enter` or `Control + Enter`.
 - The context menu for shots can be opened using `Alt + .` and while the menu is open:
+    - A [Comment](./comments.md) can be added using `C`
     - The Shot can be deleted using `Del`
     - The Shot can be moved using `↑` or `↓`
     - The Shot Attributes can be edited using `E`

@@ -30,6 +30,7 @@ nav:
   - Collaborators: shotlist/collaboration.md
   - Export: shotlist/export.md
   - Archive: shotlist/archive.md
+  - Comments: shotlist/comments.md
 plugins:
   - open-in-new-tab
   - search
