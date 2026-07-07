@@ -1289,6 +1289,9 @@ export type User = {
   /** ISO-8601 */
   lastActiveAt?: Maybe<Scalars['DateTime']['output']>;
   name?: Maybe<Scalars['String']['output']>;
+  pro: Scalars['Boolean']['output'];
+  /** ISO-8601 */
+  proPaidUntil?: Maybe<Scalars['DateTime']['output']>;
   /** ISO-8601 */
   revokeProAfter?: Maybe<Scalars['Date']['output']>;
   shotlists?: Maybe<Array<Maybe<Shotlist>>>;
@@ -1359,7 +1362,8 @@ export enum UserTier {
   Basic = 'BASIC',
   Pro = 'PRO',
   ProFree = 'PRO_FREE',
-  ProStudent = 'PRO_STUDENT'
+  ProStudent = 'PRO_STUDENT',
+  ProSuspended = 'PRO_SUSPENDED'
 }
 
 export type ArchiveQueryVariables = Exact<{ [key: string]: never; }>;
@@ -1946,7 +1950,7 @@ export type ShotsQuery = { __typename?: 'Query', shots?: Array<{ __typename?: 'S
           | { __typename?: 'ShotSingleSelectAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
           | { __typename?: 'ShotTextAttributeDefinitionDTO', id?: any | null, name?: string | null, position: number }
          | null }
-     | null> | null, activeComments?: Array<{ __typename?: 'CommentDTO', id?: string | null, text?: string | null, edited?: boolean | null, shotId?: string | null, owner?: { __typename?: 'UserMinimalDTO', id?: string | null, name?: string | null } | null } | null> | null } | null> | null };
+     | null> | null, activeComments?: Array<{ __typename?: 'CommentDTO', id?: string | null, text?: string | null, edited?: boolean | null, shotId?: string | null, createdAt?: any | null, owner?: { __typename?: 'UserMinimalDTO', id?: string | null, name?: string | null } | null } | null> | null } | null> | null };
 
 export type CreateShotMutationVariables = Exact<{
   sceneId: Scalars['String']['input'];
@@ -2153,7 +2157,7 @@ export type OnShotlistUpdateSubscriptionVariables = Exact<{
 
 export type OnShotlistUpdateSubscription = { __typename?: 'Subscription', shotlistUpdates?: { __typename?: 'ShotlistUpdateDTO', type?: ShotlistUpdateType | null, userId?: string | null, timestamp?: any | null, payload?:
       | { __typename?: 'CollaborationPayload', userId?: string | null, type?: CollaborationType | null }
-      | { __typename?: 'CommentPayload', comment?: { __typename?: 'CommentDTO', id?: string | null, text?: string | null, edited?: boolean | null, shotId?: string | null, sceneId?: string | null, archived?: boolean | null, owner?: { __typename?: 'UserMinimalDTO', id?: string | null, name?: string | null } | null } | null }
+      | { __typename?: 'CommentPayload', comment?: { __typename?: 'CommentDTO', id?: string | null, text?: string | null, edited?: boolean | null, shotId?: string | null, sceneId?: string | null, archived?: boolean | null, createdAt?: any | null, owner?: { __typename?: 'UserMinimalDTO', id?: string | null, name?: string | null } | null } | null }
       | { __typename?: 'EmptyPayload', success: boolean }
       | { __typename?: 'PresentCollaboratorsPayload', collaborators?: Array<{ __typename?: 'PresentCollaborator', joinedAt?: any | null, selectedSceneId?: string | null, user?: { __typename?: 'UserMinimalDTO', id?: string | null, name?: string | null } | null } | null> | null }
       | { __typename?: 'SceneAttributePayload', attribute?:
@@ -4633,6 +4637,7 @@ export const ShotsDocument = gql`
       text
       edited
       shotId
+      createdAt
     }
     sceneId
   }
@@ -5585,6 +5590,7 @@ export const OnShotlistUpdateDocument = gql`
           shotId
           sceneId
           archived
+          createdAt
         }
       }
       ... on EmptyPayload {

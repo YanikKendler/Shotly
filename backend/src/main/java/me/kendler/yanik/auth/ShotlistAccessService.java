@@ -37,7 +37,7 @@ public class ShotlistAccessService {
             return false;
         }
 
-        if(owner.tier == UserTier.BASIC && owner.shotlists.size() > 1){
+        if(!owner.isPro() && owner.shotlists.size() > 1){
             return false;
         }
 

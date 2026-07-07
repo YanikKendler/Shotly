@@ -1,0 +1,45 @@
+.banner{
+  width: 100%;
+  padding-block: .2rem;
+  padding-inline: .5rem;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  font-size: .8rem;
+  display: flex;
+  align-items: center;
+  background-color: var(--accent-92);
+
+  &.vibrant{
+    background-color: var(--accent);
+    color: var(--contrast);
+
+    a, button {
+      &:hover {
+        background-color: var(--accent-55);
+      }
+    }
+  }
+
+  div.content{
+    display: flex;
+    align-items: center;
+    margin-inline: auto;
+    margin-block: .3rem;
+    font-size: .8rem;
+    gap: 1ch;
+
+    a, button {
+      font-weight: bold;
+      text-decoration: underline;
+      font-size: .8rem;
+    }
+  }
+
+  button {
+    &:hover {
+      background-color: var(--transparent-accent-20);
+    }
+  }
+}

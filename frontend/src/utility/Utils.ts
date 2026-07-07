@@ -1,7 +1,7 @@
 import {wuConstants, wuText} from "@yanikkendler/web-utils/dist"
 import {ThemeConfig} from "react-select"
 import {AnySceneAttribute, SelectOption, ShotlistOrTemplate} from "@/utility/Types"
-import {CollaborationType, SceneDto, ShotlistDto} from "../../lib/graphql/generated"
+import {CollaborationType, SceneDto, ShotlistDto, UserDto, UserMinimalDto} from "../../lib/graphql/generated"
 import {NetworkStatus} from "@apollo/client"
 import {UserSettings} from "@/components/app/dialogs/accountDialog/accountDialog"
 import Config from "@/Config"
@@ -297,6 +297,12 @@ export default class Utils {
             case CollaborationType.Edit: return asRole ? 'Editor' : 'Edit'
             case CollaborationType.View: return asRole ? 'Viewer' : 'View'
         }
+    }
+
+    static userIsPro(user: UserDto | UserMinimalDto | null) {
+        if(user == null) return false
+
+        return user.tier == "PRO" || user.tier == "PRO_FREE" || user.tier == "PRO_STUDENT"
     }
 }
 

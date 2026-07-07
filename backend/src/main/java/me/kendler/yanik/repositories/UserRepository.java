@@ -33,6 +33,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -160,11 +161,28 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
     @Transactional
     public UserDTO getCurrentUserDTO(JsonWebToken jwt) {
         User user = findOrCreateByJWT(jwt);
-        if(user.tier != UserTier.BASIC && user.revokeProAfter != null && user.revokeProAfter.isBefore(LocalDate.now())){
-            LOGGER.infof("Revoking %s from user %s due to subscription expiration", user.tier.name(), user.toString());
+
+        if(
+            user.tier != UserTier.BASIC &&
+            user.tier != UserTier.PRO &&
+            user.revokeProAfter != null &&
+            user.revokeProAfter.isBefore(LocalDate.now())
+        ){
+            LOGGER.infof("Revoking %s from user %s because revokeProAfter Date has been reached", user.tier.name(), user.toString());
             user.tier = UserTier.BASIC;
             persist(user);
         }
+
+        if(
+            user.tier == UserTier.PRO &&
+            user.proPaidUntil != null &&
+            user.proPaidUntil.isBefore(LocalDateTime.now())
+        ){
+            LOGGER.infof("Setting tier to suspended for user %s because proPaidUntil Date has been reached");
+            user.tier = UserTier.PRO_SUSPENDED;
+            persist(user);
+        }
+
         return user.toDTO();
     }
 

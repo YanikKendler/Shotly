@@ -40,3 +40,14 @@ DROP CONSTRAINT collaboration_collaborationtype_check;
 ALTER TABLE collaboration
 ADD CONSTRAINT collaboration_collaborationtype_check
 CHECK (collaborationtype IN ('EDIT', 'COMMENT', 'VIEW'));
+
+-- PRO SUSPENDED
+
+ALTER TABLE app_user ADD COLUMN propaiduntil TIMESTAMP WITH TIME ZONE;
+
+ALTER TABLE app_user
+DROP CONSTRAINT app_user_tier_check;
+
+ALTER TABLE app_user
+ADD CONSTRAINT app_user_tier_check
+CHECK (tier IN ('BASIC', 'PRO', 'PRO_FREE', 'PRO_STUDENT', 'PRO_SUSPENDED'));

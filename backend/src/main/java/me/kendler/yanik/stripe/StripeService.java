@@ -1,7 +1,6 @@
 package me.kendler.yanik.stripe;
 
 import com.stripe.Stripe;
-import com.stripe.exception.InvalidRequestException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
 import com.stripe.model.checkout.Session;
@@ -22,6 +21,9 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -57,7 +59,7 @@ public class StripeService {
         if (prices.getData().isEmpty()) {
             throw new ShotlyException("No price found for lookup key: " + lookupKey, ShotlyErrorCode.NOT_FOUND);
         }
-        String priceId = prices.getData().get(0).getId();
+        String priceId = prices.getData().getFirst().getId();
 
         User user = userRepository.findOrCreateByJWT(jwt);
 
@@ -199,12 +201,13 @@ public class StripeService {
         Object obj = eventDataObjectDeserializer.getObject().get();
 
         switch (event.getType()) {
-            case "checkout.session.completed":
+            case "checkout.session.completed" -> {
                 Session session = (Session) obj;
-                String userIdFromSessionMetadata = session.getMetadata().get("userId");
+
+                String userId = session.getMetadata().get("userId");
                 String stripeCustomerId = session.getCustomer();
 
-                if (userIdFromSessionMetadata == null) {
+                if (userId == null) {
                     LOGGER.error("No userId metadata found in checkout.session.completed event: " + event.toJson());
                     return false;
                 }
@@ -213,72 +216,143 @@ public class StripeService {
                     return false;
                 }
 
-                User userToUpdate = userRepository.findById(UUID.fromString(userIdFromSessionMetadata));
-                if (userToUpdate == null) {
-                    LOGGER.error("User not found for userId from session metadata: " + userIdFromSessionMetadata);
+                User user = userRepository.findById(UUID.fromString(userId));
+                if (user == null) {
+                    LOGGER.error("User not found for userId from session metadata: " + userId);
                     return false;
                 }
 
-                if (userToUpdate.stripeCustomerId == null || userToUpdate.stripeCustomerId.isEmpty()) {
-                    userToUpdate.stripeCustomerId = stripeCustomerId;
-                    userRepository.persist(userToUpdate);
-                    LOGGER.info("User " + userToUpdate.name + " updated with Stripe Customer ID: " + stripeCustomerId);
+                if (user.stripeCustomerId == null || user.stripeCustomerId.isEmpty()) {
+                    user.stripeCustomerId = stripeCustomerId;
+                    userRepository.persist(user);
+                    LOGGER.info("User " + user.name + " updated with Stripe Customer ID: " + stripeCustomerId);
                 } else {
-                    LOGGER.info("User " + userToUpdate.name + " already has Stripe Customer ID: " + userToUpdate.stripeCustomerId);
+                    LOGGER.info("User " + user.name + " already has Stripe Customer ID: " + user.stripeCustomerId);
                 }
-                break;
+            }
+            case "customer.subscription.created", "customer.subscription.updated", "customer.subscription.deleted" -> {
+                Subscription subscription = (Subscription) obj;
+                String userId = subscription.getMetadata().get("userId");
 
-            case "customer.subscription.created":
-            case "customer.subscription.updated":
-            case "customer.subscription.deleted":
-                Subscription sub = (Subscription) obj;
-                String userIdMetadata = sub.getMetadata().get("userId");
-
-                if (userIdMetadata == null) {
+                if (userId == null) {
                     LOGGER.error("No userId metadata found in subscription event: " + event.toJson());
                     return false;
                 }
 
-                User user = userRepository.findById(UUID.fromString(userIdMetadata));
+                User user = userRepository.findById(UUID.fromString(userId));
                 if (user == null) {
-                    LOGGER.error("User not found for userId from subscription metadata: " + userIdMetadata);
+                    LOGGER.error("User not found for userId from subscription metadata: " + userId);
                     return false;
                 }
 
-                LOGGER.info("Found user for subscription event: " + user.name);
+                LOGGER.info("Found user for subscription event: " + user);
 
                 switch (event.getType()) {
-                    case "customer.subscription.created":
-                        LOGGER.info("Subscription created for user: " + user.name + ", ID: " + sub.getId());
+                    case "customer.subscription.created" -> {
+                        LOGGER.info("Subscription created for user: " + user + ", ID: " + subscription.getId());
+
                         user.tier = UserTier.PRO;
+
+                        SubscriptionItem item = subscription.getItems().getData().getFirst();
+                        Long periodEndSeconds = item.getCurrentPeriodEnd();
+                        user.proPaidUntil = LocalDateTime.ofInstant(
+                                Instant.ofEpochSecond(periodEndSeconds),
+                                ZoneOffset.UTC
+                        );
+
                         userRepository.persist(user);
-                        break;
-                    case "customer.subscription.updated":
-                        LOGGER.info("Subscription updated for user: " + user.name + ", status: " + sub.getStatus());
-                        if (sub.getCancelAtPeriodEnd()) {
-                            LOGGER.info("User: " + user.name + " has cancelled his subscription.");
+                    }
+                    case "customer.subscription.updated" -> {
+                        LOGGER.info("Subscription updated for user: " + user + ", status: " + subscription.getStatus());
+
+                        if (subscription.getCancelAtPeriodEnd()) {
+                            LOGGER.info("User: " + user + " has cancelled his subscription.");
                             user.hasCancelled = true;
                         }
-                        if(sub.getStatus().equals("active")) {
-                            LOGGER.info("User: " + user.name + " remains as PRO.");
-                            user.tier = UserTier.PRO;
-                        } else if (sub.getStatus().equals("canceled") || sub.getStatus().equals("unpaid")) {
-                            LOGGER.info("User: " + user.name + " subscription is no longer active. Downgrading to BASIC.");
-                            user.tier = UserTier.BASIC;
-                        }
-                        userRepository.persist(user);
-                        break;
-                    case "customer.subscription.deleted":
-                        LOGGER.info("Subscription deleted for user: " + user.name + ", ID: " + sub.getId());
-                        user.tier = UserTier.BASIC;
-                        userRepository.persist(user);
-                        break;
-                }
-                break;
 
-            default:
-                LOGGER.info("Unhandled Stripe event type: " + event.getType());
-                break;
+                        switch (subscription.getStatus()) {
+                            case "active" -> {
+                                LOGGER.info("User: " + user + " remains as PRO.");
+                                user.tier = UserTier.PRO;
+                            }
+                            case "canceled" -> {
+                                LOGGER.info("User: " + user + " subscription is no longer active. Downgrading to BASIC.");
+                                user.tier = UserTier.BASIC;
+                            }
+                            case "unpaid" -> {
+                                LOGGER.info("User: " + user + " subscription is unpaid. Suspending sub.");
+                                user.tier = UserTier.PRO_SUSPENDED;
+                            }
+                        }
+
+                        userRepository.persist(user);
+                    }
+                    case "customer.subscription.deleted" -> {
+                        LOGGER.info("Subscription deleted for user: " + user + ", ID: " + subscription.getId());
+                        user.tier = UserTier.BASIC;
+                        user.hasCancelled = true;
+                        userRepository.persist(user);
+                    }
+                }
+            }
+            case "invoice.paid" -> {
+                Invoice invoice = (Invoice) obj;
+
+                String userId = invoice.getMetadata().get("userId");
+
+                if (userId == null) {
+                    LOGGER.error("No userId metadata found in invoice event: " + event.toJson());
+                    return false;
+                }
+
+                User user = userRepository.findById(UUID.fromString(userId));
+                if (user == null) {
+                    LOGGER.error("User not found for userId from subscription metadata: " + userId);
+                    return false;
+                }
+
+                LOGGER.info("Found user for subscription event: " + user);
+
+                InvoiceLineItem lineItem = invoice.getLines().getData().getFirst();
+                Long periodEndSeconds = lineItem.getPeriod().getEnd();
+                LocalDateTime proPaidUntil = LocalDateTime.ofInstant(
+                        Instant.ofEpochSecond(periodEndSeconds),
+                        ZoneOffset.UTC
+                );
+
+                user.tier = UserTier.PRO;
+                user.proPaidUntil = proPaidUntil;
+                userRepository.persist(user);
+
+                LOGGER.info("Invoice paid for user: " + user + ", until: " + proPaidUntil.toLocalDate());
+            }
+            case "refund.created" -> {
+                Subscription subscription = (Subscription) obj;
+                String userId = subscription.getMetadata().get("userId");
+
+                if (userId == null) {
+                    LOGGER.error("No userId metadata found in refund event: " + event.toJson());
+                    return false;
+                }
+
+                User user = userRepository.findById(UUID.fromString(userId));
+                if (user == null) {
+                    LOGGER.error("User not found for userId from refund metadata: " + userId);
+                    return false;
+                }
+
+                LOGGER.info("Found user for refund event: " + user);
+
+                if(user.tier == UserTier.PRO || user.tier == UserTier.PRO_SUSPENDED){
+                    user.tier = UserTier.BASIC;
+                    userRepository.persist(user);
+                    LOGGER.info("Removed PRO tier from user " + user);
+                }
+                else {
+                    LOGGER.info("Did not remove pro tier from user " + user + " because user tier is not PRO. Current tier: " + user.tier);
+                }
+            }
+            default -> LOGGER.info("Unhandled Stripe event type: " + event.getType());
         }
 
         return true;

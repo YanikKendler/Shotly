@@ -461,7 +461,7 @@ export default function Shotlist() {
         if (
             query.data.shotlist &&
             query.data.shotlist.owner &&
-            query.data.shotlist.owner.tier == UserTier.Basic &&
+            !Utils.userIsPro(query.data.shotlist.owner) &&
             (
                 !query.data.shotlist.owner.shotlistCount ||
                 query.data.shotlist.owner.shotlistCount > 1

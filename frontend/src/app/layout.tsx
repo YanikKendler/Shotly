@@ -10,7 +10,7 @@ import {Toaster} from "react-hot-toast"
 import {CircleAlert, CircleCheck} from "lucide-react"
 import Link from "next/link"
 import "driver.js/dist/driver.css";
-import DevDeploymentBanner from "@/components/utility/devDeploymentBanner/devDeploymentBanner"
+import Banner from "@/components/basic/banner/banner"
 
 export const metadata: Metadata = {
     description:
@@ -116,7 +116,12 @@ export default function RootLayout({
         </head>
         <body>
             <div className="root">
-                <DevDeploymentBanner/>
+                {
+                    Config.mode == "dev-deployment" &&
+                    <Banner vibrant>
+                        You are currently viewing a development deployment. Please go to <Link className={"inline noPadding"} href={"https://shotly.at"}>Shotly.at</Link> instead.
+                    </Banner>
+                }
 
                 <Tooltip.Provider skipDelayDuration={0}> {/*deactivate instant open of tooltips... kinda: https://github.com/radix-ui/primitives/issues/3873*/}
                     <SkeletonTheme baseColor="var(--skelleton-base-color)" highlightColor="var(--skelleton-highlight-color)">

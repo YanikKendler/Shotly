@@ -2,23 +2,25 @@
 
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import "./accountDialog.scss"
-import {ApolloQueryResult, useApolloClient} from "@apollo/client"
+import {useApolloClient} from "@apollo/client"
 import gql from "graphql-tag"
 import {
     BookText,
-    Bug, GraduationCap,
+    Bug, CircleAlert,
+    GraduationCap,
     LogOut,
     Mail,
     Monitor,
     Moon,
-    Rocket, SquareArrowOutUpRight,
+    Rocket,
+    SquareArrowOutUpRight,
     Sun,
     Trash,
     X
 } from "lucide-react"
 import auth from "@/Auth"
-import {Query, UserDto, UserTier} from "../../../../../lib/graphql/generated"
-import {RadioGroup, Switch, VisuallyHidden} from "radix-ui"
+import {UserTier} from "../../../../../lib/graphql/generated"
+import {RadioGroup, Switch} from "radix-ui"
 import TextField from "@/components/basic/textField/textField"
 import {useConfirmDialog} from "@/components/app/dialogs/confirmDialog/confirmDialog"
 import Loader from "@/components/app/feedback/loader/loader"
@@ -26,13 +28,11 @@ import Link from "next/link"
 import PaymentService from "@/service/PaymentService"
 import Config from "@/Config"
 import Skeleton from "react-loading-skeleton"
-import {wuConstants, wuGeneral} from "@yanikkendler/web-utils/dist"
+import {wuConstants} from "@yanikkendler/web-utils/dist"
 import Slider from "@/components/basic/slider/slider"
 import {BUILD_INFO} from "../../../../../buildinfo"
 import Separator from "@/components/basic/separator/separator";
 import SimpleTooltip from "@/components/basic/tooltip/simpleTooltip"
-import {wuTime} from "@yanikkendler/web-utils"
-import Utils from "@/utility/Utils"
 import toast from "react-hot-toast"
 import {errorNotification, successNotification} from "@/service/NotificationService"
 import Analytics from "@/service/Analytics"
@@ -292,8 +292,10 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
                             {
                                 appContext.currentUser?.tier == UserTier.Basic ?
                                     appContext.currentUser?.hasCancelled == true ?
-                                        <button className={"primary"} onClick={PaymentService.manageSubscription}><Rocket size={18}/>Renew subscription</button> :
+                                        <button className={"primary"} onClick={PaymentService.manageSubscription}><Rocket size={18} strokeWidth={2.5}/>Renew subscription</button> :
                                         <Link className={"primary"} href={"/pro"}><Rocket size={18}/>Upgrade to Pro</Link> :
+                                appContext.currentUser?.tier == UserTier.ProSuspended ?
+                                    <button className={"primary"} onClick={PaymentService.manageSubscription}><CircleAlert size={18} strokeWidth={2.5}/>Reactivate subscription</button> :
                                 appContext.currentUser?.tier == UserTier.Pro ?
                                     <button onClick={PaymentService.manageSubscription}>Manage subscription<SquareArrowOutUpRight size={16}/></button> :
                                 appContext.currentUser?.tier == UserTier.ProStudent ?

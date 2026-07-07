@@ -98,7 +98,7 @@ public class CollaborationRepository implements PanacheRepositoryBase<Collaborat
             throw new ShotlyException("Shotlist with ID " + createDTO.shotlistId() + " not found.", ShotlyErrorCode.NOT_FOUND);
         }
 
-        if(currentUser.tier == UserTier.BASIC && shotlist.collaborations.size() >= 5){
+        if(!currentUser.isPro() && shotlist.collaborations.size() >= 5){
             throw new ShotlyException("Basic users can only have 5 collaborators", ShotlyErrorCode.COLLABORATOR_LIMIT_REACHED);
         }
 

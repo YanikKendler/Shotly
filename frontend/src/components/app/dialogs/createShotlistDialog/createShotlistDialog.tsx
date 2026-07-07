@@ -16,6 +16,7 @@ import Dialog, {DialogRef} from "@/components/basic/dialog/dialog"
 import Skeleton from "react-loading-skeleton"
 import Config from "@/Config"
 import {AppContext} from "@/context/AppContext"
+import Utils from "@/utility/Utils"
 
 export function useCreateShotlistDialog() {
     const dialogElementRef = useRef<DialogRef>(null);
@@ -90,7 +91,7 @@ export function useCreateShotlistDialog() {
             </div>
         </>
     else if(
-        appContext.currentUser?.tier == UserTier.Basic &&
+        !Utils.userIsPro(appContext.currentUser) &&
         appContext.currentUser?.shotlistCount &&
         appContext.currentUser?.shotlistCount >= 1
     )

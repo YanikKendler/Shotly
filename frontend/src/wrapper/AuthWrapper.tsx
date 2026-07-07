@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useState} from 'react';
+import {Fragment, useEffect, useState} from 'react';
 import {usePathname} from 'next/navigation';
 import auth from "@/Auth"
 
@@ -24,7 +24,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
                 forceUpdate();
             }
         } catch (err: any) {
-            if (err.error === 'login_required') {
+            if (err.error === 'login_required' || err.error === 'consent_required') {
                 auth.logout();
                 return;
             }
@@ -32,5 +32,5 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
         }
     }
 
-    return <div className={"AuthWrapper"} key={version}>{children}</div>;
+    return <Fragment key={version}>{children}</Fragment>;
 }

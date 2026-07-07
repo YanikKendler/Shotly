@@ -17,7 +17,7 @@ export default class PaymentService {
             errorNotification({
                 message: data.message,
                 title: "Could not redirect to billing portal",
-                sub: "Please contact yanik@shotly.at."
+                sub: "Please contact yanik@shotly.at." //TODO change to support@shotly.at
             })
             return
         }

@@ -132,8 +132,6 @@ export default function Landing() {
             y: distanceToCenterRatio.y
         }
 
-        console.log(distanceToCenterRatio)
-
         element.style.rotate = `${angle.y} ${angle.x} 0 ${distanceToCenterRatio.d * 3 * strength}deg`;
     }
 

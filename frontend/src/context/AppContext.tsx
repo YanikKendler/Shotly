@@ -2,13 +2,16 @@
 
 import React, {createContext, Dispatch, ReactNode, RefObject, SetStateAction, useEffect, useRef, useState} from "react"
 import {ApolloQueryResult, useApolloClient} from "@apollo/client"
-import {Query, UserDto} from "../../lib/graphql/generated"
+import {Query, UserDto, UserTier} from "../../lib/graphql/generated"
 import {usePathname} from "next/navigation"
 import gql from "graphql-tag"
 import {errorNotification, infoNotification} from "@/service/NotificationService"
 import auth from "@/Auth"
 import LoadingPage from "@/components/app/feedback/loadingPage/loadingPage"
 import ErrorPage from "@/components/app/feedback/errorPage/errorPage"
+import Banner from "@/components/basic/banner/banner"
+import Link from "next/link"
+import PaymentService from "@/service/PaymentService"
 
 export interface VisibleOverlay{
     close: () => void,
@@ -177,7 +180,19 @@ export const AppContextProvider = ({
         {
             initialLoadComplete
                 ?
-            children
+            <>
+                {
+                    currentUser?.tier == UserTier.ProSuspended &&
+                    <Banner vibrant>
+                        <p>
+                            Your <span className="bold">Shotly Pro subscription is suspended</span> due to a billing
+                            issue. Update your payment details to restore access.
+                        </p>
+                        <button className={"text"} onClick={PaymentService.manageSubscription}>Manage Subscription</button>
+                    </Banner>
+                }
+                {children}
+            </>
                 :
             <LoadingPage/>
         }

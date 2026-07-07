@@ -1,7 +1,5 @@
 import {ReadOnlyReason} from "@/app/(application)/shotlist/[id]/page"
-import {useState} from "react"
-import {X} from "lucide-react"
-import "./readOnlyBanner.scss"
+import Banner from "@/components/basic/banner/banner"
 
 export default function ReadOnlyBanner({
     isReadOnly,
@@ -10,9 +8,7 @@ export default function ReadOnlyBanner({
     isReadOnly: boolean,
     readOnlyReason: ReadOnlyReason
 }) {
-    const [bannerHidden, setBannerHidden] = useState(false)
-
-    if(!isReadOnly || bannerHidden) return null
+    if(!isReadOnly) return null
 
     let humanReadableReason = "[unknown reason]"
 
@@ -32,16 +28,8 @@ export default function ReadOnlyBanner({
     }
 
     return (
-        <div className="readOnlyBanner">
-            <p>
-                You can not edit this Shotlist because {humanReadableReason}.
-            </p>
-            <button
-                className={"round"}
-                onClick={() => setBannerHidden(true)}
-            >
-                <X size={16}/>
-            </button>
-        </div>
+        <Banner>
+            You can not edit this Shotlist because {humanReadableReason}.
+        </Banner>
     )
 }

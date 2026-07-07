@@ -10,6 +10,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
@@ -48,6 +49,7 @@ public class User extends PanacheEntityBase {
     public boolean hasCancelled = false;
     public boolean isActive = true;
     public LocalDate revokeProAfter;
+    public LocalDateTime proPaidUntil;
     public String howDidYouHearReason;
     @Version
     public Long version; //for blocking and retrying actions if user version is outdated
@@ -64,6 +66,10 @@ public class User extends PanacheEntityBase {
         this.email = email;
     }
 
+    public boolean isPro() {
+        return this.tier == UserTier.PRO || this.tier == UserTier.PRO_STUDENT || this.tier == UserTier.PRO_FREE;
+    }
+
     public boolean equals(User user) {
         return this.id.equals(user.id);
     }
@@ -75,7 +81,6 @@ public class User extends PanacheEntityBase {
                 ", auth0Sub='" + auth0Sub + '\'' +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
-                ", createdAt=" + createdAt +
                 '}';
     }
 
