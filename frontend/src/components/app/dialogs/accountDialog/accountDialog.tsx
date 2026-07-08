@@ -292,7 +292,7 @@ export function useAccountDialog(onOpenChange?: (isOpen: boolean) => void) {
                             {
                                 appContext.currentUser?.tier == UserTier.Basic ?
                                     appContext.currentUser?.hasCancelled == true ?
-                                        <button className={"primary"} onClick={PaymentService.manageSubscription}><Rocket size={18} strokeWidth={2.5}/>Renew subscription</button> :
+                                        <Link className={"primary"} href={"/pro"}><Rocket size={18} strokeWidth={2.5}/>Renew subscription</Link> :
                                         <Link className={"primary"} href={"/pro"}><Rocket size={18}/>Upgrade to Pro</Link> :
                                 appContext.currentUser?.tier == UserTier.ProSuspended ?
                                     <button className={"primary"} onClick={PaymentService.manageSubscription}><CircleAlert size={18} strokeWidth={2.5}/>Reactivate subscription</button> :

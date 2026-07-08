@@ -326,32 +326,6 @@ public class StripeService {
 
                 LOGGER.info("Invoice paid for user: " + user + ", until: " + proPaidUntil.toLocalDate());
             }
-            case "refund.created" -> {
-                Subscription subscription = (Subscription) obj;
-                String userId = subscription.getMetadata().get("userId");
-
-                if (userId == null) {
-                    LOGGER.error("No userId metadata found in refund event: " + event.toJson());
-                    return false;
-                }
-
-                User user = userRepository.findById(UUID.fromString(userId));
-                if (user == null) {
-                    LOGGER.error("User not found for userId from refund metadata: " + userId);
-                    return false;
-                }
-
-                LOGGER.info("Found user for refund event: " + user);
-
-                if(user.tier == UserTier.PRO || user.tier == UserTier.PRO_SUSPENDED){
-                    user.tier = UserTier.BASIC;
-                    userRepository.persist(user);
-                    LOGGER.info("Removed PRO tier from user " + user);
-                }
-                else {
-                    LOGGER.info("Did not remove pro tier from user " + user + " because user tier is not PRO. Current tier: " + user.tier);
-                }
-            }
             default -> LOGGER.info("Unhandled Stripe event type: " + event.getType());
         }
 

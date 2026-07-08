@@ -26,7 +26,7 @@ export default function Pro(){
         />
     )
 
-    else if(appContext.currentUser.tier == UserTier.Pro)
+    if(appContext.currentUser.tier == UserTier.Pro)
         content = (
             <>
                 <h1>You already own Shotly Pro!</h1>
