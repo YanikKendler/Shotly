@@ -178,8 +178,14 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
             user.proPaidUntil != null &&
             user.proPaidUntil.isBefore(LocalDateTime.now())
         ){
-            LOGGER.infof("Setting tier to suspended for user %s because proPaidUntil Date has been reached");
-            user.tier = UserTier.PRO_SUSPENDED;
+            if(user.hasCancelled){
+                LOGGER.infof("Setting tier to basic for user %s because proPaidUntil Date has been reached and user has cancelled their subscription");
+                user.tier = UserTier.BASIC;
+            }
+            else {
+                LOGGER.infof("Setting tier to suspended for user %s because proPaidUntil Date has been reached but user has not cancelled their subscription, assuming payment failed");
+                user.tier = UserTier.PRO_SUSPENDED;
+            }
             persist(user);
         }
 

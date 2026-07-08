@@ -252,6 +252,7 @@ public class StripeService {
                         LOGGER.info("Subscription created for user: " + user + ", ID: " + subscription.getId());
 
                         user.tier = UserTier.PRO;
+                        user.hasCancelled = false;
 
                         SubscriptionItem item = subscription.getItems().getData().getFirst();
                         Long periodEndSeconds = item.getCurrentPeriodEnd();
@@ -268,6 +269,9 @@ public class StripeService {
                         if (subscription.getCancelAtPeriodEnd()) {
                             LOGGER.info("User: " + user + " has cancelled his subscription.");
                             user.hasCancelled = true;
+                        }
+                        else {
+                            user.hasCancelled = false;
                         }
 
                         switch (subscription.getStatus()) {
@@ -295,7 +299,7 @@ public class StripeService {
                     }
                 }
             }
-            case "invoice.paid" -> {
+            case "invoice.paid", "invoice.payment_failed" -> {
                 Invoice invoice = (Invoice) obj;
 
                 String userId = invoice.getMetadata().get("userId");
@@ -313,18 +317,27 @@ public class StripeService {
 
                 LOGGER.info("Found user for subscription event: " + user);
 
-                InvoiceLineItem lineItem = invoice.getLines().getData().getFirst();
-                Long periodEndSeconds = lineItem.getPeriod().getEnd();
-                LocalDateTime proPaidUntil = LocalDateTime.ofInstant(
-                        Instant.ofEpochSecond(periodEndSeconds),
-                        ZoneOffset.UTC
-                );
+                switch (event.getType()) {
+                    case "invoice.paid" -> {
+                        InvoiceLineItem lineItem = invoice.getLines().getData().getFirst();
+                        Long periodEndSeconds = lineItem.getPeriod().getEnd();
+                        LocalDateTime proPaidUntil = LocalDateTime.ofInstant(
+                                Instant.ofEpochSecond(periodEndSeconds),
+                                ZoneOffset.UTC
+                        );
 
-                user.tier = UserTier.PRO;
-                user.proPaidUntil = proPaidUntil;
-                userRepository.persist(user);
+                        user.tier = UserTier.PRO;
+                        user.proPaidUntil = proPaidUntil;
+                        userRepository.persist(user);
 
-                LOGGER.info("Invoice paid for user: " + user + ", until: " + proPaidUntil.toLocalDate());
+                        LOGGER.info("Invoice paid for user: " + user + ", until: " + proPaidUntil.toLocalDate());
+                    }
+                    case "invoice.payment_failed" -> {
+                        LOGGER.info("Invoice payment failed for user: " + user + ", invoice ID: " + invoice.getId());
+                        user.tier = UserTier.PRO_SUSPENDED;
+                        userRepository.persist(user);
+                    }
+                }
             }
             default -> LOGGER.info("Unhandled Stripe event type: " + event.getType());
         }
