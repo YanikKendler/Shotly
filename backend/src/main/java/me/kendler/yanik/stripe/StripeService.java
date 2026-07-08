@@ -11,6 +11,7 @@ import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import me.kendler.yanik.error.ShotlyErrorCode;
 import me.kendler.yanik.error.ShotlyException;
@@ -18,6 +19,7 @@ import me.kendler.yanik.model.User;
 import me.kendler.yanik.model.UserTier;
 import me.kendler.yanik.repositories.UserRepository;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
 
@@ -190,12 +192,17 @@ public class StripeService {
     }
 
     @Transactional
-    public boolean handleWebhook(Event event){
+    @Retry(
+            retryOn = OptimisticLockException.class,
+            maxRetries = 3,
+            delay = 200
+    )
+    public void handleWebhook(Event event){
         EventDataObjectDeserializer eventDataObjectDeserializer = event.getDataObjectDeserializer();
 
         if (eventDataObjectDeserializer.getObject().isEmpty()) {
             LOGGER.warn("Webhook event data object is empty: " + event.toJson());
-            return false;
+            return;
         }
 
         Object obj = eventDataObjectDeserializer.getObject().get();
@@ -209,17 +216,17 @@ public class StripeService {
 
                 if (userId == null) {
                     LOGGER.error("No userId metadata found in checkout.session.completed event: " + event.toJson());
-                    return false;
+                    return;
                 }
                 if (stripeCustomerId == null) {
                     LOGGER.error("No customer ID found in checkout.session.completed event: " + event.toJson());
-                    return false;
+                    return;
                 }
 
                 User user = userRepository.findById(UUID.fromString(userId));
                 if (user == null) {
                     LOGGER.error("User not found for userId from session metadata: " + userId);
-                    return false;
+                    return;
                 }
 
                 if (user.stripeCustomerId == null || user.stripeCustomerId.isEmpty()) {
@@ -236,13 +243,13 @@ public class StripeService {
 
                 if (userId == null) {
                     LOGGER.error("No userId metadata found in subscription event: " + event.toJson());
-                    return false;
+                    return;
                 }
 
                 User user = userRepository.findById(UUID.fromString(userId));
                 if (user == null) {
                     LOGGER.error("User not found for userId from subscription metadata: " + userId);
-                    return false;
+                    return;
                 }
 
                 LOGGER.info("Found user for subscription event: " + user);
@@ -302,46 +309,45 @@ public class StripeService {
             case "invoice.paid", "invoice.payment_failed" -> {
                 Invoice invoice = (Invoice) obj;
 
-                String userId = invoice.getMetadata().get("userId");
+                String userId = invoice.getLines().getData().getFirst().getMetadata().get("userId");
 
                 if (userId == null) {
                     LOGGER.error("No userId metadata found in invoice event: " + event.toJson());
-                    return false;
+                    return;
                 }
 
                 User user = userRepository.findById(UUID.fromString(userId));
                 if (user == null) {
-                    LOGGER.error("User not found for userId from subscription metadata: " + userId);
-                    return false;
+                    LOGGER.error("User not found for userId from invoice metadata: " + userId);
+                    return;
                 }
 
-                LOGGER.info("Found user for subscription event: " + user);
+                LOGGER.info("Found user for invoice event: " + user);
+
+                InvoiceLineItem lineItem = invoice.getLines().getData().getFirst();
+                Long periodEndSeconds = lineItem.getPeriod().getEnd();
+                LocalDateTime proPaidUntil = LocalDateTime.ofInstant(
+                        Instant.ofEpochSecond(periodEndSeconds),
+                        ZoneOffset.UTC
+                );
+                user.proPaidUntil = proPaidUntil;
 
                 switch (event.getType()) {
                     case "invoice.paid" -> {
-                        InvoiceLineItem lineItem = invoice.getLines().getData().getFirst();
-                        Long periodEndSeconds = lineItem.getPeriod().getEnd();
-                        LocalDateTime proPaidUntil = LocalDateTime.ofInstant(
-                                Instant.ofEpochSecond(periodEndSeconds),
-                                ZoneOffset.UTC
-                        );
-
                         user.tier = UserTier.PRO;
-                        user.proPaidUntil = proPaidUntil;
-                        userRepository.persist(user);
 
                         LOGGER.info("Invoice paid for user: " + user + ", until: " + proPaidUntil.toLocalDate());
                     }
                     case "invoice.payment_failed" -> {
-                        LOGGER.info("Invoice payment failed for user: " + user + ", invoice ID: " + invoice.getId());
                         user.tier = UserTier.PRO_SUSPENDED;
-                        userRepository.persist(user);
+
+                        LOGGER.infof("Invoice payment failed for user: %s, invoice Id: %s, paid until: %s", user, invoice.getId(), proPaidUntil);
                     }
                 }
+
+                userRepository.persist(user);
             }
             default -> LOGGER.info("Unhandled Stripe event type: " + event.getType());
         }
-
-        return true;
     }
 }

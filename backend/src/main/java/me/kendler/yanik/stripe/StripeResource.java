@@ -16,10 +16,9 @@ import jakarta.ws.rs.core.Response;
 import me.kendler.yanik.error.ShotlyException;
 import me.kendler.yanik.rateLimiting.RateLimited;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.context.ManagedExecutor;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.jwt.JsonWebToken;
-
-//TODO secure via auth header
 
 @Path("/stripe")
 @RateLimited("medium")
@@ -29,6 +28,9 @@ public class StripeResource {
 
     @Inject
     StripeService stripeService;
+
+    @Inject
+    ManagedExecutor managedExecutor;
 
     @ConfigProperty(name = "stripe.webhook-secret")
     String webhookSecret;
@@ -63,11 +65,6 @@ public class StripeResource {
     @POST
     @Path("/webhook")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Retry(
-        retryOn = OptimisticLockException.class,
-        maxRetries = 3,
-        delay = 200
-    )
     public Response webhook(@Context HttpHeaders headers, String payload) {
         String signature = headers.getHeaderString("Stripe-Signature");
 
@@ -78,9 +75,9 @@ public class StripeResource {
             return Response.status(400).build();
         }
 
-        if(!stripeService.handleWebhook(event)) {
-            return Response.status(400).build();
-        }
+        managedExecutor.submit(() -> {
+            stripeService.handleWebhook(event);
+        });
 
         return Response.ok().build();
     }
