@@ -72,6 +72,7 @@ export function useCreateShotlistDialog() {
                 tryAgainLater: true
             })
             console.error(errors)
+            dialogElementRef.current?.close()
             return
         }
 

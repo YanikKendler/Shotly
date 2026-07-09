@@ -119,7 +119,7 @@ export default function RootLayout({
                 {
                     Config.mode == "dev-deployment" &&
                     <Banner vibrant>
-                        You are currently viewing a development deployment. Please go to <Link className={"inline noPadding"} href={"https://shotly.at"}>Shotly.at</Link> instead.
+                        <p>You are currently viewing a development deployment. Please go to <Link className={"inline noPadding"} href={"https://shotly.at"}>Shotly.at</Link> instead.</p>
                     </Banner>
                 }
 

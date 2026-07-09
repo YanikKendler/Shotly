@@ -58,6 +58,7 @@ export function useCreateTemplateDialog() {
                 tryAgainLater: true
             })
             console.error(errors)
+            dialogElementRef.current?.close()
             return
         }
 
