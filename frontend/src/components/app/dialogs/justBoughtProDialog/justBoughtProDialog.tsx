@@ -4,6 +4,7 @@ import "./justBoughtProDialog.scss"
 import {DashboardContext, DialogStep} from "@/context/DashboardContext"
 import Config from "@/Config"
 import Dialog, {DialogRef} from "@/components/basic/dialog/dialog"
+import {PartyPopper, Rocket} from "lucide-react"
 
 export default function JustBoughtProDialog(){
     const router = useRouter()
@@ -11,7 +12,6 @@ export default function JustBoughtProDialog(){
 
     const searchParams = useSearchParams()
     const justBoughtPro = searchParams?.get('jbp') === 'true'
-    const [justBoughtProDialogOpen, setJustBoughtProDialogOpen] = useState<boolean>(justBoughtPro)
 
     const dialogRef = useRef<DialogRef>(null);
 
@@ -39,8 +39,13 @@ export default function JustBoughtProDialog(){
             contentClassName={"justBoughtProDialogContent"}
         >
             <h2>Thank you for subscribing to Shotly Pro!</h2>
-            <p className={"financing"}>You are financing the development and server costs of Shotly, I am very grateful for that.</p>
-            <p className={"issues"}>I hope you are satisfied with your purchase! If you do however encounter any problems, please don't hesitate to contact me via the account tab.</p>
+            <div className="iconContainer">
+                <div className="left">
+                    <p className={"financing"}>You are financing the development and server costs of Shotly, I am very grateful for that.</p>
+                    <p className={"issues"}>I hope you are satisfied with your purchase! If you do however encounter any problems, please don't hesitate to contact me via the help menu in the bottom right.</p>
+                </div>
+                <Rocket size={80} strokeWidth={1.25} className={"icon"}/>
+            </div>
             <button onClick={() => dialogRef.current?.setOpen(false)}>Start creating</button>
         </Dialog>
     )

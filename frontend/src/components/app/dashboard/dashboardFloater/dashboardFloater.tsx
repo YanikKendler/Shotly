@@ -4,12 +4,13 @@ import HelpLink from "@/components/app/helpLink/helpLink";
 import {usePathname} from "next/navigation";
 import {errorNotification, successNotification} from "@/service/NotificationService";
 import {wuAnimate, wuConstants} from "@yanikkendler/web-utils";
-import {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
-import {Menu, RefreshCw} from "lucide-react";
+import {Dispatch, SetStateAction, useContext, useRef, useState} from "react";
+import {RefreshCw} from "lucide-react";
 import {ApolloQueryResult} from "@apollo/client"
 import {Query} from "../../../../../lib/graphql/generated"
 import ViewPortSwitcher from "@/components/utility/viewportSwitcher/viewPortSwitcher"
 import Separator from "@/components/basic/separator/separator";
+import {AppContext} from "@/context/AppContext"
 
 export default function DashboardFloater({
     reloadDashboardData,
@@ -19,6 +20,7 @@ export default function DashboardFloater({
     setRefreshSignal: Dispatch<SetStateAction<number>>
 }){
     const pathname = usePathname()
+    const appContext = useContext(AppContext)
 
     const refreshButtonRef = useRef<HTMLButtonElement>(null)
     const [refreshBlocked, setRefreshBlocked] = useState(false)
@@ -30,6 +32,8 @@ export default function DashboardFloater({
 
         setRefreshBlocked(true)
         setRefreshSignal(current => current + 1)
+
+        appContext.reloadCurrentUser()
 
         reloadDashboardData()
             .then(() => {

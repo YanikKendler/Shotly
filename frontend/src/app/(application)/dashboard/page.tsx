@@ -29,21 +29,17 @@ export default function Overview() {
 
     const intro = useIntro({
         steps: [
-            { popover: { title: 'Welcome to Shotly', description: 'You will now get a quick tour of the Dashboard.' } },
+            {
+                popover: {
+                    title: 'Welcome to Shotly',
+                    description: 'You will now get a quick tour of the Dashboard.'
+                }
+            },
             {
                 element: '.sidebar',
                 popover: {
                     title: 'The Sidebar',
-                    description: 'Here you see all your shotlists and Templates. You currently dont have any Shotlists, but a default Template was automatically created!',
-                    side: "right",
-                    align: 'center'
-                }
-            },
-            {
-                element: '.sidebar .content .list .bottom',
-                popover: {
-                    title: 'Account & Activity',
-                    description: 'Shotlist invites will be visible under "Collaborations". Using the "Account" button you can modify your account and change your settings.',
+                    description: 'Here you see all your Shotlists and Templates, you can also navigate to the account settings, the archive and the see collaboration requests.',
                     side: "right",
                     align: 'center'
                 }

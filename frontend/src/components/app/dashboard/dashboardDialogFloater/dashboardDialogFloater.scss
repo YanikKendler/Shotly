@@ -10,7 +10,6 @@
     flex-direction: column;
     gap: .5rem;
     max-height: 100svh;
-    overflow-y: auto;
   }
 
   &.dialogMode {
@@ -23,7 +22,6 @@
     background-color: var(--floater-dialog-bg);
     padding: 1rem;
     border-radius: .5rem;
-    box-shadow: 5px 5px 15px 5px hsla(0, 0%, 0%, 20%);
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -89,7 +87,7 @@
       &.main {
         background-color: var(--accent);
 
-        &:hover {
+        &:not([disabled]):hover {
           background-color: var(--accent-60);
         }
       }
@@ -98,7 +96,7 @@
         color: var(--accent);
         background-color: var(--transparent-accent-10);
 
-        &:hover {
+        &:not([disabled]):hover {
           background-color: var(--transparent-accent-20);
         }
       }
