@@ -65,7 +65,7 @@ public class ShotlistSyncResource {
     public boolean syncShotlistCellSelected(UUID shotlistId, SelectedCellPayload payload) {
         User user = userRepository.findOrCreateByJWT(jwt);
 
-        accessService.checkEdit(shotlistId, jwt);
+        accessService.checkView(shotlistId, jwt);
 
         syncService.broadcast(
             shotlistId,
@@ -83,7 +83,7 @@ public class ShotlistSyncResource {
     public boolean syncShotlistSceneSelected(UUID shotlistId, SelectedScenePayload payload) {
         User user = userRepository.findOrCreateByJWT(jwt);
 
-        accessService.checkEdit(shotlistId, jwt);
+        accessService.checkView(shotlistId, jwt);
 
         syncService.updateCollaboratorScene(shotlistId, user.id, payload.sceneId());
 
@@ -103,7 +103,7 @@ public class ShotlistSyncResource {
     public boolean syncShotlistSceneAttributeSelected(UUID shotlistId, SelectedSceneAttributePayload payload) {
         User user = userRepository.findOrCreateByJWT(jwt);
 
-        accessService.checkEdit(shotlistId, jwt);
+        accessService.checkView(shotlistId, jwt);
 
         syncService.broadcast(
             shotlistId,
