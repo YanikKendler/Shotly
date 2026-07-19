@@ -1,20 +1,27 @@
 .dashboardDialogFloater {
-  &.floating {
-    position: absolute;
-    right: .5rem;
-    bottom: .5rem;
-    z-index: 10;
-    width: 400px;
-    max-width: calc(100vw - 1rem);
-    display: flex;
-    flex-direction: column;
-    gap: .5rem;
-    max-height: 100svh;
+  overflow-y: auto;
+  container-type: scroll-state;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  height: 100svh;
+  padding: .5rem;
+
+  @media screen and (max-width: 500px){
+      backdrop-filter: blur(10px);
+      padding-bottom: 3rem;
   }
 
-  &.dialogMode {
-    > div {
-      margin-bottom: 1rem;
+  @container scroll-state(scrollable: y) {
+    &::after{
+      content: "";
+      height: 5rem;
+      flex-shrink: 0;
     }
   }
 
@@ -26,6 +33,7 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    box-shadow: -.1rem .1rem .5rem .2rem light-dark(var(--transparent-gray-30), transparent);
 
     h3{
       font-weight: bold;
