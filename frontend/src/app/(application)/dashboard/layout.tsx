@@ -103,13 +103,13 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
         const latestVersionUsed = localStorage.getItem(Config.localStorageKey.latestVersionUsed)
 
         if(
-            !latestVersionUsed &&
-            new Date(appContext.currentUser.createdAt).getTime() < Date.now() - wuConstants.Time.msPerHour
+            (
+                !latestVersionUsed &&
+                new Date(appContext.currentUser.createdAt).getTime() < Date.now() - wuConstants.Time.msPerHour
+            ) ||
+            Utils.isNewerVersion(latestVersionUsed, CHANGELOG[0].version) ||
+            Config.OVERRIDE_INTRO_CHECKS
         ){
-            setChangelogFloaterVisible(true)
-        }
-
-        if(Utils.isNewerVersion(latestVersionUsed, CHANGELOG[0].version)){
             setChangelogFloaterVisible(true)
         }
     }, [dialogStep, appContext.currentUser])
