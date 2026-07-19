@@ -23,7 +23,8 @@ import ViewPortSwitcher from "@/components/utility/viewportSwitcher/viewPortSwit
 import {useScreenWidth} from "@/utility/useScreenWidth"
 
 export interface ShotlistSidebarRef {
-    openSceneList: () => void
+    openSceneList: () => void,
+    closeSceneList: () => void
 }
 
 export interface ShotlistSidebarProps {
@@ -68,7 +69,8 @@ const ShotlistSidebar = forwardRef<ShotlistSidebarRef, ShotlistSidebarProps>(({
     }, [query.data.shotlist?.name])
 
     useImperativeHandle(ref, () => ({
-        openSceneList: () => setContentVisible(true)
+        openSceneList: () => setContentVisible(true),
+        closeSceneList: () => setContentVisible(false),
     }))
 
     const updateShotlistName = async (name: string) => {

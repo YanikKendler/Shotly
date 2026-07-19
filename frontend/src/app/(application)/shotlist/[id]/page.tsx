@@ -8,8 +8,6 @@ import {
     Query,
     SceneDto,
     ShotAttributeDefinitionBase,
-    UserMinimalDto,
-    UserTier
 } from "../../../../../lib/graphql/generated"
 import {useParams, useRouter, useSearchParams} from "next/navigation"
 import './shotlist.scss'
@@ -94,10 +92,40 @@ export default function Shotlist() {
 
     const intro = useIntro({
         steps: [
-            { popover: { title: 'Your first Shotlist', description: 'This is where the fun beginns!' } },
-            { element: '#sceneList', popover: { title: 'Scenes', description: 'Every scene has the same attributes(like location, time, actors etc.) which are defined via the shotlist options.', side: "right", align: 'center' }},
-            { element: '#shotTable', popover: { title: 'Shots', description: 'Here you see all the shots of the currently selected scene. Each shot has a few attributes which are defined via the shotlist options.', side: "over", align: 'center' }},
-            { element: '#shotlistOptions', popover: { title: 'Shotlist Options', description: 'Click here to open the shotlist options menu.', side: "top", align: 'center' }},
+            { popover: {
+                title: 'Your first Shotlist',
+                description: 'This is where the fun beginns!'
+            } },
+            { element: '#sceneList', popover: {
+                title: 'Scenes',
+                description: 'Here you can navigate between scenes, edit their attributes and create a new scene.',
+                side: "right",
+                align: 'center',
+                onPopoverRender: () => {
+                    sidebarRef.current?.openSceneList()
+                },
+            }},
+            { element: '#additionalTools', popover: {
+                title: 'Shotlist Options',
+                description: 'Here you can customize the scene/shot attributes, manage collaborators, export the shotlist and more.',
+                side: "right",
+                align: 'center',
+                onPopoverRender: () => {
+                    sidebarRef.current?.closeSceneList()
+                },
+            }},
+            { element: '#shotTable', popover: {
+                title: 'Shots',
+                description: 'Here you see all the shots of the currently selected scene. Each shot has a few attributes which are defined via the shotlist options.',
+                side: "over",
+                align: 'center'
+            }},
+            { element: '.sheetRow:has(.sheetCell.create)', popover: {
+                title: 'Get started',
+                description: 'Click here to create a new shot.',
+                side: "bottom",
+                align: 'center'
+            }},
         ],
         telemetryLocation: "Shotlist"
     })
@@ -126,20 +154,18 @@ export default function Shotlist() {
     }, [id])
 
     useEffect(() => {
-        //intro tour
-        if(!query.loading && !query.error && query.data && query.data.shotlist && query.data.shotlist.id) {
-            if(localStorage.getItem(Config.localStorageKey.shotlistTourCompleted) != "true") {
-                localStorage.setItem(Config.localStorageKey.shotlistTourCompleted, "true")
-                intro.show()
-            }
-        }
-
         if(
             query.loading ||
             !query.data.shotlist ||
             !query.data.shotlist?.scenes ||
             !query.data.shotlist?.scenes[0]
         ) return
+
+        //intro tour
+        if(localStorage.getItem(Config.localStorageKey.shotlistTourCompleted) != "true" || Config.OVERRIDE_INTRO_CHECKS) {
+            localStorage.setItem(Config.localStorageKey.shotlistTourCompleted, "true")
+            intro.show()
+        }
 
         if(
             (

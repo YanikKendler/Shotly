@@ -214,7 +214,7 @@ const CollaborationRequestsPopup = forwardRef<
             open={collaborationRequestOpen}
             onOpenChange={setCollaborationRequestOpen}
         >
-            <Popover.Anchor>
+            <Popover.Anchor style={{height: "fit-content"}}>
                 <NavigationItem
                     Icon={Inbox}
                     action={() => setCollaborationRequestOpen(current => !current)}

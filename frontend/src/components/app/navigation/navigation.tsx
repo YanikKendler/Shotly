@@ -2,7 +2,6 @@ import {Archive, House, User} from "lucide-react"
 import "./navigation.scss"
 import {useAccountDialog} from "@/components/app/dialogs/accountDialog/accountDialog"
 import {ReactNode, useContext, useRef} from "react"
-import {ShotlistContext} from "@/context/ShotlistContext"
 import NavigationItem from "@/components/app/navigation/navigationItem"
 import CollaborationRequestsPopup
     , {
@@ -86,7 +85,9 @@ export default function Navigation({
                 />
             </div>
             <div className="bottom">
-                {additionalTools}
+                <div id={"additionalTools"}>
+                    {additionalTools}
+                </div>
                 <ViewPortSwitcher breakpoint={600} over={<>
                     {additionalTools && <Separator/>}
                     {renderTools()}
